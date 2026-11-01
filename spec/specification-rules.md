@@ -34,12 +34,13 @@ of an implementation. Separate agreed decisions, proposals, and open questions.
 | `name = expression ;` | Production definition |
 | `"text"` | Exact terminal; `\"` and `\\` escape quote and backslash in this notation |
 | `a, b` | Concatenation |
-| `a \| b` | Alternatives |
 | `[ a ]` | Optional: zero or one occurrence |
 | `{ a }` | Repetition: zero or more occurrences |
 | `( a )` | Grouping |
 | `(* text *)` | Grammar comment; not an HGL comment |
 | `? description ?` | Lexical special sequence, defined precisely in adjacent prose |
+
+Alternatives use `a | b`.
 
 Grouping, option, and repetition bind before concatenation; concatenation binds
 before alternatives. A quoted comma or semicolon is an HGL terminal; an unquoted
