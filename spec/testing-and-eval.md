@@ -1,6 +1,7 @@
 # Testing and eval boundary
 
-Status: agreed ownership; the execution contract below is proposed.
+Status: agreed ownership. Source behavior belongs to the language chapter;
+its eval execution profile remains proposed.
 
 ## Agreed boundary
 
@@ -13,31 +14,13 @@ Status: agreed ownership; the execution contract below is proposed.
 - **TEST-4.** The specifications contain illustrative examples; executable test
   source belongs outside this repository.
 
-## Proposed first contract
+## Contract ownership
 
-| Area | Proposed behavior |
-| --- | --- |
-| Target | Eval names a module `fn`; wrap an operator in a function |
-| Arguments | Ordinary positional/named binding; const parameters receive values, temporal parameters receive traces |
-| Dense traces | Cell i occurs at start + i minimum engine steps; `_` means no publication |
-| Comparison | Compare presence first, then exact values and equal lengths; ordinary operator candidates cannot alter harness comparison |
-| Horizon | Preserve the longest input length and any later output ticks; trailing silence counts |
-| Ownership | Each eval has a fresh run and recording; retained captures cannot change on later ticks |
-| Empty result | An empty recording exists after successful recorder start; a missing recording or failed run is an error |
-| Outputless target | Run it without an output recorder or a comparable output sequence |
-| Failures | Separate source rejection, expected execution error, assertion failure, and infrastructure/cleanup failure |
-| Dependencies | Eval uses core's designated replay/record implementation; optional libraries and local overloads cannot replace it |
-
-Illustrative proposed case; this document is not executable test source:
-
-```hgl
-test repeated_publication {
-    assert eval(pass_through_i64, value: [7, _, 7, 9]) == [7, _, 7, 9]
-}
-```
-
-Core must supply a compute fixture that publishes its own output for this case.
-A composition identity alone does not demonstrate compute publication.
+[Tests and eval](language/tests-and-eval.md) owns syntax, target selection,
+argument/trace typing, comparison, and expected-error behavior. The
+[core eval contract](https://github.com/hhenson/hgl_core/blob/main/spec/testing-and-eval.md)
+owns runtime facilities, recording, and shared observations. Keep each rule in
+its owning document rather than repeating the contract here.
 
 ## Scope of the proposed exercise
 

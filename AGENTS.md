@@ -1,6 +1,8 @@
 # Specification rules
 
 - Keep documents and discussions terse. Avoid extended dialogue.
+- Apply the agreed [authoring rules](spec/specification-rules.md) and
+  [chapter structure](spec/language-structure.md).
 - This repository contains specification and explanation documents, plus
   repository metadata. Put no executable HGL, native source, or tooling here.
 - Use `spec/` for rules, example code/APIs, and useful diagrams. Add explanations

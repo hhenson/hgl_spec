@@ -21,9 +21,10 @@ Date: 2026-11-01. Status: agreed ownership; semantic details remain proposed.
 - **SPEC-7 — Decisions.** Track open questions and pending decisions in issues,
   outside specification and explanation documents.
 
-## Proposed next scope
+## Language baseline
 
-Agree the [specification rules](specification-rules.md) and
-[base language structure](language-structure.md) first. Extract source-text and
-module rules, then use a scalar example to connect types, phases, temporal
-meaning, and [testing and eval](testing-and-eval.md) to core's observations.
+The [specification rules](specification-rules.md) and
+[base language structure](language-structure.md) are agreed. The
+[language chapters](language/README.md) consolidate reviewed source meaning,
+with proposed extensions labelled. Refine them through practical examples and
+core's independently specified observations.

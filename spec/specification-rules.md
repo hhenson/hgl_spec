@@ -1,7 +1,6 @@
 # Language specification rules
 
-Status: proposed authoring conventions. Language semantics remain undecided
-unless a rule is separately marked agreed.
+Status: agreed authoring conventions. Feature semantics retain their own status.
 
 ## Agreed foundation
 
@@ -12,7 +11,7 @@ of an implementation. Label agreed decisions and proposals. Keep open questions
 and decision checklists in the repository's issue tracker, outside specification
 and explanation documents.
 
-## Proposed authority and status
+## Authority and status
 
 - **WRITE-1.** Grammar defines syntax; semantic rules define meaning and
   admission. Neither implementation behavior nor an example adds a rule.
@@ -27,7 +26,7 @@ and explanation documents.
   failure where relevant. Use `must`/`must not` for obligations and `may` for an
   explicit permitted choice; put recommendations in explanations.
 
-## Proposed EBNF
+## EBNF
 
 - **WRITE-4.** Use one project-defined EBNF notation in fenced `ebnf` blocks.
   Grammar punctuation is metanotation; it does not introduce HGL punctuation.
@@ -62,17 +61,10 @@ grammar standard.
   forms in rules. Keep type, phase, scope, and capability constraints out of
   syntax productions unless they actually change the admitted syntax.
 
-Notation illustration only; this does not accept module syntax:
+The [module grammar](language/units-and-names.md) demonstrates these conventions;
+its lexer tokens are defined in [source text](language/source-text.md).
 
-```ebnf
-module_decl = "module", module_path, [ "part", IDENTIFIER ] ;
-module_path = IDENTIFIER, { ".", IDENTIFIER } ;
-```
-
-`IDENTIFIER` is a lexer token whose spelling belongs in the source-text chapter.
-Its exact definition remains proposed until that chapter is reviewed.
-
-## Proposed section form
+## Section form
 
 - **WRITE-8.** Use this order within a feature section. Omit an item when it adds
   nothing. Track unresolved obligations in issues rather than filling them by
