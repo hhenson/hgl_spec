@@ -39,14 +39,7 @@ test repeated_publication {
 Core must supply a compute fixture that publishes its own output for this case.
 A composition identity alone does not demonstrate compute publication.
 
-## Open
-
-- Accept the table as a bounded scalar contract, or amend individual rows.
-- Fix the initial scalar types, run origin, and minimum engine step.
-- Define failure codes, cleanup outcomes, and reporting requirements.
-- Define timed traces and source-only eval with an explicit end bound.
-- Decide test metadata, structured reports, and attributed/nested test scopes.
-- Define the host interface for seeded state and observations unavailable in HGL.
+## Scope of the proposed exercise
 
 Timed traces, structural deltas, and richer test syntax are outside the proposed
 first exercise. Their exclusion makes no claim about their eventual design.

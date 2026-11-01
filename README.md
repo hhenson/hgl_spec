@@ -8,6 +8,7 @@ computation. This repository contains specifications and explanations only.
 - [Proposed base language structure](spec/language-structure.md)
 - [Testing and eval boundary](spec/testing-and-eval.md)
 - [Mandatory core contract](https://github.com/hhenson/hgl_core)
+- [Open decisions](https://github.com/hhenson/hgl_spec/issues/2)
 
 Specifications contain rules, illustrative code/APIs, and useful diagrams.
 Explanations are added under `explanations/` when a concept needs justification.

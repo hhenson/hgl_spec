@@ -8,7 +8,9 @@ unless a rule is separately marked agreed.
 Keep specifications and discussions terse. This repository contains documents
 only. Specifications state rules with examples/APIs and useful diagrams;
 explanations justify complex concepts when needed. State contracts independently
-of an implementation. Separate agreed decisions, proposals, and open questions.
+of an implementation. Label agreed decisions and proposals. Keep open questions
+and decision checklists in the repository's issue tracker, outside specification
+and explanation documents.
 
 ## Proposed authority and status
 
@@ -17,8 +19,9 @@ of an implementation. Separate agreed decisions, proposals, and open questions.
   Resolve a conflict between grammar, rules, and examples as a specification
   defect; do not choose an implicit precedence between conflicting statements.
 - **WRITE-2.** Each document states its status. Mixed documents label each
-  agreed/proposed section. An open question specifies no default behavior.
-  Promotion to agreed requires an explicit design decision.
+  agreed/proposed section. Track open questions and pending decisions in issues;
+  they specify no default behavior. Promotion to agreed requires an explicit
+  design decision.
 - **WRITE-3.** Give each semantic obligation a stable, unique rule ID. Preserve
   IDs across moves. State the subject, condition, required observation, and
   failure where relevant. Use `must`/`must not` for obligations and `may` for an
@@ -72,7 +75,8 @@ Its exact definition remains proposed until that chapter is reviewed.
 ## Proposed section form
 
 - **WRITE-8.** Use this order within a feature section. Omit an item when it adds
-  nothing; identify an unresolved obligation rather than filling it by guesswork.
+  nothing. Track unresolved obligations in issues rather than filling them by
+  guesswork or appending questions to the document.
 
 | Item | Content |
 | --- | --- |
@@ -81,7 +85,6 @@ Its exact definition remains proposed until that chapter is reviewed.
 | Rules | Naming, types, phase, evaluation order, effects, and failures as applicable |
 | Examples | Small cases with assumptions and expected observations |
 | Core boundary | Required core capability or the absence of a runtime effect |
-| Open questions | Decisions still required and which rules/cases they block |
 
 - **WRITE-9.** Keep one normative home for each rule. HGL source rules belong
   here; mandatory API behavior belongs in core. Link across that boundary.
@@ -98,12 +101,3 @@ Its exact definition remains proposed until that chapter is reviewed.
 - **WRITE-12.** Put rationale and extended derivations in explanations. Keep
   target symbols, compiler passes, build commands, implementation coverage, and
   historical discussions outside normative language chapters.
-
-## Decisions to agree
-
-1. Adopt normative EBNF with the dialect above, rather than descriptive syntax.
-2. Adopt one production definition and the section form above.
-3. Adopt exact rule/status/example labels and the acceptance process above.
-4. Adopt the [chapter order](language-structure.md) before extracting semantics.
-
-These choices accept no keyword inventory, type domain, or execution policy.

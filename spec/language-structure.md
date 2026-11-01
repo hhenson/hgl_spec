@@ -41,7 +41,7 @@ representations are implementation documentation.
 
 1. Agree specification conventions and this outline.
 2. Draft source text, then units and names. Extract each candidate rule and
-   spelling explicitly; record unresolved cases alongside it.
+   spelling explicitly; record unresolved cases in the issue tracker.
 3. Draft the scalar subset of types/values, expressions/bindings, and
    functions/phases. Use one small example to expose their dependencies.
 4. Specify enough of the temporal model, diagnostics, and test language to
@@ -58,14 +58,7 @@ the remaining inventory optional.
 For each example: list its tokens and productions; resolve its declarations
 and names; assign types and phases; state evaluation and temporal observations;
 identify errors and required core capabilities. If an observation has no rule,
-raise an open question before proposing implementation code.
+record it in the issue tracker before proposing implementation code.
 
 For each chapter: check complete syntax, static meaning, dynamic meaning,
 boundary/failure cases, and examples. A grammar fragment alone is incomplete.
-
-## Open
-
-- Which features are mandatory in the first language edition versus deferred?
-- Does source documentation belong in the base edition or a separate extension?
-- How should portable language conformance fixtures be packaged alongside core?
-- Which diagnostic codes must be fixed before each slice can be accepted?
