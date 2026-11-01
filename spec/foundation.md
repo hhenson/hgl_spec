@@ -21,9 +21,10 @@ Date: 2026-11-01. Status: agreed ownership; semantic details remain proposed.
 
 ## Proposed next scope
 
-Define value and temporal phases, then use
-[testing and eval](testing-and-eval.md) to connect source meaning to core's
-runtime observations. Freeze a small scalar profile before adding collections.
+Agree the [specification rules](specification-rules.md) and
+[base language structure](language-structure.md) first. Extract source-text and
+module rules, then use a scalar example to connect types, phases, temporal
+meaning, and [testing and eval](testing-and-eval.md) to core's observations.
 
 ## Open
 

@@ -4,6 +4,8 @@ The language specification and runtime concepts for HGL, a language for temporal
 computation. This repository contains specifications and explanations only.
 
 - [Foundation charter](spec/foundation.md)
+- [Proposed specification rules](spec/specification-rules.md)
+- [Proposed base language structure](spec/language-structure.md)
 - [Testing and eval boundary](spec/testing-and-eval.md)
 - [Mandatory core contract](https://github.com/hhenson/hgl_core)
 
@@ -12,5 +14,6 @@ Explanations are added under `explanations/` when a concept needs justification.
 Executable HGL, native declarations, and conformance code live in the core or
 library that owns them. Read this repository independently of any implementation.
 
-Status: foundation. Detailed grammar and runtime chapters will follow practical
-examples; proposed behavior below is not yet an accepted language contract.
+Status: foundation. Agree the specification conventions and chapter order first;
+then extract grammar and semantic rules through practical examples. Proposed
+behavior is not yet an accepted language contract.
