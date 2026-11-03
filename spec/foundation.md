@@ -18,16 +18,13 @@ Date: 2026-11-01. Status: agreed ownership; semantic details remain proposed.
   historical repository, or trial record to understand a rule.
 - **SPEC-6 — Writing.** Keep rules and discussions terse. Each rule states one
   obligation. Put substantial justification in an explanation.
+- **SPEC-7 — Decisions.** Track open questions and pending decisions in issues,
+  outside specification and explanation documents.
 
-## Proposed next scope
+## Language baseline
 
-Define value and temporal phases, then use
-[testing and eval](testing-and-eval.md) to connect source meaning to core's
-runtime observations. Freeze a small scalar profile before adding collections.
-
-## Open
-
-- Exact grammar, canonical types, phase boundaries, and mandatory capabilities.
-- Which runtime concepts require language forms versus named core operations.
-- Version alignment between the specification, core API, and conformance pack.
-- Location of executable language-only conformance and rejection fixtures.
+The [specification rules](specification-rules.md) and
+[base language structure](language-structure.md) are agreed. The
+[language chapters](language/README.md) consolidate reviewed source meaning,
+with proposed extensions labelled. Refine them through practical examples and
+core's independently specified observations.
