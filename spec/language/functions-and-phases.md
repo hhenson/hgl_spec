@@ -51,10 +51,12 @@ Local source/native declaration matching is defined in the native chapter.
   `const(argument)` is an ordinary call resolved by the usual naming and
   phase rules; it has no intrinsic function-role selection behavior.
 - **FN-6.** A selected value helper with temporal arguments in composition is
-  lifted: temporal arguments become inputs; scalar/default arguments remain
-  configuration. Any input notification activates the node; all required inputs
-  must be valid. Each admitted evaluation publishes its result, including an
-  equal result. An outputless helper lifts to a sink. All-scalar calls execute
+  lifted: temporal arguments become inputs; scalar arguments and omitted
+  defaults bind as configuration. A supplied temporal argument remains an
+  input even when its parameter has a default. Any input notification activates
+  the node; FN-11 defines admission and binding. Each admitted evaluation
+  publishes its result, including an equal result. An outputless helper lifts
+  to a sink. All-scalar calls execute
   directly and invent no source timing. Ordinary validity is not `all_valid`.
 - **FN-7.** A composition return selects a connection; a runtime return
   publishes and leaves the current handler/evaluation. Completing a runtime
@@ -76,6 +78,22 @@ Local source/native declaration matching is defined in the native chapter.
   expression belong to the body. Parenthesize an anonymous function before
   calling it or applying an operation to the function itself. These boundaries
   select the body extent rather than leaving two interpretations.
+- **FN-11.** A lifted argument with a declared default does not require a valid
+  input: bind the default when that input is invalid. Otherwise, an argument
+  whose value contract admits null does not require a valid input: bind null
+  when it is invalid. Every other input must satisfy ordinary `valid(input)`.
+  A valid value, including a valid null, is supplied as published. Fallback
+  changes admission/binding, not activation, and invents no input tick.
+- **FN-12.** Aggregate lifting passes the current ordinary aggregate value to
+  one helper invocation, not separate elementwise invocations. Use its type's
+  ordinary validity contract. An unsized `list<T>` needs `valid(list_value)`;
+  lifting adds no required size or recursive `all_valid` check. Fixed-size
+  lists and windows retain their own shape/readiness contracts. Unchanged
+  inputs supply retained values; they need not publish together.
+- **FN-13.** Each invocation observes a stable ordinary argument value or an
+  admitted read-only view. Retained results must remain independent of later
+  temporal changes. Lifting does not turn a borrowed view into an owned value
+  or extend its permitted lifetime.
 
 Accepted declaration fragments showing modifier and ordinary-name positions:
 
@@ -125,3 +143,4 @@ proposed harness contract. Deliberate rejection: a temporal call placed inside
 
 Core supplies node admission, capabilities, output and source facilities.
 Language classification determines which facilities a declaration requires.
+Core owns the [lifting observations](https://github.com/hhenson/hgl_core/blob/main/spec/value-function-lifting.md).
