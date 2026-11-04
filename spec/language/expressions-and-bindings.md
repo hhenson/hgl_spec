@@ -205,6 +205,37 @@ are unavailable there. Deliberate source rejection under EXPR-14: binding a
 time-series tolerance to the built-in scalar `abs` option. Core owns executable
 observations; conformance is planned.
 
+Accepted value-function fragments for EXPR-12, with the core `error` policy
+value in scope:
+
+```hgl
+const fn ieee_ratio(a: f64, b: f64) -> f64 => a / b
+const fn checked_ratio(a: f64, b: f64) -> result<f64, error> =>
+    a /{zero: error} b
+```
+
+The return annotations check the distinct selected result types. Deliberate
+source type rejection, without handling the selected result value:
+
+```hgl
+const fn unchecked_ratio(a: f64, b: f64) -> f64 =>
+    a /{zero: error} b
+```
+
+No expected output type silently changes the policy.
+
+Deliberate source rejection under EXPR-12, a bounded expression in a value
+function where `a`/`b` are f64 and `selected_zero` is a runtime policy value
+chosen between `ieee` and `error`:
+
+```hgl
+a /{zero: selected_zero} b
+```
+
+The selector cannot determine the source result type during checking.
+Executable conformance is planned. The [error examples](errors-and-diagnostics.md#checked-division-propagation)
+distinguish returning Err data from explicitly propagating node failure.
+
 ## Proposed structural delta construction
 
 ```ebnf

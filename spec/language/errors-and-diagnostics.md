@@ -129,6 +129,28 @@ const fn price_or_zero(book: dict<str, i64>, key: str) -> i64 {
 Deliberate rejection: use price as a payload before its presence guard.
 An absent strict lookup instead fails with `value.missing_key`. Conformance planned.
 
+## Checked-division propagation
+
+Accepted temporal declaration fragments, with the core `error` policy value
+in scope and an admitted f64 input publication:
+
+```hgl
+fn checked_data(value: f64) -> result<f64, error> {
+    when { return value /{zero: error} 0.0 }
+}
+
+fn propagated(value: f64) -> f64 {
+    when { return (value /{zero: error} 0.0)? }
+}
+```
+
+`checked_data` publishes an ordinary Err carrying `numeric.division_by_zero`;
+it does not fail the node and cannot satisfy an escaping-error assertion.
+In `propagated`, explicit `?` turns the same error into node failure under
+ERR-5, with no successful output publication. This is the catalogued execution
+code's condition. Core owns the [numeric observations](https://github.com/hhenson/hgl_core/blob/main/spec/numeric-operators.md);
+executable conformance is planned.
+
 ## Core boundary
 
 Core supplies failure channels, owned diagnostic data, runtime capture, and

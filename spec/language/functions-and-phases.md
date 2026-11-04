@@ -139,6 +139,33 @@ The function/lifting relationship is agreed. The eval assertion illustrates the
 proposed harness contract. Deliberate rejection: a temporal call placed inside
 `when`. Conformance is planned.
 
+Accepted FN-11 binding illustration using `scale` above, with temporal inputs
+supplied for both parameters. Both endpoints start invalid; a dash denotes no
+publication and does not invalidate a retained input:
+
+| Cycle | Value publication | Factor publication | Arguments bound for the invocation |
+| --- | --- | --- | --- |
+| 0 | 1.0 | — | value 1.0, default factor 2.0; invalid factor does not block admission |
+| 1 | — | 4.0 | retained value 1.0, published factor 4.0 |
+
+The first invocation computes 2.0 and the second 4.0. Factor is a supplied
+temporal argument, so its publication activates evaluation; it is not omitted
+configuration. The ordinary all-required-inputs-valid rule would incorrectly
+suppress cycle 0 here.
+
+Accepted binding cases for a parameter whose admitted value contract permits
+null, with a non-null default D of that contract when stated:
+
+| Declaration contract | Input at an otherwise admitted notification | Bound argument |
+| --- | --- | --- |
+| Nullable, default D | Invalid | D |
+| Nullable, default D | Valid null publication | null |
+| Nullable, no default | Invalid | null |
+
+These cases illustrate default-before-null binding without introducing a new
+nullable type spelling. Core owns the [lifting observations](https://github.com/hhenson/hgl_core/blob/main/spec/value-function-lifting.md);
+executable conformance is planned. The eval profile retains its proposed status.
+
 ## Core boundary
 
 Core supplies node admission, capabilities, output and source facilities.
