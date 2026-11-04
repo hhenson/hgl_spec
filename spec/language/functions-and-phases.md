@@ -46,9 +46,10 @@ Local source/native declaration matching is defined in the native chapter.
   the temporal definition if one exists; runtime/value evaluation chooses the
   value definition. A bad selected signature is an error, not fallback to the
   other role. Two definitions of the same exact role remain duplicates.
-- **FN-5.** `const(name)` explicitly selects the value definition. It neither
-  calls the function nor constructs a node. For an ordinary function named
-  `const`, the selector applies only when its argument names a function.
+- **FN-5.** `const` is a modifier only in a position admitting that modifier.
+  Otherwise it is an ordinary name, including for an operator or function.
+  `const(argument)` is an ordinary call resolved by the usual naming and
+  phase rules; it has no intrinsic function-role selection behavior.
 - **FN-6.** A selected value helper with temporal arguments in composition is
   lifted: temporal arguments become inputs; scalar/default arguments remain
   configuration. Any input notification activates the node; all required inputs
@@ -68,6 +69,34 @@ Local source/native declaration matching is defined in the native chapter.
   caller without adding parameters or activation inputs. Injection does not
   turn a value function into a node. Missing or phase-forbidden capabilities
   reject the call. Constructed nodes own their own output and scheduler.
+- **FN-10.** An arrow body consumes the complete expression up to its enclosing
+  delimiter or significant newline. A comma at the surrounding argument/list
+  level ends the body; a comma in a nested expression does not. Existing
+  newline-continuation rules still apply. Operators and calls within that
+  expression belong to the body. Parenthesize an anonymous function before
+  calling it or applying an operation to the function itself. These boundaries
+  select the body extent rather than leaving two interpretations.
+
+Accepted declaration fragments showing modifier and ordinary-name positions:
+
+```hgl
+const fn const(value: i64) -> i64 => value
+const fn example() -> i64 => const(7)
+```
+
+The first `const` modifies each declaration; the declared name and call use
+ordinary lookup. `example()` returns 7. Executable conformance is planned.
+
+Accepted expression fragments in an accepting context supplying callable types:
+
+```hgl
+apply(fn(x) => x + 1, 7)
+(fn(x) => x + 1)(7)
+```
+
+In the first, `apply` accepts a unary function and a value: the body ends at
+the comma. In the second, the outer call invokes the grouped function and
+returns 8 for integer input. Executable conformance is planned.
 
 | Phase | A temporal argument denotes | Ordinary calls |
 | --- | --- | --- |

@@ -60,16 +60,16 @@ Hard reserved words:
 
 ```text
 module part use as export abstract impl instantiate operator fn cpp struct enum
-const requires is let var state cache inject return if else start when stop
+requires is let var state cache inject return if else start when stop
 for while yield test assert eval true false null bool i64 f64 str bytes any
 date time datetime duration civil_datetime zoned_datetime zoned_time timezone
 ```
 
 - **LEX-9.** `time` is also admitted as a field/member name and named-argument
-  label. `const` may name a function, operator, instantiation, or import; it
-  remains a modifier or value-role selector in the corresponding context.
-- **LEX-10.** Contextual names include `atomic`, `tuple`, `list`, `set`, `dict`,
-  `rolling`, `result`, `error`, `ref`, `signal`, `delta`, `native`, and `type`.
+  label. `const` is a modifier only in positions that admit it; elsewhere it
+  is an ordinary identifier, including callable and imported names (FN-5).
+- **LEX-10.** Contextual names include `const`, `atomic`, `tuple`, `list`, `set`,
+  `dict`, `rolling`, `result`, `error`, `ref`, `signal`, `delta`, `native`, and `type`.
   `switch`, `case`, `default`, `in`, `each`, `unbounded`, and capability names
   acquire their special meaning only in their defined positions. A contextual
   spelling is not globally reserved. `str(value)` is a conversion expression

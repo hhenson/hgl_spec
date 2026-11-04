@@ -18,21 +18,23 @@ postfix_expr = primary_expr, { call_suffix | index_suffix | member_suffix | "?" 
 call_suffix = "(", [ arguments ], ")" ;
 index_suffix = "[", expression, "]" ;
 member_suffix = ".", member_name ;
-primary_expr = literal | IDENTIFIER | "const" | "_" | qualified_name
+primary_expr = literal | IDENTIFIER | qualified_name
              | "(", expression, ")" | tuple_literal | sequence_literal
              | typed_constructor | delta_constructor | type_call
-             | value_selector | function_expr | if_expression
+             | function_expr | if_expression
              | eval_expression | block ;
 arguments = argument, { ",", argument }, [ "," ] ;
 argument = [ member_name, ":" ], expression ;
 tuple_literal = "(", expression, ",", [ expression, { ",", expression }, [ "," ] ], ")" ;
 sequence_literal = "[", [ sequence_entries ], "]" ;
-sequence_entries = sequence_entry, { ",", sequence_entry }, [ "," ] ;
-sequence_entry = ( expression | "_" ), [ ":", ( expression | "_" ) ] ;
+sequence_entries = sequence_values | sequence_pairs ;
+sequence_values = sequence_item, { ",", sequence_item }, [ "," ] ;
+sequence_pairs = sequence_pair, { ",", sequence_pair }, [ "," ] ;
+sequence_pair = sequence_item, ":", sequence_item ;
+sequence_item = expression | "_" ;
 typed_constructor = ( IDENTIFIER | qualified_name ), generic_arguments,
                     "(", [ arguments ], ")" ;
 type_call = ( "str" | "bytes" | "any" ), "(", [ arguments ], ")" ;
-value_selector = "const", "(", IDENTIFIER, ")" ;
 local_decl = ( "let" | "var" ), IDENTIFIER, [ ":", type ], "=", expression
            | "var", IDENTIFIER, ":", type ;
 assignment = place, assignment_operator, expression ;
@@ -43,6 +45,8 @@ const_expression = expression ;
 
 Block/control/function/eval forms are defined in their owning chapters.
 The sequence grammar admits contextual forms; semantic rules restrict their use.
+`const(name)` uses ordinary call syntax and lookup, as specified by FN-5.
+GEN-14 resolves generic construction versus comparison using declaration lookup.
 
 ## Rules
 
@@ -84,6 +88,13 @@ The sequence grammar admits contextual forms; semantic rules restrict their use.
   `_` and timed cells exist only in test traces; outside them a sequence is
   ordinary data and a placeholder is not a value. Tuple syntax does not
   construct graph connections from separate temporal endpoints.
+- **EXPR-9.** Brackets always delimit a sequence. Entries are either all values
+  or all colon-separated pairs; mixing these forms is a source error. `[a]`
+  has one value entry; `[a: b]` has one pair entry, not a standalone pair value.
+  Empty brackets have no entries. The use site and expected type constrain
+  element types, keys, ordering, uniqueness, and placeholder admission; syntax
+  alone does not select a dictionary, timed trace, or sparse delta. `_` is not
+  an ordinary value and remains restricted by EXPR-8 and the trace profile.
 
 Accepted illustration, complete module:
 
@@ -102,16 +113,31 @@ test arithmetic { assert doubled(3) == 6 }
 Deliberate rejection: reading `var result: i64` before assignment. Conformance
 is planned; the shown test is an illustration, not an execution report.
 
+Accepted syntax fragments, with suitable ordinary expressions `a`, `b`, `c`,
+and `d`; use-site admission is checked separately:
+
+```hgl
+[a, b, c]
+[a: b, c: d]
+[a]
+[1s: 7]
+[]
+```
+
+The fourth fragment has one pair entry. It acquires timed-trace meaning only
+at an admitted trace use site. Deliberate syntax rejection under EXPR-9:
+`[a, b: c]`. Executable conformance is planned.
+
 ## Proposed structural delta construction
 
 ```ebnf
 delta_constructor = "delta", "<", type, ">", "(", [ delta_arguments ], ")" ;
 delta_arguments = delta_argument, { ",", delta_argument }, [ "," ] ;
-delta_argument = member_name, ":", ( expression | sparse_entries ) ;
-sparse_entries = "[", [ sparse_entry, { ",", sparse_entry }, [ "," ] ], "]" ;
-sparse_entry = const_expression, ":", expression ;
+delta_argument = member_name, ":", expression ;
 ```
 
+Sparse fields use the shared sequence-of-pairs syntax, including empty brackets;
+their key/index expressions must satisfy the required-constant restrictions.
 Entries retain exact originating shape. Names, key/index types, duplicate
 entries, and fixed bounds are checked before publication admission. Omitted
 children are sparse omissions, not ordinary unset required fields. Construction

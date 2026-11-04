@@ -12,13 +12,13 @@ module_path = IDENTIFIER, { ".", IDENTIFIER } ;
 qualified_name = IDENTIFIER, "::", import_name ;
 use_decl = "use", module_path, ( "::", import_set | "as", IDENTIFIER ) ;
 import_set = "{", import_name, { ",", import_name }, [ "," ], "}" ;
-import_name = IDENTIFIER | "const" ;
+import_name = IDENTIFIER ;
 top_level_item = use_decl | declaration ;
 declaration = function_decl | struct_decl | enum_decl | operator_decl
             | instantiate_decl | native_type_decl | native_function_decl
             | test_decl | test_context ;
 member_name = IDENTIFIER | "time" ;
-callable_name = IDENTIFIER | "const" ;
+callable_name = IDENTIFIER ;
 ```
 
 The referenced declarations belong to their type, function, generic, native,

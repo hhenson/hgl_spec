@@ -60,6 +60,10 @@ grammar standard.
   ambiguities such as generic brackets versus comparisons and newline-sensitive
   forms in rules. Keep type, phase, scope, and capability constraints out of
   syntax productions unless they actually change the admitted syntax.
+  Declaration lookup and expected context may disambiguate shared syntax.
+  If multiple admissible interpretations remain, specify a deterministic
+  preference and require a warning identifying the choice and an explicit
+  spelling. Implementations must not invent their own preference.
 
 The [module grammar](language/units-and-names.md) demonstrates these conventions;
 its lexer tokens are defined in [source text](language/source-text.md).
