@@ -1,5 +1,9 @@
 # Specification rules
 
+- Before every push, check the branch's PR state on GitHub. If its previous PR
+  is merged, fetch `origin/main`, start a fresh `codex/` branch from it, and carry
+  forward only the new changes. Do not push follow-up commits to a merged PR's
+  branch; open a new PR for the fresh branch.
 - Keep documents and discussions terse. Avoid extended dialogue.
 - Apply the agreed [authoring rules](spec/specification-rules.md) and
   [chapter structure](spec/language-structure.md).
