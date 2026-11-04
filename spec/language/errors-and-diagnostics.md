@@ -47,6 +47,11 @@ for proposed features apply only within those proposed profiles.
   folding of executed operations must preserve their execution-failure phase.
   Failure during argument evaluation precedes later admission checks. Do not
   demand cascaded diagnostics after an earlier error prevents checking.
+- **ERR-11.** Numeric policies prefer representable ordinary outcomes and
+  explicit HGL errors over exception mechanisms. NaN, infinity, and an unordered
+  comparison outcome are ordinary data, not execution errors or silence. Core
+  specifies each policy's error outcome; the policy must not silently convert
+  ordinary data into an exception or an error into a successful empty output.
 
 ## Diagnostic catalog
 
