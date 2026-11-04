@@ -41,7 +41,7 @@ arbitrary callable value. `raises` is contextual immediately after assert.
 ## Proposed eval contract
 
 - **TST-5.** Eval selects a module function, binding arguments by its public
-  positional/named rules. Temporal/value role selection follows FN-4/5; a
+  positional/named rules. Temporal/value role selection follows FN-4; a
   selected value helper uses ordinary lifting. An operator is wrapped in a
   function for this profile. Const parameters receive configuration; temporal
   parameters receive contextually typed publication traces.
@@ -50,10 +50,12 @@ arbitrary callable value. `raises` is contextual immediately after assert.
   including silent positions. Materialize through the later of that horizon
   and the last output tick; silent positions remain `_`. An empty supplied
   temporal input has length zero, distinct from source-only eval.
-- **TST-7.** Timed entries use duration offsets from run start or absolute
-  datetime keys. Keys strictly increase; no `_` occurs in timed traces. Within
-  one eval all inputs and expectation use the same dense/timed style. Sparse
-  expectations enumerate exactly the actual output ticks and times.
+- **TST-7.** Timed traces use the sequence-of-pairs syntax in EXPR-9; a
+  one-entry trace is still a sequence. Timed entries use duration offsets from
+  run start or absolute datetime keys. Keys strictly increase; no `_` occurs
+  in timed traces. Within one eval all inputs and expectation use the same
+  dense/timed style. Sparse expectations enumerate exactly the actual output
+  ticks and times.
 - **TST-8.** Eval constructs core replay, the selected target, and core record;
   an outputless target has no recorder or comparable result. Each invocation
   has fresh run state and independent retained captures. An initialized empty

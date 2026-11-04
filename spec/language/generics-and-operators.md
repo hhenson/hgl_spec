@@ -12,17 +12,19 @@ generic_parameter = IDENTIFIER | "...", IDENTIFIER
 generic_arguments = "<", generic_argument, { ",", generic_argument }, [ "," ], ">" ;
 generic_argument = type | const_expression ;
 requires_clause = "requires", constraint_expression ;
-constraint_expression = constraint_term, { ( "&&" | "||" ), constraint_term } ;
+constraint_expression = constraint_or ;
+constraint_or = constraint_and, { "||", constraint_and } ;
+constraint_and = constraint_term, { "&&", constraint_term } ;
 constraint_term = "!", constraint_term | "(", constraint_expression, ")"
-                | constraint_relation | constraint_call | operator_requirement
+                | constraint_relation | constraint_call
                 | "each", IDENTIFIER, "in", constraint_operand,
                   "{", constraint_expression, "}" ;
 constraint_relation = constraint_operand, ( "==" | "in" | "is" ), constraint_operand ;
-constraint_operand = type | const_expression | constraint_call | constraint_set ;
+constraint_operand = type | additive_expr | constraint_set ;
 constraint_set = "{", constraint_operand, { ",", constraint_operand }, [ "," ], "}" ;
-constraint_call = IDENTIFIER, "(", [ constraint_operand, { ",", constraint_operand } ], ")" ;
-operator_requirement = ( IDENTIFIER | qualified_name ), "(",
-                       [ type, { ",", type } ], ")", [ "->", type ] ;
+constraint_call = ( IDENTIFIER | qualified_name ), "(",
+                  [ constraint_operand, { ",", constraint_operand } ], ")",
+                  [ "->", type ] ;
 operator_decl = "operator", callable_name, [ generic_parameters ],
                 function_signature, [ requires_clause ], { operator_properties } ;
 operator_properties = "properties", "<", value_type, { ",", value_type }, ">",
@@ -36,6 +38,8 @@ materialization_argument = type | const_expression | "_" ;
 
 Constraint semantic forms disambiguate type equality, constant equality, and
 operator signatures. This is a restricted compile-time language.
+Unparenthesized relations and Boolean connectives belong to the constraint
+expression; group a constant expression that uses them as operand data.
 
 ## Rules
 
@@ -92,6 +96,31 @@ operator signatures. This is a restricted compile-time language.
   qualification adds no priority, and a repeated variable counts once. Scalar
   configuration separates only otherwise equally specific candidates. A prior
   binding constrains every later occurrence in declared parameter order.
+- **GEN-13.** A generic parameter denotes a type, type pack, or compile-time
+  ordinary value, never a temporal connection or current payload. Infer its
+  kind from signature positions and constraints. An explicit `const N: V`
+  declares a value parameter of ordinary type V. `type(N) in {i64, f64}`
+  constrains the ordinary type of a value parameter N; `T in {i64, f64}`
+  instead constrains a type parameter T. `type(N)` here is compile-time
+  reflection, not a runtime payload read or a general first-class type value.
+  Reject conflicting kinds or an unresolved kind lacking a determining
+  declaration/constraint. Constraining N's type does not resolve N's value.
+- **GEN-14.** Retain `<...>` for generic arguments. In a type position, or
+  following a name resolved to a generic type in an expression, `<` opens
+  generic arguments rather than a comparison. Check each argument against
+  the corresponding parameter kind; shared name syntax is not a second
+  interpretation. Reject an invalid application without comparison fallback.
+  Ordinary `<` and `>` do not order type names. At the current generic nesting
+  level, `>` closes the argument list; parenthesize a greater-than expression
+  used as a constant argument. Nested generic closers follow LEX-8.
+- **GEN-15.** Constraint negation binds before conjunction, which binds before
+  disjunction: `A || B && C` means `A || (B && C)`, for Boolean constraints
+  A, B, and C. Evaluate binding equalities under GEN-3's restrictions.
+- **GEN-16.** Constraint calls share one syntactic form. Resolve their meaning
+  from the referenced declaration or intrinsic: a constraint predicate tests
+  compile-time data; a named operator requirement tests callability with the
+  supplied types. A result arrow constrains that operator's result type and
+  is not admitted on a predicate call. This grants no arbitrary function calls.
 
 Syntax binds these core identities independently of local same-named functions:
 
@@ -118,6 +147,26 @@ fn same<T>(left: T, right: T) -> T => left
 
 Both arguments require the same resolved source type. Deliberate rejection:
 an `impl fn missing` without an operator `missing` in scope. Conformance planned.
+
+Accepted declaration fragments illustrating kind inference and constraints:
+
+```hgl
+struct Box<T> { value: T }
+const fn boxed() -> Box<i64> => Box<i64>(value: 7)
+
+fn preserve<T, N>(items: list<T, N>) -> list<T, N> => items
+
+fn numeric<T>(value: T) -> T requires T in {i64, f64} { return value }
+
+const fn configuration<N>() -> bool requires type(N) in {i64, f64} { return true }
+```
+
+`Box<i64>(value: 7)` constructs the declared generic type; its angle brackets
+are not comparisons. In `preserve`, T is a type and N is a compile-time integer
+size. In `configuration`, N is a compile-time value restricted to those ordinary types;
+its value must still be resolved under GEN-2. These are source illustrations,
+not execution claims. Deliberate source rejection under GEN-13: using the same
+generic as both an element type and a list size. Conformance is planned.
 
 ## Core boundary
 
