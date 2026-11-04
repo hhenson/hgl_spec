@@ -32,7 +32,8 @@ for proposed features apply only within those proposed profiles.
   contextual absence. A non-null fallback has exact V type and is evaluated
   even for a present key. A present zero/false/empty value is not absent.
   Guard an inferred immutable nullable local against null before payload use.
-  This introduces no general nullable annotation or null-return suppression.
+  Explicit nullable annotations follow TYPE-14; this lookup contract adds no
+  null-return suppression.
 - **ERR-7.** In composition, `capture(callable, args...)` creates a temporal
   error boundary. `.value` retains the normal output type; outputless calls
   expose only `.error`. Capture of wiring-time scalar work rejects. Each
@@ -150,6 +151,25 @@ In `propagated`, explicit `?` turns the same error into node failure under
 ERR-5, with no successful output publication. This is the catalogued execution
 code's condition. Core owns the [numeric observations](https://github.com/hhenson/hgl_core/blob/main/spec/numeric-operators.md);
 executable conformance is planned.
+
+## Nullable value refinement
+
+- **ERR-12.** An immutable nullable parameter or local may be tested directly
+  against null. Refine that same binding to T on paths proving a non-null T?
+  value, including after a terminating null branch. Using it where T is
+  required without that proof rejects with `nullable.required_presence`.
+  A null test establishes value presence, not temporal input validity.
+
+The accepted `value_or_zero` example in [types and values](types-and-values.md)
+uses this refinement. Deliberate source rejection:
+
+```hgl
+const fn unchecked(value: f64?) -> f64 => value
+```
+
+The unguarded return requires f64 but still has f64?. Expression `value?` does
+not unwrap a nullable value: ERR-5 restricts postfix propagation to result
+values. Executable source conformance is planned.
 
 ## Core boundary
 

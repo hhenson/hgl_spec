@@ -162,8 +162,14 @@ null, with a non-null default D of that contract when stated:
 | Nullable, default D | Valid null publication | null |
 | Nullable, no default | Invalid | null |
 
-These cases illustrate default-before-null binding without introducing a new
-nullable type spelling. Core owns the [lifting observations](https://github.com/hhenson/hgl_core/blob/main/spec/value-function-lifting.md);
+An explicit declaration illustrating that nullable/default contract is:
+
+```hgl
+const fn nullable_echo(value: f64? = 2.0) -> f64? => value
+```
+
+Nullability uses TYPE-14's `T?` syntax. It is independent of the function-level
+`const` marker. Core owns the [lifting observations](https://github.com/hhenson/hgl_core/blob/main/spec/value-function-lifting.md);
 executable conformance is planned. The eval profile retains its proposed status.
 
 ## Core boundary
