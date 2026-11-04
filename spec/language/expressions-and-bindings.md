@@ -119,6 +119,11 @@ GEN-14 resolves generic construction versus comparison using declaration lookup.
   defines outcomes, numeric policies, and their relationship to Boolean
   comparisons. Source checking and required-constant failures follow ERR-9;
   choosing an error-producing policy does not introduce exception syntax.
+- **EXPR-12.** Resolve configuration that selects an expression's source
+  result type during source checking. A runtime-varying selector cannot change
+  that type. In particular, core division's `zero` policy selects f64 or
+  `result<f64, error>` as defined by its numeric contract; it must be known
+  before checking uses of the result. Ordinary type and phase checks apply.
 
 Accepted illustration, complete module:
 

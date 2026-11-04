@@ -92,6 +92,7 @@ infrastructure and cannot satisfy a source-rejection expectation.
 | `value.unset_read` | Executed operation requires an unset ordinary payload |
 | `value.capability` | Boxed executed operation lacks a required contained capability |
 | `value.byte_range` | Bytes construction receives an octet outside 0–255 |
+| `numeric.division_by_zero` | Explicit `?` propagation in `when` turns a checked-division Err into node failure; see the [core numeric contract](https://github.com/hhenson/hgl_core/blob/main/spec/numeric-operators.md) |
 | `yield.negative_duration` | Both yield operands succeeded; delay is negative |
 | `yield.non_increasing_time` | Resolved target does not exceed the previous target |
 | `eval.input_delta_profile` | Executed eval input violates its admitted publication profile before start |
@@ -99,7 +100,8 @@ infrastructure and cannot satisfy a source-rejection expectation.
 The source and execution catalogs are disjoint. Unlisted failures still fail;
 they cannot satisfy a coded expectation. Delta equality/bounds checks require
 prior typing/formation; provider-backed key checks use the required run context.
-This catalog does not assign new arithmetic error codes.
+The numeric code applies to explicit propagation, not to IEEE division or an
+unpropagated Err. Other arithmetic codes are defined only when separately agreed.
 
 ## Warning annotation
 
