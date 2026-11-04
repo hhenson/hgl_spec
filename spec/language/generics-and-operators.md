@@ -129,9 +129,13 @@ Syntax binds these core identities independently of local same-named functions:
 | `+`, binary `-`, `*`, `/` | `add_`, `sub_`, `mul_`, `div_` |
 | `//`, `%`, unary `-` | `floordiv_`, `mod_`, `neg_` |
 | `==`, `!=`, `<`, `<=`, `>`, `>=` | `eq_`, `ne_`, `lt_`, `le_`, `gt_`, `ge_` |
+| `<=>` | `compare_`, the core full-comparison identity |
 | Index and member projection | `getitem_`, `getattr_` where projection rules require an operation |
 
 Boolean forms `&&`, `||`, and `!` bind `and_`, `or_`, and `not_` respectively.
+Operator configuration uses the same identity; EXPR-10 defines its source form.
+The core [numeric contract](https://github.com/hhenson/hgl_core/blob/main/spec/numeric-operators.md)
+owns default and configured numeric behavior, including full comparison.
 
 Harness comparison, null presence checks, constraint predicates, and structural
 projections have their own language rules; token shape alone does not make

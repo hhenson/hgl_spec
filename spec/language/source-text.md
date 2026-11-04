@@ -40,7 +40,8 @@ A lone `_` is classified as a placeholder token, not an identifier.
   not an ordinary statement terminator. Native hook markers are a separate
   [declaration form](native-boundaries.md).
 - **LEX-5.** A newline separates declarations or statements only where one
-  can end. Ignore it inside parentheses, brackets, and generic argument lists;
+  can end. Ignore it inside parentheses, brackets, generic argument lists,
+  and operator-configuration braces (EXPR-10);
   after a comma, binary/assignment operator, `=`, `=>`, `->`, or a type/named-
   argument colon; and before a binary operator, result arrow, or matching
   `else`. `!` does not continue a line. Postfix calls/indexing do not cross a
@@ -108,6 +109,9 @@ duration_unit = "d" | "h" | "m" | "s" | "ms" | "us" ;
   final part may have a fraction. Exact decimal scaling must yield whole
   microseconds in the duration domain. No exponent or internal whitespace is
   admitted. One day is exactly 86,400 seconds.
+- **LEX-14.** `<=>` is one full-comparison operator token, not `<` followed
+  by `=>` or `<=` followed by `>`. Its newline behavior follows LEX-5's binary
+  operator rule. Operator configuration uses ordinary brace/colon tokens.
 
 Accepted illustrations, lexical fragments:
 

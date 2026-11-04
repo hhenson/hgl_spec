@@ -7,13 +7,22 @@ recursive ordinary mutation retain their proposed status.
 
 ```ebnf
 expression = or_expr ;
-or_expr = and_expr, { "||", and_expr } ;
-and_expr = equality_expr, { "&&", equality_expr } ;
-equality_expr = comparison_expr, { ( "==" | "!=" ), comparison_expr } ;
-comparison_expr = additive_expr, { ( "<" | "<=" | ">" | ">=" ), additive_expr } ;
-additive_expr = multiplicative_expr, { ( "+" | "-" ), multiplicative_expr } ;
-multiplicative_expr = unary_expr, { ( "*" | "/" | "//" | "%" ), unary_expr } ;
-unary_expr = ( "-" | "!" ), unary_expr | postfix_expr ;
+or_expr = and_expr, { "||", [ operator_configuration ], and_expr } ;
+and_expr = equality_expr, { "&&", [ operator_configuration ], equality_expr } ;
+equality_expr = comparison_expr,
+                { ( "==" | "!=" ), [ operator_configuration ], comparison_expr } ;
+comparison_expr = additive_expr,
+                  { ( "<" | "<=" | ">" | ">=" | "<=>" ),
+                    [ operator_configuration ], additive_expr } ;
+additive_expr = multiplicative_expr,
+                { ( "+" | "-" ), [ operator_configuration ], multiplicative_expr } ;
+multiplicative_expr = unary_expr,
+                      { ( "*" | "/" | "//" | "%" ),
+                        [ operator_configuration ], unary_expr } ;
+unary_expr = ( "-" | "!" ), [ operator_configuration ], unary_expr | postfix_expr ;
+operator_configuration = "{", configuration_argument,
+                         { ",", configuration_argument }, [ "," ], "}" ;
+configuration_argument = member_name, ":", expression ;
 postfix_expr = primary_expr, { call_suffix | index_suffix | member_suffix | "?" } ;
 call_suffix = "(", [ arguments ], ")" ;
 index_suffix = "[", expression, "]" ;
@@ -95,6 +104,21 @@ GEN-14 resolves generic construction versus comparison using declaration lookup.
   element types, keys, ordering, uniqueness, and placeholder admission; syntax
   alone does not select a dictionary, timed trace, or sparse delta. `_` is not
   an ordinary value and remains restricted by EXPR-8 and the trace profile.
+- **EXPR-10.** A symbol operator may carry named configuration immediately
+  after its token: `a /{zero: ieee} b`. Bind these arguments to the same core
+  identity and its public configuration parameters, using the declaration's
+  roles, defaults, and ordinary argument checks. Configuration changes neither
+  precedence nor associativity and creates no ambient policy. A named-entry
+  brace in this position is configuration, not the right operand's block.
+  Reject empty configuration, unknown/duplicate options, incompatible types,
+  and options unsupported by the selected operator contract. Intrinsic harness
+  and constraint forms retain their own rules.
+- **EXPR-11.** `<=>` is full comparison at the comparison precedence tier.
+  It returns an ordinary core comparison outcome rather than a bool. The core
+  [numeric contract](https://github.com/hhenson/hgl_core/blob/main/spec/numeric-operators.md)
+  defines outcomes, numeric policies, and their relationship to Boolean
+  comparisons. Source checking and required-constant failures follow ERR-9;
+  choosing an error-producing policy does not introduce exception syntax.
 
 Accepted illustration, complete module:
 
@@ -127,6 +151,25 @@ and `d`; use-site admission is checked separately:
 The fourth fragment has one pair entry. It acquires timed-trace meaning only
 at an admitted trace use site. Deliberate syntax rejection under EXPR-9:
 `[a, b: c]`. Executable conformance is planned.
+
+Accepted expression fragments, with numeric operands `a`/`b` and the core
+policy values `ieee`/`nan` in scope:
+
+```hgl
+a =={abs: 1e-9, rel: 1e-6} b
+a / b
+a /{zero: ieee} b
+a /{zero: nan} b
+a <=> b
+```
+
+The division forms select the core default or an explicit policy. Full comparison
+produces a core outcome that ordinary bindings and control flow can inspect.
+With the public core operator in scope, `a /{zero: ieee} b` binds the same
+operands and configuration as `div_(a, b, zero: ieee)`.
+Deliberate source rejection under EXPR-10: duplicate `zero` configuration or an
+option absent from the public operator contract. Runtime observations belong
+to core; executable conformance is planned.
 
 ## Proposed structural delta construction
 
