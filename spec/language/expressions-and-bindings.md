@@ -124,6 +124,20 @@ GEN-14 resolves generic construction versus comparison using declaration lookup.
   that type. In particular, core division's `zero` policy selects f64 or
   `result<f64, error>` as defined by its numeric contract; it must be known
   before checking uses of the result. Ordinary type and phase checks apply.
+- **EXPR-13.** Evaluate a configured binary expression in written order:
+  left operand, configuration entries in their written order, then right
+  operand, each once. Unary configuration precedes its operand. Preserve
+  EXPR-6's short-circuiting and reject unsupported configuration under EXPR-10.
+  An escaping error prevents later evaluation steps; an ordinary Err value
+  follows its result contract. Lowering must preserve this order. A named call
+  instead follows EXPR-2's written argument order: shared parameter binding
+  does not imply identical effect order for differently written expressions.
+- **EXPR-14.** Scalar operator configuration binds during graph construction
+  in temporal composition. In a value function or runtime hook, evaluate it
+  for the current invocation. Configuration must not silently introduce a
+  temporal input: time-varying temporal configuration requires a signature
+  explicitly admitting that input. EXPR-12 still requires result-type selectors
+  to resolve during checking. Configuration grants no purity or phase exemption.
 
 Accepted illustration, complete module:
 
@@ -175,6 +189,21 @@ operands and configuration as `div_(a, b, zero: ieee)`.
 Deliberate source rejection under EXPR-10: duplicate `zero` configuration or an
 option absent from the public operator contract. Runtime observations belong
 to core; executable conformance is planned.
+
+Accepted value-expression fragments, with admitted f64 helpers `left`, `right`,
+and `tolerance` that record their own invocation names:
+
+```hgl
+left() =={abs: tolerance()} right()
+eq_(left(), right(), abs: tolerance())
+```
+
+The symbolic form calls `left`, `tolerance`, `right`; the named form calls
+`left`, `right`, `tolerance`. Each call occurs once. In temporal composition,
+the scalar tolerance is bound during graph construction; runtime payload reads
+are unavailable there. Deliberate source rejection under EXPR-14: binding a
+time-series tolerance to the built-in scalar `abs` option. Core owns executable
+observations; conformance is planned.
 
 ## Proposed structural delta construction
 
