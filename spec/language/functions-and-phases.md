@@ -172,6 +172,49 @@ Nullability uses TYPE-14's `T?` syntax. It is independent of the function-level
 `const` marker. Core owns the [lifting observations](https://github.com/hhenson/hgl_core/blob/main/spec/value-function-lifting.md);
 executable conformance is planned. The eval profile retains its proposed status.
 
+Accepted FN-12 aggregate illustration, with a temporal unsized list supplied
+to this value helper:
+
+```hgl
+const fn count_items(values: list<f64>) -> i64 => len(values)
+```
+
+The fixture below exposes list membership independently of child payload
+validity. The helper reads length only; it never reads an invalid child's
+payload. Each admitted row invokes the helper once with the whole list.
+
+| Cycle | Temporal list state | Ordinary valid | all_valid | Invocation / result |
+| --- | --- | --- | --- | --- |
+| 0 | Invalid parent | false | false | No invocation |
+| 1 | Length 2; first child valid, second invalid | true | false | `count_items(list_value)` returns 2 |
+| 2 | Second child publishes; length remains 2 | true | true | One invocation returns 2 again |
+| 3 | A valid third child joins | true | true | One invocation returns 3 |
+
+Cycle 1 distinguishes ordinary validity from an added full-validity gate;
+cycles 2 and 3 distinguish repeated publication and an unsized shape. This
+is not an elementwise call to `count_items` with individual floats.
+
+Accepted FN-13 retention illustration, with complete valid list inputs:
+
+```hgl
+const fn keep_value(values: list<i64>) -> list<i64> => values
+```
+
+| Event | Current input | Independently retained result |
+| --- | --- | --- |
+| First admitted invocation | `[1, 2]` | R0 is `[1, 2]` |
+| Later publication and invocation | `[1, 7]` | R1 is `[1, 7]`; R0 remains `[1, 2]` |
+
+An implementation may use a stable read-only view during the invocation, but
+retaining the ordinary result preserves an owning value's independent contents.
+Deliberate lifetime rejection, a bounded provider-interface case: a provider
+declares a view valid only until the current helper returns; attempting to
+retain that same borrowed view beyond the call, without obtaining an owning
+value, rejects under FN-13 during lifetime checking. Retaining an admitted
+independent owning copy instead is accepted. No new view type or copy API is
+implied. Core owns the [concrete observations](https://github.com/hhenson/hgl_core/blob/main/spec/value-function-lifting.md);
+executable conformance is planned.
+
 ## Core boundary
 
 Core supplies node admission, capabilities, output and source facilities.
