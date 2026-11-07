@@ -32,7 +32,8 @@ for proposed features apply only within those proposed profiles.
   contextual absence. A non-null fallback has exact V type and is evaluated
   even for a present key. A present zero/false/empty value is not absent.
   Guard an inferred immutable nullable local against null before payload use.
-  This introduces no general nullable annotation or null-return suppression.
+  Explicit nullable annotations follow TYPE-14; this lookup contract adds no
+  null-return suppression.
 - **ERR-7.** In composition, `capture(callable, args...)` creates a temporal
   error boundary. `.value` retains the normal output type; outputless calls
   expose only `.error`. Capture of wiring-time scalar work rejects. Each
@@ -92,6 +93,7 @@ infrastructure and cannot satisfy a source-rejection expectation.
 | `value.unset_read` | Executed operation requires an unset ordinary payload |
 | `value.capability` | Boxed executed operation lacks a required contained capability |
 | `value.byte_range` | Bytes construction receives an octet outside 0–255 |
+| `numeric.division_by_zero` | Explicit `?` propagation in `when` turns a checked-division Err into node failure; see the [core numeric contract](https://github.com/hhenson/hgl_core/blob/main/spec/numeric-operators.md) |
 | `yield.negative_duration` | Both yield operands succeeded; delay is negative |
 | `yield.non_increasing_time` | Resolved target does not exceed the previous target |
 | `eval.input_delta_profile` | Executed eval input violates its admitted publication profile before start |
@@ -99,7 +101,8 @@ infrastructure and cannot satisfy a source-rejection expectation.
 The source and execution catalogs are disjoint. Unlisted failures still fail;
 they cannot satisfy a coded expectation. Delta equality/bounds checks require
 prior typing/formation; provider-backed key checks use the required run context.
-This catalog does not assign new arithmetic error codes.
+The numeric code applies to explicit propagation, not to IEEE division or an
+unpropagated Err. Other arithmetic codes are defined only when separately agreed.
 
 ## Warning annotation
 
@@ -126,6 +129,47 @@ const fn price_or_zero(book: dict<str, i64>, key: str) -> i64 {
 
 Deliberate rejection: use price as a payload before its presence guard.
 An absent strict lookup instead fails with `value.missing_key`. Conformance planned.
+
+## Checked-division propagation
+
+Accepted temporal declaration fragments, with the core `error` policy value
+in scope and an admitted f64 input publication:
+
+```hgl
+fn checked_data(value: f64) -> result<f64, error> {
+    when { return value /{zero: error} 0.0 }
+}
+
+fn propagated(value: f64) -> f64 {
+    when { return (value /{zero: error} 0.0)? }
+}
+```
+
+`checked_data` publishes an ordinary Err carrying `numeric.division_by_zero`;
+it does not fail the node and cannot satisfy an escaping-error assertion.
+In `propagated`, explicit `?` turns the same error into node failure under
+ERR-5, with no successful output publication. This is the catalogued execution
+code's condition. Core owns the [numeric observations](https://github.com/hhenson/hgl_core/blob/main/spec/numeric-operators.md);
+executable conformance is planned.
+
+## Nullable value refinement
+
+- **ERR-12.** An immutable nullable parameter or local may be tested directly
+  against null. Refine that same binding to T on paths proving a non-null T?
+  value, including after a terminating null branch. Using it where T is
+  required without that proof rejects with `nullable.required_presence`.
+  A null test establishes value presence, not temporal input validity.
+
+The accepted `value_or_zero` example in [types and values](types-and-values.md)
+uses this refinement. Deliberate source rejection:
+
+```hgl
+const fn unchecked(value: f64?) -> f64 => value
+```
+
+The unguarded return requires f64 but still has f64?. Expression `value?` does
+not unwrap a nullable value: ERR-5 restricts postfix propagation to result
+values. Executable source conformance is planned.
 
 ## Core boundary
 
