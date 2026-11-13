@@ -70,14 +70,15 @@ or test chapters. Portable source is covered here; target build metadata is not.
   not change default binding (UNIT-7).
 - **UNIT-11.** The prelude is the public declarations of core's mandatory
   module, and nothing else. Every module binds them without a `use`.
-- **UNIT-12.** No binding takes a name already in scope. A local or iteration
-  binding, parameter, or generic parameter takes no name bound there by an
-  enclosing block or function, a module declaration, a `use` in its file, or
-  the prelude. A declaration takes no name its module imports, and outside
-  core's mandatory module neither a declaration nor an import alias takes a
-  prelude name. UNIT-5 governs declarations that share a name. An `impl fn`
-  adds a candidate to its operator (GEN-4), not a name. A member name is not
-  a binding and may match any name.
+- **UNIT-12.** A block's scope is the scope around it plus its own bindings.
+  No binding takes a name already in scope: that is a duplicate definition. A
+  local or iteration binding, parameter, or generic parameter takes no name
+  bound there by an enclosing block or function, a module declaration, a `use`
+  in its file, or the prelude. A declaration takes no name its module
+  imports, and outside core's mandatory module neither a declaration nor an
+  import alias takes a prelude name. UNIT-5 governs declarations that share a
+  name. An `impl fn` adds a candidate to its operator (GEN-4), not a name. A
+  member name is not a binding and may match any name.
 
 Accepted illustration, complete module:
 
@@ -98,7 +99,8 @@ parameters (UNIT-10). The [eval illustration](tests-and-eval.md) calls
 neither enclosing the other, may each bind the same local name.
 Deliberate source rejections: a default of `base` in place of `seed()` reads
 a formal argument (UNIT-7); a first parameter named `seed`, a local named
-`base` in a block body of `choose`, a test helper named `choose`, or any
+`base` in a block body of `choose`, a local of an inner block named for an
+earlier local of a block around it, a test helper named `choose`, or any
 function, parameter, or local named `delta_value` or for a declaration its
 file imports, takes a name already in scope (UNIT-12). Conformance is planned.
 
