@@ -61,8 +61,9 @@ expression; group a constant expression that uses them as operand data.
   unresolved/conflicting dependencies.
 - **GEN-4.** An operator has nominal identity `(module, name)` and owns public
   names/order, roles, defaults, generic relationships, and requirements. An
-  `impl fn` binds that operator through local declaration or selective import.
-  No matching operator is a declaration error. A plain fn is not a candidate.
+  `impl fn` binds that operator through local declaration, selective import,
+  or the prelude. No matching operator is a declaration error. A plain fn is
+  not a candidate.
 - **GEN-5.** Match candidates against the requested output before inputs, then
   check their conditions. Select exactly one most-specific admitted candidate.
   Concrete types outrank variables; structurally constrained variables outrank

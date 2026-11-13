@@ -68,7 +68,11 @@ or test chapters. Portable source is covered here; target build metadata is not.
   identifiers. This ordering grants no payload read during composition and
   does not change default binding (UNIT-7).
 - **UNIT-11.** The prelude is the public declarations of core's mandatory
-  module, and nothing else. Every module binds them without a `use`.
+  module, and nothing else. Every module binds them without a `use`. Prelude
+  names are reserved: in every other module, no declaration, parameter,
+  generic parameter, local or iteration binding, or import alias takes one.
+  An `impl fn` for a prelude operator adds a candidate (GEN-4), not a name.
+  A member name is not a binding and may match a prelude name.
 
 Accepted illustration, complete module:
 
@@ -86,8 +90,10 @@ test defining_closure {
 The default calls the enclosing function; the body reads its parameter, the
 nearer binding (UNIT-10). The [eval illustration](tests-and-eval.md) calls
 `delta_value` with no `use`: it is a prelude name (UNIT-11).
-Deliberate rejection: replacing `seed()` with another formal argument's name
-cannot read that argument through a default. Conformance is planned.
+Deliberate source rejections: replacing `seed()` with another formal
+argument's name cannot read that argument through a default (UNIT-7); a
+function, parameter, or local named `delta_value` takes a prelude name
+(UNIT-11). Conformance is planned.
 
 ## Core boundary
 
