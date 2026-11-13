@@ -70,7 +70,8 @@ or test chapters. Portable source is covered here; target build metadata is not.
   not change default binding (UNIT-7).
 - **UNIT-11.** The prelude is the public declarations of core's mandatory
   module, and nothing else. Every module binds them without a `use`.
-- **UNIT-12.** A block's scope is the scope around it plus its own bindings.
+- **UNIT-12.** A block's scope is the scope around it plus its own bindings;
+  an anonymous function's is the scope around it plus its parameters (FN-14).
   No binding takes a name already in scope: that is a duplicate definition. A
   local or iteration binding, parameter, or generic parameter takes no name
   bound there by an enclosing block or function, a module declaration, a `use`

@@ -1,6 +1,7 @@
 # Functions and phases
 
-Status: agreed function roles, classification, defaults, and lifting.
+Status: agreed function roles, classification, defaults, lifting, and
+anonymous-function scope.
 
 ## Grammar
 
@@ -94,6 +95,10 @@ Local source/native declaration matching is defined in the native chapter.
   admitted read-only view. Retained results must remain independent of later
   temporal changes. Lifting does not turn a borrowed view into an owned value
   or extend its permitted lifetime.
+- **FN-14.** An anonymous function's scope is the scope around it plus its
+  parameters (UNIT-12). From the functions and blocks around it, its body
+  uses only parameters, generic parameters, `let` locals, and iteration
+  bindings. Use of an enclosing `var`, `state`, or `cache` rejects.
 
 Accepted declaration fragments showing modifier and ordinary-name positions:
 
@@ -115,6 +120,18 @@ apply(fn(x) => x + 1, 7)
 In the first, `apply` accepts a unary function and a value: the body ends at
 the comma. In the second, the outer call invokes the grouped function and
 returns 8 for integer input. Executable conformance is planned.
+
+Accepted declaration fragment, with the same `apply`:
+
+```hgl
+const fn shifted(n: i64) -> i64 => apply(fn(x) => x + n, 7)
+```
+
+The body reads `n`, a parameter of `shifted` (FN-14); `shifted(1)` returns 8.
+Deliberate source rejections: an anonymous-function parameter named `n` takes
+a name already in scope (UNIT-12); a body reading a `var` local of the
+enclosing function uses a binding FN-14 excludes. Executable conformance is
+planned.
 
 | Phase | A temporal argument denotes | Ordinary calls |
 | --- | --- | --- |
