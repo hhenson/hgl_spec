@@ -29,9 +29,10 @@ or test chapters. Portable source is covered here; target build metadata is not.
   module has one declaration scope, at most one unnamed file, and unique part
   names. Every file names the same module. Part names do not enter declaration
   identity; assembly order does not change meaning.
-- **UNIT-2.** Imports precede ordinary declarations. A selective import binds
-  public declarations; an alias qualifies a public interface with `alias::name`.
-  A dotted module path creates no privileged access to another module.
+- **UNIT-2.** Imports precede ordinary declarations and bind in their own
+  file. A selective import binds public declarations; an alias qualifies a
+  public interface with `alias::name`. A dotted module path creates no
+  privileged access to another module.
 - **UNIT-3.** Ordinary functions and types are private unless exported.
   Operators are public by definition. An `impl fn` is attached to its
   operator and is reached only through it. Exported signatures are closed
@@ -63,16 +64,20 @@ or test chapters. Portable source is covered here; target build metadata is not.
 - **UNIT-10.** A name resolves to its nearest binding, in this order: an
   earlier local or iteration binding, innermost block first; parameters and
   generic parameters; module declarations; selective imports; the prelude. A
-  nearer binding hides a farther one. Direct capability receivers select their
-  capability operation; reserved activation forms are not shadowable
-  identifiers. This ordering grants no payload read during composition and
-  does not change default binding (UNIT-7).
+  nearer binding hides a farther one; imported and prelude names are reserved
+  (UNIT-12). Direct capability receivers select their capability operation;
+  reserved activation forms are not shadowable identifiers. This ordering
+  grants no payload read during composition and does not change default
+  binding (UNIT-7).
 - **UNIT-11.** The prelude is the public declarations of core's mandatory
-  module, and nothing else. Every module binds them without a `use`. Prelude
-  names are reserved: in every other module, no declaration, parameter,
-  generic parameter, local or iteration binding, or import alias takes one.
-  An `impl fn` for a prelude operator adds a candidate (GEN-4), not a name.
-  A member name is not a binding and may match a prelude name.
+  module, and nothing else. Every module binds them without a `use`.
+- **UNIT-12.** Imported and prelude names are reserved. A name a `use` binds
+  is taken by no declaration of its module and by no parameter, generic
+  parameter, or local or iteration binding in its file. A prelude name is
+  taken by none of these, nor by an import alias, outside core's mandatory
+  module. An `impl fn` for an imported or prelude operator adds a candidate
+  (GEN-4), not a name. A member name is not a binding and may match a
+  reserved name.
 
 Accepted illustration, complete module:
 
@@ -92,8 +97,8 @@ nearer binding (UNIT-10). The [eval illustration](tests-and-eval.md) calls
 `delta_value` with no `use`: it is a prelude name (UNIT-11).
 Deliberate source rejections: replacing `seed()` with another formal
 argument's name cannot read that argument through a default (UNIT-7); a
-function, parameter, or local named `delta_value` takes a prelude name
-(UNIT-11). Conformance is planned.
+function, parameter, or local named `delta_value`, or named for a declaration
+its file imports, takes a reserved name (UNIT-12). Conformance is planned.
 
 ## Core boundary
 
