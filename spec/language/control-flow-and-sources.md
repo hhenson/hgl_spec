@@ -26,6 +26,7 @@ switch_default = "default", ":", [ NL ], [ statement, { NL, statement } ] ;
 
 Case labels delimit case bodies. Function/phase rules reject misplaced hooks
 or statements even where this common block grammar can recognize them.
+CTRL-9 places the opening brace of a `when` or `while` body.
 
 ## Agreed rules
 
@@ -63,6 +64,22 @@ or statements even where this common block grammar can recognize them.
   values, or items. Iteration does not cross REF boundaries implicitly.
   Dynamic composition loops do not admit loop-carried accumulation or inferred
   reductions. Conditions inside a loop retain their own phase rules.
+- **CTRL-9.** After `when` or `while`, the first `{` outside parentheses,
+  brackets, and operator configuration (EXPR-10) opens the body. The
+  expression before it, if any, is the condition. A condition that contains
+  any other brace is parenthesized.
+
+Accepted illustrations, statement fragments with `ready` a bool and `step` a
+function in scope:
+
+| Source | Reading |
+| --- | --- |
+| `when { step() }` | No condition; body `{ step() }` |
+| `when ready { step() }` | Condition `ready` |
+| `when ({ ready }) { step() }` | The block `{ ready }` is the condition |
+
+Deliberate rejection, in parsing: `when { ready } { step() }`. The first block
+is the body, so a second statement follows on its line (LEX-6).
 
 Accepted illustration, complete module:
 

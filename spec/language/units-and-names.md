@@ -1,7 +1,6 @@
 # Units and names
 
-Status: agreed module, visibility, and default-binding rules. General lookup
-precedence is retained as a proposed baseline below.
+Status: agreed module, visibility, default-binding, and lookup rules.
 
 ## Grammar
 
@@ -61,6 +60,15 @@ or test chapters. Portable source is covered here; target build metadata is not.
   after substitution, before folding. Declaration identity matters; source
   location and alias spelling do not. Conflicting inherited defaults require
   an explicit child override.
+- **UNIT-10.** A name resolves to its nearest binding, in this order: an
+  earlier local or iteration binding, innermost block first; parameters and
+  generic parameters; module declarations; selective imports; the prelude. A
+  nearer binding hides a farther one. Direct capability receivers select their
+  capability operation; reserved activation forms are not shadowable
+  identifiers. This ordering grants no payload read during composition and
+  does not change default binding (UNIT-7).
+- **UNIT-11.** The prelude is the public declarations of core's mandatory
+  module, and nothing else. Every module binds them without a `use`.
 
 Accepted illustration, complete module:
 
@@ -75,17 +83,11 @@ test defining_closure {
 }
 ```
 
-The default calls the enclosing function; the body reads its parameter.
+The default calls the enclosing function; the body reads its parameter, the
+nearer binding (UNIT-10). The [eval illustration](tests-and-eval.md) calls
+`delta_value` with no `use`: it is a prelude name (UNIT-11).
 Deliberate rejection: replacing `seed()` with another formal argument's name
 cannot read that argument through a default. Conformance is planned.
-
-## Proposed ordinary lookup
-
-Innermost earlier local/iteration binding, then parameters/generics, module
-declarations, selective imports, and the prelude. Inner bindings may shadow
-outer bindings. Direct capability receivers select their capability operation;
-reserved activation forms are not shadowable identifiers. This ordering grants
-no payload read during composition and does not change default binding.
 
 ## Core boundary
 

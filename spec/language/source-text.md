@@ -1,8 +1,7 @@
 # Source text
 
 Status: agreed lexical baseline carried forward. Literal-domain and contextual
-admission rules are completed by the linked chapters. Rules LEX-16 to LEX-25
-are proposed, with the grammar they govern.
+admission rules are completed by the linked chapters.
 
 ## Grammar
 
@@ -154,7 +153,7 @@ the source `a` LF `b` CR LF `c` CR `d` has four physical lines and `d` begins
 line 4. CR CR LF is two line breaks, as is LF CR. A source rewritten from one
 form to another keeps its tokens, their lines and columns, and its meaning.
 
-## Proposed token and literal rules
+## Tokens and literals
 
 ```ebnf
 WHITESPACE = whitespace_character, { whitespace_character } ;
@@ -211,7 +210,7 @@ PUNCTUATION = "..." | "<=>" | "//="
   that does not start with them is rejected. Escapes apply as in other
   strings; `"` needs none.
 
-Proposed illustrations, lexical fragments:
+Accepted illustrations, lexical fragments:
 
 | Source | Observation |
 | --- | --- |
@@ -223,7 +222,7 @@ Proposed illustrations, lexical fragments:
 | `1_500ms` | Duration of one and a half seconds |
 | `"\u{20AC}"` | String of one character, U+20AC |
 
-Proposed illustration, text block:
+Accepted illustration, text block:
 
 ```hgl
 let usage = """
@@ -235,7 +234,7 @@ let usage = """
 `usage` is `Usage: run [options]`, a line feed, then `  -v  verbose`. Four
 columns of indentation are removed and no line feed ends the value.
 
-Deliberate rejections, proposed: `12abc`, `1.5x`, `1e`, `1_`, `1h_`, `0x`, and
+Deliberate rejections: `12abc`, `1.5x`, `1e`, `1_`, `1h_`, `0x`, and
 `0b102` (LEX-18); `1__000` (LEX-22); `0xFFFF_FFFF_FFFF_FFFF` (LEX-23);
 `"\u{D800}"` (LEX-24); `"""text"""` on one line, and a text-block line
 indented less than its closing delimiter (LEX-25);

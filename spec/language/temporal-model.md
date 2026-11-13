@@ -13,6 +13,8 @@ lifecycle_block = ( "start" | "stop" ), block ;
 when_statement = "when", [ expression ], block ;
 ```
 
+CTRL-9 places the opening brace of a `when` body.
+
 ## Rules
 
 ```mermaid
