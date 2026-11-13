@@ -36,7 +36,7 @@ struct_decl = [ "export" ], [ "abstract" ], "struct", IDENTIFIER,
               [ struct_member, { NL, struct_member }, [ NL ] ], "}" ;
 struct_member = member_name, ":", type, [ "=", const_expression ]
               | member_name, "=", const_expression ;
-enum_decl = "enum", IDENTIFIER, "{", [ NL ],
+enum_decl = [ "export" ], "enum", IDENTIFIER, "{", [ NL ],
             [ enum_member, { ",", [ NL ], enum_member }, [ "," ] ], [ NL ], "}" ;
 enum_member = IDENTIFIER, [ "=", const_expression ] ;
 ```
@@ -73,7 +73,8 @@ override. `delta_type` syntax has the proposed formation domain below.
   specialization. Descendants cannot remove that null default. Cycles through
   inheritance or collection elements are rejected. Cross-module references to
   non-recursive public structs remain admitted.
-- **TYPE-7.** Enum members are distinct typed constants. Unnumbered numbering
+- **TYPE-7.** Enum members are distinct typed constants. `Type.member` names
+  one, through an alias as `alias::Type.member`. Unnumbered numbering
   starts at zero and increments the previous member; explicit numbers reset
   the next value. Values fit signed `i64`; duplicates and overflow reject.
   Construction from an exact member name or assigned integer is checked.
@@ -136,6 +137,22 @@ fn quote(bid: f64, ask: f64) -> Quote {
 The result is a structural temporal Quote. `atomic<Quote>` instead denotes
 whole snapshots. Deliberate rejection: a concrete struct used as a parent.
 Conformance is planned.
+
+Accepted illustration, complete module:
+
+```hgl
+module examples.enums
+
+export enum Side { buy, sell }
+
+test members {
+    assert Side.buy != Side.sell
+    assert str(Side.sell) == "sell"
+}
+```
+
+`Side.buy` and `Side.sell` name the members. A module that imports `Side`
+names them the same way. Conformance is planned.
 
 Accepted value-function fragment:
 

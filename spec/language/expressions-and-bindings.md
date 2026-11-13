@@ -48,7 +48,7 @@ local_decl = ( "let" | "var" ), IDENTIFIER, [ ":", type ], "=", expression
            | "var", IDENTIFIER, ":", type ;
 assignment = place, assignment_operator, expression ;
 place = IDENTIFIER, { index_suffix | member_suffix } ;
-assignment_operator = "=" | "+=" | "-=" | "*=" | "/=" ;
+assignment_operator = "=" | "+=" | "-=" | "*=" | "/=" | "//=" | "%=" ;
 const_expression = expression ;
 ```
 

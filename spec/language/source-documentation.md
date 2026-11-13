@@ -12,8 +12,9 @@ This is source-language documentation, distinct from specification authoring.
 - **SDOC-2.** Write a short summary followed by structured sections with
   reStructuredText content. Remove delimiters, outer blank lines, and common
   indentation; preserve internal spacing, Unicode, escapes, and relative
-  indentation. Normalize line endings to LF. A same-line summary does not set
-  subsequent indentation. Do not decorate every source line with `*`.
+  indentation. Normalize each line break (LEX-15) to LF. A same-line summary
+  does not set subsequent indentation. Do not decorate every source line with
+  `*`.
 - **SDOC-3.** Section headings start at column zero after common-indent removal;
   contents are indented four spaces. Unknown headings remain prose. Structured
   keys must name real parameters, generics, requirements, or property domains.
@@ -26,8 +27,10 @@ This is source-language documentation, distinct from specification authoring.
 - **SDOC-5.** A formatting change preserves parsed meaning, attachment, literal
   content, and comments. Separate definitions by one blank line; keep imports
   together. Requires/properties clauses stay attached to their declaration,
-  each indented four spaces without intervening blank lines. Preserve source
-  line-ending style; formatting twice has the same result.
+  each indented four spaces without intervening blank lines. Keep each line
+  break in its written form (LEX-15); an added line break takes the form of
+  the source's first line break, or LF when the source has none. Formatting
+  twice has the same result.
 - **SDOC-6.** Documentation-only changes do not affect execution, overload
   resolution, or provider semantics. Tools may expose math and diagrams but
   must preserve authoritative markup rather than silently reinterpret it.

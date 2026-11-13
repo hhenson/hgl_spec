@@ -13,10 +13,15 @@ test_item = function_decl | struct_decl | enum_decl | test_decl ;
 assert_statement = "assert", ( expression | raises_assertion ) ;
 raises_assertion = "raises", "(", expression, ")", block ;
 eval_expression = "eval", "(", expression, { ",", argument }, [ "," ], ")" ;
+expect_error = "#", gap, "expect-error", "(", gap, error_category, gap, ",",
+               gap, STRING_LITERAL, gap, ")", gap ;
+gap = { ? U+0020 or U+0009 ? } ;
+error_category = ? a source category of the diagnostic catalog ? ;
 ```
 
 Target checking restricts eval's first expression; grammar alone admits no
 arbitrary callable value. `raises` is contextual immediately after assert.
+`expect_error` gives the characters of one line comment, not a token sequence.
 
 ## Test scope and assertions
 
@@ -26,9 +31,9 @@ arbitrary callable value. `raises` is contextual immediately after assert.
   order. They create no helper namespace. Nested contexts, imports, native
   declarations, exports, and operator implementations are not admitted here.
 - **TST-2.** Production cannot refer to test-only declarations. Artifacts omit
-  their types, helpers, tests, and test-only lifts. A helper may shadow a
-  production function without changing production lookup; a test-local type
-  cannot shadow a production type/import. Duplicate test names or roles reject.
+  their types, helpers, tests, and test-only lifts. A test-only helper or
+  type takes no name of a production declaration or import (UNIT-12).
+  Duplicate test names or roles reject.
 - **TST-3.** A test is a composition-phase block with assertions. It cannot
   itself declare state/cache, inject, lifecycle hooks, when, yield, or return.
   Eval traces are test-local values: they may be bound and compared, not stored
@@ -99,9 +104,13 @@ compute publication. Conformance source is planned, not supplied by this example
 
 ## Source-error expectations
 
-- **TST-12.** `# expect-error(category, "code")` is a standalone annotation on
-  the next physical source line. Category/code must be catalogued. The enclosing
-  named test/declaration/import owns the whole rejection case; reliable source
+- **TST-12.** `# expect-error(category, "code")` is a standalone annotation: a
+  line comment of the form `expect_error`, alone on its line. It applies to
+  the next physical source line that is not itself an annotation, so several
+  may precede one line. A line comment that begins `expect-error` after `#`
+  and any spaces or tabs, without that form, is invalid metadata (TST-14).
+  Category/code must be catalogued. The enclosing named
+  test/declaration/import owns the whole rejection case; reliable source
   boundaries are required. Unnamed context/module headers cannot own a case.
 - **TST-13.** Exclude all rejection owners from executable source. Check each
   selected owner independently alongside the surviving module; no stubs or

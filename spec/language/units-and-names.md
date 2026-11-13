@@ -1,7 +1,6 @@
 # Units and names
 
-Status: agreed module, visibility, and default-binding rules. General lookup
-precedence is retained as a proposed baseline below.
+Status: agreed module, visibility, default-binding, and lookup rules.
 
 ## Grammar
 
@@ -30,13 +29,15 @@ or test chapters. Portable source is covered here; target build metadata is not.
   module has one declaration scope, at most one unnamed file, and unique part
   names. Every file names the same module. Part names do not enter declaration
   identity; assembly order does not change meaning.
-- **UNIT-2.** Imports precede ordinary declarations. A selective import binds
-  public declarations; an alias qualifies a public interface with `alias::name`.
-  A dotted module path creates no privileged access to another module.
-- **UNIT-3.** Ordinary functions are private unless exported. Operators and
-  their candidates are public by definition. Exported signatures are closed
-  over reachable types and required defining metadata; private dependencies do
-  not become source-importable. Import cycles are rejected.
+- **UNIT-2.** Imports precede ordinary declarations and bind in their own
+  file. A selective import binds public declarations; an alias qualifies a
+  public interface with `alias::name`. A dotted module path creates no
+  privileged access to another module.
+- **UNIT-3.** Ordinary functions and types are private unless exported.
+  Operators are public by definition. An `impl fn` is attached to its
+  operator and is reached only through it. Exported signatures are closed
+  over reachable types and required defining metadata; private dependencies
+  do not become source-importable. Import cycles are rejected.
 - **UNIT-4.** Types have module-qualified nominal identity where specified.
   An alias does not create a new identity. Referencing the same public type
   through two imports preserves one identity and its generic arguments.
@@ -60,6 +61,25 @@ or test chapters. Portable source is covered here; target build metadata is not.
   after substitution, before folding. Declaration identity matters; source
   location and alias spelling do not. Conflicting inherited defaults require
   an explicit child override.
+- **UNIT-10.** A name resolves to the one binding in scope for it (UNIT-12):
+  an earlier local or iteration binding of an enclosing block; a parameter of
+  an enclosing function; a generic parameter of an enclosing declaration
+  (GEN-1); a module declaration; a selective import; or the prelude. Direct
+  capability receivers select their capability operation; reserved activation
+  forms are not shadowable identifiers. Resolution grants no payload read
+  during composition and does not change default binding (UNIT-7).
+- **UNIT-11.** The prelude is the public declarations of core's mandatory
+  module, and nothing else. Every module binds them without a `use`.
+- **UNIT-12.** A block's scope is the scope around it plus its own bindings;
+  an anonymous function's is the scope around it plus its parameters (FN-14).
+  No binding takes a name already in scope: that is a duplicate definition. A
+  local or iteration binding, parameter, or generic parameter takes no name
+  bound there by an enclosing block or function, a module declaration, a `use`
+  in its file, or the prelude. A declaration takes no name its module
+  imports, and outside core's mandatory module neither a declaration nor an
+  import alias takes a prelude name. UNIT-5 governs declarations that share a
+  name. An `impl fn` adds a candidate to its operator (GEN-4), not a name. A
+  member name is not a binding and may match any name.
 
 Accepted illustration, complete module:
 
@@ -67,24 +87,23 @@ Accepted illustration, complete module:
 module examples.defaults
 
 const fn seed() -> i64 => 7
-const fn choose(seed: i64, value: i64 = seed()) -> i64 => seed + value
+const fn choose(base: i64, value: i64 = seed()) -> i64 => base + value
 
 test defining_closure {
     assert choose(1) == 8
 }
 ```
 
-The default calls the enclosing function; the body reads its parameter.
-Deliberate rejection: replacing `seed()` with another formal argument's name
-cannot read that argument through a default. Conformance is planned.
-
-## Proposed ordinary lookup
-
-Innermost earlier local/iteration binding, then parameters/generics, module
-declarations, selective imports, and the prelude. Inner bindings may shadow
-outer bindings. Direct capability receivers select their capability operation;
-reserved activation forms are not shadowable identifiers. This ordering grants
-no payload read during composition and does not change default binding.
+The default calls the module's `seed` (UNIT-7); the body reads its
+parameters (UNIT-10). The [eval illustration](tests-and-eval.md) calls
+`delta_value` with no `use`: it is a prelude name (UNIT-11). Two blocks,
+neither enclosing the other, may each bind the same local name.
+Deliberate source rejections: a default of `base` in place of `seed()` reads
+a formal argument (UNIT-7); a first parameter named `seed`, a local named
+`base` in a block body of `choose`, a local of an inner block named for an
+earlier local of a block around it, a test helper named `choose`, or any
+function, parameter, or local named `delta_value` or for a declaration its
+file imports, takes a name already in scope (UNIT-12). Conformance is planned.
 
 ## Core boundary
 
