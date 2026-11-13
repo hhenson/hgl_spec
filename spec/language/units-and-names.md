@@ -63,21 +63,21 @@ or test chapters. Portable source is covered here; target build metadata is not.
   an explicit child override.
 - **UNIT-10.** A name resolves to its nearest binding, in this order: an
   earlier local or iteration binding, innermost block first; parameters and
-  generic parameters; module declarations; selective imports; the prelude. A
-  nearer binding hides a farther one; imported and prelude names are reserved
-  (UNIT-12). Direct capability receivers select their capability operation;
-  reserved activation forms are not shadowable identifiers. This ordering
-  grants no payload read during composition and does not change default
-  binding (UNIT-7).
+  generic parameters; module declarations; selective imports; the prelude.
+  Among locals and parameters a nearer binding hides a farther one; module,
+  imported, and prelude names are reserved (UNIT-12). Direct capability
+  receivers select their capability operation; reserved activation forms are
+  not shadowable identifiers. This ordering grants no payload read during
+  composition and does not change default binding (UNIT-7).
 - **UNIT-11.** The prelude is the public declarations of core's mandatory
   module, and nothing else. Every module binds them without a `use`.
-- **UNIT-12.** Imported and prelude names are reserved. A name a `use` binds
-  is taken by no declaration of its module and by no parameter, generic
-  parameter, or local or iteration binding in its file. A prelude name is
-  taken by none of these, nor by an import alias, outside core's mandatory
-  module. An `impl fn` for an imported or prelude operator adds a candidate
-  (GEN-4), not a name. A member name is not a binding and may match a
-  reserved name.
+- **UNIT-12.** Module, imported, and prelude names are reserved. No
+  parameter, generic parameter, or local or iteration binding takes a name
+  bound in its file by a module declaration, a `use`, or the prelude. No
+  declaration takes a name its module imports. Outside core's mandatory
+  module, no declaration or import alias takes a prelude name. An `impl fn`
+  adds a candidate to its operator (GEN-4), not a name. A member name is not
+  a binding and may match a reserved name.
 
 Accepted illustration, complete module:
 
@@ -85,20 +85,20 @@ Accepted illustration, complete module:
 module examples.defaults
 
 const fn seed() -> i64 => 7
-const fn choose(seed: i64, value: i64 = seed()) -> i64 => seed + value
+const fn choose(base: i64, value: i64 = seed()) -> i64 => base + value
 
 test defining_closure {
     assert choose(1) == 8
 }
 ```
 
-The default calls the enclosing function; the body reads its parameter, the
-nearer binding (UNIT-10). The [eval illustration](tests-and-eval.md) calls
+The default calls the module's `seed` (UNIT-7); the body reads its
+parameters (UNIT-10). The [eval illustration](tests-and-eval.md) calls
 `delta_value` with no `use`: it is a prelude name (UNIT-11).
-Deliberate source rejections: replacing `seed()` with another formal
-argument's name cannot read that argument through a default (UNIT-7); a
-function, parameter, or local named `delta_value`, or named for a declaration
-its file imports, takes a reserved name (UNIT-12). Conformance is planned.
+Deliberate source rejections: a default of `base` in place of `seed()` reads
+a formal argument (UNIT-7); a first parameter named `seed`, or any function,
+parameter, or local named `delta_value` or for a declaration its file
+imports, takes a reserved name (UNIT-12). Conformance is planned.
 
 ## Core boundary
 
