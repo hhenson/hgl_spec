@@ -26,7 +26,8 @@ escape = "\\", ( "\"" | "\\" | "n" | "r" | "t"
 text_block = "\"\"\"", line_break, { text_line, line_break },
              { whitespace_character }, "\"\"\"" ;
 text_line = { text_character | escape } ;
-text_character = ? Unicode scalar other than backslash, line feed, or carriage return ? ;
+text_character = ? Unicode scalar other than backslash, line feed, carriage return,
+                   or the first of three quotes in a row ? ;
 line_break = line_feed | carriage_return, [ line_feed ] ;
 line_feed = ? U+000A ? ;
 carriage_return = ? U+000D ? ;
@@ -208,7 +209,7 @@ PUNCTUATION = "..." | "<=>" | "//="
   tabs before the closing `"""` are removed from the start of every line. A
   line of only spaces and tabs contributes an empty line; any other line
   that does not start with them is rejected. Escapes apply as in other
-  strings; `"` needs none.
+  strings; a `"` needs one only where it would begin `"""`.
 
 Accepted illustrations, lexical fragments:
 
@@ -236,8 +237,9 @@ columns of indentation are removed and no line feed ends the value.
 
 Deliberate rejections: `12abc`, `1.5x`, `1e`, `1_`, `1h_`, `0x`, and
 `0b102` (LEX-18); `1__000` (LEX-22); `0xFFFF_FFFF_FFFF_FFFF` (LEX-23);
-`"\u{D800}"` (LEX-24); `"""text"""` on one line, and a text-block line
-indented less than its closing delimiter (LEX-25);
+`"\u{D800}"` (LEX-24); `"""text"""` on one line, a text-block line holding
+`"""` after other text, and a text-block line indented less than its closing
+delimiter (LEX-25);
 `@2026-09-03T09:30+24:00` (LEX-19); `1e400` (LEX-20);
 `xs: list<i64>= value` (LEX-17); a form feed between tokens (LEX-16).
 Conformance is planned.

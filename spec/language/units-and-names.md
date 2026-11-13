@@ -62,12 +62,12 @@ or test chapters. Portable source is covered here; target build metadata is not.
   location and alias spelling do not. Conflicting inherited defaults require
   an explicit child override.
 - **UNIT-10.** A name resolves to the one binding in scope for it (UNIT-12):
-  an earlier local or iteration binding of an enclosing block; a parameter or
-  generic parameter of an enclosing function; a module declaration; a
-  selective import; or the prelude. Direct capability receivers select their
-  capability operation; reserved activation forms are not shadowable
-  identifiers. Resolution grants no payload read during composition and does
-  not change default binding (UNIT-7).
+  an earlier local or iteration binding of an enclosing block; a parameter of
+  an enclosing function; a generic parameter of an enclosing declaration
+  (GEN-1); a module declaration; a selective import; or the prelude. Direct
+  capability receivers select their capability operation; reserved activation
+  forms are not shadowable identifiers. Resolution grants no payload read
+  during composition and does not change default binding (UNIT-7).
 - **UNIT-11.** The prelude is the public declarations of core's mandatory
   module, and nothing else. Every module binds them without a `use`.
 - **UNIT-12.** A block's scope is the scope around it plus its own bindings;
