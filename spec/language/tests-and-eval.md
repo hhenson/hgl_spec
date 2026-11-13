@@ -31,9 +31,9 @@ arbitrary callable value. `raises` is contextual immediately after assert.
   order. They create no helper namespace. Nested contexts, imports, native
   declarations, exports, and operator implementations are not admitted here.
 - **TST-2.** Production cannot refer to test-only declarations. Artifacts omit
-  their types, helpers, tests, and test-only lifts. A helper may shadow a
-  production function without changing production lookup; a test-local type
-  cannot shadow a production type/import. Duplicate test names or roles reject.
+  their types, helpers, tests, and test-only lifts. A test-only helper or
+  type takes no name of a production declaration or import (UNIT-12).
+  Duplicate test names or roles reject.
 - **TST-3.** A test is a composition-phase block with assertions. It cannot
   itself declare state/cache, inject, lifecycle hooks, when, yield, or return.
   Eval traces are test-local values: they may be bound and compared, not stored
