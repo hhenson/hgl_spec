@@ -12,8 +12,9 @@ This is source-language documentation, distinct from specification authoring.
 - **SDOC-2.** Write a short summary followed by structured sections with
   reStructuredText content. Remove delimiters, outer blank lines, and common
   indentation; preserve internal spacing, Unicode, escapes, and relative
-  indentation. Normalize line endings to LF. A same-line summary does not set
-  subsequent indentation. Do not decorate every source line with `*`.
+  indentation. Normalize each line break (LEX-15) to LF. A same-line summary
+  does not set subsequent indentation. Do not decorate every source line with
+  `*`.
 - **SDOC-3.** Section headings start at column zero after common-indent removal;
   contents are indented four spaces. Unknown headings remain prose. Structured
   keys must name real parameters, generics, requirements, or property domains.

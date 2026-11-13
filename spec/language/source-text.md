@@ -1,7 +1,8 @@
 # Source text
 
 Status: agreed lexical baseline carried forward. Literal-domain and contextual
-admission rules are completed by the linked chapters.
+admission rules are completed by the linked chapters. The lexical completion
+section retains its proposed status.
 
 ## Grammar
 
@@ -16,8 +17,11 @@ INTEGER_LITERAL = digits ;
 FLOAT_LITERAL = digits, ".", digits, [ exponent ] | digits, exponent ;
 exponent = ( "e" | "E" ), [ "+" | "-" ], digits ;
 STRING_LITERAL = "\"", { string_character | escape }, "\"" ;
-string_character = ? Unicode scalar other than quote, backslash, or line break ? ;
+string_character = ? Unicode scalar other than quote, backslash, line feed, or carriage return ? ;
 escape = "\\", ( "\"" | "\\" | "n" | "r" | "t" ) ;
+line_break = line_feed | carriage_return, [ line_feed ] ;
+line_feed = ? U+000A ? ;
+carriage_return = ? U+000D ? ;
 NL = ? one or more significant line breaks after continuation handling ? ;
 EOF = ? end of the source file ? ;
 literal = INTEGER_LITERAL | FLOAT_LITERAL | STRING_LITERAL
@@ -56,6 +60,12 @@ A lone `_` is classified as a placeholder token, not an identifier.
   immediately followed by letters is a duration candidate; an unknown unit
   is rejected rather than split into a number and identifier. A valid exponent
   without a following unit remains a float: `1e5` is valid, `1e5m` is not.
+- **LEX-15.** A line break is a line feed, a carriage return immediately
+  followed by a line feed, or a carriage return alone. A carriage return and
+  the line feed directly after it are one line break, not two. The three forms
+  are equivalent in every rule: ending a line comment, bounding a string,
+  significant newlines, and counting physical lines. A source may mix them;
+  none is preferred.
 
 Hard reserved words:
 
@@ -125,6 +135,64 @@ Accepted illustrations, lexical fragments:
 
 Deliberate rejections: `30m1h`, `0.5us`, `@2026-02-29`, and an unclosed string
 violate the corresponding lexical/literal rules. Conformance is planned.
+
+Accepted illustration, line breaks, with LF and CR naming the two characters:
+the source `a` LF `b` CR LF `c` CR `d` has four physical lines and `d` begins
+line 4. CR CR LF is two line breaks, as is LF CR. A source rewritten from one
+form to another keeps its tokens, their lines and columns, and its meaning.
+
+## Proposed lexical completion
+
+These rules settle token formation where the agreed rules are silent. They
+apply only once agreed.
+
+```ebnf
+WHITESPACE = whitespace_character, { whitespace_character } ;
+whitespace_character = ? U+0020 or U+0009 ? ;
+PUNCTUATION = "..." | "<=>"
+            | "::" | "->" | "=>" | "==" | "!=" | "<=" | ">=" | "&&" | "||"
+            | "//" | "+=" | "-=" | "*=" | "/="
+            | "(" | ")" | "[" | "]" | "{" | "}" | "," | ";" | ":" | "." | "@"
+            | "?" | "!" | "+" | "-" | "*" | "/" | "%" | "=" | "<" | ">" ;
+```
+
+- **LEX-16.** Source that is not well-formed UTF-8 is a source error. One
+  U+FEFF at the start of a source is ignored. Outside strings and comments,
+  WHITESPACE separates tokens and has no other meaning; any other character
+  that begins no token is a source error.
+- **LEX-17.** Each PUNCTUATION alternative is one token. At every position
+  the longest matching token is taken, whatever the context; LEX-14 is an
+  instance. No token joins `>` to a following `>`, which gives LEX-8's separate
+  closers. `>` directly followed by `=` is `>=` even after generic arguments:
+  write `list<i64> = value`.
+- **LEX-18.** A numeric, duration, or temporal literal extends over every
+  ASCII letter, digit, and underscore that directly follows it. A run that is
+  not one literal is rejected; it is never split into a literal and a name.
+  `@` directly followed by a digit or `[` begins a temporal literal and is
+  rejected when none matches.
+- **LEX-19.** A UTC offset has hours `00` to `23` and minutes `00` to `59`.
+- **LEX-20.** A float literal denotes the f64 nearest its exact decimal value,
+  ties to even. One that rounds to infinity is rejected under LEX-7. A nonzero
+  literal that rounds to zero or to a subnormal is accepted.
+- **LEX-21.** A block or documentation comment separates tokens as whitespace
+  does. One that contains a line break also counts as one line break at its
+  position. A line comment ends before its line break, which remains. `/**/`
+  is an empty block comment, not a documentation comment.
+- **LEX-22.** `cpp` is an ordinary identifier: no grammar uses it, and foreign
+  source embedding belongs to providers ([native boundaries](native-boundaries.md)).
+  Until this is agreed the reserved list above stands.
+
+Proposed illustrations, lexical fragments:
+
+| Source | Observation |
+| --- | --- |
+| `list<list<i64>>` | Two `>` tokens close the two argument lists |
+| `1e-400` | Float zero |
+| `/**/` | Empty block comment |
+
+Deliberate rejections, proposed: `1_000`, `0x10`, `1e`, and `1h_` (LEX-18);
+`@2026-09-03T09:30+24:00` (LEX-19); `1e400` (LEX-20); `xs: list<i64>= value`
+(LEX-17); a form feed between tokens (LEX-16). Conformance is planned.
 
 ## Core boundary
 

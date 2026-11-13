@@ -104,6 +104,26 @@ prior typing/formation; provider-backed key checks use the required run context.
 The numeric code applies to explicit propagation, not to IEEE division or an
 unpropagated Err. Other arithmetic codes are defined only when separately agreed.
 
+### Proposed lexical codes
+
+Proposed with the [lexical completion](source-text.md#proposed-lexical-completion);
+they join the source catalog only once agreed.
+
+| Category | Code | Condition / primary location |
+| --- | --- | --- |
+| parse | `syntax.invalid_encoding` | Source is not well-formed UTF-8 (LEX-16); first offending byte |
+| parse | `syntax.unexpected_character` | Character begins no token (LEX-16); character |
+| parse | `string.unclosed` | String reaches a line break or EOF (LEX-2); literal |
+| parse | `string.unknown_escape` | Escape outside the admitted set (LEX-2); escape |
+| parse | `comment.unclosed` | Block or documentation comment reaches EOF (LEX-2); comment |
+| parse | `literal.malformed_number` | Numeric or duration run is not one literal (LEX-8, LEX-18); run |
+| parse | `literal.malformed_temporal` | `@` run matches no temporal form (LEX-18); run |
+| parse | `literal.integer_range` | Integer literal outside its required domain (LEX-7); literal |
+| parse | `literal.float_range` | Float literal rounds to infinity (LEX-7, LEX-20); literal |
+| parse | `literal.invalid_duration` | Duration violates LEX-13; literal |
+| parse | `literal.invalid_temporal` | Date, time, or offset field violates LEX-11 or LEX-19; literal |
+| parse | `literal.invalid_zone` | Zone name violates LEX-12's source form; literal |
+
 ## Warning annotation
 
 ```ebnf
