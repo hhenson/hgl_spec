@@ -6,7 +6,7 @@ Status: agreed function roles, classification, defaults, and lifting.
 
 ```ebnf
 function_decl = { warning_annotation, NL },
-                ( [ "export" | "impl" ], "fn" | "const", "fn" ),
+                ( [ "export" | "impl" ], "fn" | [ "export" ], "const", "fn" ),
                 callable_name, [ generic_parameters ], function_signature,
                 [ requires_clause ], function_body ;
 function_signature = "(", [ parameters ], ")", [ "->", type ] ;
@@ -24,7 +24,7 @@ lambda_parameter = IDENTIFIER, [ ":", type ] ;
 ```
 
 Parameter role is checked from the containing declaration. The production
-does not admit defaults on ordinary temporal parameters or export on const fn.
+does not admit defaults on ordinary temporal parameters.
 Local source/native declaration matching is defined in the native chapter.
 
 ## Rules

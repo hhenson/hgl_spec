@@ -33,10 +33,11 @@ or test chapters. Portable source is covered here; target build metadata is not.
 - **UNIT-2.** Imports precede ordinary declarations. A selective import binds
   public declarations; an alias qualifies a public interface with `alias::name`.
   A dotted module path creates no privileged access to another module.
-- **UNIT-3.** Ordinary functions are private unless exported. Operators and
-  their candidates are public by definition. Exported signatures are closed
-  over reachable types and required defining metadata; private dependencies do
-  not become source-importable. Import cycles are rejected.
+- **UNIT-3.** Ordinary functions and types are private unless exported.
+  Operators and their candidates are public by definition. Exported
+  signatures are closed over reachable types and required defining metadata;
+  private dependencies do not become source-importable. Import cycles are
+  rejected.
 - **UNIT-4.** Types have module-qualified nominal identity where specified.
   An alias does not create a new identity. Referencing the same public type
   through two imports preserves one identity and its generic arguments.

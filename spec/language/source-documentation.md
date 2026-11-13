@@ -27,8 +27,10 @@ This is source-language documentation, distinct from specification authoring.
 - **SDOC-5.** A formatting change preserves parsed meaning, attachment, literal
   content, and comments. Separate definitions by one blank line; keep imports
   together. Requires/properties clauses stay attached to their declaration,
-  each indented four spaces without intervening blank lines. Preserve source
-  line-ending style; formatting twice has the same result.
+  each indented four spaces without intervening blank lines. Keep each line
+  break in its written form (LEX-15); an added line break takes the form of
+  the source's first line break, or LF when the source has none. Formatting
+  twice has the same result.
 - **SDOC-6.** Documentation-only changes do not affect execution, overload
   resolution, or provider semantics. Tools may expose math and diagrams but
   must preserve authoritative markup rather than silently reinterpret it.

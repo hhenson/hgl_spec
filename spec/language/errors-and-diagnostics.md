@@ -106,8 +106,7 @@ unpropagated Err. Other arithmetic codes are defined only when separately agreed
 
 ### Proposed lexical codes
 
-Proposed with the [lexical completion](source-text.md#proposed-lexical-completion);
-they join the source catalog only once agreed.
+Proposed with the [token and literal rules](source-text.md#proposed-token-and-literal-rules).
 
 | Category | Code | Condition / primary location |
 | --- | --- | --- |
@@ -115,6 +114,8 @@ they join the source catalog only once agreed.
 | parse | `syntax.unexpected_character` | Character begins no token (LEX-16); character |
 | parse | `string.unclosed` | String reaches a line break or EOF (LEX-2); literal |
 | parse | `string.unknown_escape` | Escape outside the admitted set (LEX-2); escape |
+| parse | `string.invalid_escape` | `\u{...}` names no Unicode scalar value (LEX-24); escape |
+| parse | `string.malformed_text_block` | Text block breaks LEX-25's layout; offending delimiter or line |
 | parse | `comment.unclosed` | Block or documentation comment reaches EOF (LEX-2); comment |
 | parse | `literal.malformed_number` | Numeric or duration run is not one literal (LEX-8, LEX-18); run |
 | parse | `literal.malformed_temporal` | `@` run matches no temporal form (LEX-18); run |

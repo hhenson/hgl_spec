@@ -1,8 +1,8 @@
 # Source text
 
 Status: agreed lexical baseline carried forward. Literal-domain and contextual
-admission rules are completed by the linked chapters. The lexical completion
-section retains its proposed status.
+admission rules are completed by the linked chapters. Rules LEX-16 to LEX-25
+are proposed, with the grammar they govern.
 
 ## Grammar
 
@@ -12,13 +12,22 @@ identifier_tail = { ascii_letter | digit | "_" } ;
 ascii_letter = ? ASCII A through Z or a through z ? ;
 digit = "0" | "1" | "2" | "3" | "4"
       | "5" | "6" | "7" | "8" | "9" ;
-digits = digit, { digit } ;
-INTEGER_LITERAL = digits ;
+digits = digit, { [ "_" ], digit } ;
+hex_digit = digit | ? ASCII A through F or a through f ? ;
+hex_digits = hex_digit, { [ "_" ], hex_digit } ;
+binary_digit = "0" | "1" ;
+binary_digits = binary_digit, { [ "_" ], binary_digit } ;
+INTEGER_LITERAL = digits | "0x", hex_digits | "0b", binary_digits ;
 FLOAT_LITERAL = digits, ".", digits, [ exponent ] | digits, exponent ;
 exponent = ( "e" | "E" ), [ "+" | "-" ], digits ;
-STRING_LITERAL = "\"", { string_character | escape }, "\"" ;
+STRING_LITERAL = "\"", { string_character | escape }, "\"" | text_block ;
 string_character = ? Unicode scalar other than quote, backslash, line feed, or carriage return ? ;
-escape = "\\", ( "\"" | "\\" | "n" | "r" | "t" ) ;
+escape = "\\", ( "\"" | "\\" | "n" | "r" | "t"
+               | "u", "{", hex_digit, { hex_digit }, "}" ) ;
+text_block = "\"\"\"", line_break, { text_line, line_break },
+             { whitespace_character }, "\"\"\"" ;
+text_line = { text_character | escape } ;
+text_character = ? Unicode scalar other than backslash, line feed, or carriage return ? ;
 line_break = line_feed | carriage_return, [ line_feed ] ;
 line_feed = ? U+000A ? ;
 carriage_return = ? U+000D ? ;
@@ -44,8 +53,10 @@ A lone `_` is classified as a placeholder token, not an identifier.
   not an ordinary statement terminator. Native hook markers are a separate
   [declaration form](native-boundaries.md).
 - **LEX-5.** A newline separates declarations or statements only where one
-  can end. Ignore it inside parentheses, brackets, generic argument lists,
-  and operator-configuration braces (EXPR-10);
+  can end. Ignore it inside parentheses, brackets, and angle-bracketed lists,
+  and inside braces that hold a list rather than statements or members:
+  import sets, constraint sets and `each` constraints, operator property
+  lists, pack types, and operator configuration (EXPR-10);
   after a comma, binary/assignment operator, `=`, `=>`, `->`, or a type/named-
   argument colon; and before a binary operator, result arrow, or matching
   `else`. `!` does not continue a line. Postfix calls/indexing do not cross a
@@ -70,7 +81,7 @@ A lone `_` is classified as a placeholder token, not an identifier.
 Hard reserved words:
 
 ```text
-module part use as export abstract impl instantiate operator fn cpp struct enum
+module part use as export abstract impl instantiate operator fn struct enum
 requires is let var state cache inject return if else start when stop
 for while yield test assert eval true false null bool i64 f64 str bytes any
 date time datetime duration civil_datetime zoned_datetime zoned_time timezone
@@ -79,12 +90,14 @@ date time datetime duration civil_datetime zoned_datetime zoned_time timezone
 - **LEX-9.** `time` is also admitted as a field/member name and named-argument
   label. `const` is a modifier only in positions that admit it; elsewhere it
   is an ordinary identifier, including callable and imported names (FN-5).
-- **LEX-10.** Contextual names include `const`, `atomic`, `tuple`, `list`, `set`,
-  `dict`, `rolling`, `result`, `error`, `ref`, `signal`, `delta`, `native`, and `type`.
-  `switch`, `case`, `default`, `in`, `each`, `unbounded`, and capability names
-  acquire their special meaning only in their defined positions. A contextual
-  spelling is not globally reserved. `str(value)` is a conversion expression
-  despite `str` being reserved in ordinary name positions.
+- **LEX-10.** The contextual names are `const`, `atomic`, `tuple`, `list`, `set`,
+  `dict`, `rolling`, `result`, `error`, `ref`, `signal`, `delta`, `native`, and
+  `type`; `switch`, `case`, `default`, `in`, `each`, `unbounded`, `properties`,
+  `associative`, `commutative`, `identity`, `raises`, and `suppress_warning`;
+  and the capability names. Each acquires its special meaning only in its
+  defined positions. A contextual spelling is not globally reserved.
+  `str(value)` is a conversion expression despite `str` being reserved in
+  ordinary name positions.
 
 ## Temporal literals
 
@@ -141,17 +154,14 @@ the source `a` LF `b` CR LF `c` CR `d` has four physical lines and `d` begins
 line 4. CR CR LF is two line breaks, as is LF CR. A source rewritten from one
 form to another keeps its tokens, their lines and columns, and its meaning.
 
-## Proposed lexical completion
-
-These rules settle token formation where the agreed rules are silent. They
-apply only once agreed.
+## Proposed token and literal rules
 
 ```ebnf
 WHITESPACE = whitespace_character, { whitespace_character } ;
 whitespace_character = ? U+0020 or U+0009 ? ;
-PUNCTUATION = "..." | "<=>"
+PUNCTUATION = "..." | "<=>" | "//="
             | "::" | "->" | "=>" | "==" | "!=" | "<=" | ">=" | "&&" | "||"
-            | "//" | "+=" | "-=" | "*=" | "/="
+            | "//" | "+=" | "-=" | "*=" | "/=" | "%="
             | "(" | ")" | "[" | "]" | "{" | "}" | "," | ";" | ":" | "." | "@"
             | "?" | "!" | "+" | "-" | "*" | "/" | "%" | "=" | "<" | ">" ;
 ```
@@ -165,11 +175,13 @@ PUNCTUATION = "..." | "<=>"
   instance. No token joins `>` to a following `>`, which gives LEX-8's separate
   closers. `>` directly followed by `=` is `>=` even after generic arguments:
   write `list<i64> = value`.
-- **LEX-18.** A numeric, duration, or temporal literal extends over every
-  ASCII letter, digit, and underscore that directly follows it. A run that is
-  not one literal is rejected; it is never split into a literal and a name.
-  `@` directly followed by a digit or `[` begins a temporal literal and is
-  rejected when none matches.
+- **LEX-18.** A numeric, duration, or temporal literal is never split into a
+  literal and a name. It can end only where the next character is not an
+  ASCII letter, digit, or underscore; when the text up to there is not one
+  valid literal, all of it is rejected. `12abc` is one malformed literal, not
+  `12` followed by `abc`; so are `1.5x`, `1e`, `1_`, and `1h_`. `@` directly
+  followed by a digit or `[` begins a temporal literal and is rejected when
+  none matches.
 - **LEX-19.** A UTC offset has hours `00` to `23` and minutes `00` to `59`.
 - **LEX-20.** A float literal denotes the f64 nearest its exact decimal value,
   ties to even. One that rounds to infinity is rejected under LEX-7. A nonzero
@@ -178,9 +190,26 @@ PUNCTUATION = "..." | "<=>"
   does. One that contains a line break also counts as one line break at its
   position. A line comment ends before its line break, which remains. `/**/`
   is an empty block comment, not a documentation comment.
-- **LEX-22.** `cpp` is an ordinary identifier: no grammar uses it, and foreign
-  source embedding belongs to providers ([native boundaries](native-boundaries.md)).
-  Until this is agreed the reserved list above stands.
+- **LEX-22.** One `_` may stand between two digits of any digit run in an
+  integer, float, or duration literal: a whole part, a fraction, an exponent,
+  and hexadecimal or binary digits. It does not change the value.
+- **LEX-23.** `0x` directly followed by a hexadecimal digit begins a
+  hexadecimal integer literal; `0b` directly followed by `0` or `1` begins a
+  binary one. Neither is a duration candidate (LEX-8). The prefix letter is
+  lowercase; hexadecimal digits may be of either case. The value is a
+  non-negative integer under the range rule for decimal literals (LEX-7).
+- **LEX-24.** `\u{...}` in a string denotes the Unicode scalar value numbered
+  by its one to six hexadecimal digits. A surrogate or a number above 10FFFF
+  is rejected.
+- **LEX-25.** A text block is a string literal over several lines. `"""`
+  opens one and is directly followed by a line break. The block closes at
+  the next `"""`, which follows only spaces and tabs on its line. Its value
+  is the lines between, joined by line feeds whatever line-break form the
+  source uses (LEX-15); no line feed follows the last line. The spaces and
+  tabs before the closing `"""` are removed from the start of every line. A
+  line of only spaces and tabs contributes an empty line; any other line
+  that does not start with them is rejected. Escapes apply as in other
+  strings; `"` needs none.
 
 Proposed illustrations, lexical fragments:
 
@@ -189,10 +218,30 @@ Proposed illustrations, lexical fragments:
 | `list<list<i64>>` | Two `>` tokens close the two argument lists |
 | `1e-400` | Float zero |
 | `/**/` | Empty block comment |
+| `1_000_000` | Integer one million |
+| `0xFF`, `0b1111_1111` | Integer 255 |
+| `1_500ms` | Duration of one and a half seconds |
+| `"\u{20AC}"` | String of one character, U+20AC |
 
-Deliberate rejections, proposed: `1_000`, `0x10`, `1e`, and `1h_` (LEX-18);
-`@2026-09-03T09:30+24:00` (LEX-19); `1e400` (LEX-20); `xs: list<i64>= value`
-(LEX-17); a form feed between tokens (LEX-16). Conformance is planned.
+Proposed illustration, text block:
+
+```hgl
+let usage = """
+    Usage: run [options]
+      -v  verbose
+    """
+```
+
+`usage` is `Usage: run [options]`, a line feed, then `  -v  verbose`. Four
+columns of indentation are removed and no line feed ends the value.
+
+Deliberate rejections, proposed: `12abc`, `1.5x`, `1e`, `1_`, `1h_`, `0x`, and
+`0b102` (LEX-18); `1__000` (LEX-22); `0xFFFF_FFFF_FFFF_FFFF` (LEX-23);
+`"\u{D800}"` (LEX-24); `"""text"""` on one line, and a text-block line
+indented less than its closing delimiter (LEX-25);
+`@2026-09-03T09:30+24:00` (LEX-19); `1e400` (LEX-20);
+`xs: list<i64>= value` (LEX-17); a form feed between tokens (LEX-16).
+Conformance is planned.
 
 ## Core boundary
 
