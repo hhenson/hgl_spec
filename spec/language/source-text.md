@@ -60,13 +60,13 @@ A lone `_` is classified as a placeholder token, not an identifier.
   the one line break between two tokens where the declaration or statement
   before it is incomplete, or where the token after it cannot begin a
   declaration or statement and continues the one before. A `properties`
-  clause continues its operator declaration. A token that can begin a
-  declaration or statement does: `!`, `(`, and `[` start a new statement,
-  so a prefix `!`, a call, and an index do not continue a line. `-` at the
-  start of a line is the binary operator: a statement that began with it
-  would have no effect. Two or more line breaks between two tokens, as
-  around a blank line, always separate. A body's opening brace stays with
-  its header.
+  clause continues its operator declaration. After a declaration or
+  statement that can end, a token that can begin one does: `!`, `(`, and
+  `[` start a new statement there, so a prefix `!`, a call, and an index do
+  not continue a line. `-` at the start of a line is the binary operator: a
+  statement that began with it would have no effect. Two or more line
+  breaks between two tokens, as around a blank line, always separate. A
+  body's opening brace stays with its header.
 - **LEX-6.** Inside blocks, indentation alone cannot join statements. Two
   ordinary statements on one physical line are rejected. An inject list may
   continue after a comma when the next line begins with a name.
@@ -266,18 +266,21 @@ fn low(quote: Quote, margin: f64) -> f64 {
         + quote.ask
     let half = sum /
         2.0
-    let result = half
+    let reduced = half
         - margin
+    let result =
+        (reduced)
     return \
         result
 }
 ```
 
 `spread` is one declaration: `=>` cannot begin one. In `low`, `.bid` and
-`+ quote.ask` continue `let sum`; `2.0` completes `let half`, whose first
-line cannot end; and `- margin` continues `let result`. The `\` joins
-`result` to `return`: without it `return` would end there, and `result`
-would begin a statement of its own.
+`+ quote.ask` continue `let sum`, and `- margin` continues `let reduced`.
+`2.0` completes `let half` and `(reduced)` completes `let result`: neither
+first line can end. After a line that can end, `(reduced)` would begin a
+statement of its own. The `\` joins `result` to `return`: without it
+`return` would end there, and `result` would begin a statement of its own.
 
 Deliberate rejections: `12abc`, `1.5x`, `1e`, `1_`, `1h_`, `0x`, and
 `0b102` (LEX-18); `1__000` (LEX-22); `0xFFFF_FFFF_FFFF_FFFF` (LEX-23);
