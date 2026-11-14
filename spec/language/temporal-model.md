@@ -34,12 +34,15 @@ flowchart LR
   per node per cycle. Input activity controls notification; required validity
   controls admission. Mutation of output and mutation of configuration are
   different effects.
-- **TIME-3.** Function-level when handlers retain source order and evaluate
-  independent conditions. A missing top-level modified selector subscribes to
-  all temporal inputs; a missing validity selector requires all inputs valid.
-  Explicit `modified()` subscribes to none and explicit `valid()` requires
-  none valid. A selector hidden beneath negation/disjunction does not replace
-  the default. A when nested in another block is rejected.
+- **TIME-3.** Function-level `when` handlers retain source order and evaluate
+  independent conditions. In a `when` header, `modified()` subscribes to all
+  temporal inputs. A notification from any subscribed input can wake the
+  handler. `valid()` requires all temporal inputs to be valid. Omitting either
+  selector uses the same default as its zero-argument form. `valid([])`
+  requires no inputs to be valid. A selector sets subscription or admission
+  when it stands alone in the header or appears as a top-level conjunct.
+  Selectors under negation or disjunction leave the default in place.
+  A `when` nested in another block is rejected.
 - **TIME-4.** Aggregate subscriptions cover every handler. Node-wide validity
   includes only requirements common to executable handlers; other guards stay
   per-handler. A payload read under manual admission must be dominated by a
@@ -79,15 +82,15 @@ module examples.handlers
 
 fn manual_forward(value: i64) -> i64 {
     inject out
-    when valid() {
+    when modified() && valid([]) {
         if valid(value) { return value }
         invalidate(out)
     }
 }
 ```
 
-Input modification still activates this handler; explicit empty validity
-permits its internal validity test. Invalid input invalidates the output.
+`modified()` subscribes to input notifications. `valid([])` lets the body check
+validity itself. Invalid input invalidates the output.
 Deliberate rejection: an unguarded payload read under manual admission.
 Conformance planned.
 
