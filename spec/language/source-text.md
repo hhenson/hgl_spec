@@ -229,12 +229,13 @@ PUNCTUATION = "..." | "<=>" | "//="
   them. This holds for the `(` of a call or a parameter list, the `[` of an
   index, the `<` of generic parameters or arguments, and the `{` of a
   cardinality: `f<T>(x)`, `rows[i]`, and `...T{2}`, never `f <T>(x)`,
-  `f<T> (x)`, `rows [i]`, or `...T {2}`. On the next line, `(x)` and `[i]`
-  begin a statement of their own (LEX-5). A call here is a call suffix, the
-  arguments of a typed or delta constructor, a conversion such as
-  `str(value)`, `eval(...)`, `raises(...)`, a constraint call, and a warning
-  annotation. In an expression, a `<` that stands apart from the name
-  before it is a comparison.
+  `f<T> (x)`, `rows [i]`, or `...T {2}`. A `(` or `[` on the next line is no
+  call's or index's: LEX-5 says whether it begins a statement or completes
+  the one before. A call here is a call suffix, the arguments of a typed or
+  delta constructor, a conversion such as `str(value)`, `eval(...)`,
+  `raises(...)`, a constraint call, and a warning annotation. In an
+  expression, a `<` that stands apart from the name before it is a
+  comparison.
 
 Accepted illustrations, lexical fragments:
 
