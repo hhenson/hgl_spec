@@ -22,6 +22,8 @@ callable_name = IDENTIFIER ;
 
 The referenced declarations belong to their type, function, generic, native,
 or test chapters. Portable source is covered here; target build metadata is not.
+The hard reserved words are listed in [source text](source-text.md); LEX-9
+admits one as a member name.
 
 ## Agreed rules
 
