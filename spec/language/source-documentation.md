@@ -6,9 +6,10 @@ This is source-language documentation, distinct from specification authoring.
 ## Rules
 
 - **SDOC-1.** `/** ... */` immediately before a module, function/native function,
-  operator, struct, field, or test documents that declaration. Only whitespace
-  may intervene. Ordinary comments remain comments. Repeated/unattached
-  documentation or a body comment claiming a later declaration is rejected.
+  operator, struct, field, enum, enum member, native type, or test documents
+  that declaration. Only whitespace may intervene. Ordinary comments remain
+  comments. Repeated/unattached documentation or a body comment claiming a
+  later declaration is rejected.
 - **SDOC-2.** Write a short summary followed by structured sections with
   reStructuredText content. Remove delimiters, outer blank lines, and common
   indentation; preserve internal spacing, Unicode, escapes, and relative
@@ -58,10 +59,19 @@ Returns:
     Twice the input.
 */
 const fn doubled(value: i64) -> i64 => value * 2
+
+/** A side of the order book. */
+export enum Side {
+    /** The bid side. */
+    buy,
+    /** The offer side. */
+    sell,
+}
 ```
 
-The comment documents doubled. Deliberate rejection: `Args:` names a parameter
-absent from that declaration. Conformance planned.
+The comments document doubled, Side, and each member of Side. Deliberate
+rejection: `Args:` names a parameter absent from that declaration.
+Conformance planned.
 
 ## Core boundary
 
