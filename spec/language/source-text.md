@@ -96,12 +96,13 @@ date time datetime duration civil_datetime zoned_datetime zoned_time timezone
 atomic tuple list set dict rolling result ref signal delta error
 ```
 
-- **LEX-9.** The reserved name of a type is also admitted as the name of a
-  struct field or enum member and as a named-argument label, where it cannot
-  be taken for the type: `quote.time`, `ranges.list`, `.error`. It names no
-  parameter, local, function, or type. `const` is a modifier only in
-  positions that admit it; elsewhere it is an ordinary identifier, including
-  callable and imported names (FN-5).
+- **LEX-9.** A member name is any word of identifier form (LEX-1), a hard
+  reserved word included: the name of a struct field or enum member, a member
+  reached with `.`, and a named-argument label cannot be taken for what the
+  word reserves: `quote.time`, `ranges.list`, `.error`, `order.if`. A
+  reserved word names no parameter, local, function, or type. `const` is a
+  modifier only in positions that admit it; elsewhere it is an ordinary
+  identifier, including callable and imported names (FN-5).
 - **LEX-10.** The contextual names are `const`, `native`, and `type`;
   `switch`, `case`, `default`, `in`, `each`, `unbounded`, `properties`,
   `associative`, `commutative`, `identity`, `raises`, and `suppress_warning`;
