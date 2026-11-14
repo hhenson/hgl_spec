@@ -110,10 +110,11 @@ expression; group a constant expression that uses them as operand data.
   Reject conflicting kinds or an unresolved kind lacking a determining
   declaration/constraint. Constraining N's type does not resolve N's value.
 - **GEN-14.** Retain `<...>` for generic arguments. In a type position, or
-  following a name resolved to a generic type in an expression, `<` opens
-  generic arguments rather than a comparison. Check each argument against
-  the corresponding parameter kind; shared name syntax is not a second
-  interpretation. Reject an invalid application without comparison fallback.
+  directly following (LEX-27) a name resolved to a generic type in an
+  expression, `<` opens generic arguments rather than a comparison. Check
+  each argument against the corresponding parameter kind; shared name syntax
+  is not a second interpretation. Reject an invalid application without
+  comparison fallback.
   Ordinary `<` and `>` do not order type names. At the current generic nesting
   level, `>` closes the argument list; parenthesize a greater-than expression
   used as a constant argument. Nested generic closers follow LEX-8.

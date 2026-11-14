@@ -224,13 +224,17 @@ PUNCTUATION = "..." | "<=>" | "//="
   one whatever it begins with (LEX-5). No comment follows the `\` on its
   line. Outside a string literal or comment, any other `\` begins no token
   (LEX-16).
-- **LEX-27.** The `(` of a call and the `[` of an index directly follow what
-  they apply to: no whitespace, comment, line break, or line continuation
-  stands between them. `f(x)` is a call and `x[i]` an index. `f (x)` and
-  `x [i]` on one line are rejected; on the next line, `(x)` and `[i]` begin
-  a statement of their own (LEX-5). A call here is a call suffix, the
+- **LEX-27.** An opening bracket directly follows what it applies to: no
+  whitespace, comment, line break, or line continuation stands between
+  them. This holds for the `(` of a call or a parameter list, the `[` of an
+  index, the `<` of generic parameters or arguments, and the `{` of a
+  cardinality: `f<T>(x)`, `rows[i]`, and `...T{2}`, never `f <T>(x)`,
+  `f<T> (x)`, `rows [i]`, or `...T {2}`. On the next line, `(x)` and `[i]`
+  begin a statement of their own (LEX-5). A call here is a call suffix, the
   arguments of a typed or delta constructor, a conversion such as
-  `str(value)`, `eval(...)`, `raises(...)`, and a constraint call.
+  `str(value)`, `eval(...)`, `raises(...)`, a constraint call, and a warning
+  annotation. In an expression, a `<` that stands apart from the name
+  before it is a comparison.
 
 Accepted illustrations, lexical fragments:
 
@@ -300,8 +304,8 @@ delimiter (LEX-25);
 `@2026-09-03T09:30+24:00` (LEX-19); `1e400` (LEX-20);
 `xs: list<i64>= value` (LEX-17); a form feed between tokens (LEX-16);
 a blank line between `let half = sum /` and `2.0` (LEX-5); `\` followed on
-its line by a comment or by any token (LEX-26); `f (x)` and `x [i]`
-(LEX-27).
+its line by a comment or by any token (LEX-26); `f (x)`, `x [i]`,
+`fn f <T>(x: T)`, `list <i64>`, and `...T {2}` (LEX-27).
 Conformance is planned.
 
 ## Core boundary
