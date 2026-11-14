@@ -224,6 +224,13 @@ PUNCTUATION = "..." | "<=>" | "//="
   one whatever it begins with (LEX-5). No comment follows the `\` on its
   line. Outside a string literal or comment, any other `\` begins no token
   (LEX-16).
+- **LEX-27.** The `(` of a call and the `[` of an index directly follow what
+  they apply to: no whitespace, comment, line break, or line continuation
+  stands between them. `f(x)` is a call and `x[i]` an index. `f (x)` and
+  `x [i]` on one line are rejected; on the next line, `(x)` and `[i]` begin
+  a statement of their own (LEX-5). A call here is a call suffix, the
+  arguments of a typed or delta constructor, a conversion such as
+  `str(value)`, `eval(...)`, `raises(...)`, and a constraint call.
 
 Accepted illustrations, lexical fragments:
 
@@ -236,6 +243,7 @@ Accepted illustrations, lexical fragments:
 | `0xFF`, `0b1111_1111` | Integer 255 |
 | `1_500ms` | Duration of one and a half seconds |
 | `"\u{20AC}"` | String of one character, U+20AC |
+| `rows[0](x)` | An index, then a call of what it selects |
 
 Accepted illustration, text block:
 
@@ -292,7 +300,8 @@ delimiter (LEX-25);
 `@2026-09-03T09:30+24:00` (LEX-19); `1e400` (LEX-20);
 `xs: list<i64>= value` (LEX-17); a form feed between tokens (LEX-16);
 a blank line between `let half = sum /` and `2.0` (LEX-5); `\` followed on
-its line by a comment or by any token (LEX-26).
+its line by a comment or by any token (LEX-26); `f (x)` and `x [i]`
+(LEX-27).
 Conformance is planned.
 
 ## Core boundary
