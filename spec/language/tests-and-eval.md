@@ -1,7 +1,7 @@
 # Tests and eval
 
-Status: proposed test/eval baseline. Structured execution-error and source-error
-expectations retain the contracts below; proposed scopes/metadata add no rules.
+Status: dense trace extent (TST-6) is agreed. The remaining proposed eval
+rules and the error expectation contracts retain their status below.
 
 ## Grammar
 
@@ -44,6 +44,15 @@ arbitrary callable value. `raises` is contextual immediately after assert.
   cannot change it. A mismatch identifies the first differing cycle/time and
   expected/observed data. Approximate float comparison is not implicit.
 
+## Dense trace extent
+
+- **TST-6.** Dense position i denotes start plus i minimum engine steps.
+  Input `_` adds no scheduled event. Leading and intervening placeholders
+  locate later publications. Trailing placeholders have no effect. An input
+  with only placeholders supplies an empty replay, just like `[]`. A dense
+  result spans run start through its last recorded publication, with `_`
+  in gaps. A recording with zero publications yields `[]`.
+
 ## Proposed eval contract
 
 - **TST-5.** Eval selects a module function, binding arguments by its public
@@ -51,11 +60,6 @@ arbitrary callable value. `raises` is contextual immediately after assert.
   selected value helper uses ordinary lifting. An operator is wrapped in a
   function for this profile. Const parameters receive configuration; temporal
   parameters receive contextually typed publication traces.
-- **TST-6.** Dense position i denotes start plus i minimum engine steps. `_`
-  means no publication. The horizon is the longest temporal input length,
-  including silent positions. Materialize through the later of that horizon
-  and the last output tick; silent positions remain `_`. An empty supplied
-  temporal input has length zero, distinct from source-only eval.
 - **TST-7.** Timed traces use the sequence-of-pairs syntax in EXPR-9; a
   one-entry trace is still a sequence. Timed entries use duration offsets from
   run start or absolute datetime keys. Keys strictly increase; no `_` occurs
@@ -83,7 +87,8 @@ fn pass_through_i64(value: i64) -> i64 {
 
 test repeated_ticks {
     assert eval(pass_through_i64, value: [7, _, 7, 9]) == [7, _, 7, 9]
-    assert eval(pass_through_i64, value: [_, _, _]) == [_, _, _]
+    assert eval(pass_through_i64, value: [_, _, _]) == []
+    assert eval(pass_through_i64, value: [_, 7, _, _]) == [_, 7]
     assert eval(pass_through_i64, value: []) == []
 }
 ```
