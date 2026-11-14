@@ -27,7 +27,8 @@ switch_default = "default", ":", [ NL ], [ statement, { NL, statement } ] ;
 Case labels delimit case bodies; a case has no scope of its own (UNIT-12).
 Function/phase rules reject misplaced hooks
 or statements even where this common block grammar can recognize them.
-CTRL-9 places the opening brace of a `when` or `while` body.
+CTRL-9 places the opening brace of an `if`, `for`, `switch`, `when`, or
+`while` body.
 
 ## Agreed rules
 
@@ -66,22 +67,28 @@ CTRL-9 places the opening brace of a `when` or `while` body.
   values, or items. Iteration does not cross REF boundaries implicitly.
   Dynamic composition loops do not admit loop-carried accumulation or inferred
   reductions. Conditions inside a loop retain their own phase rules.
-- **CTRL-9.** After `when` or `while`, the first `{` outside parentheses,
-  brackets, and operator configuration (EXPR-10) opens the body. The
-  expression before it, if any, is the condition. A condition that contains
-  any other brace is parenthesized.
+- **CTRL-9.** After `if`, `for`, `switch`, `when`, or `while`, the first `{`
+  outside parentheses, brackets, and operator configuration (EXPR-10) opens
+  the body. The expression before it is the condition of an `if`, `when`, or
+  `while`, the sequence of a `for`, or the selector of a `switch`; `when` and
+  `while` may have none. An expression there that contains any other brace is
+  parenthesized.
 
-Accepted illustrations, statement fragments with `ready` a bool and `step` a
-function in scope:
+Accepted illustrations, statement fragments with `ready` a bool, `items` a
+list, and `step` a function in scope:
 
 | Source | Reading |
 | --- | --- |
 | `when { step() }` | No condition; body `{ step() }` |
 | `when ready { step() }` | Condition `ready` |
 | `when ({ ready }) { step() }` | The block `{ ready }` is the condition |
+| `if ready { step() }` | Condition `ready` |
+| `if ({ ready }) { step() }` | The block `{ ready }` is the condition |
+| `for item in items { step() }` | Sequence `items` |
 
-Deliberate rejection, in parsing: `when { ready } { step() }`. The first block
-is the body, so a second statement follows on its line (LEX-6).
+Deliberate rejections, in parsing: `when { ready } { step() }`, where the
+first block is the body, so a second statement follows on its line (LEX-6);
+and `if { ready } { step() }`, which has no condition before its first `{`.
 
 Accepted illustration, complete module:
 
