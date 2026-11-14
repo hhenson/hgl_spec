@@ -74,7 +74,7 @@ arbitrary callable value. `raises` is contextual immediately after assert.
 Proposed illustration, complete module with an agreed compute fixture form:
 
 ```hgl
-module examples.test
+module examples.tests
 
 fn pass_through_i64(value: i64) -> i64 {
     when { return delta_value(value) }
