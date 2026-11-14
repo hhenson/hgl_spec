@@ -7,8 +7,9 @@ operation domains belong to core and retain their own decision status.
 
 ```ebnf
 generic_parameters = "<", generic_parameter, { ",", generic_parameter }, [ "," ], ">" ;
-generic_parameter = IDENTIFIER | "...", IDENTIFIER
+generic_parameter = IDENTIFIER | "...", IDENTIFIER, [ cardinality ]
                   | "const", IDENTIFIER, ":", value_type ;
+cardinality = "{", INTEGER_LITERAL, [ ":", ( INTEGER_LITERAL | "*" ) ], "}" ;
 generic_arguments = "<", generic_argument, { ",", generic_argument }, [ "," ], ">" ;
 generic_argument = type | const_expression ;
 requires_clause = "requires", constraint_expression ;
@@ -84,9 +85,10 @@ expression; group a constant expression that uses them as operand data.
   proofs authorizing reassociation across overflow or floating-point effects.
 - **GEN-10.** Pack views preserve positional order or supplied named keys.
   `each T in types(Ts)` checks every selected type; an empty conjunction is true.
-  `{n}`, `{n:*}`, and `{n:m}` cardinalities mean exact, minimum, and inclusive
-  bounded arity. `schemas(pack)` is a runtime-only borrowed schema view, not a
-  storable value/result or general reflection facility.
+  A cardinality follows the pack it bounds, on a pack parameter or a generic
+  pack parameter: `{n}`, `{n:*}`, and `{n:m}` mean exact, minimum, and
+  inclusive bounded arity. `schemas(pack)` is a runtime-only borrowed schema
+  view, not a storable value/result or general reflection facility.
 - **GEN-11.** Argument inference removes reference boundaries recursively from
   an otherwise unbound generic; such an input observes values. An explicit
   ref pattern binds its underlying type. A stated resolution preserves its
@@ -172,6 +174,18 @@ size. In `configuration`, N is a compile-time value restricted to those ordinary
 its value must still be resolved under GEN-2. These are source illustrations,
 not execution claims. Deliberate source rejection under GEN-13: using the same
 generic as both an element type and a list size. Conformance is planned.
+
+Accepted declaration fragments illustrating pack cardinality:
+
+```hgl
+operator first_of<T>(values: ...T{1:*}) -> T
+
+operator pair_of<...Ts{2}>(values: ...Ts) -> str
+```
+
+`first_of` takes one or more values of one type. `pair_of` takes exactly two
+values, of the two types in `Ts`. Deliberate rejection, in parsing: a
+cardinality on a parameter that is no pack, as in `value: f64{2}`.
 
 ## Core boundary
 

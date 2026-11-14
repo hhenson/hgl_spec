@@ -15,8 +15,8 @@ parameters = parameter, { ",", parameter }, [ "," ] ;
 parameter = IDENTIFIER, ":", type
           | "const", IDENTIFIER, ":", value_type, [ "=", const_expression ]
           | IDENTIFIER, ":", value_type, "=", const_expression
-          | IDENTIFIER, ":", "...", type
-          | IDENTIFIER, ":", "...", "{", type, "}" ;
+          | IDENTIFIER, ":", "...", type, [ cardinality ]
+          | IDENTIFIER, ":", "...", "{", type, "}", [ cardinality ] ;
 function_body = "=>", expression | block ;
 function_expr = "fn", "(", [ lambda_parameters ], ")", [ "->", type ],
                 ( "=>", expression | block ) ;
