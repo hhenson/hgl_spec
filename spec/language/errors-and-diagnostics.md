@@ -70,13 +70,13 @@ infrastructure and cannot satisfy a source-rejection expectation.
 | parse | `string.invalid_escape` | `\u{...}` names no Unicode scalar value (LEX-24); escape |
 | parse | `string.malformed_text_block` | Text block breaks LEX-25's layout; offending delimiter or line |
 | parse | `comment.unclosed` | Block or documentation comment reaches EOF (LEX-2); comment |
-| parse | `literal.malformed_number` | Numeric or duration run is not one literal (LEX-8, LEX-18); run |
-| parse | `literal.malformed_temporal` | `@` run matches no temporal form (LEX-18); run |
-| parse | `literal.integer_range` | Integer literal outside its required domain (LEX-7); literal |
-| parse | `literal.float_range` | Float literal rounds to infinity (LEX-7, LEX-20); literal |
-| parse | `literal.invalid_duration` | Duration violates LEX-13; literal |
-| parse | `literal.invalid_temporal` | Date, time, or offset field violates LEX-11 or LEX-19; literal |
-| parse | `literal.invalid_zone` | Zone name violates LEX-12's source form; literal |
+| parse | `number.malformed` | Numeric or duration run is not one literal (LEX-8, LEX-18); run |
+| parse | `number.integer_range` | Integer literal outside its required domain (LEX-7); literal |
+| parse | `number.float_range` | Float literal rounds to infinity (LEX-7, LEX-20); literal |
+| parse | `duration.invalid` | Duration violates LEX-13; literal |
+| parse | `date_time.malformed` | `@` run matches no temporal form (LEX-18); run |
+| parse | `date_time.invalid_field` | Date, time, or offset field violates LEX-11 or LEX-19; literal |
+| parse | `date_time.invalid_zone` | Zone name violates LEX-12's source form; literal |
 | type | `rolling.size_kind` | Wrong/mixed size kind; offending size |
 | type | `rolling.size_bounds` | Invalid bounds; offending size/minimum |
 | type | `yield.time_type` | Wrong time type; yield time operand |
