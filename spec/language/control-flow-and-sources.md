@@ -24,7 +24,8 @@ switch_case = "case", const_expression, ":", [ NL ],
 switch_default = "default", ":", [ NL ], [ statement, { NL, statement } ] ;
 ```
 
-Case labels delimit case bodies. Function/phase rules reject misplaced hooks
+Case labels delimit case bodies; a case has no scope of its own (UNIT-12).
+Function/phase rules reject misplaced hooks
 or statements even where this common block grammar can recognize them.
 CTRL-9 places the opening brace of a `when` or `while` body.
 
@@ -44,8 +45,9 @@ CTRL-9 places the opening brace of a `when` or `while` body.
   omitted false branch performs no conditional work.
 - **CTRL-4.** Escaping assignments require a prior enclosing declaration. Every
   path reaching a use supplies a binding or forwards its incoming binding.
-  Branch locals do not escape. Multiple results preserve their separate typed
-  connections; forwarding does not turn them into snapshots or feedback.
+  A branch block's locals do not escape. Multiple results preserve their
+  separate typed connections; forwarding does not turn them into snapshots or
+  feedback.
 - **CTRL-5.** Return targets the enclosing HGL function. Work after a conditional
   early return belongs to the non-returning continuation and its lifetime.
   Definite assignment ignores paths that have already returned.

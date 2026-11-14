@@ -62,7 +62,7 @@ infrastructure and cannot satisfy a source-rejection expectation.
 
 | Category | Code | Condition / primary location |
 | --- | --- | --- |
-| parse | `syntax.expected_token` | Required token missing; unexpected token or EOF |
+| parse | `syntax.expected_token` | Required token missing; unexpected token, or the end of the file for EOF |
 | parse | `syntax.invalid_encoding` | Source is not well-formed UTF-8 (LEX-16); first offending byte |
 | parse | `syntax.unexpected_character` | Character begins no token (LEX-16); character |
 | parse | `string.unclosed` | String reaches a line break or EOF (LEX-2); literal |
@@ -77,6 +77,33 @@ infrastructure and cannot satisfy a source-rejection expectation.
 | parse | `date_time.malformed` | `@` run matches no temporal form (LEX-18); run |
 | parse | `date_time.invalid_field` | Date, time, or offset field violates LEX-11 or LEX-19; literal |
 | parse | `date_time.invalid_zone` | Zone name violates LEX-12's source form; literal |
+| module | `module.duplicate_unnamed` | Module has a second unnamed file (UNIT-1); module path of every unnamed file but one |
+| module | `module.duplicate_part` | Two files of a module share a part name (UNIT-1); part name in every such file but one |
+| module | `import.misplaced` | Import after a declaration of its file (UNIT-2); `use` |
+| module | `import.unknown_module` | No source declares the module (UNIT-2); module path |
+| name | `import.unknown_name` | Module declares no such name (UNIT-2); imported name |
+| module | `import.private` | Imported declaration is not public (UNIT-2, UNIT-3); imported name |
+| module | `import.cycle` | Modules import one another (UNIT-3); first import of the cycle |
+| name | `name.duplicate` | Binding takes a name already in scope (UNIT-5, UNIT-12, TST-2, NATIVE-2); later name |
+| name | `name.used_before_declaration` | Local used before the statement that declares it (UNIT-6); use |
+| name | `name.test_only` | Test-only declaration used outside the tests (TST-2); use |
+| name | `name.captured` | Anonymous function uses an enclosing `var`, `state`, `cache`, or injected capability (FN-14); use |
+| name | `default.formal_argument` | Default names a parameter of its declaration or a field of its struct (UNIT-7); use |
+| name | `alias.unqualified` | Import alias used without `::name` (UNIT-2); alias |
+| name | `alias.unknown` | Name before `::` is no import alias of its file (UNIT-2); name |
+| name | `test.duplicate_name` | Two tests of a module share a name (TST-2); later name |
+| module | `test.export` | Exported declaration in a test context (TST-1); `export` |
+| operator | `test.implementation` | `impl fn` in a test context (TST-1); operator name |
+| operator | `impl.unknown_operator` | `impl fn` names no operator (GEN-4); operator name |
+| name | `native.missing_declaration` | Native implementation completes no declaration (NATIVE-2); function name |
+| phase | `native.const_hook` | Native const implementation has a lifecycle hook (NATIVE-3); hook |
+| phase | `native.hook_without_when` | Start or stop hook with no `when` hook (NATIVE-3); hook |
+| phase | `native.duplicate_hook` | Second start or stop hook (NATIVE-3); later hook |
+| type | `generic.invalid_application` | Generic type's name before a `<` that opens no arguments (GEN-14); name |
+| type | `pack.default` | Pack parameter has a default (FN-8); `=` |
+| type | `pack.const` | Pack parameter is const (FN-8); `const` |
+| type | `pack.order` | Fixed parameter follows a pack (FN-8); parameter name |
+| type | `pack.undeclared` | `...{Name}` names no type pack of its declaration (FN-8); name in the braces |
 | type | `rolling.size_kind` | Wrong/mixed size kind; offending size |
 | type | `rolling.size_bounds` | Invalid bounds; offending size/minimum |
 | type | `yield.time_type` | Wrong time type; yield time operand |
@@ -111,6 +138,13 @@ infrastructure and cannot satisfy a source-rejection expectation.
 | `yield.negative_duration` | Both yield operands succeeded; delay is negative |
 | `yield.non_increasing_time` | Resolved target does not exceed the previous target |
 | `eval.input_delta_profile` | Executed eval input violates its admitted publication profile before start |
+
+Where a primary location is the later of two, order a module's files with its
+unnamed file first and its parts by part name, and each file by source order.
+A test-only declaration is later than any other declaration of its module, and
+a declaration later than any import. `import.cycle` is reported once for each
+set of modules that import one another: at the first import into the set, in
+that order, of its first module by path.
 
 The source and execution catalogs are disjoint. Unlisted failures still fail;
 they cannot satisfy a coded expectation. Delta equality/bounds checks require

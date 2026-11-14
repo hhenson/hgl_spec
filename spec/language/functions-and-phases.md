@@ -67,9 +67,10 @@ Local source/native declaration matching is defined in the native chapter.
 - **FN-8.** Packs capture, in order, the arguments the fixed parameters leave.
   `...T` captures the positional ones: all of type T, or each of its own type
   when T is a declared type pack. `...{Fields}` captures the named ones, each
-  under its source name, where `Fields` is a declared type pack. Packs have
-  no defaults, cannot be const, and follow all fixed parameters. Cardinality
-  and reflection follow the generic chapter.
+  under its source name, where `Fields` is a type pack among the generic
+  parameters of the same declaration, named bare. Packs have no defaults,
+  cannot be const, and follow all fixed parameters. Cardinality and
+  reflection follow the generic chapter.
 - **FN-9.** Selected value-helper capabilities propagate transitively to the
   caller without adding parameters or activation inputs. Injection does not
   turn a value function into a node. Missing or phase-forbidden capabilities
@@ -100,7 +101,8 @@ Local source/native declaration matching is defined in the native chapter.
 - **FN-14.** An anonymous function's scope is the scope around it plus its
   parameters (UNIT-12). From the functions and blocks around it, its body
   uses only parameters, generic parameters, `let` locals, and iteration
-  bindings. Use of an enclosing `var`, `state`, or `cache` rejects.
+  bindings. Use of an enclosing `var`, `state`, `cache`, or injected
+  capability rejects.
 
 Accepted declaration fragments showing modifier and ordinary-name positions:
 
