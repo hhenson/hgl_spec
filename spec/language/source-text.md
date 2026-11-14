@@ -94,8 +94,10 @@ date time datetime duration civil_datetime zoned_datetime zoned_time timezone
 atomic tuple list set dict rolling result ref signal delta
 ```
 
-- **LEX-9.** `time` is also admitted as a field/member name and named-argument
-  label. `const` is a modifier only in positions that admit it; elsewhere it
+- **LEX-9.** The reserved name of a type is also admitted as a field/member
+  name and named-argument label, where it cannot be taken for the type:
+  `quote.time`, `ranges.list`. It names no parameter, local, function, or
+  type. `const` is a modifier only in positions that admit it; elsewhere it
   is an ordinary identifier, including callable and imported names (FN-5).
 - **LEX-10.** The contextual names are `const`, `error`, `native`, and `type`;
   `switch`, `case`, `default`, `in`, `each`, `unbounded`, `properties`,
