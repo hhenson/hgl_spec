@@ -91,17 +91,17 @@ module part use as export abstract impl instantiate operator fn struct enum
 requires is let var state cache inject return if else start when stop
 for while yield test assert eval true false null bool i64 f64 str bytes any
 date time datetime duration civil_datetime zoned_datetime zoned_time timezone
+atomic tuple list set dict rolling result ref signal delta
 ```
 
 - **LEX-9.** `time` is also admitted as a field/member name and named-argument
   label. `const` is a modifier only in positions that admit it; elsewhere it
   is an ordinary identifier, including callable and imported names (FN-5).
-- **LEX-10.** The contextual names are `const`, `atomic`, `tuple`, `list`, `set`,
-  `dict`, `rolling`, `result`, `error`, `ref`, `signal`, `delta`, `native`, and
-  `type`; `switch`, `case`, `default`, `in`, `each`, `unbounded`, `properties`,
+- **LEX-10.** The contextual names are `const`, `error`, `native`, and `type`;
+  `switch`, `case`, `default`, `in`, `each`, `unbounded`, `properties`,
   `associative`, `commutative`, `identity`, `raises`, and `suppress_warning`;
-  and the capability names. Each acquires its special meaning only in its
-  defined positions. A contextual spelling is not globally reserved.
+  and the capability names (TIME-8). Each acquires its special meaning only in
+  its defined positions. A contextual spelling is not globally reserved.
   `str(value)` is a conversion expression despite `str` being reserved in
   ordinary name positions.
 
@@ -281,16 +281,16 @@ fn low(quote: Quote, margin: f64) -> f64 {
         2.0
     let reduced = half
         - margin
-    let result =
+    let lowest =
         (reduced)
     return \
-        result
+        lowest
 }
 ```
 
 `spread` is one declaration: `=>` cannot begin one. In `low`, `.bid` and
 `+ quote.ask` continue `let sum`, and `- margin` continues `let reduced`.
-`2.0` completes `let half` and `(reduced)` completes `let result`: neither
+`2.0` completes `let half` and `(reduced)` completes `let lowest`: neither
 first line can end. After a line that can end, `(reduced)` would begin a
 statement of its own. Had the line after `let half = sum /` been `-2.0`, its
 `-` would be the prefix operator: the line before has no operand to its

@@ -28,8 +28,9 @@ arbitrary callable value. `raises` is contextual immediately after assert.
 - **TST-1.** A named test sees module-private declarations. Unnamed contexts
   contribute private fn/const-fn helpers, unexported struct/enum types, and
   named tests to one module-wide test scope across all parts, independent of
-  order. They create no helper namespace. Nested contexts, imports, native
-  declarations, exports, and operator implementations are not admitted here.
+  order. They create no helper namespace. Nested contexts, imports, operator
+  and native declarations, instantiations, exports, and operator
+  implementations are not admitted here.
 - **TST-2.** Production cannot refer to test-only declarations. Artifacts omit
   their types, helpers, tests, and test-only lifts. A test-only helper or
   type takes no name of a production declaration or import (UNIT-12).

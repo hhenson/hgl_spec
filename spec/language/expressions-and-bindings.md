@@ -145,15 +145,15 @@ Accepted illustration, complete module:
 module examples.bindings
 
 const fn doubled(value: i64) -> i64 {
-    var result: i64 = value
-    result += value
-    return result
+    var total: i64 = value
+    total += value
+    return total
 }
 
 test arithmetic { assert doubled(3) == 6 }
 ```
 
-Deliberate rejection: reading `var result: i64` before assignment. Conformance
+Deliberate rejection: reading `var total: i64` before assignment. Conformance
 is planned; the shown test is an illustration, not an execution report.
 
 Accepted syntax fragments, with suitable ordinary expressions `a`, `b`, `c`,
