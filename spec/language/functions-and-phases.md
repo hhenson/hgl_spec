@@ -15,8 +15,9 @@ parameters = parameter, { ",", parameter }, [ "," ] ;
 parameter = IDENTIFIER, ":", type
           | "const", IDENTIFIER, ":", value_type, [ "=", const_expression ]
           | IDENTIFIER, ":", value_type, "=", const_expression
-          | IDENTIFIER, ":", "...", type, [ cardinality ]
-          | IDENTIFIER, ":", "...", "{", type, "}", [ cardinality ] ;
+          | [ "const" ], IDENTIFIER, ":", pack, [ "=", const_expression ] ;
+pack = "...", type, [ cardinality ]
+     | "...", "{", type, "}", [ cardinality ] ;
 function_body = "=>", expression | block ;
 function_expr = "fn", "(", [ lambda_parameters ], ")", [ "->", type ],
                 ( "=>", expression | block ) ;
@@ -25,7 +26,8 @@ lambda_parameter = IDENTIFIER, [ ":", type ] ;
 ```
 
 Parameter role is checked from the containing declaration. The production
-does not admit defaults on ordinary temporal parameters.
+does not admit defaults on ordinary temporal parameters. It admits `const`
+and a default on a pack, which FN-8 rejects.
 Local source/native declaration matching is defined in the native chapter.
 
 ## Rules
