@@ -77,11 +77,11 @@ override. `delta_type` syntax has the proposed formation domain below.
   one, through an alias as `alias::Type.member`. Where a position expects
   the enum's type, `.member` names one too: the value of an argument or
   configuration option of that type, an initializer or result declared with
-  it, an operand compared with it. With no enum type expected, `.member`
-  rejects. Unnumbered numbering starts at zero and increments the previous
-  member; explicit numbers reset the next value. Values fit signed `i64`;
-  duplicates and overflow reject. Construction from an exact member name or
-  assigned integer is checked.
+  it, an operand compared with it, a `switch` label for a selector of it.
+  With no enum type expected, `.member` rejects. Unnumbered numbering starts
+  at zero and increments the previous member; explicit numbers reset the
+  next value. Values fit signed `i64`; duplicates and overflow reject.
+  Construction from an exact member name or assigned integer is checked.
   String conversion returns the member name. Numeric conversion is explicit.
 - **TYPE-8.** `any` owns a boxed value with its exact contained type; boxing
   adds no numeric conversion. Equality across contained types is false.
@@ -163,7 +163,8 @@ test members {
 
 `Side.buy` and `Side.sell` name the members. A module that imports `Side`
 names them the same way. In `opposite`, the parameter, the result, and the
-other operand each give `.buy` and `.sell` the type `Side`. Deliberate source
+other operand each give `.buy` and `.sell` the type `Side`; in a `switch` on
+a `Side`, `case .buy:` takes it from the selector. Deliberate source
 rejection: `let side = .buy`, where nothing gives a type. Conformance is
 planned.
 
