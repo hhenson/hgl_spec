@@ -106,14 +106,17 @@ GEN-14 resolves generic construction versus comparison using declaration lookup.
   alone does not select a dictionary, timed trace, or sparse delta. `_` is not
   an ordinary value and remains restricted by EXPR-8 and the trace profile.
 - **EXPR-10.** A symbol operator may carry named configuration immediately
-  after its token: `a /{zero: .ieee} b`. Bind these arguments to the same core
-  identity and its public configuration parameters, using the declaration's
-  roles, defaults, and ordinary argument checks. Configuration changes neither
-  precedence nor associativity and creates no ambient policy. A named-entry
-  brace in this position is configuration, not the right operand's block.
-  Reject empty configuration, unknown/duplicate options, incompatible types,
-  and options unsupported by the selected operator contract. Intrinsic harness
-  and constraint forms retain their own rules.
+  after its token: `a /{zero: .ieee} b`. The brace is the next token; spaces
+  may stand between. Bind these arguments to the same core identity and its
+  public configuration parameters, using the declaration's roles, defaults,
+  and ordinary argument checks. Configuration changes neither precedence nor
+  associativity and creates no ambient policy. A named-entry brace in this
+  position is configuration, not the right operand's block. `{}` there is
+  configuration only when an operand follows it on its line; otherwise it is
+  the operand's empty block. Reject empty configuration, unknown/duplicate
+  options, incompatible types, and options unsupported by the selected
+  operator contract. Intrinsic harness and constraint forms retain their own
+  rules.
 - **EXPR-11.** `<=>` is full comparison at the comparison precedence tier.
   It returns an ordinary core comparison outcome rather than a bool. The core
   [numeric contract](https://github.com/hhenson/hgl_core/blob/main/spec/numeric-operators.md)

@@ -80,8 +80,11 @@ Local source/native declaration matching is defined in the native chapter.
   level ends the body; a comma in a nested expression does not. Existing
   newline-continuation rules still apply. Operators and calls within that
   expression belong to the body. Parenthesize an anonymous function before
-  calling it or applying an operation to the function itself. These boundaries
-  select the body extent rather than leaving two interpretations.
+  calling it or applying an operation to the function itself: bare, it is a
+  whole value, such as an argument or an initializer, and rejects where it is
+  called, indexed, reached into, or an operand of an operator on either side.
+  These boundaries select the body extent rather than leaving two
+  interpretations.
 - **FN-11.** A lifted argument with a declared default does not require a valid
   input: bind the default when that input is invalid. Otherwise, an argument
   whose value contract admits null does not require a valid input: bind null

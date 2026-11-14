@@ -77,6 +77,8 @@ infrastructure and cannot satisfy a source-rejection expectation.
 | parse | `date_time.malformed` | `@` run matches no temporal form (LEX-18); run |
 | parse | `date_time.invalid_field` | Date, time, or offset field violates LEX-11 or LEX-19; literal |
 | parse | `date_time.invalid_zone` | Zone name violates LEX-12's source form; literal |
+| parse | `doc.unattached` | Documentation comment documents no declaration (SDOC-1); comment |
+| parse | `doc.repeated` | Documentation comment before the one a declaration has (SDOC-1); earlier comment |
 | module | `module.duplicate_unnamed` | Module has a second unnamed file (UNIT-1); module path of every unnamed file but one |
 | module | `module.duplicate_part` | Two files of a module share a part name (UNIT-1); part name in every such file but one |
 | module | `import.misplaced` | Import after a declaration of its file (UNIT-2); `use` |
@@ -99,6 +101,7 @@ infrastructure and cannot satisfy a source-rejection expectation.
 | phase | `native.const_hook` | Native const implementation has a lifecycle hook (NATIVE-3); hook |
 | phase | `native.hook_without_when` | Start or stop hook with no `when` hook (NATIVE-3); hook |
 | phase | `native.duplicate_hook` | Second start or stop hook (NATIVE-3); later hook |
+| injectable | `inject.unknown_capability` | `inject` names no capability (TIME-8); name |
 | type | `generic.invalid_application` | Generic type's name before a `<` that opens no arguments (GEN-14); name |
 | type | `pack.default` | Pack parameter has a default (FN-8); `=` |
 | type | `pack.const` | Pack parameter is const (FN-8); `const` |
