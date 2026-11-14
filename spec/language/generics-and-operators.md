@@ -87,8 +87,9 @@ expression; group a constant expression that uses them as operand data.
   `each T in types(Ts)` checks every selected type; an empty conjunction is true.
   A cardinality follows the pack it bounds, on a pack parameter or a generic
   pack parameter: `{n}`, `{n:*}`, and `{n:m}` mean exact, minimum, and
-  inclusive bounded arity. `schemas(pack)` is a runtime-only borrowed schema
-  view, not a storable value/result or general reflection facility.
+  inclusive bounded arity. A pack without one admits any number of
+  arguments, none included. `schemas(pack)` is a runtime-only borrowed
+  schema view, not a storable value/result or general reflection facility.
 - **GEN-11.** Argument inference removes reference boundaries recursively from
   an otherwise unbound generic; such an input observes values. An explicit
   ref pattern binds its underlying type. A stated resolution preserves its
@@ -181,10 +182,13 @@ Accepted declaration fragments illustrating pack cardinality:
 operator first_of<T>(values: ...T{1:*}) -> T
 
 operator pair_of<...Ts{2}>(values: ...Ts) -> str
+
+operator labelled<...Fields>(values: ...{Fields}{1:4}) -> str
 ```
 
 `first_of` takes one or more values of one type. `pair_of` takes exactly two
-values, of the two types in `Ts`. Deliberate rejection, in parsing: a
+values, of the two types in `Ts`. `labelled` takes one to four named
+arguments and keeps their names. Deliberate rejection, in parsing: a
 cardinality on a parameter that is no pack, as in `value: f64{2}`.
 
 ## Core boundary
