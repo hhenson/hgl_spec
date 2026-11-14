@@ -16,12 +16,14 @@ top_level_item = use_decl | declaration ;
 declaration = function_decl | struct_decl | enum_decl | operator_decl
             | instantiate_decl | native_type_decl | native_function_decl
             | test_decl | test_context ;
-member_name = IDENTIFIER | "time" ;
+member_name = IDENTIFIER | ? a hard reserved word ? ;
 callable_name = IDENTIFIER ;
 ```
 
 The referenced declarations belong to their type, function, generic, native,
 or test chapters. Portable source is covered here; target build metadata is not.
+The hard reserved words are listed in [source text](source-text.md); LEX-9
+admits one as a member name.
 
 ## Agreed rules
 
@@ -29,15 +31,17 @@ or test chapters. Portable source is covered here; target build metadata is not.
   module has one declaration scope, at most one unnamed file, and unique part
   names. Every file names the same module. Part names do not enter declaration
   identity; assembly order does not change meaning.
-- **UNIT-2.** Imports precede ordinary declarations and bind in their own
-  file. A selective import binds public declarations; an alias qualifies a
-  public interface with `alias::name`. A dotted module path creates no
+- **UNIT-2.** Imports precede every declaration of their file, tests and test
+  contexts included, and bind in their own file. A selective import binds
+  public declarations; an alias qualifies a public interface with
+  `alias::name` and names nothing alone. A dotted module path creates no
   privileged access to another module.
 - **UNIT-3.** Ordinary functions and types are private unless exported.
   Operators are public by definition. An `impl fn` is attached to its
   operator and is reached only through it. Exported signatures are closed
   over reachable types and required defining metadata; private dependencies
-  do not become source-importable. Import cycles are rejected.
+  do not become source-importable. Import cycles are rejected, a module that
+  imports itself included.
 - **UNIT-4.** Types have module-qualified nominal identity where specified.
   An alias does not create a new identity. Referencing the same public type
   through two imports preserves one identity and its generic arguments.
@@ -45,14 +49,17 @@ or test chapters. Portable source is covered here; target build metadata is not.
   names, part names, or local bindings in one scope are rejected. Operator
   implementations are candidates under the generic chapter. A temporal and a
   value function may share a name under [role selection](functions-and-phases.md).
+  No other two declarations bind the same name; an operator and a function
+  do not.
 - **UNIT-6.** Module declarations and shared test helpers may be referenced
   forward. Ordinary block locals become visible after declaration. A test is
-  not a callable value. Test-only declarations cannot be exported or used by
-  production declarations.
+  not a callable value, and its name is not a binding. Test-only declarations
+  cannot be exported or used by production declarations.
 - **UNIT-7.** Resolve defaults in the declaration's enclosing binding closure
   with its generic environment, excluding the callable's formal arguments and
-  the struct's instance fields. Earlier const arguments are also excluded.
-  Imported defaults retain their defining closure, including private references.
+  the struct's instance fields. Earlier const arguments are also excluded. A
+  default that names one of them rejects. Imported defaults retain their
+  defining closure, including private references.
 - **UNIT-8.** Defaults remain required-constant/cold expressions checked against
   the expected type. Value-function parameters and const configuration may
   have defaults; ordinary temporal parameters may not. A default cannot use
@@ -72,14 +79,21 @@ or test chapters. Portable source is covered here; target build metadata is not.
   module, and nothing else. Every module binds them without a `use`.
 - **UNIT-12.** A block's scope is the scope around it plus its own bindings;
   an anonymous function's is the scope around it plus its parameters (FN-14).
-  No binding takes a name already in scope: that is a duplicate definition. A
-  local or iteration binding, parameter, or generic parameter takes no name
-  bound there by an enclosing block or function, a module declaration, a `use`
-  in its file, or the prelude. A declaration takes no name its module
-  imports, and outside core's mandatory module neither a declaration nor an
-  import alias takes a prelude name. UNIT-5 governs declarations that share a
-  name. An `impl fn` adds a candidate to its operator (GEN-4), not a name. A
-  member name is not a binding and may match any name.
+  A `switch` case has no scope of its own: its statements bind in the block
+  around the `switch`. No binding takes a name already in scope: that is a
+  duplicate definition. A local or iteration binding, parameter, or generic
+  parameter takes no name bound there by an enclosing block or function, a
+  module declaration, a `use` in its file, or the prelude. `state`, `cache`,
+  and `inject` bind locals; an `each` constraint binds a generic parameter
+  within its braces. A `use` binds no name another `use` of its file has
+  bound. A declaration takes no name its module imports or uses as an import
+  alias, and outside core's mandatory module neither a declaration nor an
+  import alias takes a prelude name. The test scope (TST-1) is in scope only
+  in tests and test-only declarations. UNIT-5 governs declarations that share
+  a name. An `impl fn` adds a candidate to its operator (GEN-4), not a name. A
+  member name is not a binding and may match any name. A test's name is not
+  one either: it may match a declaration's, and is unique among its module's
+  tests (TST-2).
 
 Accepted illustration, complete module:
 
@@ -101,7 +115,8 @@ neither enclosing the other, may each bind the same local name.
 Deliberate source rejections: a default of `base` in place of `seed()` reads
 a formal argument (UNIT-7); a first parameter named `seed`, a local named
 `base` in a block body of `choose`, a local of an inner block named for an
-earlier local of a block around it, a test helper named `choose`, or any
+earlier local of a block around it, a local declared in two cases of one
+`switch`, a test helper named `choose`, or any
 function, parameter, or local named `delta_value` or for a declaration its
 file imports, takes a name already in scope (UNIT-12). Conformance is planned.
 

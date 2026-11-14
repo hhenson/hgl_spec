@@ -28,8 +28,9 @@ arbitrary callable value. `raises` is contextual immediately after assert.
 - **TST-1.** A named test sees module-private declarations. Unnamed contexts
   contribute private fn/const-fn helpers, unexported struct/enum types, and
   named tests to one module-wide test scope across all parts, independent of
-  order. They create no helper namespace. Nested contexts, imports, native
-  declarations, exports, and operator implementations are not admitted here.
+  order. They create no helper namespace. Nested contexts, imports, operator
+  and native declarations, instantiations, exports, and operator
+  implementations are not admitted here.
 - **TST-2.** Production cannot refer to test-only declarations. Artifacts omit
   their types, helpers, tests, and test-only lifts. A test-only helper or
   type takes no name of a production declaration or import (UNIT-12).
@@ -108,25 +109,45 @@ compute publication. Conformance source is planned, not supplied by this example
   line comment of the form `expect_error`, alone on its line. It applies to
   the next physical source line that is not itself an annotation, so several
   may precede one line. A line comment that begins `expect-error` after `#`
-  and any spaces or tabs, without that form, is invalid metadata (TST-14).
-  Category/code must be catalogued. The enclosing named
-  test/declaration/import owns the whole rejection case; reliable source
-  boundaries are required. Unnamed context/module headers cannot own a case.
+  and any spaces or tabs, without that form or not alone on its line, is
+  invalid metadata (TST-14). The code is read as a string literal and, with
+  its category, must be a row of the diagnostic catalog. The enclosing named
+  test/declaration/import owns the whole rejection case: the one whose lines
+  include the annotated line, a helper or test of an unnamed context owning
+  its own lines. Reliable source boundaries are required: an item that shares
+  a line with another item, a module line, or a context's brace owns no case.
+  Unnamed context/module headers cannot own a case, nor can a blank or
+  comment line. The file's last line, when no item's lines include it,
+  belongs to the item that ends the file, if one does. An annotation that
+  applies to a line with no owner is invalid metadata.
 - **TST-13.** Exclude all rejection owners from executable source. Check each
   selected owner independently alongside the surviving module; no stubs or
   placeholder overloads are inserted. Every primary diagnostic must match one
   annotation exactly by category, code, file, and next-line location; every
-  annotation must match once. Use the primary range's first character and the
-  EOF position's line for EOF errors. Notes/messages/order are not match keys.
+  annotation must match once. A warning rejects nothing (ERR-1) and is not
+  matched. Use the primary range's first character and the EOF position's line
+  for EOF errors. Notes/messages/order are not match keys. A lexical or syntax
+  error belongs to the owner it is inside: within the owner's text, or
+  directly after its last token for something missing there. An end-of-file
+  error belongs to the item that ends the file, and to no item when an
+  unnamed context or text that fits no declaration ends it. Every other
+  lexical or syntax error is the surviving source's (TST-14). Text that fits
+  no declaration, after an item on its line, is not inside the item; comments
+  after an item that the end of the file cuts short are. Every other error
+  that checking an owner alongside the surviving module reports is that
+  case's, wherever it is located.
 - **TST-14.** Invalid metadata, ambiguous boundaries, or surviving-source errors
   prevent execution. A rejection mismatch fails that case while other valid
   cases continue. Named selectors include rejection tests; declaration-owned
-  cases always run. Unknown selectors reject. Report executed/rejected counts
+  cases always run. A selector is a test's name, alone or as
+  `module.path::name`; a bare name selects that test in every module.
+  Unknown selectors reject. Report executed/rejected counts
   separately; omitted cases, empty output, crashes, and infrastructure failures
   cannot prove conformance. Other commands treat annotations as comments.
 - **TST-15.** Success requires every selected executable and required rejection
-  case to pass. A rejection-only run is valid. A run with no cases supplies no
-  conformance evidence. Report each selected case's identity, kind, and outcome;
+  case to pass. A rejection-only run is valid. A run with no cases succeeds
+  and supplies no conformance evidence. Report each selected case's identity,
+  kind, and outcome;
   declaration-owned identities include original file and owner-start line.
 
 Proposed/reviewed rejection illustration, complete module:

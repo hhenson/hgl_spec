@@ -61,9 +61,11 @@ flowchart LR
   no second output and is rejected for outputless functions. Output access is
   admitted during evaluation, not implicitly in start/stop. No write means no
   tick; whole-output invalidation is explicit and distinct from silence.
-- **TIME-8.** Approved injectables are capabilities, not first-class payloads.
-  Clock properties are read-only, including `clock.evaluation_time`. Operations
-  use direct receiver-first forms such as `schedule(scheduler, delay)` and
+- **TIME-8.** The injectables are `out`, `logger`, `clock`, and `scheduler`,
+  and the proposed `alarm` and `global_state` below; `inject` names no other.
+  They are capabilities, not first-class payloads. Clock properties are
+  read-only, including `clock.evaluation_time`. Operations use direct
+  receiver-first forms such as `schedule(scheduler, delay)` and
   `info(logger, value)`, with no method-call aliases. Arbitrary helpers cannot
   receive a capability as ordinary data.
 - **TIME-9.** `scheduled()` is the scheduler handler selector. `activate(input)`

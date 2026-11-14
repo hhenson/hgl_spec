@@ -29,9 +29,13 @@ ordinary HGL statements. Target-specific bodies are separate provider artifacts.
   declaration. Match name, public parameters/order, roles, generics, complete
   result type, constraints, and admitted failures. Native implicit conversions
   cannot satisfy an incompatible contract. Duplicate declarations or selected
-  implementations are errors, not overloads.
+  implementations are errors, not overloads. An implementation with no
+  declaration of its name and role in its module rejects, selected or not.
+  Implementations in different parts are alternatives for selection; two in
+  one part are duplicates.
 - **NATIVE-3.** A temporal implementation `{}` denotes a graph; `{ when; }`
-  denotes a node. Start/stop hooks require when and are unique. A native const
+  denotes a node. Start and stop hooks require `when`, and each is written at
+  most once; a repeated `when` marker adds nothing. A native const
   implementation stays value-level and admits no temporal lifecycle hooks.
   A missing body is a declaration, not an empty implementation.
 - **NATIVE-4.** Target selection is explicit. Part/folder names have no magic

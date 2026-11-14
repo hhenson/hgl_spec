@@ -15,8 +15,9 @@ parameters = parameter, { ",", parameter }, [ "," ] ;
 parameter = IDENTIFIER, ":", type
           | "const", IDENTIFIER, ":", value_type, [ "=", const_expression ]
           | IDENTIFIER, ":", value_type, "=", const_expression
-          | IDENTIFIER, ":", "...", type, [ cardinality ]
-          | IDENTIFIER, ":", "...", "{", type, "}", [ cardinality ] ;
+          | [ "const" ], IDENTIFIER, ":", pack, [ "=", const_expression ] ;
+pack = "...", type, [ cardinality ]
+     | "...", "{", type, "}", [ cardinality ] ;
 function_body = "=>", expression | block ;
 function_expr = "fn", "(", [ lambda_parameters ], ")", [ "->", type ],
                 ( "=>", expression | block ) ;
@@ -25,7 +26,8 @@ lambda_parameter = IDENTIFIER, [ ":", type ] ;
 ```
 
 Parameter role is checked from the containing declaration. The production
-does not admit defaults on ordinary temporal parameters.
+does not admit defaults on ordinary temporal parameters. It admits `const`
+and a default on a pack, which FN-8 rejects.
 Local source/native declaration matching is defined in the native chapter.
 
 ## Rules
@@ -67,9 +69,10 @@ Local source/native declaration matching is defined in the native chapter.
 - **FN-8.** Packs capture, in order, the arguments the fixed parameters leave.
   `...T` captures the positional ones: all of type T, or each of its own type
   when T is a declared type pack. `...{Fields}` captures the named ones, each
-  under its source name, where `Fields` is a declared type pack. Packs have
-  no defaults, cannot be const, and follow all fixed parameters. Cardinality
-  and reflection follow the generic chapter.
+  under its source name, where `Fields` is a type pack among the generic
+  parameters of the same declaration, named bare. Packs have no defaults,
+  cannot be const, and follow all fixed parameters. Cardinality and
+  reflection follow the generic chapter.
 - **FN-9.** Selected value-helper capabilities propagate transitively to the
   caller without adding parameters or activation inputs. Injection does not
   turn a value function into a node. Missing or phase-forbidden capabilities
@@ -79,8 +82,11 @@ Local source/native declaration matching is defined in the native chapter.
   level ends the body; a comma in a nested expression does not. Existing
   newline-continuation rules still apply. Operators and calls within that
   expression belong to the body. Parenthesize an anonymous function before
-  calling it or applying an operation to the function itself. These boundaries
-  select the body extent rather than leaving two interpretations.
+  calling it or applying an operation to the function itself: bare, it is a
+  whole value, such as an argument or an initializer, and rejects where it is
+  called, indexed, reached into, or an operand of an operator on either side.
+  These boundaries select the body extent rather than leaving two
+  interpretations.
 - **FN-11.** A lifted argument with a declared default does not require a valid
   input: bind the default when that input is invalid. Otherwise, an argument
   whose value contract admits null does not require a valid input: bind null
@@ -100,7 +106,8 @@ Local source/native declaration matching is defined in the native chapter.
 - **FN-14.** An anonymous function's scope is the scope around it plus its
   parameters (UNIT-12). From the functions and blocks around it, its body
   uses only parameters, generic parameters, `let` locals, and iteration
-  bindings. Use of an enclosing `var`, `state`, or `cache` rejects.
+  bindings. Use of an enclosing `var`, `state`, `cache`, or injected
+  capability rejects.
 
 Accepted declaration fragments showing modifier and ordinary-name positions:
 

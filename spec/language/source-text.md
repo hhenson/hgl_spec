@@ -64,9 +64,11 @@ A lone `_` is classified as a placeholder token, not an identifier.
   statement that can end, a token that can begin one does: `!`, `(`, and
   `[` start a new statement there, so a prefix `!`, a call, and an index do
   not continue a line. `-` there is the binary operator and continues the
-  line: a statement that began with it would have no effect. Two or more
-  line breaks between two tokens, as around a blank line, always separate.
-  A body's opening brace stays with its header.
+  line: a statement that began with it would have no effect. `.` there
+  reaches into what the line before ended with and continues it likewise:
+  `.member` (TYPE-7) begins no statement. Two or more line breaks between
+  two tokens, as around a blank line, always separate. A body's opening
+  brace stays with its header.
 - **LEX-6.** Inside blocks, indentation alone cannot join statements. Two
   ordinary statements on one physical line are rejected. An inject list may
   continue after a comma when the next line begins with a name.
@@ -91,19 +93,24 @@ module part use as export abstract impl instantiate operator fn struct enum
 requires is let var state cache inject return if else start when stop
 for while yield test assert eval true false null bool i64 f64 str bytes any
 date time datetime duration civil_datetime zoned_datetime zoned_time timezone
+atomic tuple list set dict rolling result ref signal delta error
 ```
 
-- **LEX-9.** `time` is also admitted as a field/member name and named-argument
-  label. `const` is a modifier only in positions that admit it; elsewhere it
-  is an ordinary identifier, including callable and imported names (FN-5).
-- **LEX-10.** The contextual names are `const`, `atomic`, `tuple`, `list`, `set`,
-  `dict`, `rolling`, `result`, `error`, `ref`, `signal`, `delta`, `native`, and
-  `type`; `switch`, `case`, `default`, `in`, `each`, `unbounded`, `properties`,
+- **LEX-9.** A member name is any word of identifier form (LEX-1), a hard
+  reserved word included: the name of a struct field or enum member, a member
+  reached with `.`, and a named-argument label cannot be taken for what the
+  word reserves: `quote.time`, `ranges.list`, `.error`, `order.if`. A
+  reserved word names no parameter, local, function, or type. `const` is a
+  modifier only in positions that admit it; elsewhere it is an ordinary
+  identifier, including callable and imported names (FN-5).
+- **LEX-10.** The contextual names are `const`, `native`, and `type`;
+  `switch`, `case`, `default`, `in`, `each`, `unbounded`, `properties`,
   `associative`, `commutative`, `identity`, `raises`, and `suppress_warning`;
-  and the capability names. Each acquires its special meaning only in its
-  defined positions. A contextual spelling is not globally reserved.
+  and the capability names (TIME-8). Each acquires its special meaning only in
+  its defined positions. A contextual spelling is not globally reserved.
   `str(value)` is a conversion expression despite `str` being reserved in
-  ordinary name positions.
+  ordinary name positions, and `error(message: text)` a constructor despite
+  `error` being so.
 
 ## Temporal literals
 
@@ -281,16 +288,16 @@ fn low(quote: Quote, margin: f64) -> f64 {
         2.0
     let reduced = half
         - margin
-    let result =
+    let lowest =
         (reduced)
     return \
-        result
+        lowest
 }
 ```
 
 `spread` is one declaration: `=>` cannot begin one. In `low`, `.bid` and
 `+ quote.ask` continue `let sum`, and `- margin` continues `let reduced`.
-`2.0` completes `let half` and `(reduced)` completes `let result`: neither
+`2.0` completes `let half` and `(reduced)` completes `let lowest`: neither
 first line can end. After a line that can end, `(reduced)` would begin a
 statement of its own. Had the line after `let half = sum /` been `-2.0`, its
 `-` would be the prefix operator: the line before has no operand to its
