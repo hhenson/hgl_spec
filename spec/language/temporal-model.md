@@ -37,9 +37,11 @@ flowchart LR
 - **TIME-3.** Function-level when handlers retain source order and evaluate
   independent conditions. A missing top-level modified selector subscribes to
   all temporal inputs; a missing validity selector requires all inputs valid.
-  Explicit `modified()` subscribes to none and explicit `valid()` requires
-  none valid. A selector hidden beneath negation/disjunction does not replace
-  the default. A when nested in another block is rejected.
+  Explicit `modified()` subscribes to no inputs. The selector `valid([])`
+  requires no inputs to be valid. It may stand alone in a when header or
+  appear as a top-level conjunct. The empty call `valid()` is rejected.
+  Selectors under negation or disjunction leave the default in place.
+  A when nested in another block is rejected.
 - **TIME-4.** Aggregate subscriptions cover every handler. Node-wide validity
   includes only requirements common to executable handlers; other guards stay
   per-handler. A payload read under manual admission must be dominated by a
@@ -79,15 +81,15 @@ module examples.handlers
 
 fn manual_forward(value: i64) -> i64 {
     inject out
-    when valid() {
+    when valid([]) {
         if valid(value) { return value }
         invalidate(out)
     }
 }
 ```
 
-Input modification still activates this handler; explicit empty validity
-permits its internal validity test. Invalid input invalidates the output.
+Input notifications still activate this handler. `valid([])` lets the body
+check validity itself. Invalid input invalidates the output.
 Deliberate rejection: an unguarded payload read under manual admission.
 Conformance planned.
 
