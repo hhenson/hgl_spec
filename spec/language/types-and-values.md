@@ -38,7 +38,7 @@ struct_member = member_name, ":", type, [ "=", const_expression ]
               | member_name, "=", const_expression ;
 enum_decl = [ "export" ], "enum", IDENTIFIER, "{", [ NL ],
             [ enum_member, { ",", [ NL ], enum_member }, [ "," ] ], [ NL ], "}" ;
-enum_member = IDENTIFIER, [ "=", const_expression ] ;
+enum_member = member_name, [ "=", const_expression ] ;
 ```
 
 Semantic field rules distinguish a typed introduction from an inherited-default

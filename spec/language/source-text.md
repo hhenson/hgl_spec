@@ -64,9 +64,11 @@ A lone `_` is classified as a placeholder token, not an identifier.
   statement that can end, a token that can begin one does: `!`, `(`, and
   `[` start a new statement there, so a prefix `!`, a call, and an index do
   not continue a line. `-` there is the binary operator and continues the
-  line: a statement that began with it would have no effect. Two or more
-  line breaks between two tokens, as around a blank line, always separate.
-  A body's opening brace stays with its header.
+  line: a statement that began with it would have no effect. `.` there
+  reaches into what the line before ended with and continues it likewise:
+  `.member` (TYPE-7) begins no statement. Two or more line breaks between
+  two tokens, as around a blank line, always separate. A body's opening
+  brace stays with its header.
 - **LEX-6.** Inside blocks, indentation alone cannot join statements. Two
   ordinary statements on one physical line are rejected. An inject list may
   continue after a comma when the next line begins with a name.
@@ -94,11 +96,12 @@ date time datetime duration civil_datetime zoned_datetime zoned_time timezone
 atomic tuple list set dict rolling result ref signal delta error
 ```
 
-- **LEX-9.** The reserved name of a type is also admitted as a field/member
-  name and named-argument label, where it cannot be taken for the type:
-  `quote.time`, `ranges.list`. It names no parameter, local, function, or
-  type. `const` is a modifier only in positions that admit it; elsewhere it
-  is an ordinary identifier, including callable and imported names (FN-5).
+- **LEX-9.** The reserved name of a type is also admitted as the name of a
+  struct field or enum member and as a named-argument label, where it cannot
+  be taken for the type: `quote.time`, `ranges.list`, `.error`. It names no
+  parameter, local, function, or type. `const` is a modifier only in
+  positions that admit it; elsewhere it is an ordinary identifier, including
+  callable and imported names (FN-5).
 - **LEX-10.** The contextual names are `const`, `native`, and `type`;
   `switch`, `case`, `default`, `in`, `each`, `unbounded`, `properties`,
   `associative`, `commutative`, `identity`, `raises`, and `suppress_warning`;
