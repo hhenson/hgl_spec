@@ -63,10 +63,10 @@ A lone `_` is classified as a placeholder token, not an identifier.
   clause continues its operator declaration. After a declaration or
   statement that can end, a token that can begin one does: `!`, `(`, and
   `[` start a new statement there, so a prefix `!`, a call, and an index do
-  not continue a line. `-` at the start of a line is the binary operator: a
-  statement that began with it would have no effect. Two or more line
-  breaks between two tokens, as around a blank line, always separate. A
-  body's opening brace stays with its header.
+  not continue a line. `-` there is the binary operator and continues the
+  line: a statement that began with it would have no effect. Two or more
+  line breaks between two tokens, as around a blank line, always separate.
+  A body's opening brace stays with its header.
 - **LEX-6.** Inside blocks, indentation alone cannot join statements. Two
   ordinary statements on one physical line are rejected. An inject list may
   continue after a comma when the next line begins with a name.
@@ -279,8 +279,10 @@ fn low(quote: Quote, margin: f64) -> f64 {
 `+ quote.ask` continue `let sum`, and `- margin` continues `let reduced`.
 `2.0` completes `let half` and `(reduced)` completes `let result`: neither
 first line can end. After a line that can end, `(reduced)` would begin a
-statement of its own. The `\` joins `result` to `return`: without it
-`return` would end there, and `result` would begin a statement of its own.
+statement of its own. Had the line after `let half = sum /` been `-2.0`, its
+`-` would be the prefix operator: the line before has no operand to its
+right. The `\` joins `result` to `return`: without it `return` would end
+there, and `result` would begin a statement of its own.
 
 Deliberate rejections: `12abc`, `1.5x`, `1e`, `1_`, `1h_`, `0x`, and
 `0b102` (LEX-18); `1__000` (LEX-22); `0xFFFF_FFFF_FFFF_FFFF` (LEX-23);
