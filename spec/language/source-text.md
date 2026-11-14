@@ -56,11 +56,17 @@ A lone `_` is classified as a placeholder token, not an identifier.
   can end. Ignore it inside parentheses, brackets, and angle-bracketed lists,
   and inside braces that hold a list rather than statements or members:
   import sets, constraint sets and `each` constraints, operator property
-  lists, pack types, and operator configuration (EXPR-10);
-  after a comma, binary/assignment operator, `=`, `=>`, `->`, or a type/named-
-  argument colon; and before a binary operator, result arrow, or matching
-  `else`. `!` does not continue a line. Postfix calls/indexing do not cross a
-  significant newline. A body's opening brace stays with its header.
+  lists, pack types, and operator configuration (EXPR-10). Elsewhere, ignore
+  the one line break between two tokens where the declaration or statement
+  before it is incomplete, or where the token after it cannot begin a
+  declaration or statement and continues the one before. A `properties`
+  clause continues its operator declaration. After a declaration or
+  statement that can end, a token that can begin one does: `!`, `(`, and
+  `[` start a new statement there, so a prefix `!`, a call, and an index do
+  not continue a line. `-` there is the binary operator and continues the
+  line: a statement that began with it would have no effect. Two or more
+  line breaks between two tokens, as around a blank line, always separate.
+  A body's opening brace stays with its header.
 - **LEX-6.** Inside blocks, indentation alone cannot join statements. Two
   ordinary statements on one physical line are rejected. An inject list may
   continue after a comma when the next line begins with a name.
@@ -133,8 +139,9 @@ duration_unit = "d" | "h" | "m" | "s" | "ms" | "us" ;
   microseconds in the duration domain. No exponent or internal whitespace is
   admitted. One day is exactly 86,400 seconds.
 - **LEX-14.** `<=>` is one full-comparison operator token, not `<` followed
-  by `=>` or `<=` followed by `>`. Its newline behavior follows LEX-5's binary
-  operator rule. Operator configuration uses ordinary brace/colon tokens.
+  by `=>` or `<=` followed by `>`. It continues a line as the other binary
+  operators do (LEX-5). Operator configuration uses ordinary brace/colon
+  tokens.
 
 Accepted illustrations, lexical fragments:
 
@@ -159,6 +166,7 @@ form to another keeps its tokens, their lines and columns, and its meaning.
 ```ebnf
 WHITESPACE = whitespace_character, { whitespace_character } ;
 whitespace_character = ? U+0020 or U+0009 ? ;
+LINE_CONTINUATION = "\\", { whitespace_character }, line_break ;
 PUNCTUATION = "..." | "<=>" | "//="
             | "::" | "->" | "=>" | "==" | "!=" | "<=" | ">=" | "&&" | "||"
             | "//" | "+=" | "-=" | "*=" | "/=" | "%="
@@ -210,6 +218,24 @@ PUNCTUATION = "..." | "<=>" | "//="
   line of only spaces and tabs contributes an empty line; any other line
   that does not start with them is rejected. Escapes apply as in other
   strings; a `"` needs one only where it would begin `"""`.
+- **LEX-26.** `\` followed by a line break, with only spaces or tabs between
+  them, is a line continuation. It separates tokens as whitespace does, and
+  its line break is not a line break: the next line continues the current
+  one whatever it begins with (LEX-5). No comment follows the `\` on its
+  line. Outside a string literal or comment, any other `\` begins no token
+  (LEX-16).
+- **LEX-27.** An opening bracket directly follows what it applies to: no
+  whitespace, comment, line break, or line continuation stands between
+  them. This holds for the `(` of a call or a parameter list, the `[` of an
+  index, the `<` of generic parameters or arguments, and the `{` of a
+  cardinality: `f<T>(x)`, `rows[i]`, and `...T{2}`, never `f <T>(x)`,
+  `f<T> (x)`, `rows [i]`, or `...T {2}`. A `(` or `[` on the next line is no
+  call's or index's: LEX-5 says whether it begins a statement or completes
+  the one before. A call here is a call suffix, the arguments of a typed or
+  delta constructor, a conversion such as `str(value)`, `eval(...)`,
+  `raises(...)`, a constraint call, and a warning annotation. In an
+  expression, a `<` that stands apart from the name before it is a
+  comparison.
 
 Accepted illustrations, lexical fragments:
 
@@ -222,6 +248,7 @@ Accepted illustrations, lexical fragments:
 | `0xFF`, `0b1111_1111` | Integer 255 |
 | `1_500ms` | Duration of one and a half seconds |
 | `"\u{20AC}"` | String of one character, U+20AC |
+| `rows[0](x)` | An index, then a call of what it selects |
 
 Accepted illustration, text block:
 
@@ -235,13 +262,51 @@ let usage = """
 `usage` is `Usage: run [options]`, a line feed, then `  -v  verbose`. Four
 columns of indentation are removed and no line feed ends the value.
 
+Accepted illustration, lines that continue:
+
+```hgl
+struct Quote {
+    bid: f64
+    ask: f64
+}
+
+fn spread(quote: Quote) -> f64
+    => quote.ask - quote.bid
+
+fn low(quote: Quote, margin: f64) -> f64 {
+    let sum = quote
+        .bid
+        + quote.ask
+    let half = sum /
+        2.0
+    let reduced = half
+        - margin
+    let result =
+        (reduced)
+    return \
+        result
+}
+```
+
+`spread` is one declaration: `=>` cannot begin one. In `low`, `.bid` and
+`+ quote.ask` continue `let sum`, and `- margin` continues `let reduced`.
+`2.0` completes `let half` and `(reduced)` completes `let result`: neither
+first line can end. After a line that can end, `(reduced)` would begin a
+statement of its own. Had the line after `let half = sum /` been `-2.0`, its
+`-` would be the prefix operator: the line before has no operand to its
+right. The `\` joins `result` to `return`: without it `return` would end
+there, and `result` would begin a statement of its own.
+
 Deliberate rejections: `12abc`, `1.5x`, `1e`, `1_`, `1h_`, `0x`, and
 `0b102` (LEX-18); `1__000` (LEX-22); `0xFFFF_FFFF_FFFF_FFFF` (LEX-23);
 `"\u{D800}"` (LEX-24); `"""text"""` on one line, a text-block line holding
 `"""` after other text, and a text-block line indented less than its closing
 delimiter (LEX-25);
 `@2026-09-03T09:30+24:00` (LEX-19); `1e400` (LEX-20);
-`xs: list<i64>= value` (LEX-17); a form feed between tokens (LEX-16).
+`xs: list<i64>= value` (LEX-17); a form feed between tokens (LEX-16);
+a blank line between `let half = sum /` and `2.0` (LEX-5); `\` followed on
+its line by a comment or by any token (LEX-26); `f (x)`, `x [i]`,
+`fn f <T>(x: T)`, `list <i64>`, and `...T {2}` (LEX-27).
 Conformance is planned.
 
 ## Core boundary

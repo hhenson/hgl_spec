@@ -15,8 +15,8 @@ parameters = parameter, { ",", parameter }, [ "," ] ;
 parameter = IDENTIFIER, ":", type
           | "const", IDENTIFIER, ":", value_type, [ "=", const_expression ]
           | IDENTIFIER, ":", value_type, "=", const_expression
-          | IDENTIFIER, ":", "...", type
-          | IDENTIFIER, ":", "...", "{", type, "}" ;
+          | IDENTIFIER, ":", "...", type, [ cardinality ]
+          | IDENTIFIER, ":", "...", "{", type, "}", [ cardinality ] ;
 function_body = "=>", expression | block ;
 function_expr = "fn", "(", [ lambda_parameters ], ")", [ "->", type ],
                 ( "=>", expression | block ) ;
@@ -64,10 +64,12 @@ Local source/native declaration matching is defined in the native chapter.
   handler without a write produces no tick. A value return yields an ordinary
   value. Anonymous functions obtain their parameter/result context from their
   accepting form; inference does not create a general callable value type.
-- **FN-8.** Packs capture positional or named arguments in order. Positional
-  packs may be homogeneous or use a declared type pack; named packs retain
-  source names. Packs have no defaults, cannot be const, and follow all fixed
-  parameters. Cardinality and reflection follow the generic chapter.
+- **FN-8.** Packs capture, in order, the arguments the fixed parameters leave.
+  `...T` captures the positional ones: all of type T, or each of its own type
+  when T is a declared type pack. `...{Fields}` captures the named ones, each
+  under its source name, where `Fields` is a declared type pack. Packs have
+  no defaults, cannot be const, and follow all fixed parameters. Cardinality
+  and reflection follow the generic chapter.
 - **FN-9.** Selected value-helper capabilities propagate transitively to the
   caller without adding parameters or activation inputs. Injection does not
   turn a value function into a node. Missing or phase-forbidden capabilities
