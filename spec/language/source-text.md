@@ -91,7 +91,7 @@ module part use as export abstract impl instantiate operator fn struct enum
 requires is let var state cache inject return if else start when stop
 for while yield test assert eval true false null bool i64 f64 str bytes any
 date time datetime duration civil_datetime zoned_datetime zoned_time timezone
-atomic tuple list set dict rolling result ref signal delta
+atomic tuple list set dict rolling result ref signal delta error
 ```
 
 - **LEX-9.** The reserved name of a type is also admitted as a field/member
@@ -99,13 +99,14 @@ atomic tuple list set dict rolling result ref signal delta
   `quote.time`, `ranges.list`. It names no parameter, local, function, or
   type. `const` is a modifier only in positions that admit it; elsewhere it
   is an ordinary identifier, including callable and imported names (FN-5).
-- **LEX-10.** The contextual names are `const`, `error`, `native`, and `type`;
+- **LEX-10.** The contextual names are `const`, `native`, and `type`;
   `switch`, `case`, `default`, `in`, `each`, `unbounded`, `properties`,
   `associative`, `commutative`, `identity`, `raises`, and `suppress_warning`;
   and the capability names (TIME-8). Each acquires its special meaning only in
   its defined positions. A contextual spelling is not globally reserved.
   `str(value)` is a conversion expression despite `str` being reserved in
-  ordinary name positions.
+  ordinary name positions, and `error(message: text)` a constructor despite
+  `error` being so.
 
 ## Temporal literals
 

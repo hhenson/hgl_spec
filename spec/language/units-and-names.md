@@ -18,7 +18,7 @@ declaration = function_decl | struct_decl | enum_decl | operator_decl
             | test_decl | test_context ;
 member_name = IDENTIFIER | type_word ;
 type_word = scalar_type | "atomic" | "tuple" | "list" | "set" | "dict"
-          | "rolling" | "result" | "ref" | "signal" | "delta" ;
+          | "rolling" | "result" | "ref" | "signal" | "delta" | "error" ;
 callable_name = IDENTIFIER ;
 ```
 

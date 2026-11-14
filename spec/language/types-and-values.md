@@ -74,10 +74,14 @@ override. `delta_type` syntax has the proposed formation domain below.
   inheritance or collection elements are rejected. Cross-module references to
   non-recursive public structs remain admitted.
 - **TYPE-7.** Enum members are distinct typed constants. `Type.member` names
-  one, through an alias as `alias::Type.member`. Unnumbered numbering
-  starts at zero and increments the previous member; explicit numbers reset
-  the next value. Values fit signed `i64`; duplicates and overflow reject.
-  Construction from an exact member name or assigned integer is checked.
+  one, through an alias as `alias::Type.member`. Where a position expects
+  the enum's type, `.member` names one too: the value of an argument or
+  configuration option of that type, an initializer or result declared with
+  it, an operand compared with it. With no enum type expected, `.member`
+  rejects. Unnumbered numbering starts at zero and increments the previous
+  member; explicit numbers reset the next value. Values fit signed `i64`;
+  duplicates and overflow reject. Construction from an exact member name or
+  assigned integer is checked.
   String conversion returns the member name. Numeric conversion is explicit.
 - **TYPE-8.** `any` owns a boxed value with its exact contained type; boxing
   adds no numeric conversion. Equality across contained types is false.
@@ -145,14 +149,23 @@ module examples.enums
 
 export enum Side { buy, sell }
 
+const fn opposite(side: Side) -> Side {
+    if side == .buy { return .sell }
+    return .buy
+}
+
 test members {
     assert Side.buy != Side.sell
     assert str(Side.sell) == "sell"
+    assert opposite(.buy) == Side.sell
 }
 ```
 
 `Side.buy` and `Side.sell` name the members. A module that imports `Side`
-names them the same way. Conformance is planned.
+names them the same way. In `opposite`, the parameter, the result, and the
+other operand each give `.buy` and `.sell` the type `Side`. Deliberate source
+rejection: `let side = .buy`, where nothing gives a type. Conformance is
+planned.
 
 Accepted value-function fragment:
 

@@ -27,7 +27,7 @@ postfix_expr = primary_expr, { call_suffix | index_suffix | member_suffix | "?" 
 call_suffix = "(", [ arguments ], ")" ;
 index_suffix = "[", expression, "]" ;
 member_suffix = ".", member_name ;
-primary_expr = literal | IDENTIFIER | qualified_name
+primary_expr = literal | IDENTIFIER | qualified_name | implied_member
              | "(", expression, ")" | tuple_literal | sequence_literal
              | typed_constructor | delta_constructor | type_call
              | function_expr | if_expression
@@ -43,7 +43,8 @@ sequence_pair = sequence_item, ":", sequence_item ;
 sequence_item = expression | "_" ;
 typed_constructor = ( IDENTIFIER | qualified_name ), generic_arguments,
                     "(", [ arguments ], ")" ;
-type_call = ( "str" | "bytes" | "any" ), "(", [ arguments ], ")" ;
+type_call = ( "str" | "bytes" | "any" | "error" ), "(", [ arguments ], ")" ;
+implied_member = ".", member_name ;
 local_decl = ( "let" | "var" ), IDENTIFIER, [ ":", type ], "=", expression
            | "var", IDENTIFIER, ":", type ;
 assignment = place, assignment_operator, expression ;
@@ -105,7 +106,7 @@ GEN-14 resolves generic construction versus comparison using declaration lookup.
   alone does not select a dictionary, timed trace, or sparse delta. `_` is not
   an ordinary value and remains restricted by EXPR-8 and the trace profile.
 - **EXPR-10.** A symbol operator may carry named configuration immediately
-  after its token: `a /{zero: ieee} b`. Bind these arguments to the same core
+  after its token: `a /{zero: .ieee} b`. Bind these arguments to the same core
   identity and its public configuration parameters, using the declaration's
   roles, defaults, and ordinary argument checks. Configuration changes neither
   precedence nor associativity and creates no ambient policy. A named-entry
@@ -171,21 +172,21 @@ The fourth fragment has one pair entry. It acquires timed-trace meaning only
 at an admitted trace use site. Deliberate syntax rejection under EXPR-9:
 `[a, b: c]`. Executable conformance is planned.
 
-Accepted expression fragments, with numeric operands `a`/`b` and the core
-policy values `ieee`/`nan` in scope:
+Accepted expression fragments, with numeric operands `a`/`b` in scope; core's
+`zero` option is an enum with members `ieee` and `nan` (TYPE-7):
 
 ```hgl
 a =={abs: 1e-9, rel: 1e-6} b
 a / b
-a /{zero: ieee} b
-a /{zero: nan} b
+a /{zero: .ieee} b
+a /{zero: .nan} b
 a <=> b
 ```
 
 The division forms select the core default or an explicit policy. Full comparison
 produces a core outcome that ordinary bindings and control flow can inspect.
-With the public core operator in scope, `a /{zero: ieee} b` binds the same
-operands and configuration as `div_(a, b, zero: ieee)`.
+With the public core operator in scope, `a /{zero: .ieee} b` binds the same
+operands and configuration as `div_(a, b, zero: .ieee)`.
 Deliberate source rejection under EXPR-10: duplicate `zero` configuration or an
 option absent from the public operator contract. Runtime observations belong
 to core; executable conformance is planned.
@@ -205,13 +206,13 @@ are unavailable there. Deliberate source rejection under EXPR-14: binding a
 time-series tolerance to the built-in scalar `abs` option. Core owns executable
 observations; conformance is planned.
 
-Accepted value-function fragments for EXPR-12, with the core `error` policy
-value in scope:
+Accepted value-function fragments for EXPR-12; `error` is a member of the
+`zero` option's enum:
 
 ```hgl
 const fn ieee_ratio(a: f64, b: f64) -> f64 => a / b
 const fn checked_ratio(a: f64, b: f64) -> result<f64, error> =>
-    a /{zero: error} b
+    a /{zero: .error} b
 ```
 
 The return annotations check the distinct selected result types. Deliberate
@@ -219,14 +220,14 @@ source type rejection, without handling the selected result value:
 
 ```hgl
 const fn unchecked_ratio(a: f64, b: f64) -> f64 =>
-    a /{zero: error} b
+    a /{zero: .error} b
 ```
 
 No expected output type silently changes the policy.
 
 Deliberate source rejection under EXPR-12, a bounded expression in a value
 function where `a`/`b` are f64 and `selected_zero` is a runtime policy value
-chosen between `ieee` and `error`:
+chosen between `.ieee` and `.error`:
 
 ```hgl
 a /{zero: selected_zero} b

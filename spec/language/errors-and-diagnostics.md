@@ -180,16 +180,16 @@ An absent strict lookup instead fails with `value.missing_key`. Conformance plan
 
 ## Checked-division propagation
 
-Accepted temporal declaration fragments, with the core `error` policy value
-in scope and an admitted f64 input publication:
+Accepted temporal declaration fragments, with an admitted f64 input
+publication; `error` is a member of the `zero` option's enum:
 
 ```hgl
 fn checked_data(value: f64) -> result<f64, error> {
-    when { return value /{zero: error} 0.0 }
+    when { return value /{zero: .error} 0.0 }
 }
 
 fn propagated(value: f64) -> f64 {
-    when { return (value /{zero: error} 0.0)? }
+    when { return (value /{zero: .error} 0.0)? }
 }
 ```
 
