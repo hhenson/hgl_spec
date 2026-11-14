@@ -59,11 +59,12 @@ A lone `_` is classified as a placeholder token, not an identifier.
   lists, pack types, and operator configuration (EXPR-10). Elsewhere, ignore
   the one line break between two tokens where the declaration or statement
   before it is incomplete, or where the token after it cannot begin a
-  declaration or statement and continues the one before. A token that can
-  begin one does: `-`, `!`, `(`, and `[` start a new statement, so a prefix
-  operator, a call, and an index do not continue a line. Two or more line
-  breaks between two tokens, as around a blank line, always separate. A
-  body's opening brace stays with its header.
+  declaration or statement and continues the one before. A `properties`
+  clause continues its operator declaration. A token that can begin a
+  declaration or statement does: `-`, `!`, `(`, and `[` start a new
+  statement, so a prefix operator, a call, and an index do not continue a
+  line. Two or more line breaks between two tokens, as around a blank line,
+  always separate. A body's opening brace stays with its header.
 - **LEX-6.** Inside blocks, indentation alone cannot join statements. Two
   ordinary statements on one physical line are rejected. An inject list may
   continue after a comma when the next line begins with a name.
