@@ -121,8 +121,8 @@ expression; group a constant expression that uses them as operand data.
   the parameter, and one that does not rejects. Constraining N's type does
   not resolve N's value.
 - **GEN-14.** Retain `<...>` for generic arguments. In a type position, or
-  directly following (LEX-27) a name resolved to a generic type or a generic
-  function in an expression, `<` opens generic arguments rather than a
+  directly following (LEX-27) a name resolved to a generic type, function,
+  or operator in an expression, `<` opens generic arguments rather than a
   comparison. Check each argument against the corresponding parameter kind;
   shared name syntax is not a second interpretation. Reject an invalid
   application without comparison fallback.
