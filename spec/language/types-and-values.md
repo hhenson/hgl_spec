@@ -85,8 +85,8 @@ domain below.
   A field is recursive when it holds its own struct: in `struct A { b: B }`,
   `struct B { c: C }`, `struct C { a: A }` each of the three fields is.
   Recursive fields stay within their defining module. So that the recursion
-  can end, a recursive field is optional (TYPE-4), `Node?` or
-  `atomic<Node?>`. It gives a struct of its cycle each generic parameter
+  can end, a recursive field is optional (TYPE-4): `Node?`, `atomic<Node?>`,
+  or `atomic<Node>?`. It gives a struct of its cycle each generic parameter
   whole, `Node<T>`, and no type built from one, `Node<list<T>>`. Descendants
   cannot remove a null default it has.
   Cycles through inheritance are rejected, and so are cycles through
@@ -111,7 +111,13 @@ domain below.
 - **TYPE-14.** `T?` denotes an ordinary value that is either a T or null, where
   T is an admitted ordinary value type. It may annotate parameters, results,
   bindings, and admitted container element/value positions. A set's element
-  and a dictionary's key are never null and take no `?`. Nullability is
+  and a dictionary's key are never null and take no `?`. Where T is no
+  ordinary value type, as `rolling<f64, 5>`, `atomic<Quote>`, `ref<f64>`,
+  and `signal` are not, `T?` is admitted only as the whole type of a
+  function's temporal parameter, whose argument may be omitted (UNIT-8), or
+  of a struct field, which is then optional (TYPE-4); `signal` is no field
+  with `?` or without (TYPE-12). It is no result type, local's annotation,
+  or part of another type. Nullability is
   independent of a callable's temporal/value role and of fixed configuration.
   It does not make null an admitted value of unqualified T. Payload use follows
   [nullable refinement](errors-and-diagnostics.md#nullable-value-refinement).
@@ -129,19 +135,30 @@ domain below.
   membership. `atomic<V>` stops expansion at a complete ordinary V. For
   non-composite S, `atomic<S>` normalizes to S before matching, recursively.
 - **TYPE-10.** `list<T>` denotes a growing shape; fixed sizes are nonnegative
-  constants. `unbounded` is the size sentinel. Size participates in identity;
+  integer constants. A generic value parameter declared with a type other
+  than `i64` is no size; one declared with none is a size (GEN-13).
+  `unbounded` is the size sentinel. Size participates in identity;
   an unsized parameter pattern can accept a fixed size. A tuple retains
   positional identity and is not a fixed list alias.
 - **TYPE-11.** A rolling maximum/minimum has one constant kind: tick count or
-  duration. Omitted minimum equals maximum. Tick sizes are positive; duration
-  maximum is positive and minimum may be zero. Minimum cannot exceed maximum.
-  Size/kind are part of identity; window publications obey core's contract.
+  duration. A size that is a generic value parameter has its declared type's
+  kind: `i64` a tick count, `duration` a duration. One declared with no type
+  has its kind once resolved. Omitted minimum equals
+  maximum: `rolling<i64, 5>` and `rolling<i64, 5, 5>` are one type. Tick
+  sizes are positive; duration maximum is positive and minimum may be zero:
+  `rolling<f64, 5m, 0s>` is admitted and `rolling<f64, 0s>` rejects. Minimum
+  cannot exceed maximum. Size/kind are part of identity; window publications
+  obey core's contract.
 - **TYPE-12.** `ref<T>` designates an endpoint, not an ordinary payload type.
   It is excluded from const values, atomic payloads, keys, and window values.
+  An ordinary value type is written with no `rolling`, `ref`, `atomic`, or
+  `signal` at any depth: `set<list<ref<f64>>>` rejects. A dictionary's value
+  and the argument of `ref` or `delta` are any type.
   `signal` is a complete temporal input constraint with no readable payload:
-  the whole type of a function's temporal parameter. It is not a result,
-  nested shape, field, const value, local's annotation, or anonymous
-  function's parameter.
+  the whole type of a function's temporal parameter, or of its positional
+  pack, `ticks: ...signal`. It is not a result, nested shape, field, const
+  value, local's annotation, or anonymous function's parameter. A `signal`
+  input takes no default but `null`.
 - **TYPE-13.** Result and error envelopes are ordinary atomic values; their
   [tag/refinement rules](errors-and-diagnostics.md) govern payload access.
   Silence, invalidity, null absence, and an error outcome are distinct.
@@ -180,10 +197,15 @@ struct Tree {
 struct Link {
     next: Link?
 }
+
+struct Chain {
+    next: atomic<Chain>?
+}
 ```
 
 A `Node` holds the next one or null, a `Tree` its children as one snapshot
-or null, and a `Link` the next one or null. Deliberate rejections:
+or null, a `Link` the next one or null, and a `Chain` a snapshot of the next
+one or nothing. Deliberate rejections:
 `children: list<Tree>`, a cycle through collection elements outside an
 `atomic<...>`; `next: atomic<Node>`, which is not optional; `size: i64 =
 null`, a null default on a field that is not optional; and, in a generic

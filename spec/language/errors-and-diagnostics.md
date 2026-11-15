@@ -109,11 +109,14 @@ infrastructure and cannot satisfy a source-rejection expectation.
 | type | `pack.undeclared` | `...{Name}` names no type pack of its declaration (FN-8); name in the braces |
 | type | `pack.cardinality` | Cardinality's upper bound is below its lower (GEN-10); upper bound |
 | type | `type.not_a_type` | Name in a type position is no type: a function, operator, local, generic value parameter, or a type pack where one type is needed (UNIT-10, GEN-2, GEN-13); name |
-| type | `type.not_ordinary` | `rolling`, `ref`, `atomic` or `signal` where an ordinary value type is required, under a `?` included (TYPE-12, TYPE-14, FN-1); offending type |
+| type | `type.not_ordinary` | `rolling`, `ref`, `atomic` or `signal` where an ordinary value type is required, or under a `?` that is not on the whole type of an input or a field (TYPE-12, TYPE-14, FN-1); offending type |
 | type | `signal.position` | `signal` other than as the whole type of a function's temporal parameter (TYPE-12); `signal` |
 | type | `nullable.key` | Set element or dictionary key has a `?` (TYPE-14); the nullable type |
 | type | `generic.argument_count` | Generic type given the wrong number of arguments, or arguments given to a type or generic parameter that takes none (GEN-2, GEN-10, GEN-13); name |
 | type | `list.size` | List size is not a nonnegative count (TYPE-10); size |
+| type | `generic.kind_conflict` | Generic parameter used as a type and as a value (GEN-13); later use |
+| type | `generic.kind_unresolved` | No field or constraint says what a struct's generic parameter is (GEN-13); parameter name |
+| type | `generic.argument_kind` | Generic argument is a value where the parameter is a type, or a type where it is a value (GEN-14); argument |
 | type | `struct.parent` | Parent is not an abstract struct (TYPE-3); parent |
 | type | `struct.duplicate_parent` | Struct lists one parent twice (TYPE-3); later parent |
 | type | `struct.inheritance_cycle` | Structs inherit from one another (TYPE-6); a parent of the first struct of the cycle |
@@ -126,7 +129,7 @@ infrastructure and cannot satisfy a source-rejection expectation.
 | type | `enum.duplicate_value` | Two members of an enum share a number (TYPE-7); later member |
 | type | `enum.overflow` | Unnumbered member follows the largest `i64` (TYPE-7); member |
 | type | `enum.duplicate_member` | Two members of an enum share a name (TYPE-7); later name |
-| type | `rolling.size_kind` | Wrong/mixed size kind; offending size |
+| type | `rolling.size_kind` | Wrong/mixed size kind; offending size, the minimum when the two differ in kind |
 | type | `rolling.size_bounds` | Invalid bounds; offending size/minimum |
 | type | `yield.time_type` | Wrong time type; yield time operand |
 | type | `test.raises_code` | Not a literal catalogued execution code; argument |

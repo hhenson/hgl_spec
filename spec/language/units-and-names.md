@@ -65,8 +65,11 @@ admits one as a member name.
   const configuration, or a temporal input. An omitted temporal argument is
   wired as a constant of its default, so the default is a value a constant of
   the parameter's type can publish. A default of `null` marks a temporal input
-  optional: an omitted argument binds an input that is never valid. A default
-  cannot use caller bindings or invent numeric generic values.
+  optional: an omitted argument binds an input that is never valid. A
+  parameter whose type is written `T?` needs no default to be omitted: it is
+  taken to have a default of `null`, so an omitted value parameter is null
+  and an omitted temporal input is never valid. A default cannot use caller
+  bindings or invent numeric generic values.
 - **UNIT-9.** Compare inherited defaults by bound expression and canonical type
   after substitution, before folding. Declaration identity matters; source
   location and alias spelling do not. Conflicting inherited defaults require
@@ -77,7 +80,11 @@ admits one as a member name.
   (GEN-1); a module declaration; a selective import; or the prelude. Direct
   capability receivers select their capability operation; reserved activation
   forms are not shadowable identifiers. Resolution grants no payload read
-  during composition and does not change default binding (UNIT-7).
+  during composition and does not change default binding (UNIT-7). A name
+  in a type position names a struct, an enum, a native type, or a generic
+  parameter that is a type. The types of a signature see the declaration's
+  generic parameters and the scope around the declaration, not its
+  parameters: in `fn f(n: i64, items: list<f64, n>)` the size names no `n`.
 - **UNIT-11.** The prelude is the public declarations of core's mandatory
   module, and nothing else. Every module binds them without a `use`.
 - **UNIT-12.** A block's scope is the scope around it plus its own bindings;

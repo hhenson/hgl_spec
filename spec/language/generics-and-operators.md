@@ -51,7 +51,9 @@ expression; group a constant expression that uses them as operand data.
   imposes its own admitted domain.
 - **GEN-2.** Resolve every needed generic from actual inputs, requested output,
   or solvable equality. A generic struct application supplies all arguments or
-  infers them from constructor fields and expected type. Partial applications,
+  infers them from constructor fields and expected type. A type position, a
+  parent included, has nothing to infer from and supplies them: `value: Box`
+  rejects where `Box(value: 7)` infers. Partial applications,
   generic defaults, and `_` struct arguments are not admitted. A type pack is
   a sequence, not a singular source type.
 - **GEN-3.** `requires` may use type/category membership, equalities, field/pack
@@ -93,7 +95,12 @@ expression; group a constant expression that uses them as operand data.
   A cardinality follows the pack it bounds, on a pack parameter or a generic
   pack parameter: `{n}`, `{n:*}`, and `{n:m}` mean exact, minimum, and
   inclusive bounded arity, with m at least n. A pack without one admits any
-  number of arguments, none included. `schemas(pack)` is a runtime-only
+  number of arguments, none included. A generic struct takes an argument for
+  each parameter that is no pack and, for its pack, as many as the pack
+  admits; one whose only parameter is a pack that admits none may be named
+  bare. An argument that names a type pack stands for as many as that pack
+  holds; where that is a range, the application rejects only when no length
+  in it fits. `schemas(pack)` is a runtime-only
   borrowed schema view, not a storable value/result or general reflection
   facility.
 - **GEN-11.** Argument inference removes reference boundaries recursively from
@@ -124,8 +131,10 @@ expression; group a constant expression that uses them as operand data.
   directly following (LEX-27) a name resolved to a generic type, function,
   or operator in an expression, `<` opens generic arguments rather than a
   comparison. Check each argument against the corresponding parameter kind;
-  shared name syntax is not a second interpretation. Reject an invalid
-  application without comparison fallback.
+  shared name syntax is not a second interpretation. A lone name among the
+  arguments is a constant when it names a value: a generic value parameter,
+  a local, or a parameter. Reject an invalid application without comparison
+  fallback.
   Ordinary `<` and `>` do not order type names. At the current generic nesting
   level, `>` closes the argument list; parenthesize a greater-than expression
   used as a constant argument. Nested generic closers follow LEX-8.

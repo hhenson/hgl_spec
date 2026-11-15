@@ -118,6 +118,17 @@ fn scaled(value: f64, factor: f64 = 2.0) -> f64 => value * factor
 the connection `rate`. Deliberate source rejection under FN-1: a `const fn`
 parameter of type `ref<f64>`. Executable conformance is planned.
 
+Accepted declaration fragment, an input that may be omitted (TYPE-14):
+
+```hgl
+fn sampled(value: f64, tick: signal?) -> f64 => value
+```
+
+`sampled(price)` omits `tick`, an input that is then never valid (UNIT-8).
+Deliberate source rejections: a result of type `ref<f64>?` (TYPE-14);
+`tick: signal = 1`, a default a signal cannot take (TYPE-12). Executable
+conformance is planned.
+
 Accepted declaration fragments showing modifier and ordinary-name positions:
 
 ```hgl
