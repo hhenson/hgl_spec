@@ -77,7 +77,11 @@ admits one as a member name.
   (GEN-1); a module declaration; a selective import; or the prelude. Direct
   capability receivers select their capability operation; reserved activation
   forms are not shadowable identifiers. Resolution grants no payload read
-  during composition and does not change default binding (UNIT-7).
+  during composition and does not change default binding (UNIT-7). A name
+  in a type position names a struct, an enum, a native type, or a generic
+  parameter that is a type. The types of a signature see the declaration's
+  generic parameters and the scope around the declaration, not its
+  parameters: in `fn f(n: i64, items: list<f64, n>)` the size names no `n`.
 - **UNIT-11.** The prelude is the public declarations of core's mandatory
   module, and nothing else. Every module binds them without a `use`.
 - **UNIT-12.** A block's scope is the scope around it plus its own bindings;

@@ -129,19 +129,27 @@ domain below.
   membership. `atomic<V>` stops expansion at a complete ordinary V. For
   non-composite S, `atomic<S>` normalizes to S before matching, recursively.
 - **TYPE-10.** `list<T>` denotes a growing shape; fixed sizes are nonnegative
-  constants. `unbounded` is the size sentinel. Size participates in identity;
+  integer constants, a generic value parameter among them declared `i64`.
+  `unbounded` is the size sentinel. Size participates in identity;
   an unsized parameter pattern can accept a fixed size. A tuple retains
   positional identity and is not a fixed list alias.
 - **TYPE-11.** A rolling maximum/minimum has one constant kind: tick count or
-  duration. Omitted minimum equals maximum. Tick sizes are positive; duration
-  maximum is positive and minimum may be zero. Minimum cannot exceed maximum.
-  Size/kind are part of identity; window publications obey core's contract.
+  duration. A size that is a generic value parameter has its declared type's
+  kind: `i64` a tick count, `duration` a duration. Omitted minimum equals
+  maximum: `rolling<i64, 5>` and `rolling<i64, 5, 5>` are one type. Tick
+  sizes are positive; duration maximum is positive and minimum may be zero:
+  `rolling<f64, 5m, 0s>` is admitted and `rolling<f64, 0s>` rejects. Minimum
+  cannot exceed maximum. Size/kind are part of identity; window publications
+  obey core's contract.
 - **TYPE-12.** `ref<T>` designates an endpoint, not an ordinary payload type.
   It is excluded from const values, atomic payloads, keys, and window values.
+  An ordinary value type is written with no `rolling`, `ref`, `atomic`, or
+  `signal` at any depth: `set<list<ref<f64>>>` rejects. A dictionary's value
+  and the argument of `ref` or `delta` are any type.
   `signal` is a complete temporal input constraint with no readable payload:
-  the whole type of a function's temporal parameter. It is not a result,
-  nested shape, field, const value, local's annotation, or anonymous
-  function's parameter.
+  the whole type of a function's temporal parameter, or of its positional
+  pack, `ticks: ...signal`. It is not a result, nested shape, field, const
+  value, local's annotation, or anonymous function's parameter.
 - **TYPE-13.** Result and error envelopes are ordinary atomic values; their
   [tag/refinement rules](errors-and-diagnostics.md) govern payload access.
   Silence, invalidity, null absence, and an error outcome are distinct.
