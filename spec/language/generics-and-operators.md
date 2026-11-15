@@ -299,26 +299,26 @@ Deliberate rejection: `doubled(1.5)` in a `const fn`, where no value
 candidate takes an `f64`.
 
 Accepted declaration fragment, candidates for the values of a const option
-(GEN-6); `Zero` and `div_` here stand for core's:
+that their operator declares (GEN-6):
 
 ```hgl
 export enum Zero { ieee, nan, error }
 
-operator div_<L, R, O>(lhs: L, rhs: R, const zero: Zero = .ieee) -> O
+operator ratio<L, R, O>(lhs: L, rhs: R, const zero: Zero = .ieee) -> O
 
-native impl fn div_(lhs: f64, rhs: f64, const zero: Zero) -> f64
+native impl fn ratio(lhs: f64, rhs: f64, const zero: Zero) -> f64
     requires zero in {.ieee, .nan}
 
-native impl fn div_(lhs: f64, rhs: f64, const zero: Zero) -> result<f64, error>
+native impl fn ratio(lhs: f64, rhs: f64, const zero: Zero) -> result<f64, error>
     requires zero == .error
 ```
 
-For temporal `a` and `b` of `f64`, `a / b` takes the default `.ieee`,
-selects the first candidate and is an `f64`, as `a /{zero: .nan} b` is.
-`a /{zero: .error} b` selects the second and is a `result<f64, error>`. A
-value candidate is written the same way with `zero: Zero`. Deliberate
-rejection under GEN-3: `requires rhs == 0.0` on either candidate, which
-reads a temporal input.
+For temporal `a` and `b` of `f64`, `ratio(a, b)` takes the default `.ieee`,
+selects the first candidate and is an `f64`, as `ratio(a, b, zero: .nan)`
+is. `ratio(a, b, zero: .error)` selects the second and is a
+`result<f64, error>`. A value candidate is written the same way with
+`zero: Zero`. Deliberate rejection under GEN-3: `requires rhs == 0.0` on
+either candidate, which reads a temporal input.
 
 Accepted declaration fragment, an option that one candidate declares
 (GEN-6):
