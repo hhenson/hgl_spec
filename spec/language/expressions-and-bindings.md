@@ -69,12 +69,13 @@ GEN-14 resolves generic construction versus comparison using declaration lookup.
 - **EXPR-2.** Evaluate ordinary call/constructor arguments once in written
   order. Positional arguments precede named ones; reject duplicates, unknown
   names, missing required arguments, and wrong types. Named arguments use
-  the selected public callable's parameter names. Positional arguments fill
-  the parameters from the first and stop where they stop; named arguments
-  come in any order, and a parameter that may be omitted may be left out. A
-  parameter that may be omitted, one with a default or a type written `T?`,
-  follows every parameter that may not (UNIT-8). A constructor's arguments
-  are all named (TYPE-5).
+  the selected public callable's parameter names; a call of an operator may
+  also name an option its candidates declare (GEN-6). Positional arguments
+  fill the parameters from the first and stop where they stop; named
+  arguments come in any order, and a parameter that may be omitted may be
+  left out. A parameter that may be omitted, one with a default or a type
+  written `T?`, follows every parameter that may not (UNIT-8). A
+  constructor's arguments are all named (TYPE-5).
 - **EXPR-3.** Initialization fixes a binding's value/connection category and
   type; an annotation checks that category rather than changing it. `let` is
   immutable, and so is a parameter; `var` may be assigned within the same
@@ -128,15 +129,16 @@ GEN-14 resolves generic construction versus comparison using declaration lookup.
   entries that give no type: `[]`, `[null]`.
 - **EXPR-10.** A symbol operator may carry named configuration immediately
   after its token: `a /{zero: .ieee} b`. The brace is the next token; spaces
-  may stand between. Bind these arguments to the same core identity and its
-  public configuration parameters, using the declaration's roles, defaults,
+  may stand between. Bind these arguments to the same core identity as the
+  named arguments of a call of it: to the operator's parameters and the
+  options its candidates declare (GEN-6), with their roles, defaults,
   and ordinary argument checks. Configuration changes neither precedence nor
   associativity and creates no ambient policy. A named-entry brace in this
   position is configuration, not the right operand's block. `{}` there is
   configuration only when an operand follows it on its line; otherwise it is
-  the operand's empty block. Reject empty configuration, unknown/duplicate
-  options, incompatible types, and options unsupported by the selected
-  operator contract. Intrinsic harness and constraint forms retain their own
+  the operand's empty block. Reject empty configuration, duplicate
+  options, incompatible types, and an option that no candidate for the
+  operands declares. Intrinsic harness and constraint forms retain their own
   rules.
 - **EXPR-11.** `<=>` is full comparison at the comparison precedence tier.
   It returns core's `CmpResult`, an ordinary enum, rather than a bool; `==`,
@@ -214,8 +216,8 @@ The division forms select the core default or an explicit policy. Full compariso
 produces a core outcome that ordinary bindings and control flow can inspect.
 With the public core operator in scope, `a /{zero: .ieee} b` binds the same
 operands and configuration as `div_(a, b, zero: .ieee)`.
-Deliberate source rejection under EXPR-10: duplicate `zero` configuration or an
-option absent from the public operator contract. Runtime observations belong
+Deliberate source rejection under EXPR-10: duplicate `zero` configuration or
+an option that no candidate for the operands declares. Runtime observations belong
 to core; executable conformance is planned.
 
 Accepted value-expression fragments, with admitted f64 helpers `left`, `right`,
