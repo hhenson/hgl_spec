@@ -103,13 +103,16 @@ expression; group a constant expression that uses them as operand data.
   binding constrains every later occurrence in declared parameter order.
 - **GEN-13.** A generic parameter denotes a type, type pack, or compile-time
   ordinary value, never a temporal connection or current payload. Infer its
-  kind from signature positions and constraints. An explicit `const N: V`
-  declares a value parameter of ordinary type V. `type(N) in {i64, f64}`
-  constrains the ordinary type of a value parameter N; `T in {i64, f64}`
-  instead constrains a type parameter T. `type(N)` here is compile-time
-  reflection, not a runtime payload read or a general first-class type value.
-  Reject conflicting kinds or an unresolved kind lacking a determining
-  declaration/constraint. Constraining N's type does not resolve N's value.
+  kind from signature positions and constraints: the type of a parameter, a
+  result, or a field, or a part of one, makes it a type; a size or a default
+  makes it a value; as an argument of a generic type it is what that type's
+  parameter is. An explicit `const N: V` declares a value parameter of
+  ordinary type V. `type(N) in {i64, f64}` constrains the ordinary type of a
+  value parameter N; `T in {i64, f64}` instead constrains a type parameter T.
+  `type(N)` here is compile-time reflection, not a runtime payload read or a
+  general first-class type value. Reject conflicting kinds or an unresolved
+  kind lacking a determining declaration/constraint. Constraining N's type
+  does not resolve N's value.
 - **GEN-14.** Retain `<...>` for generic arguments. In a type position, or
   directly following (LEX-27) a name resolved to a generic type in an
   expression, `<` opens generic arguments rather than a comparison. Check

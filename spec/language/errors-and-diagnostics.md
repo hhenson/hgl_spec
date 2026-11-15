@@ -112,7 +112,7 @@ infrastructure and cannot satisfy a source-rejection expectation.
 | type | `field.conflict` | Field's type or optionality differs between two parents, or between a struct and a parent (TYPE-4); field, or the later parent |
 | type | `field.not_inherited` | `name = value` names no field of a parent (TYPE-4); name |
 | type | `field.duplicate` | Two members of a struct share a name (TYPE-4); later name |
-| type | `field.recursive` | Field that makes its struct hold itself is not `atomic<...>` defaulted to null, or a descendant's default removes the null (TYPE-6); field name, or the parent whose argument makes the field hold the struct |
+| type | `field.recursive` | Field that makes its struct hold itself is not `atomic<...>` defaulted to null, or gives a struct of its cycle a type built from a generic parameter, or a descendant's default removes the null (TYPE-6); field name, or the parent whose argument makes the field hold the struct |
 | type | `enum.value` | Enum number is not an integer (TYPE-7); number |
 | type | `enum.duplicate_value` | Two members of an enum share a number (TYPE-7); later member |
 | type | `enum.overflow` | Unnumbered member follows the largest `i64` (TYPE-7); member |
