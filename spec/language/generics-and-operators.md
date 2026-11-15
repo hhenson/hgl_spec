@@ -87,9 +87,10 @@ expression; group a constant expression that uses them as operand data.
   `each T in types(Ts)` checks every selected type; an empty conjunction is true.
   A cardinality follows the pack it bounds, on a pack parameter or a generic
   pack parameter: `{n}`, `{n:*}`, and `{n:m}` mean exact, minimum, and
-  inclusive bounded arity. A pack without one admits any number of
-  arguments, none included. `schemas(pack)` is a runtime-only borrowed
-  schema view, not a storable value/result or general reflection facility.
+  inclusive bounded arity, with m at least n. A pack without one admits any
+  number of arguments, none included. `schemas(pack)` is a runtime-only
+  borrowed schema view, not a storable value/result or general reflection
+  facility.
 - **GEN-11.** Argument inference removes reference boundaries recursively from
   an otherwise unbound generic; such an input observes values. An explicit
   ref pattern binds its underlying type. A stated resolution preserves its

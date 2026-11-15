@@ -61,9 +61,11 @@ admits one as a member name.
   default that names one of them rejects. Imported defaults retain their
   defining closure, including private references.
 - **UNIT-8.** Defaults remain required-constant/cold expressions checked against
-  the expected type. Value-function parameters and const configuration may
-  have defaults; ordinary temporal parameters may not. A default cannot use
-  caller bindings or invent numeric generic values.
+  the expected type. Any parameter but a pack may have one: a value function's,
+  const configuration, or a temporal input. An omitted temporal argument is
+  wired as a constant of its default, so the default is a value a constant of
+  the parameter's type can publish. A default cannot use caller bindings or
+  invent numeric generic values.
 - **UNIT-9.** Compare inherited defaults by bound expression and canonical type
   after substitution, before folding. Declaration identity matters; source
   location and alias spelling do not. Conflicting inherited defaults require

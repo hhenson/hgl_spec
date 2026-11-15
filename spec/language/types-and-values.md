@@ -22,9 +22,10 @@ value_tuple_type = "tuple", "<", value_type, { ",", value_type }, ">" ;
 list_type = "list", "<", type, [ ",", size_expression ], ">" ;
 value_list_type = "list", "<", value_type, [ ",", size_expression ], ">" ;
 size_expression = additive_expr | "unbounded" ;
-set_type = "set", "<", value_type, ">" ;
-dict_type = "dict", "<", value_type, ",", type, ">" ;
-value_dict_type = "dict", "<", value_type, ",", value_type, ">" ;
+set_type = "set", "<", key_type, ">" ;
+dict_type = "dict", "<", key_type, ",", type, ">" ;
+value_dict_type = "dict", "<", key_type, ",", value_type, ">" ;
+key_type = value_type_base ;
 rolling_type = "rolling", "<", value_type, ",", const_expression,
                [ ",", const_expression ], ">" ;
 ref_type = "ref", "<", type, ">" ;
@@ -90,7 +91,8 @@ override. `delta_type` syntax has the proposed formation domain below.
   copies preserve independent owned children.
 - **TYPE-14.** `T?` denotes an ordinary value that is either a T or null, where
   T is an admitted ordinary value type. It may annotate parameters, results,
-  bindings, and admitted container element/value positions. Nullability is
+  bindings, and admitted container element/value positions. A set's element
+  and a dictionary's key are never null and take no `?`. Nullability is
   independent of a callable's temporal/value role and of fixed configuration.
   It does not make null an admitted value of unqualified T. Payload use follows
   [nullable refinement](errors-and-diagnostics.md#nullable-value-refinement).
@@ -117,8 +119,10 @@ override. `delta_type` syntax has the proposed formation domain below.
   Size/kind are part of identity; window publications obey core's contract.
 - **TYPE-12.** `ref<T>` designates an endpoint, not an ordinary payload type.
   It is excluded from const values, atomic payloads, keys, and window values.
-  `signal` is a complete temporal input constraint with no readable payload;
-  it is not a result, nested shape, field, or const value.
+  `signal` is a complete temporal input constraint with no readable payload:
+  the whole type of a function's temporal parameter. It is not a result,
+  nested shape, field, const value, local's annotation, or anonymous
+  function's parameter.
 - **TYPE-13.** Result and error envelopes are ordinary atomic values; their
   [tag/refinement rules](errors-and-diagnostics.md) govern payload access.
   Silence, invalidity, null absence, and an error outcome are distinct.
@@ -191,9 +195,10 @@ Accepted type fragments in an ordinary value parameter or result position:
 | `list<f64>?` | A list of non-nullable floats, or null for the whole list |
 
 These list forms are distinct: a null element is not a null list. Deliberate
-source type rejection: supplying null to an f64 parameter. The suffix admits
-only ordinary value types; applying it to `ref<T>` or `signal` rejects under
-TYPE-12/14 rather than creating nullable endpoint handles.
+source type rejections: supplying null to an f64 parameter; `set<str?>` and
+`dict<str?, f64>`, whose keys take no `?`. The suffix admits only ordinary
+value types; applying it to `ref<T>` or `signal` rejects under TYPE-12/14
+rather than creating nullable endpoint handles.
 
 ## Proposed ordinary storage extensions
 
