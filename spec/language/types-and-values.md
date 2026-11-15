@@ -43,7 +43,10 @@ enum_member = member_name, [ "=", const_expression ] ;
 
 Semantic field rules distinguish a typed introduction from an inherited-default
 override. The productions admit `?` on a set's element and a dictionary's key,
-which TYPE-14 rejects. `delta_type` syntax has the proposed formation domain below.
+which TYPE-14 rejects. Where a production gives `value_type`, any `type` is
+admitted as syntax, and one that is no ordinary value type is a type
+rejection (TYPE-12, TYPE-14). `delta_type` syntax has the proposed formation
+domain below.
 
 ## Agreed value rules
 
@@ -62,7 +65,8 @@ which TYPE-14 rejects. `delta_type` syntax has the proposed formation domain bel
   not constructible. Concrete structs are final. Generic applications are
   invariant by origin and complete canonical arguments.
 - **TYPE-4.** A typed field introduction fixes its type and optionality. A
-  null default marks it optional. An untyped inherited override changes only
+  field is optional when its type is nullable, `T?`, and only an optional
+  field's default may be null. An untyped inherited override changes only
   the construction default of a field a parent has. Required fields may have
   defaults; optional fields may have non-null defaults. A struct's members
   have distinct names. A field a struct has from two parents, or from a
@@ -80,12 +84,13 @@ which TYPE-14 rejects. `delta_type` syntax has the proposed formation domain bel
   A field is recursive when it holds its own struct: in `struct A { b: B }`,
   `struct B { c: C }`, `struct C { a: A }` each of the three fields is.
   Recursive fields stay within their defining module. So that the recursion
-  can end, a recursive field is an `atomic<...>` defaulted to null or has a
-  nullable type. It gives a struct of its cycle each generic parameter whole,
-  `Node<T>`, and no type built from one, `Node<list<T>>`. Descendants cannot
-  remove that null default. Cycles through inheritance are rejected, and so
-  are cycles through collection elements outside an `atomic<...>`.
-  Cross-module references to non-recursive public structs remain admitted.
+  can end, a recursive field is optional: its type is nullable, `Node?`, or
+  an `atomic<...>` of a nullable type, `atomic<Node?>`. It gives a struct of
+  its cycle each generic parameter whole, `Node<T>`, and no type built from
+  one, `Node<list<T>>`. Descendants cannot remove a null default it has.
+  Cycles through inheritance are rejected, and so are cycles through
+  collection elements outside an `atomic<...>`. Cross-module references to
+  non-recursive public structs remain admitted.
 - **TYPE-7.** Enum members are distinct typed constants with distinct names.
   `Type.member` names one, through an alias as `alias::Type.member`. Where a
   position expects
@@ -164,11 +169,11 @@ Accepted declaration fragments, structs that hold themselves (TYPE-6):
 ```hgl
 struct Node {
     value: i64
-    next: atomic<Node> = null
+    next: atomic<Node?> = null
 }
 
 struct Tree {
-    children: atomic<list<Tree>> = null
+    children: atomic<list<Tree>?> = null
 }
 
 struct Link {
@@ -176,12 +181,13 @@ struct Link {
 }
 ```
 
-A `Node` holds the next one or null, a `Tree` its children as one snapshot,
-and a `Link` the next one or null. Deliberate rejections: `children:
-list<Tree>`, a cycle through collection elements outside an `atomic<...>`;
-`next: atomic<Node>` with no null default; and, in a generic `Node<T>`,
-`next: atomic<Node<list<T>>> = null`, which names a new type at every step.
-Conformance is planned.
+A `Node` holds the next one or null, a `Tree` its children as one snapshot
+or null, and a `Link` the next one or null. Deliberate rejections:
+`children: list<Tree>`, a cycle through collection elements outside an
+`atomic<...>`; `next: atomic<Node>`, which is not optional; `size: i64 =
+null`, a null default on a field that is not optional; and, in a generic
+`Node<T>`, `next: atomic<Node<list<T>>?> = null`, which names a new type at
+every step. Conformance is planned.
 
 Accepted illustration, complete module:
 
