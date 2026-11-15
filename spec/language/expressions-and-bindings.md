@@ -149,7 +149,9 @@ GEN-14 resolves generic construction versus comparison using declaration lookup.
   result type during source checking. A runtime-varying selector cannot change
   that type. In particular, core division's `zero` policy selects f64 or
   `result<f64, error>` as defined by its numeric contract; it must be known
-  before checking uses of the result. Ordinary type and phase checks apply.
+  before checking uses of the result. The operator's candidates state which
+  values of the option each is for (GEN-6), and the value at the call
+  selects among them. Ordinary type and phase checks apply.
 - **EXPR-13.** Evaluate a configured binary expression in written order:
   left operand, configuration entries in their written order, then right
   operand, each once. Unary configuration precedes its operand. Preserve
