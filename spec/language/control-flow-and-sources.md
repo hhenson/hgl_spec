@@ -178,6 +178,10 @@ const fn quoted(side: Side) -> str {
         case .sell: return "ask"
     }
 }
+
+const fn side_of(rising: bool) -> Side {
+    if rising { .buy } else { .sell }
+}
 ```
 
 `larger` returns the value of its `if`, an `i64`. `positive` returns `a` or
@@ -191,7 +195,9 @@ end with no value; reading a `var total: i64` after an `if` with no
 dictionary, which binds two names; `while { }` with no condition; and a
 `switch` with `case 1:` twice. `total` adds up a list, `halvings` loops
 while a condition holds, and `quoted` returns from every case of an enum it
-covers.
+covers. In `side_of` each branch's value is a member of the enum the
+function returns: `.member` is an expression where it is the first
+statement of its block (LEX-5).
 
 ## Proposed generators
 
