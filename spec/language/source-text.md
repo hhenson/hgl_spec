@@ -138,6 +138,10 @@ duration_unit = "d" | "h" | "m" | "s" | "ms" | "us" ;
   zero. Fractional seconds have one to six digits. Calendar fields must exist;
   time excludes `24:00:00` and leap seconds. Offset-free date/time is civil,
   not an implicit UTC instant. A zoned datetime requires an explicit offset.
+  A literal has the type of the parts it writes: a date is a `date`; a time
+  a `time`, and with a zone a `zoned_time`; a date and time a
+  `civil_datetime`, with an offset a `datetime`, and with an offset and a
+  zone a `zoned_datetime`; a zone alone a `timezone`.
 - **LEX-12.** Zone components are nonempty, neither `.` nor `..`, with no
   leading/trailing/repeated slash; the name is at most 255 bytes. A bracketed
   name that breaks this form, an empty one included, is an invalid zone and

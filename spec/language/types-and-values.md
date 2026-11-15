@@ -63,14 +63,19 @@ domain below.
 - **TYPE-3.** Structs are nominal, with public ordered fields and no methods.
   Only abstract structs may be parents, each listed once; abstract values are
   not constructible. Concrete structs are final. Generic applications are
-  invariant by origin and complete canonical arguments.
+  invariant by origin and complete canonical arguments. A struct is a value
+  where an abstract struct it inherits from is expected, through any number
+  of parents, each with the arguments the struct below gives it; a
+  `list<Child>` is no `list<Base>`.
 - **TYPE-4.** A typed field introduction fixes its type and optionality. A
   field is optional when its type is nullable, `T?`, or an `atomic<...>` of
   a nullable type, `atomic<T?>`, and only an optional field's default may
   be null. A field a struct has from a generic parent has the type that
   parent's arguments give it: with `abstract struct Base<T> { value: T }`,
   `value` is optional in `struct Child : Base<i64?>`, which may write
-  `value = null`. A type parameter written with no `?` is not nullable:
+  `value = null`. So has a struct's own field, with the arguments the
+  struct is given: the `value: T` of a `Box<i64?>` is optional. A type
+  parameter written with no `?` is not nullable:
   `value: T = null` rejects. An untyped inherited override changes only the
   construction default of a field a parent has. Required fields may have
   defaults; optional fields may have non-null defaults. A struct's members
@@ -78,10 +83,15 @@ domain below.
   parent and itself, has one type and optionality, a generic parent's
   arguments standing for its parameters; a conflict is an error. One field
   reached by two paths is one field.
-- **TYPE-5.** An ordinary constructor supplies complete required data. Written
-  arguments evaluate once in source order; failure prevents later arguments.
-  Defaults are evaluated only when omitted. Retained results own their data;
-  later mutation of a source cannot change an earlier retained value.
+- **TYPE-5.** An ordinary constructor supplies complete required data. Its
+  arguments are named, each for a field the struct has, a parent's included,
+  in any order; it takes no positional argument. A field with a default, its
+  own or one a struct below gives it, may be left out, and then has that
+  default. An optional field with no default may be left out too, and is
+  then null. Fields are declared in any order. Written arguments evaluate
+  once in source order; failure prevents later arguments. Defaults are
+  evaluated only when omitted. Retained results own their data; later
+  mutation of a source cannot change an earlier retained value.
 - **TYPE-6.** A struct holds the structs its fields' types name at any depth,
   the fields it has from its parents included, and whatever each of those
   structs holds in turn, a generic one with its arguments in place. A field
@@ -101,7 +111,9 @@ domain below.
   position expects
   the enum's type, `.member` names one too: the value of an argument or
   configuration option of that type, an initializer or result declared with
-  it, an operand compared with it, a `switch` label for a selector of it.
+  it, a value assigned to a `var` of it, an element of a tuple, list, or set
+  expected to hold it, an operand compared with it, a `switch` label for a
+  selector of it.
   With no enum type expected, `.member` rejects. Unnumbered numbering starts
   at zero and increments the previous member; explicit numbers reset the
   next value. Values fit signed `i64`; duplicates and overflow reject.
@@ -123,6 +135,8 @@ domain below.
   with `?` or without (TYPE-12). It is no result type, local's annotation,
   or part of another type. Nullability is
   independent of a callable's temporal/value role and of fixed configuration.
+  A T is a value where a `T?` is expected. `null` has the nullable type its
+  place expects, and rejects where nothing gives it one: `let x = null`.
   It does not make null an admitted value of unqualified T. Payload use follows
   [nullable refinement](errors-and-diagnostics.md#nullable-value-refinement).
 - **TYPE-15.** The suffix applies to the complete preceding type: `list<f64?>`

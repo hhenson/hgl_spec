@@ -68,7 +68,8 @@ admits one as a member name.
   optional: an omitted argument binds an input that is never valid. A
   parameter whose type is written `T?` needs no default to be omitted: it is
   taken to have a default of `null`, so an omitted value parameter is null
-  and an omitted temporal input is never valid. A default cannot use caller
+  and an omitted temporal input is never valid. A parameter that may be
+  omitted follows every parameter that may not. A default cannot use caller
   bindings or invent numeric generic values.
 - **UNIT-9.** Compare inherited defaults by bound expression and canonical type
   after substitution, before folding. Declaration identity matters; source

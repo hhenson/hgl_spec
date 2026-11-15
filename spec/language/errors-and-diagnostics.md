@@ -129,6 +129,23 @@ infrastructure and cannot satisfy a source-rejection expectation.
 | type | `enum.duplicate_value` | Two members of an enum share a number (TYPE-7); later member |
 | type | `enum.overflow` | Unnumbered member follows the largest `i64` (TYPE-7); member |
 | type | `enum.duplicate_member` | Two members of an enum share a name (TYPE-7); later name |
+| type | `type.mismatch` | Value's type is not the type its place expects: an annotation, a `var`, a result, an operand, an element, an argument (EXPR-5); `null` where the type has no `?` (TYPE-14); a `return` that does not fit its function (FN-7); a list of another length than the size expected (TYPE-10); value |
+| type | `null.context_type` | `null` where nothing gives it a type (TYPE-14); the literal |
+| type | `sequence.context_type` | Sequence whose entries give no type, where none is expected (EXPR-9); the sequence |
+| type | `enum.context_type` | `.member` where no enum type is expected (TYPE-7); the member |
+| name | `binding.unassigned` | `var` read on a path that gives it no value (EXPR-3); the read |
+| name | `binding.immutable` | Assignment to an immutable binding: a `let`, a parameter, an iteration binding (EXPR-3); target |
+| type | `argument.order` | Argument with no name after a named one (EXPR-2); the argument |
+| type | `argument.unexpected` | Positional argument that no parameter is left to take (EXPR-2), or one given to a constructor (TYPE-5); the argument |
+| name | `argument.unknown` | Named argument names no parameter or field (EXPR-2); name |
+| name | `argument.duplicate` | Parameter or field given twice (EXPR-2); later name |
+| type | `argument.missing` | Parameter or field that may not be left out is given nothing (EXPR-2, TYPE-5); callee name |
+| function-kind | `call.role` | Temporal function called from a value function (FN-3); callee name |
+| type | `struct.abstract` | Abstract struct constructed (TYPE-3); name |
+| name | `member.unknown` | Struct has no field, or enum no member, of the name (EXPR-7, TYPE-7); name |
+| operator | `operator.operand` | Operand types the operator's contract does not admit; operator |
+| type | `default.order` | Parameter that may not be omitted follows one that may (UNIT-8); the later parameter |
+| type | `tuple.index` | Tuple's index is no constant, or is outside the tuple (EXPR-7); index |
 | type | `rolling.size_kind` | Wrong/mixed size kind; offending size, the minimum when the two differ in kind |
 | type | `rolling.size_bounds` | Invalid bounds; offending size/minimum |
 | type | `yield.time_type` | Wrong time type; yield time operand |

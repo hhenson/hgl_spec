@@ -44,6 +44,9 @@ Local source/native declaration matching is defined in the native chapter.
   not alone classify a body as runtime. A composition body cannot read current
   input payloads. A runtime hook can call value helpers but cannot silently
   construct a temporal child call. Mixed incompatible phase work is rejected.
+  A composition body calls any function: a value function called there is
+  evaluated during wiring, or lifted when an argument is temporal (FN-6). A
+  runtime body calls only value functions, and so does a value function.
 - **FN-4.** A temporal/value pair may share a name. Composition and eval choose
   the temporal definition if one exists; runtime/value evaluation chooses the
   value definition. A bad selected signature is an error, not fallback to the
@@ -63,8 +66,15 @@ Local source/native declaration matching is defined in the native chapter.
 - **FN-7.** A composition return selects a connection; a runtime return
   publishes and leaves the current handler/evaluation. Completing a runtime
   handler without a write produces no tick. A value return yields an ordinary
-  value. Anonymous functions obtain their parameter/result context from their
-  accepting form; inference does not create a general callable value type.
+  value. `return` with no value ends a function that declares no result;
+  in a temporal function that declares one it ends the evaluation and
+  publishes nothing itself: a write already made through `out` stands
+  (TIME-7), and with none there is no tick. A `const fn` that declares a
+  result returns a value of that type:
+  `return` with no value rejects there, as `return value` does in a function
+  that declares no result. Anonymous functions obtain their parameter/result
+  context from their accepting form; inference does not create a general
+  callable value type.
 - **FN-8.** Packs capture, in order, the arguments the fixed parameters leave.
   `...T` captures the positional ones: all of type T, or each of its own type
   when T is a declared type pack. `...{Fields}` captures the named ones, each
