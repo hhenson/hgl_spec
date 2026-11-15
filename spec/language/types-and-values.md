@@ -105,11 +105,12 @@ domain below.
   elements of a collection that may be empty, an unsized list, a set, or a
   dictionary: `atomic<list<Tree>>`. A sized list and a tuple are never empty
   and do not end it. A recursive field's default, its own or a descendant's,
-  is such a value: `null`, or the empty collection `[]`. It gives a struct of
-  its cycle each generic parameter whole, `Node<T>`, and no type built from
-  one, `Node<list<T>>`. Cycles through inheritance are rejected, and so are
-  cycles through collection elements outside an `atomic<...>`. Cross-module
-  references to non-recursive public structs remain admitted.
+  is such a value: `null`, or the empty collection `[]`. Descendants cannot
+  remove a null default it has, not for an empty collection either. It gives
+  a struct of its cycle each generic parameter whole, `Node<T>`, and no type
+  built from one, `Node<list<T>>`. Cycles through inheritance are rejected,
+  and so are cycles through collection elements outside an `atomic<...>`.
+  Cross-module references to non-recursive public structs remain admitted.
 - **TYPE-7.** Enum members are distinct typed constants with distinct names.
   `Type.member` names one, through an alias as `alias::Type.member`. Where a
   position expects
