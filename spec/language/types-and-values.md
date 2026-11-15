@@ -58,9 +58,9 @@ override. `delta_type` syntax has the proposed formation domain below.
   microseconds; representable literal instants retain canonical calendar range.
   Same-instant zoned values need not be equal; zone aliases are distinct names.
 - **TYPE-3.** Structs are nominal, with public ordered fields and no methods.
-  Only abstract structs may be parents; abstract values are not constructible.
-  Concrete structs are final. Generic applications are invariant by origin
-  and complete canonical arguments.
+  Only abstract structs may be parents, each listed once; abstract values are
+  not constructible. Concrete structs are final. Generic applications are
+  invariant by origin and complete canonical arguments.
 - **TYPE-4.** A typed field introduction fixes its type and optionality. A
   null default marks it optional. An untyped inherited override changes only
   its construction default. Required fields may have defaults; optional fields
@@ -69,11 +69,14 @@ override. `delta_type` syntax has the proposed formation domain below.
   arguments evaluate once in source order; failure prevents later arguments.
   Defaults are evaluated only when omitted. Retained results own their data;
   later mutation of a source cannot change an earlier retained value.
-- **TYPE-6.** Recursive struct edges stay within their defining module, use
-  an optional `atomic<...>` field defaulted to null, and preserve finite generic
-  specialization. Descendants cannot remove that null default. Cycles through
-  inheritance or collection elements are rejected. Cross-module references to
-  non-recursive public structs remain admitted.
+- **TYPE-6.** Recursive struct edges stay within their defining module and
+  use an optional `atomic<...>` field defaulted to null. Such a field gives a
+  struct of its cycle each generic parameter whole, `Node<T>`, and no type
+  built from one, `Node<list<T>>`. A field whose type is an abstract struct
+  holds every struct that inherits from it. Descendants cannot remove that
+  null default. Cycles through inheritance are rejected, and so are cycles
+  through collection elements outside the `atomic<...>`. Cross-module
+  references to non-recursive public structs remain admitted.
 - **TYPE-7.** Enum members are distinct typed constants. `Type.member` names
   one, through an alias as `alias::Type.member`. Where a position expects
   the enum's type, `.member` names one too: the value of an argument or
@@ -145,6 +148,25 @@ fn quote(bid: f64, ask: f64) -> Quote {
 The result is a structural temporal Quote. `atomic<Quote>` instead denotes
 whole snapshots. Deliberate rejection: a concrete struct used as a parent.
 Conformance is planned.
+
+Accepted declaration fragments, structs that hold themselves (TYPE-6):
+
+```hgl
+struct Node {
+    value: i64
+    next: atomic<Node> = null
+}
+
+struct Tree {
+    children: atomic<list<Tree>> = null
+}
+```
+
+A `Node` holds the next one or null, and a `Tree` its children as one
+snapshot. Deliberate rejections: `children: list<Tree>`, a cycle through
+collection elements outside an `atomic<...>`; `next: atomic<Node>` with no
+null default; and, in a generic `Node<T>`, `next: atomic<Node<list<T>>> =
+null`, which names a new type at every step. Conformance is planned.
 
 Accepted illustration, complete module:
 
