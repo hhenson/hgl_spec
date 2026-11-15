@@ -63,22 +63,31 @@ override. `delta_type` syntax has the proposed formation domain below.
   invariant by origin and complete canonical arguments.
 - **TYPE-4.** A typed field introduction fixes its type and optionality. A
   null default marks it optional. An untyped inherited override changes only
-  its construction default. Required fields may have defaults; optional fields
-  may have non-null defaults. Parent conflicts in type/optionality are errors.
+  the construction default of a field a parent has. Required fields may have
+  defaults; optional fields may have non-null defaults. A struct's members
+  have distinct names. A field a struct has from two parents, or from a
+  parent and itself, has one type and optionality, a generic parent's
+  arguments standing for its parameters; a conflict is an error. One field
+  reached by two paths is one field.
 - **TYPE-5.** An ordinary constructor supplies complete required data. Written
   arguments evaluate once in source order; failure prevents later arguments.
   Defaults are evaluated only when omitted. Retained results own their data;
   later mutation of a source cannot change an earlier retained value.
-- **TYPE-6.** Recursive struct edges stay within their defining module and
-  use an optional `atomic<...>` field defaulted to null. Such a field gives a
-  struct of its cycle each generic parameter whole, `Node<T>`, and no type
-  built from one, `Node<list<T>>`. A field whose type is an abstract struct
-  holds every struct that inherits from it. Descendants cannot remove that
-  null default. Cycles through inheritance are rejected, and so are cycles
-  through collection elements outside the `atomic<...>`. Cross-module
-  references to non-recursive public structs remain admitted.
-- **TYPE-7.** Enum members are distinct typed constants. `Type.member` names
-  one, through an alias as `alias::Type.member`. Where a position expects
+- **TYPE-6.** A struct holds the structs its fields' types name at any depth,
+  the fields it has from its parents included, and what a generic struct
+  among them holds with its arguments in place. A field whose type is an
+  abstract struct holds every struct that inherits from it. A field is
+  recursive when it holds a struct that holds the field's own struct.
+  Recursive fields stay within their defining module. So that the recursion
+  can end, a recursive field is an `atomic<...>` defaulted to null or has a
+  nullable type. It gives a struct of its cycle each generic parameter whole,
+  `Node<T>`, and no type built from one, `Node<list<T>>`. Descendants cannot
+  remove that null default. Cycles through inheritance are rejected, and so
+  are cycles through collection elements outside an `atomic<...>`.
+  Cross-module references to non-recursive public structs remain admitted.
+- **TYPE-7.** Enum members are distinct typed constants with distinct names.
+  `Type.member` names one, through an alias as `alias::Type.member`. Where a
+  position expects
   the enum's type, `.member` names one too: the value of an argument or
   configuration option of that type, an initializer or result declared with
   it, an operand compared with it, a `switch` label for a selector of it.
@@ -160,13 +169,18 @@ struct Node {
 struct Tree {
     children: atomic<list<Tree>> = null
 }
+
+struct Link {
+    next: Link?
+}
 ```
 
-A `Node` holds the next one or null, and a `Tree` its children as one
-snapshot. Deliberate rejections: `children: list<Tree>`, a cycle through
-collection elements outside an `atomic<...>`; `next: atomic<Node>` with no
-null default; and, in a generic `Node<T>`, `next: atomic<Node<list<T>>> =
-null`, which names a new type at every step. Conformance is planned.
+A `Node` holds the next one or null, a `Tree` its children as one snapshot,
+and a `Link` the next one or null. Deliberate rejections: `children:
+list<Tree>`, a cycle through collection elements outside an `atomic<...>`;
+`next: atomic<Node>` with no null default; and, in a generic `Node<T>`,
+`next: atomic<Node<list<T>>> = null`, which names a new type at every step.
+Conformance is planned.
 
 Accepted illustration, complete module:
 
