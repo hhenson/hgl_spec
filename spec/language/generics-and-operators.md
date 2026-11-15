@@ -73,7 +73,11 @@ expression; group a constant expression that uses them as operand data.
 - **GEN-6.** Candidate shape must honor the operator's public arguments and
   generic relationships. Scalar specialization may accept a constant where
   the contract admits temporal lifting; it cannot require temporal data for
-  a declared const argument. Defaults remain owned by the public declaration.
+  a declared const argument. The public declaration owns the defaults of
+  const configuration. An `impl fn` may give any of its inputs a default. The
+  candidates of an operator stay resolvable together: once defaults fill what
+  a call omits, no call matches two of them equally. With candidates
+  `add(lhs = 1, rhs = 1)` and `add(lhs = 1.0, rhs = 2.0)`, `add()` would.
 - **GEN-7.** A generic body is checked under its stated requirements; choosing
   a specialization does not authorize unrelated operations or reify a type/size
   parameter as an ordinary numeric runtime value.

@@ -64,8 +64,9 @@ admits one as a member name.
   the expected type. Any parameter but a pack may have one: a value function's,
   const configuration, or a temporal input. An omitted temporal argument is
   wired as a constant of its default, so the default is a value a constant of
-  the parameter's type can publish. A default cannot use caller bindings or
-  invent numeric generic values.
+  the parameter's type can publish. A default of `null` marks a temporal input
+  optional: an omitted argument binds an input that is never valid. A default
+  cannot use caller bindings or invent numeric generic values.
 - **UNIT-9.** Compare inherited defaults by bound expression and canonical type
   after substitution, before folding. Declaration identity matters; source
   location and alias spelling do not. Conflicting inherited defaults require

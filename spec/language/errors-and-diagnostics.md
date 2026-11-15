@@ -107,7 +107,15 @@ infrastructure and cannot satisfy a source-rejection expectation.
 | type | `pack.const` | Pack parameter is const (FN-8); `const` |
 | type | `pack.order` | Fixed parameter follows a pack (FN-8); parameter name |
 | type | `pack.undeclared` | `...{Name}` names no type pack of its declaration (FN-8); name in the braces |
+| type | `pack.cardinality` | Cardinality's upper bound is below its lower (GEN-10); upper bound |
+| type | `type.not_a_type` | Name in a type position is no type: a function, operator, local, generic value parameter, or a type pack where one type is needed (UNIT-10, GEN-2, GEN-13); name |
+| type | `type.not_ordinary` | `rolling`, `ref`, `atomic` or `signal` where an ordinary value type is required, under a `?` included (TYPE-12, TYPE-14, FN-1); offending type |
+| type | `signal.position` | `signal` other than as the whole type of a function's temporal parameter (TYPE-12); `signal` |
+| type | `nullable.key` | Set element or dictionary key has a `?` (TYPE-14); the nullable type |
+| type | `generic.argument_count` | Generic type given the wrong number of arguments, or arguments given to a type or generic parameter that takes none (GEN-2, GEN-10, GEN-13); name |
+| type | `list.size` | List size is not a nonnegative count (TYPE-10); size |
 | type | `struct.parent` | Parent is not an abstract struct (TYPE-3); parent |
+| type | `struct.duplicate_parent` | Struct lists one parent twice (TYPE-3); later parent |
 | type | `struct.inheritance_cycle` | Structs inherit from one another (TYPE-6); a parent of the first struct of the cycle |
 | type | `field.conflict` | Field's type or optionality differs between two parents, or between a struct and a parent (TYPE-4); field, or the later parent |
 | type | `field.not_inherited` | `name = value` names no field of a parent (TYPE-4); name |
