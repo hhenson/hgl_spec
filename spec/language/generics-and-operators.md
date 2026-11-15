@@ -176,11 +176,10 @@ Syntax binds these core identities independently of local same-named functions:
 Boolean forms `&&`, `||`, and `!` bind `and_`, `or_`, and `not_` respectively.
 A chain of three or more operands joined by `&&` alone, with no parentheses
 among them, binds `all_` over its operands in order: `ready && open && live`
-is `all_(ready, open, live)`. One joined by `||` alone binds `any_`. Core's
-default candidates of `all_` and `any_` are the chain itself, `and_` or `or_`
-applied left to right, so a chain means what its links mean and
-short-circuits as they do (EXPR-6). Another candidate, selected for the
-operands' types (GEN-5), takes the chain whole. `(ready && open) && live`
+is `all_(ready, open, live)`. One joined by `||` alone binds `any_`. The
+candidate selected for the operands' types (GEN-5) takes the chain whole.
+The core [scalar operator contract](https://github.com/hhenson/hgl_core/blob/main/spec/scalar-operators.md)
+owns the default candidates of both identities. `(ready && open) && live`
 is no chain: it binds `and_` twice.
 Operator configuration uses the same identity; EXPR-10 defines its source form.
 The core [numeric contract](https://github.com/hhenson/hgl_core/blob/main/spec/numeric-operators.md)
