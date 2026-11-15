@@ -114,9 +114,11 @@ expression; group a constant expression that uses them as operand data.
   ordinary type V. `type(N) in {i64, f64}` constrains the ordinary type of a
   value parameter N; `T in {i64, f64}` instead constrains a type parameter T.
   `type(N)` here is compile-time reflection, not a runtime payload read or a
-  general first-class type value. Reject conflicting kinds or an unresolved
-  kind lacking a determining declaration/constraint. Constraining N's type
-  does not resolve N's value.
+  general first-class type value. Reject conflicting kinds, and a struct's
+  parameter whose kind no field or constraint determines. A function whose
+  signature determines no kind for a parameter is accepted: a call supplies
+  the parameter, and one that does not rejects. Constraining N's type does
+  not resolve N's value.
 - **GEN-14.** Retain `<...>` for generic arguments. In a type position, or
   directly following (LEX-27) a name resolved to a generic type in an
   expression, `<` opens generic arguments rather than a comparison. Check

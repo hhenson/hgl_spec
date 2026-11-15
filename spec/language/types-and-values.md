@@ -22,10 +22,9 @@ value_tuple_type = "tuple", "<", value_type, { ",", value_type }, ">" ;
 list_type = "list", "<", type, [ ",", size_expression ], ">" ;
 value_list_type = "list", "<", value_type, [ ",", size_expression ], ">" ;
 size_expression = additive_expr | "unbounded" ;
-set_type = "set", "<", key_type, ">" ;
-dict_type = "dict", "<", key_type, ",", type, ">" ;
-value_dict_type = "dict", "<", key_type, ",", value_type, ">" ;
-key_type = value_type_base ;
+set_type = "set", "<", value_type, ">" ;
+dict_type = "dict", "<", value_type, ",", type, ">" ;
+value_dict_type = "dict", "<", value_type, ",", value_type, ">" ;
 rolling_type = "rolling", "<", value_type, ",", const_expression,
                [ ",", const_expression ], ">" ;
 ref_type = "ref", "<", type, ">" ;
@@ -43,7 +42,8 @@ enum_member = member_name, [ "=", const_expression ] ;
 ```
 
 Semantic field rules distinguish a typed introduction from an inherited-default
-override. `delta_type` syntax has the proposed formation domain below.
+override. The productions admit `?` on a set's element and a dictionary's key,
+which TYPE-14 rejects. `delta_type` syntax has the proposed formation domain below.
 
 ## Agreed value rules
 
