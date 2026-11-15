@@ -84,11 +84,13 @@ CTRL-9 places the opening brace of an `if`, `for`, `switch`, `when`, or
   type, each branch's value is checked against it.
 - **CTRL-11.** In a value function, a `var` declared with no value is
   assigned after an `if` when every branch that does not return assigns it,
-  so not by an `if` with no `else`; after a `switch` when every case and a
-  `default` do; and never by a loop's body, which may run no times. A `var`
-  whose type is written `T?` is null where it is declared with no value, as
-  an omitted parameter of that type is (UNIT-8): it is assigned from there,
-  and after a loop holds what the loop last gave it, or null.
+  so not by an `if` with no `else`; after a `switch` when every case that
+  does not return assigns it and the cases leave no value out, with a
+  `default` or by covering an enum (CTRL-6); and never by a loop's body,
+  which may run no times. A `var` whose type is written `T?` is null where
+  it is declared with no value, as an omitted parameter of that type is
+  (UNIT-8): it is assigned from there, and after a loop holds what the loop
+  last gave it, or null.
 
 Accepted illustrations, statement fragments with `ready` a bool, `items` a
 list, and `step` a function in scope:

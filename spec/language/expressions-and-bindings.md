@@ -80,7 +80,9 @@ GEN-14 resolves generic construction versus comparison using declaration lookup.
   immutable, and so is a parameter; `var` may be assigned within the same
   category/type. An uninitialized
   typed var supplies no value or connection; reaching assignments must resolve
-  consistently and every path reaching a read must assign it. An inner
+  consistently and every path reaching a read must assign it. In a value
+  function, one whose type is written `T?` is null instead, and is assigned
+  from its declaration (CTRL-11). An inner
   declaration remains local. A compound assignment reads its existing target.
 - **EXPR-4.** Ordinary values and temporal connections remain distinct. A graph
   binding denotes a connection without reading a payload. Reassigning a graph
