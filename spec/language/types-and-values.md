@@ -86,12 +86,12 @@ domain below.
 - **TYPE-5.** An ordinary constructor supplies complete required data. Its
   arguments are named, each for a field the struct has, a parent's included,
   in any order; it takes no positional argument. A field with a default, its
-  own or one a struct below gives it, may be left out, and so may an
-  optional field, which is then null. Fields are declared in any order.
-  Written
-  arguments evaluate once in source order; failure prevents later arguments.
-  Defaults are evaluated only when omitted. Retained results own their data;
-  later mutation of a source cannot change an earlier retained value.
+  own or one a struct below gives it, may be left out, and then has that
+  default. An optional field with no default may be left out too, and is
+  then null. Fields are declared in any order. Written arguments evaluate
+  once in source order; failure prevents later arguments. Defaults are
+  evaluated only when omitted. Retained results own their data; later
+  mutation of a source cannot change an earlier retained value.
 - **TYPE-6.** A struct holds the structs its fields' types name at any depth,
   the fields it has from its parents included, and whatever each of those
   structs holds in turn, a generic one with its arguments in place. A field
