@@ -144,6 +144,8 @@ infrastructure and cannot satisfy a source-rejection expectation.
 | type | `struct.abstract` | Abstract struct constructed (TYPE-3); name |
 | name | `member.unknown` | Struct has no field, or enum no member, of the name (EXPR-7, TYPE-7); name |
 | operator | `operator.operand` | Operand types the operator's contract does not admit; operator |
+| type | `default.order` | Parameter or field that may not be left out follows one that may (UNIT-8, TYPE-5); the later one |
+| type | `tuple.index` | Tuple's index is no constant, or is outside the tuple (EXPR-7); index |
 | type | `rolling.size_kind` | Wrong/mixed size kind; offending size, the minimum when the two differ in kind |
 | type | `rolling.size_bounds` | Invalid bounds; offending size/minimum |
 | type | `yield.time_type` | Wrong time type; yield time operand |
