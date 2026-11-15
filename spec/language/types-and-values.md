@@ -111,7 +111,11 @@ domain below.
 - **TYPE-14.** `T?` denotes an ordinary value that is either a T or null, where
   T is an admitted ordinary value type. It may annotate parameters, results,
   bindings, and admitted container element/value positions. A set's element
-  and a dictionary's key are never null and take no `?`. Nullability is
+  and a dictionary's key are never null and take no `?`. Where T is no
+  ordinary value type, as `rolling<f64, 5>`, `atomic<Quote>`, `ref<f64>`,
+  and `signal` are not, `T?` is admitted only as the whole type of a
+  function's temporal parameter: its argument may be omitted, as with a
+  default of `null` (UNIT-8). It is no result type. Nullability is
   independent of a callable's temporal/value role and of fixed configuration.
   It does not make null an admitted value of unqualified T. Payload use follows
   [nullable refinement](errors-and-diagnostics.md#nullable-value-refinement).
