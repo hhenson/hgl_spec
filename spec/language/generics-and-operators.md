@@ -82,11 +82,13 @@ expression; group a constant expression that uses them as operand data.
   ambiguous. Library membership and registration order grant no priority.
   A call in a value function or a runtime body selects among the value
   candidates. A call in composition selects among all of them; a value
-  candidate it selects for temporal arguments is lifted (FN-6). A candidate
-  that takes each integer literal as the `i64` it is outranks one for which
-  a literal is widened to an `f64` (EXPR-5): `doubled(1)` selects
-  `doubled(value: i64)` where there is one, and `doubled(value: f64)` where
-  there is not.
+  candidate it selects for temporal arguments is lifted (FN-6). There, a
+  temporal candidate outranks a value candidate of the same parameter
+  types, as composition chooses the temporal definition of a pair (FN-4).
+  A candidate that takes each integer literal as the `i64` it is outranks
+  one for which a literal is widened to an `f64` (EXPR-5): `doubled(1)`
+  selects `doubled(value: i64)` where there is one, and
+  `doubled(value: f64)` where there is not.
 - **GEN-6.** Candidate shape must honor the operator's public arguments and
   generic relationships. Scalar specialization may accept a constant where
   the contract admits temporal lifting; it cannot require temporal data for
@@ -104,7 +106,8 @@ expression; group a constant expression that uses them as operand data.
   With candidates
   `add(lhs = 1, rhs = 1)` and `add(lhs = 1.0, rhs = 2.0)`, `add()` would. A
   value candidate and a temporal candidate with the same parameter types
-  match a call in composition equally.
+  stay resolvable: a call in composition selects the temporal one (GEN-5),
+  and a call in a value function or a runtime body the value one.
 - **GEN-7.** A generic body is checked under its stated requirements; choosing
   a specialization does not authorize unrelated operations or reify a type/size
   parameter as an ordinary numeric runtime value.
@@ -261,8 +264,11 @@ impl fn doubled(value: f64) -> f64 => value * 2.0
 `doubled(21)` in a `const fn` or a runtime body selects the value candidate.
 In composition, `doubled(count)` for a temporal `count` of `i64` selects it
 too and lifts it, and `doubled(price)` for a temporal `price` of `f64`
-selects the temporal candidate. Deliberate rejection: `doubled(1.5)` in a
-`const fn`, where no value candidate takes an `f64`.
+selects the temporal candidate. With `impl fn doubled(value: i64) -> i64`
+declared too, `doubled(count)` in composition selects that temporal
+candidate, and `doubled(21)` in a `const fn` still the value one.
+Deliberate rejection: `doubled(1.5)` in a `const fn`, where no value
+candidate takes an `f64`.
 
 Accepted declaration fragment, candidates for the values of a const option
 (GEN-6); `Zero` and `div_` here stand for core's:
