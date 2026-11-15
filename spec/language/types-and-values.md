@@ -99,13 +99,17 @@ domain below.
   A field is recursive when it holds its own struct: in `struct A { b: B }`,
   `struct B { c: C }`, `struct C { a: A }` each of the three fields is.
   Recursive fields stay within their defining module. So that the recursion
-  can end, a recursive field is optional (TYPE-4): `Node?`, `atomic<Node?>`,
-  or `atomic<Node>?`. It gives a struct of its cycle each generic parameter
-  whole, `Node<T>`, and no type built from one, `Node<list<T>>`. Descendants
-  cannot remove a null default it has.
-  Cycles through inheritance are rejected, and so are cycles through
-  collection elements outside an `atomic<...>`. Cross-module references to
-  non-recursive public structs remain admitted.
+  can end, a recursive field has a value that holds no struct of its cycle.
+  It is optional (TYPE-4), `Node?`, `atomic<Node?>`, or `atomic<Node>?`, and
+  may be null; or, inside an `atomic<...>`, it holds the struct only as
+  elements of a collection that may be empty, an unsized list, a set, or a
+  dictionary: `atomic<list<Tree>>`. A sized list and a tuple are never empty
+  and do not end it. A recursive field's default, its own or a descendant's,
+  is such a value: `null`, or the empty collection `[]`. It gives a struct of
+  its cycle each generic parameter whole, `Node<T>`, and no type built from
+  one, `Node<list<T>>`. Cycles through inheritance are rejected, and so are
+  cycles through collection elements outside an `atomic<...>`. Cross-module
+  references to non-recursive public structs remain admitted.
 - **TYPE-7.** Enum members are distinct typed constants with distinct names.
   `Type.member` names one, through an alias as `alias::Type.member`. Where a
   position expects
@@ -209,7 +213,11 @@ struct Node {
 }
 
 struct Tree {
-    children: atomic<list<Tree>?> = null
+    children: atomic<list<Tree>> = []
+}
+
+struct Index {
+    entries: atomic<dict<str, Index>> = []
 }
 
 struct Link {
@@ -221,14 +229,18 @@ struct Chain {
 }
 ```
 
-A `Node` holds the next one or null, a `Tree` its children as one snapshot
-or null, a `Link` the next one or null, and a `Chain` a snapshot of the next
-one or nothing. Deliberate rejections:
+A `Node` holds the next one or null, a `Tree` its children as one snapshot,
+a leaf having none, an `Index` its entries by name, a `Link` the next one or
+null, and a `Chain` a snapshot of the next one or nothing. A `Tree` may also
+be written `children: atomic<list<Tree>?> = null`, which tells a leaf with
+no list from one with an empty list. Deliberate rejections:
 `children: list<Tree>`, a cycle through collection elements outside an
-`atomic<...>`; `next: atomic<Node>`, which is not optional; `size: i64 =
-null`, a null default on a field that is not optional; and, in a generic
-`Node<T>`, `next: atomic<Node<list<T>>?> = null`, which names a new type at
-every step. Conformance is planned.
+`atomic<...>`; `next: atomic<Node>`, which is not optional;
+`pair: atomic<tuple<Tree, Tree>>`, which is never empty;
+`children: atomic<list<Tree>> = [Tree()]`, a default that holds a struct of
+its cycle; `size: i64 = null`, a null default on a field that is not
+optional; and, in a generic `Node<T>`, `next: atomic<Node<list<T>>?> = null`,
+which names a new type at every step. Conformance is planned.
 
 Accepted illustration, complete module:
 
