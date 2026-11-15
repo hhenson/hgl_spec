@@ -91,6 +91,14 @@ CTRL-9 places the opening brace of an `if`, `for`, `switch`, `when`, or
   it is declared with no value, as an omitted parameter of that type is
   (UNIT-8): it is assigned from there, and after a loop holds what the loop
   last gave it, or null.
+- **CTRL-12.** In a value function, `for item in items` runs its body for
+  each element of a list, in index order, or of a set, and
+  `for key, value in entries` for each key and value of a dictionary. One
+  name over a dictionary, two over a list or a set, and any other type after
+  `in` reject. A `switch` there selects on a `bool`, `i64`, `str`, or enum
+  value. Each label is a constant of the selector's type (CTRL-6): a
+  literal, an enum member, or a generic value parameter. A `switch` is a
+  statement and has no value.
 
 Accepted illustrations, statement fragments with `ready` a bool, `items` a
 list, and `step` a function in scope:
@@ -139,6 +147,23 @@ const fn kept(a: i64) -> i64? {
     }
     return found
 }
+
+const fn total(items: list<i64>) -> i64 {
+    var running = 0
+    for item in items {
+        running += item
+    }
+    return running
+}
+
+enum Side { buy, sell }
+
+const fn quoted(side: Side) -> str {
+    switch side {
+        case .buy: return "bid"
+        case .sell: return "ask"
+    }
+}
 ```
 
 `larger` returns the value of its `if`, an `i64`. `positive` returns `a` or
@@ -147,8 +172,11 @@ value, so `kept` may return it. Deliberate rejections:
 `let n: i64 = if a > 0 { a }`, a `T?` where an `i64` is expected;
 `if a { 1 } else { 2 }` with `a` an `i64`, a condition that is no bool;
 `const fn f(a: i64) -> i64 { if a > 0 { return a } }`, which can reach its
-end with no value; and reading a `var total: i64` after an `if` with no
-`else` that alone assigns it.
+end with no value; reading a `var total: i64` after an `if` with no
+`else` that alone assigns it; `for key in entries` with `entries` a
+dictionary, which binds two names; and a `switch` with `case 1:` twice.
+`total` adds up a list, and `quoted` returns from every case of an enum it
+covers.
 
 ## Proposed generators
 
