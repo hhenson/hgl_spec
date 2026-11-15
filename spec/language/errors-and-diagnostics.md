@@ -107,6 +107,16 @@ infrastructure and cannot satisfy a source-rejection expectation.
 | type | `pack.const` | Pack parameter is const (FN-8); `const` |
 | type | `pack.order` | Fixed parameter follows a pack (FN-8); parameter name |
 | type | `pack.undeclared` | `...{Name}` names no type pack of its declaration (FN-8); name in the braces |
+| type | `struct.parent` | Parent is not an abstract struct (TYPE-3); parent |
+| type | `struct.inheritance_cycle` | Structs inherit from one another (TYPE-6); a parent of the first struct of the cycle |
+| type | `field.conflict` | Field's type or optionality differs between two parents, or between a struct and a parent (TYPE-4); field, or the later parent |
+| type | `field.not_inherited` | `name = value` names no field of a parent (TYPE-4); name |
+| type | `field.duplicate` | Two members of a struct share a name (TYPE-4); later name |
+| type | `field.recursive` | Field that makes its struct hold itself is not `atomic<...>` defaulted to null, or a descendant's default removes the null (TYPE-6); field name, or the parent whose argument makes the field hold the struct |
+| type | `enum.value` | Enum number is not an integer (TYPE-7); number |
+| type | `enum.duplicate_value` | Two members of an enum share a number (TYPE-7); later member |
+| type | `enum.overflow` | Unnumbered member follows the largest `i64` (TYPE-7); member |
+| type | `enum.duplicate_member` | Two members of an enum share a name (TYPE-7); later name |
 | type | `rolling.size_kind` | Wrong/mixed size kind; offending size |
 | type | `rolling.size_bounds` | Invalid bounds; offending size/minimum |
 | type | `yield.time_type` | Wrong time type; yield time operand |
@@ -147,7 +157,9 @@ unnamed file first and its parts by part name, and each file by source order.
 A test-only declaration is later than any other declaration of its module, and
 a declaration later than any import. `import.cycle` is reported once for each
 set of modules that import one another: at the first import into the set, in
-that order, of its first module by path.
+that order, of its first module by path. `struct.inheritance_cycle` is
+reported once for each set of structs that inherit from one another: at the
+parent, among the set, of its first struct in that order.
 
 The source and execution catalogs are disjoint. Unlisted failures still fail;
 they cannot satisfy a coded expectation. Delta equality/bounds checks require
