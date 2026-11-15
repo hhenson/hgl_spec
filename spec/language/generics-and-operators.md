@@ -82,8 +82,9 @@ expression; group a constant expression that uses them as operand data.
   a specialization does not authorize unrelated operations or reify a type/size
   parameter as an ordinary numeric runtime value.
 - **GEN-8.** `instantiate` requests candidates, not calls or exports. `_` there
-  retains a generic parameter. Explicit type arguments on ordinary calls have
-  no admitted general form in this baseline.
+  retains a generic parameter. A call may supply its generic arguments as a
+  generic constructor does, `count<i64>(3)`. A call that supplies none
+  rejects when it leaves a generic parameter unresolved under GEN-2.
 - **GEN-9.** Property clauses apply to explicit concrete domains. Missing
   metadata gives no algebraic guarantee. Recorded laws are contracts, not
   proofs authorizing reassociation across overflow or floating-point effects.
@@ -120,11 +121,11 @@ expression; group a constant expression that uses them as operand data.
   the parameter, and one that does not rejects. Constraining N's type does
   not resolve N's value.
 - **GEN-14.** Retain `<...>` for generic arguments. In a type position, or
-  directly following (LEX-27) a name resolved to a generic type in an
-  expression, `<` opens generic arguments rather than a comparison. Check
-  each argument against the corresponding parameter kind; shared name syntax
-  is not a second interpretation. Reject an invalid application without
-  comparison fallback.
+  directly following (LEX-27) a name resolved to a generic type, function,
+  or operator in an expression, `<` opens generic arguments rather than a
+  comparison. Check each argument against the corresponding parameter kind;
+  shared name syntax is not a second interpretation. Reject an invalid
+  application without comparison fallback.
   Ordinary `<` and `>` do not order type names. At the current generic nesting
   level, `>` closes the argument list; parenthesize a greater-than expression
   used as a constant argument. Nested generic closers follow LEX-8.

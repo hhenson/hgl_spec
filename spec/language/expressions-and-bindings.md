@@ -57,6 +57,8 @@ Block/control/function/eval forms are defined in their owning chapters.
 The sequence grammar admits contextual forms; semantic rules restrict their use.
 `const(name)` uses ordinary call syntax and lookup, as specified by FN-5.
 GEN-14 resolves generic construction versus comparison using declaration lookup.
+`typed_constructor` is also the form of a call that supplies generic arguments
+(GEN-8).
 
 ## Rules
 
