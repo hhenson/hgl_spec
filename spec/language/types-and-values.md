@@ -115,8 +115,9 @@ domain below.
   ordinary value type, as `rolling<f64, 5>`, `atomic<Quote>`, `ref<f64>`,
   and `signal` are not, `T?` is admitted only as the whole type of a
   function's temporal parameter, whose argument may be omitted (UNIT-8), or
-  of a struct field, which is then optional (TYPE-4). It is no result type,
-  local's annotation, or part of another type. Nullability is
+  of a struct field, which is then optional (TYPE-4); `signal` is no field
+  with `?` or without (TYPE-12). It is no result type, local's annotation,
+  or part of another type. Nullability is
   independent of a callable's temporal/value role and of fixed configuration.
   It does not make null an admitted value of unqualified T. Payload use follows
   [nullable refinement](errors-and-diagnostics.md#nullable-value-refinement).
