@@ -7,7 +7,7 @@ helper realization are outside this portable declaration contract.
 
 ```ebnf
 native_type_decl = [ "export" ], "native", "type", IDENTIFIER ;
-native_function_decl = "native", [ "const" ], "fn", callable_name,
+native_function_decl = "native", [ "impl" ], [ "const" ], "fn", callable_name,
                        [ generic_parameters ], function_signature,
                        [ requires_clause ], [ native_contract_body ] ;
 native_contract_body = "{", [ NL ],
@@ -25,6 +25,9 @@ ordinary HGL statements. Target-specific bodies are separate provider artifacts.
   the shared interface. Native temporal and native const roles remain distinct;
   non-const parameters of a temporal declaration are inputs even if their
   payload type is scalar. All-const temporal declarations may still tick.
+  A `native impl fn` or `native impl const fn` declares a candidate of the
+  operator it names (GEN-4), temporal or value, whose body a provider
+  supplies.
 - **NATIVE-2.** A selected implementation part completes exactly one shared
   declaration. Match name, public parameters/order, roles, generics, complete
   result type, constraints, and admitted failures. Native implicit conversions
@@ -32,7 +35,9 @@ ordinary HGL statements. Target-specific bodies are separate provider artifacts.
   implementations are errors, not overloads. An implementation with no
   declaration of its name and role in its module rejects, selected or not.
   Implementations in different parts are alternatives for selection; two in
-  one part are duplicates.
+  one part are duplicates. Native candidates of one operator that differ in
+  role or parameter types are distinct declarations, and an implementation
+  completes the candidate whose signature it matches.
 - **NATIVE-3.** A temporal implementation `{}` denotes a graph; `{ when; }`
   denotes a node. Start and stop hooks require `when`, and each is written at
   most once; a repeated `when` marker adds nothing. A native const
@@ -64,7 +69,13 @@ module examples.native
 
 native fn accumulate(value: i64) -> i64
 native const fn describe(value: i64) -> str
+
+operator total<T>(lhs: T, rhs: T) -> T
+native impl const fn total(lhs: i64, rhs: i64) -> i64
+native impl const fn total(lhs: f64, rhs: f64) -> f64
 ```
+
+The two `native impl` lines declare two value candidates of `total`.
 
 Accepted illustration, selected same-module part:
 
@@ -78,6 +89,8 @@ native fn accumulate(value: i64) -> i64 {
     stop;
 }
 native const fn describe(value: i64) -> str {}
+native impl const fn total(lhs: i64, rhs: i64) -> i64 {}
+native impl const fn total(lhs: f64, rhs: f64) -> f64 {}
 ```
 
 These are contract fragments, not target implementations. Deliberate rejection:

@@ -7,7 +7,7 @@ anonymous-function scope.
 
 ```ebnf
 function_decl = { warning_annotation, NL },
-                ( [ "export" | "impl" ], "fn" | [ "export" ], "const", "fn" ),
+                [ "export" | "impl" ], [ "const" ], "fn",
                 callable_name, [ generic_parameters ], function_signature,
                 [ requires_clause ], function_body ;
 function_signature = "(", [ parameters ], ")", [ "->", type ] ;
@@ -34,7 +34,8 @@ Local source/native declaration matching is defined in the native chapter.
   parameter and result types are ordinary value types. It is not inherently
   pure or compile-time-only. Parameter-level `const` instead fixes
   configuration. A temporal `fn` has temporal non-const parameters and a
-  temporal result; an omitted result arrow means outputless.
+  temporal result; an omitted result arrow means outputless. An operator is
+  neither: each of its candidates is one or the other (GEN-4).
 - **FN-2.** An ordinary temporal body with no node-only construct describes
   composition. `state`, `cache`, `inject`, `start`, `when`, `stop`, or `yield`
   classifies that complete body as runtime. Classification precedes phase
@@ -47,17 +48,21 @@ Local source/native declaration matching is defined in the native chapter.
   A composition body calls any function: a value function called there is
   evaluated during wiring, or lifted when an argument is temporal (FN-6). A
   runtime body calls only value functions, and so does a value function.
+  Any body calls an operator; in a runtime body or a value function the
+  call selects a value candidate (GEN-5).
 - **FN-4.** A temporal/value pair may share a name. Composition and eval choose
   the temporal definition if one exists; runtime/value evaluation chooses the
   value definition. A bad selected signature is an error, not fallback to the
   other role. Two definitions of the same exact role remain duplicates.
+  An operator's candidates are no such pair: GEN-5 selects among them.
 - **FN-5.** `const` is a modifier only in a position admitting that modifier.
   Otherwise it is an ordinary name, including for an operator or function.
   `const(argument)` is an ordinary call resolved by the usual naming and
   phase rules; it has no intrinsic function-role selection behavior.
-- **FN-6.** A selected value helper with temporal arguments in composition is
-  lifted: temporal arguments become inputs; scalar arguments and omitted
-  defaults bind as configuration. A supplied temporal argument remains an
+- **FN-6.** A selected value helper, a `const fn` or a value candidate of an
+  operator, with temporal arguments in composition is lifted: temporal
+  arguments become inputs; scalar arguments and omitted defaults bind as
+  configuration. A supplied temporal argument remains an
   input even when its parameter has a default. Any input notification activates
   the node; FN-11 defines admission and binding. Each admitted evaluation
   publishes its result, including an equal result. An outputless helper lifts

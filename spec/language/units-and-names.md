@@ -37,11 +37,11 @@ admits one as a member name.
   `alias::name` and names nothing alone. A dotted module path creates no
   privileged access to another module.
 - **UNIT-3.** Ordinary functions and types are private unless exported.
-  Operators are public by definition. An `impl fn` is attached to its
-  operator and is reached only through it. Exported signatures are closed
-  over reachable types and required defining metadata; private dependencies
-  do not become source-importable. Import cycles are rejected, a module that
-  imports itself included.
+  Operators are public by definition. A candidate, `impl fn` or
+  `impl const fn`, is attached to its operator and is reached only through
+  it. Exported signatures are closed over reachable types and required
+  defining metadata; private dependencies do not become source-importable.
+  Import cycles are rejected, a module that imports itself included.
 - **UNIT-4.** Types have module-qualified nominal identity where specified.
   An alias does not create a new identity. Referencing the same public type
   through two imports preserves one identity and its generic arguments.
@@ -101,10 +101,10 @@ admits one as a member name.
   alias, and outside core's mandatory module neither a declaration nor an
   import alias takes a prelude name. The test scope (TST-1) is in scope only
   in tests and test-only declarations. UNIT-5 governs declarations that share
-  a name. An `impl fn` adds a candidate to its operator (GEN-4), not a name. A
-  member name is not a binding and may match any name. A test's name is not
-  one either: it may match a declaration's, and is unique among its module's
-  tests (TST-2).
+  a name. An `impl fn` or `impl const fn` adds a candidate to its operator
+  (GEN-4), not a name. A member name is not a binding and may match any
+  name. A test's name is not one either: it may match a declaration's, and
+  is unique among its module's tests (TST-2).
 
 Accepted illustration, complete module:
 
