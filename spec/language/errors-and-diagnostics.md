@@ -134,12 +134,12 @@ infrastructure and cannot satisfy a source-rejection expectation.
 | type | `sequence.context_type` | Sequence whose entries give no type, where none is expected (EXPR-9); the sequence |
 | type | `enum.context_type` | `.member` where no enum type is expected (TYPE-7); the member |
 | name | `binding.unassigned` | `var` read on a path that gives it no value (EXPR-3); the read |
-| name | `binding.immutable` | Assignment to a binding that is no `var` (EXPR-3); target |
+| name | `binding.immutable` | Assignment to an immutable binding: a `let`, a parameter, an iteration binding (EXPR-3); target |
 | type | `argument.order` | Argument with no name after a named one (EXPR-2); the argument |
 | type | `argument.unexpected` | More positional arguments than parameters or fields (EXPR-2); the argument |
 | name | `argument.unknown` | Named argument names no parameter or field (EXPR-2); name |
 | name | `argument.duplicate` | Parameter or field given twice (EXPR-2); later name |
-| type | `argument.missing` | Parameter or field with no default given nothing (EXPR-2, TYPE-5); callee name |
+| type | `argument.missing` | Parameter or field that may not be left out is given nothing (EXPR-2, TYPE-5); callee name |
 | function-kind | `call.role` | Temporal function called from a value function (FN-3); callee name |
 | type | `struct.abstract` | Abstract struct constructed (TYPE-3); name |
 | name | `member.unknown` | Struct has no field, or enum no member, of the name (EXPR-7, TYPE-7); name |
