@@ -32,10 +32,10 @@ Local source/native declaration matching is defined in the native chapter.
 
 - **FN-1.** A `const fn` is a value function. It computes ordinary values for
   one invocation: its parameter and result types are ordinary value types.
-  It is not inherently pure or compile-time-only. Parameter-level `const` instead fixes
-  configuration. A temporal `fn` has temporal non-const parameters and a
-  temporal result; an omitted result arrow means outputless. An operator is
-  neither: each of its candidates is one or the other (GEN-4).
+  It is not inherently pure or compile-time-only. Parameter-level `const`
+  instead fixes configuration. A temporal `fn` has temporal non-const
+  parameters and a temporal result; an omitted result arrow means outputless.
+  An operator is neither: each of its candidates is one or the other (GEN-4).
 - **FN-2.** An ordinary temporal body with no node-only construct describes
   composition: the function is a graph. `state`, `cache`, `inject`, `start`,
   `when`, `stop`, or `yield` classifies that complete body as runtime: the
