@@ -67,9 +67,13 @@ domain below.
 - **TYPE-4.** A typed field introduction fixes its type and optionality. A
   field is optional when its type is nullable, `T?`, or an `atomic<...>` of
   a nullable type, `atomic<T?>`, and only an optional field's default may
-  be null. An untyped inherited override changes only the construction
-  default of a field a parent has. Required fields may have defaults;
-  optional fields may have non-null defaults. A struct's members
+  be null. A field a struct has from a generic parent has the type that
+  parent's arguments give it: with `abstract struct Base<T> { value: T }`,
+  `value` is optional in `struct Child : Base<i64?>`, which may write
+  `value = null`. A type parameter written with no `?` is not nullable:
+  `value: T = null` rejects. An untyped inherited override changes only the
+  construction default of a field a parent has. Required fields may have
+  defaults; optional fields may have non-null defaults. A struct's members
   have distinct names. A field a struct has from two parents, or from a
   parent and itself, has one type and optionality, a generic parent's
   arguments standing for its parameters; a conflict is an error. One field
