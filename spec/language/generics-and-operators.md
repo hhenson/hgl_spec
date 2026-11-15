@@ -101,8 +101,11 @@ expression; group a constant expression that uses them as operand data.
   parameter as an ordinary numeric runtime value.
 - **GEN-8.** `instantiate` requests candidates, not calls or exports. `_` there
   retains a generic parameter. A call may supply its generic arguments as a
-  generic constructor does, `count<i64>(3)`. A call that supplies none
-  rejects when it leaves a generic parameter unresolved under GEN-2.
+  generic constructor does, `count<i64>(3)`. It may supply the first of them
+  and leave the rest to be resolved under GEN-2: with
+  `operator convert<T, V>(value: V) -> T`, `convert<f64>(count)` supplies T
+  and resolves V from `count`. A struct application supplies all or none
+  (GEN-2). A call rejects when it leaves a generic parameter unresolved.
 - **GEN-9.** Property clauses apply to explicit concrete domains. Missing
   metadata gives no algebraic guarantee. Recorded laws are contracts, not
   proofs authorizing reassociation across overflow or floating-point effects.
