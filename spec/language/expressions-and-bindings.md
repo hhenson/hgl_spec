@@ -72,7 +72,8 @@ GEN-14 resolves generic construction versus comparison using declaration lookup.
   the selected public callable's parameter names.
 - **EXPR-3.** Initialization fixes a binding's value/connection category and
   type; an annotation checks that category rather than changing it. `let` is
-  immutable; `var` may be assigned within the same category/type. An uninitialized
+  immutable, and so is a parameter; `var` may be assigned within the same
+  category/type. An uninitialized
   typed var supplies no value or connection; reaching assignments must resolve
   consistently and every path reaching a read must assign it. An inner
   declaration remains local. A compound assignment reads its existing target.
@@ -83,12 +84,15 @@ GEN-14 resolves generic construction versus comparison using declaration lookup.
   connection. Scalar/connection reassignment across categories rejects.
   Persistent runtime history uses state/cache.
 - **EXPR-5.** An expected type contextualizes literals and constructors but
-  cannot erase structural/atomic boundaries or nominal identity. Numeric
-  widening follows the admitted destination relationship, not arbitrary native
-  coercion. A const expression uses the same syntax with required-constant
-  semantic restrictions; it cannot inspect temporal values.
+  cannot erase structural/atomic boundaries or nominal identity. An integer
+  literal is an `f64` where one is expected: `let x: f64 = 1`. A value that
+  has a type is not converted by its place: an `i64` binding where an `f64`
+  is expected rejects, and its conversion is written. A const expression
+  uses the same syntax with required-constant semantic restrictions; it
+  cannot inspect temporal values.
 - **EXPR-6.** In value/runtime contexts, Boolean connectives short-circuit left
-  to right. A valid/presence/tag guard must precede the protected payload read.
+  to right. The operands of `&&`, `||`, and `!` are bools.
+  A valid/presence/tag guard must precede the protected payload read.
   Composition forms describe dependencies and select core identities; they do
   not read current payloads or inherit scalar execution order as topology.
 - **EXPR-7.** Structural projection selects a child connection. Atomic
@@ -107,6 +111,10 @@ GEN-14 resolves generic construction versus comparison using declaration lookup.
   element types, keys, ordering, uniqueness, and placeholder admission; syntax
   alone does not select a dictionary, timed trace, or sparse delta. `_` is not
   an ordinary value and remains restricted by EXPR-8 and the trace profile.
+  With no expected type, value entries make a list of the one type they
+  have: `[1, 2.5]` is a `list<f64>`, its integer literal an `f64` (EXPR-5),
+  and `[1, null]` a `list<i64?>`. Entries of two types reject, and so do
+  entries that give no type: `[]`, `[null]`.
 - **EXPR-10.** A symbol operator may carry named configuration immediately
   after its token: `a /{zero: .ieee} b`. The brace is the next token; spaces
   may stand between. Bind these arguments to the same core identity and its
@@ -120,7 +128,8 @@ GEN-14 resolves generic construction versus comparison using declaration lookup.
   operator contract. Intrinsic harness and constraint forms retain their own
   rules.
 - **EXPR-11.** `<=>` is full comparison at the comparison precedence tier.
-  It returns an ordinary core comparison outcome rather than a bool. The core
+  It returns an ordinary core comparison outcome rather than a bool; `==`,
+  `!=`, `<`, `<=`, `>`, and `>=` return a bool. The core
   [numeric contract](https://github.com/hhenson/hgl_core/blob/main/spec/numeric-operators.md)
   defines outcomes, numeric policies, and their relationship to Boolean
   comparisons. Source checking and required-constant failures follow ERR-9;

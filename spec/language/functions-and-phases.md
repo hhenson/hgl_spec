@@ -63,8 +63,13 @@ Local source/native declaration matching is defined in the native chapter.
 - **FN-7.** A composition return selects a connection; a runtime return
   publishes and leaves the current handler/evaluation. Completing a runtime
   handler without a write produces no tick. A value return yields an ordinary
-  value. Anonymous functions obtain their parameter/result context from their
-  accepting form; inference does not create a general callable value type.
+  value. `return` with no value ends a function that declares no result;
+  in a temporal function that declares one it ends the evaluation with no
+  tick. A `const fn` that declares a result returns a value of that type:
+  `return` with no value rejects there, as `return value` does in a function
+  that declares no result. Anonymous functions obtain their parameter/result
+  context from their accepting form; inference does not create a general
+  callable value type.
 - **FN-8.** Packs capture, in order, the arguments the fixed parameters leave.
   `...T` captures the positional ones: all of type T, or each of its own type
   when T is a declared type pack. `...{Fields}` captures the named ones, each

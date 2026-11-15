@@ -123,6 +123,8 @@ domain below.
   with `?` or without (TYPE-12). It is no result type, local's annotation,
   or part of another type. Nullability is
   independent of a callable's temporal/value role and of fixed configuration.
+  A T is a value where a `T?` is expected. `null` has the nullable type its
+  place expects, and rejects where nothing gives it one: `let x = null`.
   It does not make null an admitted value of unqualified T. Payload use follows
   [nullable refinement](errors-and-diagnostics.md#nullable-value-refinement).
 - **TYPE-15.** The suffix applies to the complete preceding type: `list<f64?>`
