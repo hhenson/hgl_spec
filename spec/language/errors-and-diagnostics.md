@@ -143,6 +143,7 @@ infrastructure and cannot satisfy a source-rejection expectation.
 | function-kind | `call.role` | Temporal function called from a value function (FN-3); callee name |
 | type | `return.missing` | Value function that declares a result can reach its end with no value (FN-7); function name |
 | type | `switch.duplicate_label` | Switch label has the value of an earlier label (CTRL-6); later label |
+| phase | `while.condition` | `while` with no condition in a value function (CTRL-12); `while` |
 | type | `struct.abstract` | Abstract struct constructed (TYPE-3); name |
 | name | `member.unknown` | Struct has no field, or enum no member, of the name (EXPR-7, TYPE-7); name |
 | operator | `operator.operand` | Operand types the operator's contract does not admit; operator |

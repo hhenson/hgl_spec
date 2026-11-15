@@ -75,8 +75,8 @@ CTRL-9 places the opening brace of an `if`, `for`, `switch`, `when`, or
   parenthesized.
 - **CTRL-10.** A block whose last statement is an expression has that
   expression's value and type; any other block has none. In a value function
-  the condition of an `if` is a `bool`: a `bool?`, a number, or any other
-  type rejects. An `if` whose value is used has the one type its two
+  the condition of an `if` or a `while` is a `bool`: a `bool?`, a number, or
+  any other type rejects. An `if` whose value is used has the one type its two
   branches' values have, as the entries of a sequence have one (EXPR-9): a
   null branch makes it `T?`, and two types reject. With no `else` it is as
   if its `else` were null: its value is a `T?`, which a place that expects a
@@ -95,7 +95,9 @@ CTRL-9 places the opening brace of an `if`, `for`, `switch`, `when`, or
   each element of a list, in index order, or of a set, and
   `for key, value in entries` for each key and value of a dictionary. One
   name over a dictionary, two over a list or a set, and any other type after
-  `in` reject. A `switch` there selects on a `bool`, `i64`, `str`, or enum
+  `in` reject. `while condition { ... }` repeats its body while the
+  condition holds; the form with no condition is a source's (SOURCE-4) and
+  rejects there. A `switch` there selects on a `bool`, `i64`, `str`, or enum
   value. Each label is a constant of the selector's type (CTRL-6): a
   literal, an enum member, or a generic value parameter. A `switch` is a
   statement and has no value.
@@ -156,6 +158,16 @@ const fn total(items: list<i64>) -> i64 {
     return running
 }
 
+const fn halvings(n: i64) -> i64 {
+    var left = n
+    var count = 0
+    while left > 1 {
+        left = left // 2
+        count += 1
+    }
+    return count
+}
+
 enum Side { buy, sell }
 
 const fn quoted(side: Side) -> str {
@@ -174,8 +186,9 @@ value, so `kept` may return it. Deliberate rejections:
 `const fn f(a: i64) -> i64 { if a > 0 { return a } }`, which can reach its
 end with no value; reading a `var total: i64` after an `if` with no
 `else` that alone assigns it; `for key in entries` with `entries` a
-dictionary, which binds two names; and a `switch` with `case 1:` twice.
-`total` adds up a list, and `quoted` returns from every case of an enum it
+dictionary, which binds two names; `while { }` with no condition; and a
+`switch` with `case 1:` twice. `total` adds up a list, `halvings` loops
+while a condition holds, and `quoted` returns from every case of an enum it
 covers.
 
 ## Proposed generators
