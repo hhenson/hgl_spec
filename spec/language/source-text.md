@@ -139,8 +139,11 @@ duration_unit = "d" | "h" | "m" | "s" | "ms" | "us" ;
   time excludes `24:00:00` and leap seconds. Offset-free date/time is civil,
   not an implicit UTC instant. A zoned datetime requires an explicit offset.
 - **LEX-12.** Zone components are nonempty, neither `.` nor `..`, with no
-  leading/trailing/repeated slash; the name is at most 255 bytes. The selected
-  run provider checks exact catalog membership and offset consistency. Zone
+  leading/trailing/repeated slash; the name is at most 255 bytes. A bracketed
+  name that breaks this form, an empty one included, is an invalid zone and
+  not a malformed literal: `@[]`, `@[/Europe]`, `@[Europe//London]`. The
+  selected run provider checks exact catalog membership and offset
+  consistency. Zone
   aliases retain their names. Provider checks do not depend on the compiler's
   local time-zone database.
 - **LEX-13.** Duration units occur once each, in descending order. Only the
@@ -226,7 +229,9 @@ PUNCTUATION = "..." | "<=>" | "//="
   tabs before the closing `"""` are removed from the start of every line. A
   line of only spaces and tabs contributes an empty line; any other line
   that does not start with them is rejected. Escapes apply as in other
-  strings; a `"` needs one only where it would begin `"""`.
+  strings; a `"` needs one only where it would begin `"""`. A `\` directly
+  before a line break is an unknown escape, and the block continues. A block
+  the file ends before closing is an unclosed string (LEX-2).
 - **LEX-26.** `\` followed by a line break, with only spaces or tabs between
   them, is a line continuation. It separates tokens as whitespace does, and
   its line break is not a line break: the next line continues the current
@@ -309,8 +314,9 @@ there, and `result` would begin a statement of its own.
 Deliberate rejections: `12abc`, `1.5x`, `1e`, `1_`, `1h_`, `0x`, and
 `0b102` (LEX-18); `1__000` (LEX-22); `0xFFFF_FFFF_FFFF_FFFF` (LEX-23);
 `"\u{D800}"` (LEX-24); `"""text"""` on one line, a text-block line holding
-`"""` after other text, and a text-block line indented less than its closing
-delimiter (LEX-25);
+`"""` after other text, a text-block line indented less than its closing
+delimiter, a text-block line ending in `\`, and a text block the file ends
+inside (LEX-25); `@[]` and `@[Europe/]` (LEX-12);
 `@2026-09-03T09:30+24:00` (LEX-19); `1e400` (LEX-20);
 `xs: list<i64>= value` (LEX-17); a form feed between tokens (LEX-16);
 a blank line between `let half = sum /` and `2.0` (LEX-5); `\` followed on

@@ -65,18 +65,18 @@ infrastructure and cannot satisfy a source-rejection expectation.
 | parse | `syntax.expected_token` | Required token missing; unexpected token, or the end of the file for EOF |
 | parse | `syntax.invalid_encoding` | Source is not well-formed UTF-8 (LEX-16); first offending byte |
 | parse | `syntax.unexpected_character` | Character begins no token (LEX-16); character |
-| parse | `string.unclosed` | String reaches a line break or EOF (LEX-2); literal |
-| parse | `string.unknown_escape` | Escape outside the admitted set (LEX-2); escape |
+| parse | `string.unclosed` | String reaches a line break or EOF, or a text block reaches EOF (LEX-2, LEX-25); literal |
+| parse | `string.unknown_escape` | Escape outside the admitted set, a `\` before a text block's line break included (LEX-2, LEX-25); escape |
 | parse | `string.invalid_escape` | `\u{...}` names no Unicode scalar value (LEX-24); escape |
 | parse | `string.malformed_text_block` | Text block breaks LEX-25's layout; offending delimiter or line |
 | parse | `comment.unclosed` | Block or documentation comment reaches EOF (LEX-2); comment |
-| parse | `number.malformed` | Numeric or duration run is not one literal (LEX-8, LEX-18); run |
-| parse | `number.integer_range` | Integer literal outside its required domain (LEX-7); literal |
+| parse | `number.malformed` | Numeric or duration run is not one literal (LEX-8, LEX-18, LEX-22); run |
+| parse | `number.integer_range` | Integer literal outside its required domain (LEX-7, LEX-23); literal |
 | parse | `number.float_range` | Float literal rounds to infinity (LEX-7, LEX-20); literal |
 | parse | `duration.invalid` | Duration violates LEX-13; literal |
 | parse | `date_time.malformed` | `@` run matches no temporal form (LEX-18); run |
 | parse | `date_time.invalid_field` | Date, time, or offset field violates LEX-11 or LEX-19; literal |
-| parse | `date_time.invalid_zone` | Zone name violates LEX-12's source form; literal |
+| parse | `date_time.invalid_zone` | Zone name violates LEX-12's source form, an empty component included; literal |
 | parse | `doc.unattached` | Documentation comment documents no declaration (SDOC-1); comment |
 | parse | `doc.repeated` | Documentation comment before the one a declaration has (SDOC-1); earlier comment |
 | module | `module.duplicate_unnamed` | Module has a second unnamed file (UNIT-1); module path of every unnamed file but one |
