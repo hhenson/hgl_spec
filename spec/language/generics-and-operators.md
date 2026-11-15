@@ -61,9 +61,10 @@ expression; group a constant expression that uses them as operand data.
   against that. Partial applications,
   generic defaults, and `_` struct arguments are not admitted. A type pack is
   a sequence, not a singular source type.
-- **GEN-3.** `requires` may use type/category membership, equalities, field/pack
-  reflection, and named operator requirements. It cannot inspect temporal
-  values or call arbitrary language functions. A positive conjunctive equality
+- **GEN-3.** `requires` may use type/category membership, equalities, the
+  membership of a constant in a set of constants, field/pack reflection, and
+  named operator requirements. It cannot inspect temporal values or call
+  arbitrary language functions. A positive conjunctive equality
   may bind one unresolved generic from known data; under negation/disjunction
   it only tests already-resolved data. Solve bindings to a fixed point; reject
   unresolved/conflicting dependencies.
@@ -90,9 +91,17 @@ expression; group a constant expression that uses them as operand data.
   generic relationships. Scalar specialization may accept a constant where
   the contract admits temporal lifting; it cannot require temporal data for
   a declared const argument. The public declaration owns the defaults of
-  const configuration. A candidate may give any of its inputs a default. The
-  candidates of an operator stay resolvable together: once defaults fill what
-  a call omits, no call matches two of them equally. With candidates
+  const configuration. A candidate states in `requires` the values of a
+  const option it is for, by comparing the option with constants:
+  `requires zero == .error`, `requires zero in {.ieee, .nan}`. A call admits
+  the candidate only where that holds for the option's value at the call,
+  the public default included. Candidates for different values may differ
+  in result type (EXPR-12). A temporal candidate marks the option `const`
+  as its operator does. Every parameter of a value candidate is a value, so
+  it writes the option with no marker. A candidate may give any of its
+  inputs a default. The candidates of an operator stay resolvable together:
+  once defaults fill what a call omits, no call matches two of them equally.
+  With candidates
   `add(lhs = 1, rhs = 1)` and `add(lhs = 1.0, rhs = 2.0)`, `add()` would. A
   value candidate and a temporal candidate with the same parameter types
   match a call in composition equally.
@@ -254,6 +263,28 @@ In composition, `doubled(count)` for a temporal `count` of `i64` selects it
 too and lifts it, and `doubled(price)` for a temporal `price` of `f64`
 selects the temporal candidate. Deliberate rejection: `doubled(1.5)` in a
 `const fn`, where no value candidate takes an `f64`.
+
+Accepted declaration fragment, candidates for the values of a const option
+(GEN-6); `Zero` and `div_` here stand for core's:
+
+```hgl
+export enum Zero { ieee, nan, error }
+
+operator div_<L, R, O>(lhs: L, rhs: R, const zero: Zero = .ieee) -> O
+
+native impl fn div_(lhs: f64, rhs: f64, const zero: Zero) -> f64
+    requires zero in {.ieee, .nan}
+
+native impl fn div_(lhs: f64, rhs: f64, const zero: Zero) -> result<f64, error>
+    requires zero == .error
+```
+
+For temporal `a` and `b` of `f64`, `a / b` takes the default `.ieee`,
+selects the first candidate and is an `f64`, as `a /{zero: .nan} b` is.
+`a /{zero: .error} b` selects the second and is a `result<f64, error>`. A
+value candidate is written the same way with `zero: Zero`. Deliberate
+rejection under GEN-3: `requires rhs == 0.0` on either candidate, which
+reads a temporal input.
 
 ## Core boundary
 
