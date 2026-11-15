@@ -95,8 +95,8 @@ infrastructure and cannot satisfy a source-rejection expectation.
 | name | `alias.unknown` | Name before `::` is no import alias of its file (UNIT-2); name |
 | name | `test.duplicate_name` | Two tests of a module share a name (TST-2); later name |
 | module | `test.export` | Exported declaration in a test context (TST-1); `export` |
-| operator | `test.implementation` | `impl fn` in a test context (TST-1); operator name |
-| operator | `impl.unknown_operator` | `impl fn` names no operator (GEN-4); operator name |
+| operator | `test.implementation` | Operator candidate in a test context (TST-1); operator name |
+| operator | `impl.unknown_operator` | Operator candidate names no operator (GEN-4); operator name |
 | name | `native.missing_declaration` | Native implementation completes no declaration (NATIVE-2); function name |
 | phase | `native.const_hook` | Native const implementation has a lifecycle hook (NATIVE-3); hook |
 | phase | `native.hook_without_when` | Start or stop hook with no `when` hook (NATIVE-3); hook |

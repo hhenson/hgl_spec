@@ -69,22 +69,29 @@ expression; group a constant expression that uses them as operand data.
   unresolved/conflicting dependencies.
 - **GEN-4.** An operator has nominal identity `(module, name)` and owns public
   names/order, roles, defaults, generic relationships, and requirements. An
-  `impl fn` binds that operator through local declaration, selective import,
-  or the prelude. No matching operator is a declaration error. A plain fn is
-  not a candidate.
+  `impl fn` is a temporal candidate of the operator it names and an
+  `impl const fn` a value candidate. Each binds that operator through local
+  declaration, selective import, or the prelude. An operator is neither
+  temporal nor value: the candidate a call selects is. No matching operator
+  is a declaration error. A plain fn is not a candidate.
 - **GEN-5.** Match candidates against the requested output before inputs, then
   check their conditions. Select exactly one most-specific admitted candidate.
   Concrete types outrank variables; structurally constrained variables outrank
   unconstrained ones. No match rejects; tied most-specific candidates are
   ambiguous. Library membership and registration order grant no priority.
+  A call in a value function or a runtime body selects among the value
+  candidates. A call in composition selects among all of them; a value
+  candidate it selects for temporal arguments is lifted (FN-6).
 - **GEN-6.** Candidate shape must honor the operator's public arguments and
   generic relationships. Scalar specialization may accept a constant where
   the contract admits temporal lifting; it cannot require temporal data for
   a declared const argument. The public declaration owns the defaults of
-  const configuration. An `impl fn` may give any of its inputs a default. The
+  const configuration. A candidate may give any of its inputs a default. The
   candidates of an operator stay resolvable together: once defaults fill what
   a call omits, no call matches two of them equally. With candidates
-  `add(lhs = 1, rhs = 1)` and `add(lhs = 1.0, rhs = 2.0)`, `add()` would.
+  `add(lhs = 1, rhs = 1)` and `add(lhs = 1.0, rhs = 2.0)`, `add()` would. A
+  value candidate and a temporal candidate with the same parameter types
+  match a call in composition equally.
 - **GEN-7.** A generic body is checked under its stated requirements; choosing
   a specialization does not authorize unrelated operations or reify a type/size
   parameter as an ordinary numeric runtime value.
@@ -216,6 +223,23 @@ operator labelled<...Fields>(values: ...{Fields}{1:4}) -> str
 values, of the two types in `Ts`. `labelled` takes one to four named
 arguments and keeps their names. Deliberate rejection, in parsing: a
 cardinality on a parameter that is no pack, as in `value: f64{2}`.
+
+Accepted declaration fragment, a value candidate and a temporal candidate of
+one operator (GEN-4, GEN-5):
+
+```hgl
+operator doubled<T>(value: T) -> T
+
+impl const fn doubled(value: i64) -> i64 => value * 2
+
+impl fn doubled(value: f64) -> f64 => value * 2.0
+```
+
+`doubled(21)` in a `const fn` or a runtime body selects the value candidate.
+In composition, `doubled(count)` for a temporal `count` of `i64` selects it
+too and lifts it, and `doubled(price)` for a temporal `price` of `f64`
+selects the temporal candidate. Deliberate rejection: `doubled(1.5)` in a
+`const fn`, where no value candidate takes an `f64`.
 
 ## Core boundary
 
