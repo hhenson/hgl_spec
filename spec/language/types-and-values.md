@@ -129,13 +129,15 @@ domain below.
   membership. `atomic<V>` stops expansion at a complete ordinary V. For
   non-composite S, `atomic<S>` normalizes to S before matching, recursively.
 - **TYPE-10.** `list<T>` denotes a growing shape; fixed sizes are nonnegative
-  integer constants, a generic value parameter among them declared `i64`.
+  integer constants. A generic value parameter declared with a type other
+  than `i64` is no size; one declared with none is a size (GEN-13).
   `unbounded` is the size sentinel. Size participates in identity;
   an unsized parameter pattern can accept a fixed size. A tuple retains
   positional identity and is not a fixed list alias.
 - **TYPE-11.** A rolling maximum/minimum has one constant kind: tick count or
   duration. A size that is a generic value parameter has its declared type's
-  kind: `i64` a tick count, `duration` a duration. Omitted minimum equals
+  kind: `i64` a tick count, `duration` a duration. One declared with no type
+  has its kind once resolved. Omitted minimum equals
   maximum: `rolling<i64, 5>` and `rolling<i64, 5, 5>` are one type. Tick
   sizes are positive; duration maximum is positive and minimum may be zero:
   `rolling<f64, 5m, 0s>` is admitted and `rolling<f64, 0s>` rejects. Minimum
