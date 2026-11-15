@@ -84,11 +84,11 @@ domain below.
   arguments standing for its parameters; a conflict is an error. One field
   reached by two paths is one field.
 - **TYPE-5.** An ordinary constructor supplies complete required data. Its
-  arguments are given to the struct's fields as a call's are to parameters
-  (EXPR-2): a parent's fields before the struct's own, parents in the order
-  written. A field with a default, its own or one a struct below gives it,
-  may be left out, and so may an optional field, which is then null; such a
-  field follows every field that may not be left out. Written
+  arguments are named, each for a field the struct has, a parent's included,
+  in any order; it takes no positional argument. A field with a default, its
+  own or one a struct below gives it, may be left out, and so may an
+  optional field, which is then null. Fields are declared in any order.
+  Written
   arguments evaluate once in source order; failure prevents later arguments.
   Defaults are evaluated only when omitted. Retained results own their data;
   later mutation of a source cannot change an earlier retained value.
