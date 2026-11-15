@@ -69,7 +69,11 @@ GEN-14 resolves generic construction versus comparison using declaration lookup.
 - **EXPR-2.** Evaluate ordinary call/constructor arguments once in written
   order. Positional arguments precede named ones; reject duplicates, unknown
   names, missing required arguments, and wrong types. Named arguments use
-  the selected public callable's parameter names.
+  the selected public callable's parameter names. Positional arguments fill
+  the parameters from the first and stop where they stop; named arguments
+  come in any order, and a parameter that may be omitted may be left out. A
+  parameter that may be omitted, one with a default or a type written `T?`,
+  follows every parameter that may not (UNIT-8).
 - **EXPR-3.** Initialization fixes a binding's value/connection category and
   type; an annotation checks that category rather than changing it. `let` is
   immutable, and so is a parameter; `var` may be assigned within the same
@@ -87,7 +91,8 @@ GEN-14 resolves generic construction versus comparison using declaration lookup.
   cannot erase structural/atomic boundaries or nominal identity. An integer
   literal is an `f64` where one is expected: `let x: f64 = 1`. A value that
   has a type is not converted by its place: an `i64` binding where an `f64`
-  is expected rejects, and its conversion is written. A const expression
+  is expected rejects, and its conversion is written with core's
+  `convert<T>(value)`. A const expression
   uses the same syntax with required-constant semantic restrictions; it
   cannot inspect temporal values.
 - **EXPR-6.** In value/runtime contexts, Boolean connectives short-circuit left
@@ -99,7 +104,10 @@ GEN-14 resolves generic construction versus comparison using declaration lookup.
   projection computes from a whole payload. Dictionary temporal key selection
   may produce a reference designation; strict/safe ordinary dictionary reads
   follow [lookup rules](errors-and-diagnostics.md). REF access is never erased
-  just because a member has a familiar name.
+  just because a member has a familiar name. Brackets read an element of a
+  list or a tuple by an `i64` index, and the value a dictionary has for a
+  key. A tuple's index is a constant within its length: it selects the
+  element's type.
 - **EXPR-8.** Ordinary tuples may contain runtime payload expressions. Harness
   `_` and timed cells exist only in test traces; outside them a sequence is
   ordinary data and a placeholder is not a value. Tuple syntax does not
@@ -128,7 +136,7 @@ GEN-14 resolves generic construction versus comparison using declaration lookup.
   operator contract. Intrinsic harness and constraint forms retain their own
   rules.
 - **EXPR-11.** `<=>` is full comparison at the comparison precedence tier.
-  It returns an ordinary core comparison outcome rather than a bool; `==`,
+  It returns core's `CmpResult`, an ordinary enum, rather than a bool; `==`,
   `!=`, `<`, `<=`, `>`, and `>=` return a bool. The core
   [numeric contract](https://github.com/hhenson/hgl_core/blob/main/spec/numeric-operators.md)
   defines outcomes, numeric policies, and their relationship to Boolean

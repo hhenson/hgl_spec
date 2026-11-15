@@ -53,7 +53,12 @@ expression; group a constant expression that uses them as operand data.
   or solvable equality. A generic struct application supplies all arguments or
   infers them from constructor fields and expected type. A type position, a
   parent included, has nothing to infer from and supplies them: `value: Box`
-  rejects where `Box(value: 7)` infers. Partial applications,
+  rejects where `Box(value: 7)` infers. A constructor takes the arguments
+  of the type expected when that is the same struct. Otherwise it matches
+  each field's type, part for part, with the type of the value the field is
+  given: `T` is `i64` for `values: list<T>` given a `list<i64>`. The first
+  field that says what a parameter is decides it, and the others are checked
+  against that. Partial applications,
   generic defaults, and `_` struct arguments are not admitted. A type pack is
   a sequence, not a singular source type.
 - **GEN-3.** `requires` may use type/category membership, equalities, field/pack

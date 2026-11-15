@@ -63,14 +63,19 @@ domain below.
 - **TYPE-3.** Structs are nominal, with public ordered fields and no methods.
   Only abstract structs may be parents, each listed once; abstract values are
   not constructible. Concrete structs are final. Generic applications are
-  invariant by origin and complete canonical arguments.
+  invariant by origin and complete canonical arguments. A struct is a value
+  where an abstract struct it inherits from is expected, through any number
+  of parents, each with the arguments the struct below gives it; a
+  `list<Child>` is no `list<Base>`.
 - **TYPE-4.** A typed field introduction fixes its type and optionality. A
   field is optional when its type is nullable, `T?`, or an `atomic<...>` of
   a nullable type, `atomic<T?>`, and only an optional field's default may
   be null. A field a struct has from a generic parent has the type that
   parent's arguments give it: with `abstract struct Base<T> { value: T }`,
   `value` is optional in `struct Child : Base<i64?>`, which may write
-  `value = null`. A type parameter written with no `?` is not nullable:
+  `value = null`. So has a struct's own field, with the arguments the
+  struct is given: the `value: T` of a `Box<i64?>` is optional. A type
+  parameter written with no `?` is not nullable:
   `value: T = null` rejects. An untyped inherited override changes only the
   construction default of a field a parent has. Required fields may have
   defaults; optional fields may have non-null defaults. A struct's members
@@ -78,7 +83,12 @@ domain below.
   parent and itself, has one type and optionality, a generic parent's
   arguments standing for its parameters; a conflict is an error. One field
   reached by two paths is one field.
-- **TYPE-5.** An ordinary constructor supplies complete required data. Written
+- **TYPE-5.** An ordinary constructor supplies complete required data. Its
+  arguments are given to the struct's fields as a call's are to parameters
+  (EXPR-2): a parent's fields before the struct's own, parents in the order
+  written. A field with a default, its own or one a struct below gives it,
+  may be left out, and so may an optional field, which is then null; such a
+  field follows every field that may not be left out. Written
   arguments evaluate once in source order; failure prevents later arguments.
   Defaults are evaluated only when omitted. Retained results own their data;
   later mutation of a source cannot change an earlier retained value.
@@ -101,7 +111,9 @@ domain below.
   position expects
   the enum's type, `.member` names one too: the value of an argument or
   configuration option of that type, an initializer or result declared with
-  it, an operand compared with it, a `switch` label for a selector of it.
+  it, a value assigned to a `var` of it, an element of a tuple, list, or set
+  expected to hold it, an operand compared with it, a `switch` label for a
+  selector of it.
   With no enum type expected, `.member` rejects. Unnumbered numbering starts
   at zero and increments the previous member; explicit numbers reset the
   next value. Values fit signed `i64`; duplicates and overflow reject.
