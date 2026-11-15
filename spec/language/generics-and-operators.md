@@ -60,10 +60,11 @@ expression; group a constant expression that uses them as operand data.
   field that says what a parameter is decides it, and the others are checked
   against that. A call resolves a generic of its callee from what it writes
   after the name (GEN-8), then from the type its place expects of the
-  result, then from its arguments in the order written. The first of these
-  that says what a parameter is decides it, and what follows is checked
-  against that: an integer literal is widened to an `f64` so decided
-  (EXPR-5), and another argument of another type rejects. Partial
+  result, then from its arguments in declared parameter order (GEN-12),
+  whatever order they are written in. The first of these that says what a
+  parameter is decides it, and what follows is checked against that: an
+  integer literal is widened to an `f64` so decided (EXPR-5), and another
+  argument of another type rejects. Partial
   applications, generic defaults, and `_` struct arguments are not admitted.
   A type pack is a sequence, not a singular source type.
 - **GEN-3.** `requires` may use type/category membership, equalities, the
@@ -238,10 +239,12 @@ let names: list<str> = repeat(3)
 ```
 
 T is `f64` as written; `f64` as the place expects, each literal widened;
-`i64` from the `1`; and `str` as the place expects. Deliberate rejections:
-`same("a", 1)`, at the `1`; `let real: f64 = same(1, count)`, at `count`,
-which is no literal; and `let names = repeat(3)`, which leaves T unresolved
-(`generic.unresolved`).
+`i64` from the `1`; and `str` as the place expects.
+`same(right: 1, left: 2.0)` is an `f64`: `left` is declared first and
+decides T, and the `1` is widened. Deliberate rejections: `same("a", 1)`,
+at the `1`;
+`let real: f64 = same(1, count)`, at `count`, which is no literal; and
+`let names = repeat(3)`, which leaves T unresolved (`generic.unresolved`).
 
 Accepted declaration fragments illustrating kind inference and constraints:
 
