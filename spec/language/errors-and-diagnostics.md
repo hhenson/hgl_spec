@@ -143,7 +143,8 @@ infrastructure and cannot satisfy a source-rejection expectation.
 | function-kind | `call.role` | Temporal function called from a value function (FN-3); callee name |
 | type | `struct.abstract` | Abstract struct constructed (TYPE-3); name |
 | name | `member.unknown` | Struct has no field, or enum no member, of the name (EXPR-7, TYPE-7); name |
-| operator | `operator.operand` | Operand types the operator's contract does not admit; operator |
+| operator | `operator.no_candidate` | Call of an operator, by symbol or by name, that no candidate admits (GEN-5); operator |
+| operator | `operator.ambiguous` | Call of an operator that two most-specific candidates admit equally (GEN-5); operator |
 | type | `default.order` | Parameter that may not be omitted follows one that may (UNIT-8); the later parameter |
 | type | `tuple.index` | Tuple's index is no constant, or is outside the tuple (EXPR-7); index |
 | type | `rolling.size_kind` | Wrong/mixed size kind; offending size, the minimum when the two differ in kind |

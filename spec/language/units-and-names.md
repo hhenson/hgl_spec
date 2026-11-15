@@ -87,7 +87,7 @@ admits one as a member name.
   generic parameters and the scope around the declaration, not its
   parameters: in `fn f(n: i64, items: list<f64, n>)` the size names no `n`.
 - **UNIT-11.** The prelude is the public declarations of core's mandatory
-  module, and nothing else. Every module binds them without a `use`.
+  module, `core`, and nothing else. Every module binds them without a `use`.
 - **UNIT-12.** A block's scope is the scope around it plus its own bindings;
   an anonymous function's is the scope around it plus its parameters (FN-14).
   A `switch` case has no scope of its own: its statements bind in the block
@@ -133,6 +133,6 @@ file imports, takes a name already in scope (UNIT-12). Conformance is planned.
 
 ## Core boundary
 
-Core supplies the mandatory module and syntax-bound identities. A target's
+Core supplies the mandatory module, `core`, and syntax-bound identities. A target's
 declared dependency closure supplies extension interfaces; ambient registries
 cannot silently add candidates to a portable target.
