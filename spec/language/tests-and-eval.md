@@ -46,7 +46,8 @@ arbitrary callable value. `raises` is contextual immediately after assert.
 
 ## Dense trace extent
 
-- **TST-6.** Dense position i denotes start plus i minimum engine steps.
+- **TST-6.** Dense position i denotes the simulation start plus i minimum
+  engine steps. All input traces share that indexing.
   Input `_` adds no scheduled event. Leading and intervening placeholders
   locate later publications. Trailing placeholders have no effect. An input
   with only placeholders supplies an empty replay, just like `[]`. A dense
