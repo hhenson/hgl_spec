@@ -74,10 +74,11 @@ override. `delta_type` syntax has the proposed formation domain below.
   Defaults are evaluated only when omitted. Retained results own their data;
   later mutation of a source cannot change an earlier retained value.
 - **TYPE-6.** A struct holds the structs its fields' types name at any depth,
-  the fields it has from its parents included, and what a generic struct
-  among them holds with its arguments in place. A field whose type is an
-  abstract struct holds every struct that inherits from it. A field is
-  recursive when it holds a struct that holds the field's own struct.
+  the fields it has from its parents included, and whatever each of those
+  structs holds in turn, a generic one with its arguments in place. A field
+  whose type is an abstract struct holds every struct that inherits from it.
+  A field is recursive when it holds its own struct: in `struct A { b: B }`,
+  `struct B { c: C }`, `struct C { a: A }` each of the three fields is.
   Recursive fields stay within their defining module. So that the recursion
   can end, a recursive field is an `atomic<...>` defaulted to null or has a
   nullable type. It gives a struct of its cycle each generic parameter whole,
