@@ -65,9 +65,11 @@ admits one as a member name.
   const configuration, or a temporal input. An omitted temporal argument is
   wired as a constant of its default, so the default is a value a constant of
   the parameter's type can publish. A default of `null` marks a temporal input
-  optional: an omitted argument binds an input that is never valid. So does
-  `?` on a parameter type that is no ordinary value type (TYPE-14). A default
-  cannot use caller bindings or invent numeric generic values.
+  optional: an omitted argument binds an input that is never valid. A
+  parameter whose type is written `T?` needs no default to be omitted: it is
+  taken to have a default of `null`, so an omitted value parameter is null
+  and an omitted temporal input is never valid. A default cannot use caller
+  bindings or invent numeric generic values.
 - **UNIT-9.** Compare inherited defaults by bound expression and canonical type
   after substitution, before folding. Declaration identity matters; source
   location and alias spelling do not. Conflicting inherited defaults require

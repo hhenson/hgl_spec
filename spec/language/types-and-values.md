@@ -85,8 +85,8 @@ domain below.
   A field is recursive when it holds its own struct: in `struct A { b: B }`,
   `struct B { c: C }`, `struct C { a: A }` each of the three fields is.
   Recursive fields stay within their defining module. So that the recursion
-  can end, a recursive field is optional (TYPE-4), `Node?` or
-  `atomic<Node?>`. It gives a struct of its cycle each generic parameter
+  can end, a recursive field is optional (TYPE-4): `Node?`, `atomic<Node?>`,
+  or `atomic<Node>?`. It gives a struct of its cycle each generic parameter
   whole, `Node<T>`, and no type built from one, `Node<list<T>>`. Descendants
   cannot remove a null default it has.
   Cycles through inheritance are rejected, and so are cycles through
@@ -114,8 +114,9 @@ domain below.
   and a dictionary's key are never null and take no `?`. Where T is no
   ordinary value type, as `rolling<f64, 5>`, `atomic<Quote>`, `ref<f64>`,
   and `signal` are not, `T?` is admitted only as the whole type of a
-  function's temporal parameter: its argument may be omitted, as with a
-  default of `null` (UNIT-8). It is no result type. Nullability is
+  function's temporal parameter, whose argument may be omitted (UNIT-8), or
+  of a struct field, which is then optional (TYPE-4). It is no result type,
+  local's annotation, or part of another type. Nullability is
   independent of a callable's temporal/value role and of fixed configuration.
   It does not make null an admitted value of unqualified T. Payload use follows
   [nullable refinement](errors-and-diagnostics.md#nullable-value-refinement).
@@ -155,7 +156,8 @@ domain below.
   `signal` is a complete temporal input constraint with no readable payload:
   the whole type of a function's temporal parameter, or of its positional
   pack, `ticks: ...signal`. It is not a result, nested shape, field, const
-  value, local's annotation, or anonymous function's parameter.
+  value, local's annotation, or anonymous function's parameter. A `signal`
+  input takes no default but `null`.
 - **TYPE-13.** Result and error envelopes are ordinary atomic values; their
   [tag/refinement rules](errors-and-diagnostics.md) govern payload access.
   Silence, invalidity, null absence, and an error outcome are distinct.
@@ -194,10 +196,15 @@ struct Tree {
 struct Link {
     next: Link?
 }
+
+struct Chain {
+    next: atomic<Chain>?
+}
 ```
 
 A `Node` holds the next one or null, a `Tree` its children as one snapshot
-or null, and a `Link` the next one or null. Deliberate rejections:
+or null, a `Link` the next one or null, and a `Chain` a snapshot of the next
+one or nothing. Deliberate rejections:
 `children: list<Tree>`, a cycle through collection elements outside an
 `atomic<...>`; `next: atomic<Node>`, which is not optional; `size: i64 =
 null`, a null default on a field that is not optional; and, in a generic

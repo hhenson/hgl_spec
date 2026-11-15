@@ -124,8 +124,9 @@ Accepted declaration fragment, an input that may be omitted (TYPE-14):
 fn sampled(value: f64, tick: signal?) -> f64 => value
 ```
 
-`sampled(price)` omits `tick`, an input that is then never valid. Deliberate
-source rejection under TYPE-14: a result of type `ref<f64>?`. Executable
+`sampled(price)` omits `tick`, an input that is then never valid (UNIT-8).
+Deliberate source rejections: a result of type `ref<f64>?` (TYPE-14);
+`tick: signal = 1`, a default a signal cannot take (TYPE-12). Executable
 conformance is planned.
 
 Accepted declaration fragments showing modifier and ordinary-name positions:
