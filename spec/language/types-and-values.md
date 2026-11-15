@@ -102,15 +102,16 @@ domain below.
   can end, a recursive field has a value that holds no struct of its cycle.
   It is optional (TYPE-4), `Node?`, `atomic<Node?>`, or `atomic<Node>?`, and
   may be null; or, inside an `atomic<...>`, it holds the struct only as
-  elements of a collection that may be empty, an unsized list, a set, or a
-  dictionary: `atomic<list<Tree>>`. A sized list and a tuple are never empty
-  and do not end it. A recursive field's default, its own or a descendant's,
-  is such a value: `null`, or the empty collection `[]`. Descendants cannot
-  remove a null default it has, not for an empty collection either. It gives
-  a struct of its cycle each generic parameter whole, `Node<T>`, and no type
-  built from one, `Node<list<T>>`. Cycles through inheritance are rejected,
-  and so are cycles through collection elements outside an `atomic<...>`.
-  Cross-module references to non-recursive public structs remain admitted.
+  elements of a collection that may be empty, an unsized list, a list of
+  size zero, a set, or a dictionary: `atomic<list<Tree>>`. A list of any
+  other size and a tuple do not end it. A recursive field's default, its own
+  or a descendant's, is such a value: `null`, or the empty collection `[]`.
+  Descendants cannot remove a null default it has, not for an empty
+  collection either. It gives a struct of its cycle each generic parameter
+  whole, `Node<T>`, and no type built from one, `Node<list<T>>`. Cycles
+  through inheritance are rejected, and so are cycles through collection
+  elements outside an `atomic<...>`. Cross-module references to
+  non-recursive public structs remain admitted.
 - **TYPE-7.** Enum members are distinct typed constants with distinct names.
   `Type.member` names one, through an alias as `alias::Type.member`. Where a
   position expects
@@ -237,7 +238,7 @@ be written `children: atomic<list<Tree>?> = null`, which tells a leaf with
 no list from one with an empty list. Deliberate rejections:
 `children: list<Tree>`, a cycle through collection elements outside an
 `atomic<...>`; `next: atomic<Node>`, which is not optional;
-`pair: atomic<tuple<Tree, Tree>>`, which is never empty;
+`pair: atomic<tuple<Tree, Tree>>`, which always holds two;
 `children: atomic<list<Tree>> = [Tree()]`, a default that holds a struct of
 its cycle; `size: i64 = null`, a null default on a field that is not
 optional; and, in a generic `Node<T>`, `next: atomic<Node<list<T>>?> = null`,
