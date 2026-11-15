@@ -141,6 +141,7 @@ infrastructure and cannot satisfy a source-rejection expectation.
 | name | `argument.duplicate` | Parameter or field given twice (EXPR-2); later name |
 | type | `argument.missing` | Parameter or field that may not be left out is given nothing (EXPR-2, TYPE-5); callee name |
 | function-kind | `call.role` | Temporal function called from a value function (FN-3); callee name |
+| type | `return.missing` | Value function that declares a result can reach its end with no value (FN-7); function name |
 | type | `struct.abstract` | Abstract struct constructed (TYPE-3); name |
 | name | `member.unknown` | Struct has no field, or enum no member, of the name (EXPR-7, TYPE-7); name |
 | operator | `operator.operand` | Operand types the operator's contract does not admit; operator |
@@ -206,6 +207,14 @@ warning_annotation = "@", "suppress_warning", "(", STRING_LITERAL, ")" ;
   acknowledges the dormant-node warning for that declaration. Other strings
   are checked against the warning catalog; suppression cannot hide source
   errors. `node.no_activation` is not an expected source/execution error code.
+  An expression statement that calls nothing has no effect, and its dropped
+  value is a warning, `statement.no_effect`: `a + 1` on a line of its own. A
+  call is not reported.
+
+| Warning code | Condition |
+| --- | --- |
+| `node.no_activation` | The dormant-node warning |
+| `statement.no_effect` | Expression statement that calls nothing, its value dropped; the expression |
 
 Accepted illustration, complete module:
 

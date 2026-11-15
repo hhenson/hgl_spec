@@ -30,15 +30,16 @@ Local source/native declaration matching is defined in the native chapter.
 
 ## Rules
 
-- **FN-1.** `const fn` computes ordinary values for one invocation: its
-  parameter and result types are ordinary value types. It is not inherently
-  pure or compile-time-only. Parameter-level `const` instead fixes
+- **FN-1.** A `const fn` is a value function. It computes ordinary values for
+  one invocation: its parameter and result types are ordinary value types.
+  It is not inherently pure or compile-time-only. Parameter-level `const` instead fixes
   configuration. A temporal `fn` has temporal non-const parameters and a
   temporal result; an omitted result arrow means outputless. An operator is
   neither: each of its candidates is one or the other (GEN-4).
 - **FN-2.** An ordinary temporal body with no node-only construct describes
-  composition. `state`, `cache`, `inject`, `start`, `when`, `stop`, or `yield`
-  classifies that complete body as runtime. Classification precedes phase
+  composition: the function is a graph. `state`, `cache`, `inject`, `start`,
+  `when`, `stop`, or `yield` classifies that complete body as runtime: the
+  function is a node. Classification precedes phase
   checking, even if the trigger occurs in an invalid nested position. Generic
   selection, target choice, and optimizer decisions cannot change the role.
 - **FN-3.** Iteration and conditionals follow the containing phase. They do
@@ -77,9 +78,14 @@ Local source/native declaration matching is defined in the native chapter.
   (TIME-7), and with none there is no tick. A `const fn` that declares a
   result returns a value of that type:
   `return` with no value rejects there, as `return value` does in a function
-  that declares no result. Anonymous functions obtain their parameter/result
-  context from their accepting form; inference does not create a general
-  callable value type.
+  that declares no result. A body that ends in an expression returns that
+  expression, as an arrow body does: `{ value }` and `=> value` are one
+  body. In a function that declares no result the expression is a statement
+  and its value is dropped; only `return value` rejects there. A `const fn`
+  that declares a result ends every path in `return value` or in its body's
+  value: one that can reach its end with no value rejects. Anonymous
+  functions obtain their parameter/result context from their accepting form;
+  inference does not create a general callable value type.
 - **FN-8.** Packs capture, in order, the arguments the fixed parameters leave.
   `...T` captures the positional ones: all of type T, or each of its own type
   when T is a declared type pack. `...{Fields}` captures the named ones, each

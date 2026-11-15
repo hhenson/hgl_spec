@@ -73,6 +73,22 @@ CTRL-9 places the opening brace of an `if`, `for`, `switch`, `when`, or
   `while`, the sequence of a `for`, or the selector of a `switch`; `when` and
   `while` may have none. An expression there that contains any other brace is
   parenthesized.
+- **CTRL-10.** A block whose last statement is an expression has that
+  expression's value and type; any other block has none. In a value function
+  the condition of an `if` is a `bool`: a `bool?`, a number, or any other
+  type rejects. An `if` whose value is used has the one type its two
+  branches' values have, as the entries of a sequence have one (EXPR-9): a
+  null branch makes it `T?`, and two types reject. With no `else` it is as
+  if its `else` were null: its value is a `T?`, which a place that expects a
+  `T?` takes and one that expects a `T` rejects. Where the place expects a
+  type, each branch's value is checked against it.
+- **CTRL-11.** In a value function, a `var` declared with no value is
+  assigned after an `if` when every branch that does not return assigns it,
+  so not by an `if` with no `else`; after a `switch` when every case and a
+  `default` do; and never by a loop's body, which may run no times. A `var`
+  whose type is written `T?` is null where it is declared with no value, as
+  an omitted parameter of that type is (UNIT-8): it is assigned from there,
+  and after a loop holds what the loop last gave it, or null.
 
 Accepted illustrations, statement fragments with `ready` a bool, `items` a
 list, and `step` a function in scope:
@@ -102,6 +118,35 @@ fn choose(condition: bool, left: i64, right: i64) -> i64 {
 
 Only the selected child computes. Deliberate rejection: using a temporal input
 as a switch case constant. Conformance planned.
+
+Accepted declaration fragments, value functions (CTRL-10, CTRL-11, FN-7):
+
+```hgl
+const fn larger(a: i64, b: i64) -> i64 {
+    if a > b { a } else { b }
+}
+
+const fn positive(a: i64) -> i64? {
+    if a > 0 { a }
+}
+
+const fn kept(a: i64) -> i64? {
+    var found: i64?
+    if a > 0 {
+        found = a
+    }
+    return found
+}
+```
+
+`larger` returns the value of its `if`, an `i64`. `positive` returns `a` or
+null: an `if` with no `else` is a `T?`. `found` is null until it is given a
+value, so `kept` may return it. Deliberate rejections:
+`let n: i64 = if a > 0 { a }`, a `T?` where an `i64` is expected;
+`if a { 1 } else { 2 }` with `a` an `i64`, a condition that is no bool;
+`const fn f(a: i64) -> i64 { if a > 0 { return a } }`, which can reach its
+end with no value; and reading a `var total: i64` after an `if` with no
+`else` that alone assigns it.
 
 ## Proposed generators
 
