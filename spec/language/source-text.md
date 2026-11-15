@@ -66,9 +66,11 @@ A lone `_` is classified as a placeholder token, not an identifier.
   not continue a line. `-` there is the binary operator and continues the
   line: a statement that began with it would have no effect. `.` there
   reaches into what the line before ended with and continues it likewise:
-  `.member` (TYPE-7) begins no statement. Two or more line breaks between
-  two tokens, as around a blank line, always separate. A body's opening
-  brace stays with its header.
+  `.member` (TYPE-7) begins no statement after another. Where no statement
+  precedes it in its block it is an expression, and may be the block's
+  value (CTRL-10): `{ .buy }`. Two or more line breaks between two tokens,
+  as around a blank line, always separate. A body's opening brace stays
+  with its header.
 - **LEX-6.** Inside blocks, indentation alone cannot join statements. Two
   ordinary statements on one physical line are rejected. An inject list may
   continue after a comma when the next line begins with a name.
