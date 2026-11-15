@@ -81,7 +81,9 @@ CTRL-9 places the opening brace of an `if`, `for`, `switch`, `when`, or
   null branch makes it `T?`, and two types reject. With no `else` it is as
   if its `else` were null: its value is a `T?`, which a place that expects a
   `T?` takes and one that expects a `T` rejects. Where the place expects a
-  type, each branch's value is checked against it.
+  type, each branch's value is checked against it. A branch that returns
+  from the function gives the `if` no value and takes no part in its type
+  (CTRL-5): `if c { return 1 } else { 2 }` is an `i64`.
 - **CTRL-11.** In a value function, a `var` declared with no value is
   assigned after an `if` when every branch that does not return assigns it,
   so not by an `if` with no `else`; after a `switch` when every case that

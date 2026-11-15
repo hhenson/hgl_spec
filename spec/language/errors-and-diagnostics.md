@@ -209,14 +209,15 @@ warning_annotation = "@", "suppress_warning", "(", STRING_LITERAL, ")" ;
   acknowledges the dormant-node warning for that declaration. Other strings
   are checked against the warning catalog; suppression cannot hide source
   errors. `node.no_activation` is not an expected source/execution error code.
-  An expression statement that calls nothing has no effect, and its dropped
-  value is a warning, `statement.no_effect`: `a + 1` on a line of its own. A
-  call is not reported.
+  An expression statement that holds no call, assignment, or `return` at
+  any depth has no effect, and its dropped value is a warning,
+  `statement.no_effect`: `a + 1` on a line of its own. A call is not
+  reported, nor is a block or an `if` that assigns.
 
 | Warning code | Condition |
 | --- | --- |
 | `node.no_activation` | The dormant-node warning |
-| `statement.no_effect` | Expression statement that calls nothing, its value dropped; the expression |
+| `statement.no_effect` | Expression statement that holds no call, assignment, or `return`, its value dropped; the expression |
 
 Accepted illustration, complete module:
 
