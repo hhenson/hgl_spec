@@ -67,8 +67,10 @@ Local source/native declaration matching is defined in the native chapter.
   publishes and leaves the current handler/evaluation. Completing a runtime
   handler without a write produces no tick. A value return yields an ordinary
   value. `return` with no value ends a function that declares no result;
-  in a temporal function that declares one it ends the evaluation with no
-  tick. A `const fn` that declares a result returns a value of that type:
+  in a temporal function that declares one it ends the evaluation and
+  publishes nothing itself: a write already made through `out` stands
+  (TIME-7), and with none there is no tick. A `const fn` that declares a
+  result returns a value of that type:
   `return` with no value rejects there, as `return value` does in a function
   that declares no result. Anonymous functions obtain their parameter/result
   context from their accepting form; inference does not create a general
