@@ -58,9 +58,15 @@ expression; group a constant expression that uses them as operand data.
   each field's type, part for part, with the type of the value the field is
   given: `T` is `i64` for `values: list<T>` given a `list<i64>`. The first
   field that says what a parameter is decides it, and the others are checked
-  against that. Partial applications,
-  generic defaults, and `_` struct arguments are not admitted. A type pack is
-  a sequence, not a singular source type.
+  against that. A call resolves a generic of its callee from what it writes
+  after the name (GEN-8), then from the type its place expects of the
+  result, then from its arguments in declared parameter order (GEN-12),
+  whatever order they are written in. The first of these that says what a
+  parameter is decides it, and what follows is checked against that: an
+  integer literal is widened to an `f64` so decided (EXPR-5), and another
+  argument of another type rejects. Partial
+  applications, generic defaults, and `_` struct arguments are not admitted.
+  A type pack is a sequence, not a singular source type.
 - **GEN-3.** `requires` may use type/category membership, equalities, the
   membership of a constant in a set of constants, field/pack reflection, and
   named operator requirements. It cannot inspect temporal values or call
@@ -221,6 +227,25 @@ fn same<T>(left: T, right: T) -> T => left
 Both arguments require the same resolved source type. Deliberate rejection:
 an `impl fn missing` without an operator `missing` in scope. Conformance planned.
 
+Accepted value-function fragments for the order of GEN-2, with
+`const fn same<T>(left: T, right: T) -> T`,
+`const fn repeat<T>(n: i64) -> list<T>`, and `count` an `i64` in scope:
+
+```hgl
+same<f64>(1, 2)
+let real: f64 = same(1, 2)
+same(1, 2)
+let names: list<str> = repeat(3)
+```
+
+T is `f64` as written; `f64` as the place expects, each literal widened;
+`i64` from the `1`; and `str` as the place expects.
+`same(right: 1, left: 2.0)` is an `f64`: `left` is declared first and
+decides T, and the `1` is widened. Deliberate rejections: `same("a", 1)`,
+at the `1`;
+`let real: f64 = same(1, count)`, at `count`, which is no literal; and
+`let names = repeat(3)`, which leaves T unresolved (`generic.unresolved`).
+
 Accepted declaration fragments illustrating kind inference and constraints:
 
 ```hgl
@@ -277,26 +302,26 @@ Deliberate rejection: `doubled(1.5)` in a `const fn`, where no value
 candidate takes an `f64`.
 
 Accepted declaration fragment, candidates for the values of a const option
-(GEN-6); `Zero` and `div_` here stand for core's:
+that their operator declares (GEN-6):
 
 ```hgl
 export enum Zero { ieee, nan, error }
 
-operator div_<L, R, O>(lhs: L, rhs: R, const zero: Zero = .ieee) -> O
+operator ratio<L, R, O>(lhs: L, rhs: R, const zero: Zero = .ieee) -> O
 
-native impl fn div_(lhs: f64, rhs: f64, const zero: Zero) -> f64
+native impl fn ratio(lhs: f64, rhs: f64, const zero: Zero) -> f64
     requires zero in {.ieee, .nan}
 
-native impl fn div_(lhs: f64, rhs: f64, const zero: Zero) -> result<f64, error>
+native impl fn ratio(lhs: f64, rhs: f64, const zero: Zero) -> result<f64, error>
     requires zero == .error
 ```
 
-For temporal `a` and `b` of `f64`, `a / b` takes the default `.ieee`,
-selects the first candidate and is an `f64`, as `a /{zero: .nan} b` is.
-`a /{zero: .error} b` selects the second and is a `result<f64, error>`. A
-value candidate is written the same way with `zero: Zero`. Deliberate
-rejection under GEN-3: `requires rhs == 0.0` on either candidate, which
-reads a temporal input.
+For temporal `a` and `b` of `f64`, `ratio(a, b)` takes the default `.ieee`,
+selects the first candidate and is an `f64`, as `ratio(a, b, zero: .nan)`
+is. `ratio(a, b, zero: .error)` selects the second and is a
+`result<f64, error>`. A value candidate is written the same way with
+`zero: Zero`. Deliberate rejection under GEN-3: `requires rhs == 0.0` on
+either candidate, which reads a temporal input.
 
 Accepted declaration fragment, an option that one candidate declares
 (GEN-6):

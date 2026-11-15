@@ -117,6 +117,7 @@ infrastructure and cannot satisfy a source-rejection expectation.
 | type | `generic.kind_conflict` | Generic parameter used as a type and as a value (GEN-13); later use |
 | type | `generic.kind_unresolved` | No field or constraint says what a struct's generic parameter is (GEN-13); parameter name |
 | type | `generic.argument_kind` | Generic argument is a value where the parameter is a type, or a type where it is a value (GEN-14); argument |
+| type | `generic.unresolved` | Call leaves a generic parameter of its callee unresolved (GEN-2, GEN-8); callee name |
 | type | `struct.parent` | Parent is not an abstract struct (TYPE-3); parent |
 | type | `struct.duplicate_parent` | Struct lists one parent twice (TYPE-3); later parent |
 | type | `struct.inheritance_cycle` | Structs inherit from one another (TYPE-6); a parent of the first struct of the cycle |
