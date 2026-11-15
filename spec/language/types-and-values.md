@@ -65,10 +65,11 @@ domain below.
   not constructible. Concrete structs are final. Generic applications are
   invariant by origin and complete canonical arguments.
 - **TYPE-4.** A typed field introduction fixes its type and optionality. A
-  field is optional when its type is nullable, `T?`, and only an optional
-  field's default may be null. An untyped inherited override changes only
-  the construction default of a field a parent has. Required fields may have
-  defaults; optional fields may have non-null defaults. A struct's members
+  field is optional when its type is nullable, `T?`, or an `atomic<...>` of
+  a nullable type, `atomic<T?>`, and only an optional field's default may
+  be null. An untyped inherited override changes only the construction
+  default of a field a parent has. Required fields may have defaults;
+  optional fields may have non-null defaults. A struct's members
   have distinct names. A field a struct has from two parents, or from a
   parent and itself, has one type and optionality, a generic parent's
   arguments standing for its parameters; a conflict is an error. One field
@@ -84,10 +85,10 @@ domain below.
   A field is recursive when it holds its own struct: in `struct A { b: B }`,
   `struct B { c: C }`, `struct C { a: A }` each of the three fields is.
   Recursive fields stay within their defining module. So that the recursion
-  can end, a recursive field is optional: its type is nullable, `Node?`, or
-  an `atomic<...>` of a nullable type, `atomic<Node?>`. It gives a struct of
-  its cycle each generic parameter whole, `Node<T>`, and no type built from
-  one, `Node<list<T>>`. Descendants cannot remove a null default it has.
+  can end, a recursive field is optional (TYPE-4), `Node?` or
+  `atomic<Node?>`. It gives a struct of its cycle each generic parameter
+  whole, `Node<T>`, and no type built from one, `Node<list<T>>`. Descendants
+  cannot remove a null default it has.
   Cycles through inheritance are rejected, and so are cycles through
   collection elements outside an `atomic<...>`. Cross-module references to
   non-recursive public structs remain admitted.
