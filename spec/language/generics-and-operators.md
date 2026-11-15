@@ -89,19 +89,25 @@ expression; group a constant expression that uses them as operand data.
   one for which a literal is widened to an `f64` (EXPR-5): `doubled(1)`
   selects `doubled(value: i64)` where there is one, and
   `doubled(value: f64)` where there is not.
-- **GEN-6.** Candidate shape must honor the operator's public arguments and
-  generic relationships. Scalar specialization may accept a constant where
-  the contract admits temporal lifting; it cannot require temporal data for
-  a declared const argument. The public declaration owns the defaults of
-  const configuration. A candidate states in `requires` the values of a
-  const option it is for, by comparing the option with constants:
-  `requires zero == .error`, `requires zero in {.ieee, .nan}`. A call admits
-  the candidate only where that holds for the option's value at the call,
-  the public default included. Candidates for different values may differ
-  in result type (EXPR-12). A temporal candidate marks the option `const`
-  as its operator does. Every parameter of a value candidate is a value, so
-  it writes the option with no marker. A candidate may give any of its
-  inputs a default. The candidates of an operator stay resolvable together:
+- **GEN-6.** An operator declares the parameters every candidate takes.
+  A candidate's shape honors them and the operator's generic relationships,
+  and it may declare further const options of its own, each with a default
+  or without. Scalar specialization may accept a constant where the
+  contract admits temporal lifting; it cannot require temporal data for a
+  declared const argument. A call is matched against each candidate's own
+  signature. One that names an option admits only the candidates that
+  declare it. An option the call omits takes its candidate's default, and
+  a candidate whose option has none is admitted only when the call gives
+  it. The operator owns the defaults of the parameters it declares. A
+  candidate states in `requires` the values of a const option it is for,
+  by comparing the option with constants: `requires zero == .error`,
+  `requires zero in {.ieee, .nan}`. A call admits the candidate only where
+  that holds for the option's value at the call, a default included.
+  Candidates for different values may differ in result type (EXPR-12). A
+  temporal candidate marks an option `const`, as an operator does one it
+  declares. Every parameter of a value candidate is a value, so it writes
+  the option with no marker. A candidate may give any of its inputs a
+  default. The candidates of an operator stay resolvable together:
   once defaults fill what a call omits, no call matches two of them equally.
   With candidates
   `add(lhs = 1, rhs = 1)` and `add(lhs = 1.0, rhs = 2.0)`, `add()` would. A
@@ -291,6 +297,25 @@ selects the first candidate and is an `f64`, as `a /{zero: .nan} b` is.
 value candidate is written the same way with `zero: Zero`. Deliberate
 rejection under GEN-3: `requires rhs == 0.0` on either candidate, which
 reads a temporal input.
+
+Accepted declaration fragment, an option that one candidate declares
+(GEN-6):
+
+```hgl
+operator scaled<L, R, O>(lhs: L, rhs: R) -> O
+
+impl const fn scaled(lhs: f64, rhs: f64, exact: bool = false) -> f64 =>
+    lhs * rhs
+
+impl const fn scaled(lhs: str, rhs: i64) -> str => lhs * rhs
+```
+
+The operator declares what both candidates take, and the first declares
+`exact` beside it. `scaled(1.5, 2.0)` selects the first with `exact`
+false, and `scaled(1.5, 2.0, exact: true)` selects it too.
+`scaled("ab", 2)` selects the second. Deliberate rejection,
+`operator.no_candidate`: `scaled("ab", 2, exact: true)`, where no
+candidate for a `str` and an `i64` declares `exact`.
 
 ## Core boundary
 
