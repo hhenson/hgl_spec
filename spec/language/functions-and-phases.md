@@ -44,6 +44,9 @@ Local source/native declaration matching is defined in the native chapter.
   not alone classify a body as runtime. A composition body cannot read current
   input payloads. A runtime hook can call value helpers but cannot silently
   construct a temporal child call. Mixed incompatible phase work is rejected.
+  A composition body calls any function: a value function called there is
+  evaluated during wiring, or lifted when an argument is temporal (FN-6). A
+  runtime body calls only value functions, and so does a value function.
 - **FN-4.** A temporal/value pair may share a name. Composition and eval choose
   the temporal definition if one exists; runtime/value evaluation chooses the
   value definition. A bad selected signature is an error, not fallback to the
