@@ -81,7 +81,11 @@ expression; group a constant expression that uses them as operand data.
   ambiguous. Library membership and registration order grant no priority.
   A call in a value function or a runtime body selects among the value
   candidates. A call in composition selects among all of them; a value
-  candidate it selects for temporal arguments is lifted (FN-6).
+  candidate it selects for temporal arguments is lifted (FN-6). A candidate
+  that takes each integer literal as the `i64` it is outranks one for which
+  a literal is widened to an `f64` (EXPR-5): `doubled(1)` selects
+  `doubled(value: i64)` where there is one, and `doubled(value: f64)` where
+  there is not.
 - **GEN-6.** Candidate shape must honor the operator's public arguments and
   generic relationships. Scalar specialization may accept a constant where
   the contract admits temporal lifting; it cannot require temporal data for
