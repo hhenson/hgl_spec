@@ -42,7 +42,8 @@ enum_member = member_name, [ "=", const_expression ] ;
 ```
 
 Semantic field rules distinguish a typed introduction from an inherited-default
-override. `delta_type` syntax has the proposed formation domain below.
+override. The productions admit `?` on a set's element and a dictionary's key,
+which TYPE-14 rejects. `delta_type` syntax has the proposed formation domain below.
 
 ## Agreed value rules
 
@@ -57,24 +58,37 @@ override. `delta_type` syntax has the proposed formation domain below.
   microseconds; representable literal instants retain canonical calendar range.
   Same-instant zoned values need not be equal; zone aliases are distinct names.
 - **TYPE-3.** Structs are nominal, with public ordered fields and no methods.
-  Only abstract structs may be parents; abstract values are not constructible.
-  Concrete structs are final. Generic applications are invariant by origin
-  and complete canonical arguments.
+  Only abstract structs may be parents, each listed once; abstract values are
+  not constructible. Concrete structs are final. Generic applications are
+  invariant by origin and complete canonical arguments.
 - **TYPE-4.** A typed field introduction fixes its type and optionality. A
   null default marks it optional. An untyped inherited override changes only
-  its construction default. Required fields may have defaults; optional fields
-  may have non-null defaults. Parent conflicts in type/optionality are errors.
+  the construction default of a field a parent has. Required fields may have
+  defaults; optional fields may have non-null defaults. A struct's members
+  have distinct names. A field a struct has from two parents, or from a
+  parent and itself, has one type and optionality, a generic parent's
+  arguments standing for its parameters; a conflict is an error. One field
+  reached by two paths is one field.
 - **TYPE-5.** An ordinary constructor supplies complete required data. Written
   arguments evaluate once in source order; failure prevents later arguments.
   Defaults are evaluated only when omitted. Retained results own their data;
   later mutation of a source cannot change an earlier retained value.
-- **TYPE-6.** Recursive struct edges stay within their defining module, use
-  an optional `atomic<...>` field defaulted to null, and preserve finite generic
-  specialization. Descendants cannot remove that null default. Cycles through
-  inheritance or collection elements are rejected. Cross-module references to
-  non-recursive public structs remain admitted.
-- **TYPE-7.** Enum members are distinct typed constants. `Type.member` names
-  one, through an alias as `alias::Type.member`. Where a position expects
+- **TYPE-6.** A struct holds the structs its fields' types name at any depth,
+  the fields it has from its parents included, and whatever each of those
+  structs holds in turn, a generic one with its arguments in place. A field
+  whose type is an abstract struct holds every struct that inherits from it.
+  A field is recursive when it holds its own struct: in `struct A { b: B }`,
+  `struct B { c: C }`, `struct C { a: A }` each of the three fields is.
+  Recursive fields stay within their defining module. So that the recursion
+  can end, a recursive field is an `atomic<...>` defaulted to null or has a
+  nullable type. It gives a struct of its cycle each generic parameter whole,
+  `Node<T>`, and no type built from one, `Node<list<T>>`. Descendants cannot
+  remove that null default. Cycles through inheritance are rejected, and so
+  are cycles through collection elements outside an `atomic<...>`.
+  Cross-module references to non-recursive public structs remain admitted.
+- **TYPE-7.** Enum members are distinct typed constants with distinct names.
+  `Type.member` names one, through an alias as `alias::Type.member`. Where a
+  position expects
   the enum's type, `.member` names one too: the value of an argument or
   configuration option of that type, an initializer or result declared with
   it, an operand compared with it, a `switch` label for a selector of it.
@@ -90,7 +104,8 @@ override. `delta_type` syntax has the proposed formation domain below.
   copies preserve independent owned children.
 - **TYPE-14.** `T?` denotes an ordinary value that is either a T or null, where
   T is an admitted ordinary value type. It may annotate parameters, results,
-  bindings, and admitted container element/value positions. Nullability is
+  bindings, and admitted container element/value positions. A set's element
+  and a dictionary's key are never null and take no `?`. Nullability is
   independent of a callable's temporal/value role and of fixed configuration.
   It does not make null an admitted value of unqualified T. Payload use follows
   [nullable refinement](errors-and-diagnostics.md#nullable-value-refinement).
@@ -117,8 +132,10 @@ override. `delta_type` syntax has the proposed formation domain below.
   Size/kind are part of identity; window publications obey core's contract.
 - **TYPE-12.** `ref<T>` designates an endpoint, not an ordinary payload type.
   It is excluded from const values, atomic payloads, keys, and window values.
-  `signal` is a complete temporal input constraint with no readable payload;
-  it is not a result, nested shape, field, or const value.
+  `signal` is a complete temporal input constraint with no readable payload:
+  the whole type of a function's temporal parameter. It is not a result,
+  nested shape, field, const value, local's annotation, or anonymous
+  function's parameter.
 - **TYPE-13.** Result and error envelopes are ordinary atomic values; their
   [tag/refinement rules](errors-and-diagnostics.md) govern payload access.
   Silence, invalidity, null absence, and an error outcome are distinct.
@@ -140,6 +157,30 @@ fn quote(bid: f64, ask: f64) -> Quote {
 
 The result is a structural temporal Quote. `atomic<Quote>` instead denotes
 whole snapshots. Deliberate rejection: a concrete struct used as a parent.
+Conformance is planned.
+
+Accepted declaration fragments, structs that hold themselves (TYPE-6):
+
+```hgl
+struct Node {
+    value: i64
+    next: atomic<Node> = null
+}
+
+struct Tree {
+    children: atomic<list<Tree>> = null
+}
+
+struct Link {
+    next: Link?
+}
+```
+
+A `Node` holds the next one or null, a `Tree` its children as one snapshot,
+and a `Link` the next one or null. Deliberate rejections: `children:
+list<Tree>`, a cycle through collection elements outside an `atomic<...>`;
+`next: atomic<Node>` with no null default; and, in a generic `Node<T>`,
+`next: atomic<Node<list<T>>> = null`, which names a new type at every step.
 Conformance is planned.
 
 Accepted illustration, complete module:
@@ -191,9 +232,10 @@ Accepted type fragments in an ordinary value parameter or result position:
 | `list<f64>?` | A list of non-nullable floats, or null for the whole list |
 
 These list forms are distinct: a null element is not a null list. Deliberate
-source type rejection: supplying null to an f64 parameter. The suffix admits
-only ordinary value types; applying it to `ref<T>` or `signal` rejects under
-TYPE-12/14 rather than creating nullable endpoint handles.
+source type rejections: supplying null to an f64 parameter; `set<str?>` and
+`dict<str?, f64>`, whose keys take no `?`. The suffix admits only ordinary
+value types; applying it to `ref<T>` or `signal` rejects under TYPE-12/14
+rather than creating nullable endpoint handles.
 
 ## Proposed ordinary storage extensions
 

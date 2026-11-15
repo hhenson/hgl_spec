@@ -12,9 +12,8 @@ function_decl = { warning_annotation, NL },
                 [ requires_clause ], function_body ;
 function_signature = "(", [ parameters ], ")", [ "->", type ] ;
 parameters = parameter, { ",", parameter }, [ "," ] ;
-parameter = IDENTIFIER, ":", type
+parameter = IDENTIFIER, ":", type, [ "=", const_expression ]
           | "const", IDENTIFIER, ":", value_type, [ "=", const_expression ]
-          | IDENTIFIER, ":", value_type, "=", const_expression
           | [ "const" ], IDENTIFIER, ":", pack, [ "=", const_expression ] ;
 pack = "...", type, [ cardinality ]
      | "...", "{", type, "}", [ cardinality ] ;
@@ -26,14 +25,14 @@ lambda_parameter = IDENTIFIER, [ ":", type ] ;
 ```
 
 Parameter role is checked from the containing declaration. The production
-does not admit defaults on ordinary temporal parameters. It admits `const`
-and a default on a pack, which FN-8 rejects.
+admits `const` and a default on a pack, which FN-8 rejects.
 Local source/native declaration matching is defined in the native chapter.
 
 ## Rules
 
-- **FN-1.** `const fn` computes ordinary values for one invocation. It is not
-  inherently pure or compile-time-only. Parameter-level `const` instead fixes
+- **FN-1.** `const fn` computes ordinary values for one invocation: its
+  parameter and result types are ordinary value types. It is not inherently
+  pure or compile-time-only. Parameter-level `const` instead fixes
   configuration. A temporal `fn` has temporal non-const parameters and a
   temporal result; an omitted result arrow means outputless.
 - **FN-2.** An ordinary temporal body with no node-only construct describes
@@ -108,6 +107,16 @@ Local source/native declaration matching is defined in the native chapter.
   uses only parameters, generic parameters, `let` locals, and iteration
   bindings. Use of an enclosing `var`, `state`, `cache`, or injected
   capability rejects.
+
+Accepted declaration fragment, a temporal input with a default (UNIT-8):
+
+```hgl
+fn scaled(value: f64, factor: f64 = 2.0) -> f64 => value * factor
+```
+
+`scaled(price)` wires `factor` as a constant 2.0. `scaled(price, rate)` wires
+the connection `rate`. Deliberate source rejection under FN-1: a `const fn`
+parameter of type `ref<f64>`. Executable conformance is planned.
 
 Accepted declaration fragments showing modifier and ordinary-name positions:
 

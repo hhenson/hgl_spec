@@ -73,8 +73,10 @@ A lone `_` is classified as a placeholder token, not an identifier.
   ordinary statements on one physical line are rejected. An inject list may
   continue after a comma when the next line begins with a name.
 - **LEX-7.** Minus is an operator, not part of a numeric literal. Required
-  literal range checks use the i64/f64 domains. Enum numbering admits the full
-  signed minimum. Runtime overflow policy is not supplied by lexing.
+  literal range checks use the i64/f64 domains. The literal 2^63 is in the
+  i64 domain only as the direct operand of a unary minus, the signed minimum,
+  which enum numbering admits too. Runtime overflow policy is not supplied
+  by lexing.
 - **LEX-8.** Nested generic closers use separate `>` tokens. A digit run
   immediately followed by letters is a duration candidate; an unknown unit
   is rejected rather than split into a number and identifier. A valid exponent

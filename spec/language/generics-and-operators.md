@@ -73,7 +73,11 @@ expression; group a constant expression that uses them as operand data.
 - **GEN-6.** Candidate shape must honor the operator's public arguments and
   generic relationships. Scalar specialization may accept a constant where
   the contract admits temporal lifting; it cannot require temporal data for
-  a declared const argument. Defaults remain owned by the public declaration.
+  a declared const argument. The public declaration owns the defaults of
+  const configuration. An `impl fn` may give any of its inputs a default. The
+  candidates of an operator stay resolvable together: once defaults fill what
+  a call omits, no call matches two of them equally. With candidates
+  `add(lhs = 1, rhs = 1)` and `add(lhs = 1.0, rhs = 2.0)`, `add()` would.
 - **GEN-7.** A generic body is checked under its stated requirements; choosing
   a specialization does not authorize unrelated operations or reify a type/size
   parameter as an ordinary numeric runtime value.
@@ -87,9 +91,10 @@ expression; group a constant expression that uses them as operand data.
   `each T in types(Ts)` checks every selected type; an empty conjunction is true.
   A cardinality follows the pack it bounds, on a pack parameter or a generic
   pack parameter: `{n}`, `{n:*}`, and `{n:m}` mean exact, minimum, and
-  inclusive bounded arity. A pack without one admits any number of
-  arguments, none included. `schemas(pack)` is a runtime-only borrowed
-  schema view, not a storable value/result or general reflection facility.
+  inclusive bounded arity, with m at least n. A pack without one admits any
+  number of arguments, none included. `schemas(pack)` is a runtime-only
+  borrowed schema view, not a storable value/result or general reflection
+  facility.
 - **GEN-11.** Argument inference removes reference boundaries recursively from
   an otherwise unbound generic; such an input observes values. An explicit
   ref pattern binds its underlying type. A stated resolution preserves its
@@ -102,13 +107,18 @@ expression; group a constant expression that uses them as operand data.
   binding constrains every later occurrence in declared parameter order.
 - **GEN-13.** A generic parameter denotes a type, type pack, or compile-time
   ordinary value, never a temporal connection or current payload. Infer its
-  kind from signature positions and constraints. An explicit `const N: V`
-  declares a value parameter of ordinary type V. `type(N) in {i64, f64}`
-  constrains the ordinary type of a value parameter N; `T in {i64, f64}`
-  instead constrains a type parameter T. `type(N)` here is compile-time
-  reflection, not a runtime payload read or a general first-class type value.
-  Reject conflicting kinds or an unresolved kind lacking a determining
-  declaration/constraint. Constraining N's type does not resolve N's value.
+  kind from signature positions and constraints: the type of a parameter, a
+  result, or a field, or a part of one, makes it a type; a size or a default
+  makes it a value; as an argument of a generic type it is what that type's
+  parameter is. An explicit `const N: V` declares a value parameter of
+  ordinary type V. `type(N) in {i64, f64}` constrains the ordinary type of a
+  value parameter N; `T in {i64, f64}` instead constrains a type parameter T.
+  `type(N)` here is compile-time reflection, not a runtime payload read or a
+  general first-class type value. Reject conflicting kinds, and a struct's
+  parameter whose kind no field or constraint determines. A function whose
+  signature determines no kind for a parameter is accepted: a call supplies
+  the parameter, and one that does not rejects. Constraining N's type does
+  not resolve N's value.
 - **GEN-14.** Retain `<...>` for generic arguments. In a type position, or
   directly following (LEX-27) a name resolved to a generic type in an
   expression, `<` opens generic arguments rather than a comparison. Check
