@@ -1,7 +1,8 @@
 # Expressions and bindings
 
-Status: agreed expression/binding baseline. Structural delta constructors and
-recursive ordinary mutation retain their proposed status.
+Status: agreed expression/binding baseline. Structural delta constructors
+retain their proposed status, and so does assignment into a place in a
+graph (EXPR-15).
 
 ## Grammar
 
@@ -87,6 +88,16 @@ GEN-14 resolves generic construction versus comparison using declaration lookup.
   function, one whose type is written `T?` is null instead, and is assigned
   from its declaration (CTRL-11). An inner
   declaration remains local. A compound assignment reads its existing target.
+  An assignment may name a place inside a value, at any depth: a field,
+  `point.x = 1`, or an element, `row[0] = 1`, `book["a"] = 1`. The place's
+  root is a `var`, a `state`, a `cache`, or, in a `when`, `out` (TIME-7). A
+  `let`, a parameter, and an iteration binding are read-only all the way
+  down. The value is of the field's type; of a list's element type, under an
+  `i64` index; of a dictionary's value type, under a key of its key type;
+  or of a tuple's position, under a constant index. A key the dictionary
+  has not is added. An index outside a list fails where it is evaluated. A
+  set has no place to assign. A compound assignment reads the place first:
+  `total.count += 1`.
 - **EXPR-4.** Ordinary values and temporal connections remain distinct. A graph
   binding denotes a connection without reading a payload. Reassigning a graph
   var changes the described connection; it creates neither mutable per-tick
@@ -176,6 +187,12 @@ GEN-14 resolves generic construction versus comparison using declaration lookup.
   explicitly admitting that input. EXPR-12 still requires result-type selectors
   to resolve during checking. Configuration grants no purity or phase exemption.
 
+Proposed, a place in a graph:
+
+- **EXPR-15.** In a graph, an assignment into a place rejects: a graph's
+  `var` denotes a connection (EXPR-4), and a field of a connection is no
+  storage. The whole `var` is assigned.
+
 Accepted illustration, complete module:
 
 ```hgl
@@ -192,6 +209,37 @@ test arithmetic { assert doubled(3) == 6 }
 
 Deliberate rejection: reading `var total: i64` before assignment. Conformance
 is planned; the shown test is an illustration, not an execution report.
+
+Accepted illustration of a place assigned (EXPR-3), complete module:
+
+```hgl
+module examples.places
+
+struct Point {
+    x: f64
+    y: f64
+}
+
+const fn moved(start: Point, by: f64) -> Point {
+    var point = start
+    point.x += by
+    return point
+}
+
+const fn counted(words: list<str>) -> dict<str, i64> {
+    var counts: dict<str, i64> = []
+    for word in words {
+        counts[word] = 1
+    }
+    return counts
+}
+```
+
+`moved` returns a point `by` to the right and leaves `start` as it was: a
+parameter is read-only all the way down. `counts[word] = 1` adds a key the
+dictionary has not. Deliberate source rejections: `start.x = by`, a field of
+a parameter (`binding.immutable`); `point.x = "a"`, a `str` for an `f64`
+field (`type.mismatch`). Conformance is planned.
 
 Accepted syntax fragments, with suitable ordinary expressions `a`, `b`, `c`,
 and `d`; use-site admission is checked separately:

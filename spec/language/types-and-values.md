@@ -1,7 +1,7 @@
 # Types and values
 
-Status: agreed type foundation. Ordinary delta storage and mutable aggregate
-access remain proposed extensions.
+Status: agreed type foundation. Ordinary delta storage and the storage
+extensions below remain proposed.
 
 ## Grammar
 
@@ -319,8 +319,7 @@ shape. Scalars reduce to themselves; composite atomic deltas are complete V;
 structural deltas retain exact nominal arguments and sizes. A held complete
 value is not a sparse delta. Data formation grants no publication admission.
 
-Ordinary mutable aggregates use writable `var` access and read-only `let`
-access recursively. Views/borrows do not outlive their supplying hook. Typed
+Views/borrows do not outlive their supplying hook. Typed
 empty-list construction and retained end growth support replay/record storage.
 These storage proposals add no `mut` type qualifier. Explicit nullable value
 annotations follow TYPE-14/15 independently of these proposals.
