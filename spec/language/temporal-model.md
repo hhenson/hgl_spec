@@ -88,8 +88,8 @@ flowchart LR
   a temporal input of the enclosing function by its name, or `out`;
   `activate(input)` and `passivate(input)` operate on direct temporal inputs.
   Core's endpoint contract says what each returns. These reserved
-  intrinsics cannot be shadowed. Value helpers inherit admitted capabilities;
-  they cannot acquire their own temporal output or scheduling lifetime.
+  intrinsics cannot be shadowed. A value function has no capability, output,
+  or schedule of its own (FN-9).
 - **TIME-10.** A reference ticks on changed designation, not every target tick.
   Ordinary followers observe the selected target; saved routes do not extend
   an expired child lifetime. Structural child membership, child validity, and

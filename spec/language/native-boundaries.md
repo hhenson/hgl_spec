@@ -41,16 +41,17 @@ ordinary HGL statements. Target-specific bodies are separate provider artifacts.
 - **NATIVE-3.** A temporal implementation `{}` denotes a graph; `{ when; }`
   denotes a node. Start and stop hooks require `when`, and each is written at
   most once; a repeated `when` marker adds nothing. A native const
-  implementation stays value-level and admits no temporal lifecycle hooks.
+  implementation stays value-level and admits neither `inject` nor temporal
+  lifecycle hooks.
   A missing body is a declaration, not an empty implementation.
 - **NATIVE-4.** Target selection is explicit. Part/folder names have no magic
   selection priority, and assembly order changes no match. Selected injectables
   and hooks describe requirements; the provider must satisfy the same observable
   contract. Construction/destruction do not replace semantic start/stop.
-- **NATIVE-5.** Value-helper capability requirements propagate transitively.
-  A value helper cannot claim its own out/scheduler/state lifetime. Borrowed
-  access must be explicit in the checked contract; ordinary scalar parameters
-  do not acquire endpoint privileges because the implementation is native.
+- **NATIVE-5.** A native value function injects nothing and has no
+  out/scheduler/state lifetime (FN-9). Borrowed access must be explicit in the
+  checked contract; ordinary scalar parameters do not acquire endpoint
+  privileges because the implementation is native.
 - **NATIVE-6.** A native type has a canonical nominal identity and explicit
   capabilities. It may be an atomic payload/key only where those capabilities
   and ownership rules admit it. Matching external identity is not established
