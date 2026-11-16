@@ -34,12 +34,16 @@ flowchart LR
   per node per cycle. Input activity controls notification; required validity
   controls admission. Mutation of output and mutation of configuration are
   different effects.
-- **TIME-3.** Function-level `when` handlers retain source order and evaluate
-  independent conditions. In a `when` header, `modified()` subscribes to all
+- **TIME-3.** Function-level `when` conditions are checked in source order.
+  The first satisfied condition runs its body first. If that body completes
+  without returning, checking continues with the next condition. A `return`
+  exits the function's current evaluation; later handlers are not reached
+  (FN-7). In a `when` header, `modified()` subscribes to all
   temporal inputs. A notification from any subscribed input can wake the
-  handler. `valid()` requires all temporal inputs to be valid. Omitting either
-  selector uses the same default as its zero-argument form. `valid([])`
-  requires no inputs to be valid. A selector sets subscription or admission
+  handler. `valid()` requires all temporal inputs to be valid;
+  `valid(a, b)` requires both named inputs, and similarly for more inputs.
+  Omitting either selector uses the same default as its zero-argument form.
+  `valid([])` requires no inputs to be valid. A selector sets subscription or admission
   when it stands alone in the header or appears as a top-level conjunct.
   Selectors under negation or disjunction leave the default in place.
   A `when` nested in another block is rejected.
@@ -103,12 +107,21 @@ fn manual_forward(value: i64) -> i64 {
         invalidate(out)
     }
 }
+
+fn guarded_forward(value: i64) -> i64 {
+    inject out
+    when modified() && valid(value) { return value }
+    when modified() && valid([]) { invalidate(out) }
+}
 ```
 
 `modified()` subscribes to input notifications. `valid([])` lets the body check
-validity itself. Invalid input invalidates the output.
-Deliberate rejections: `return value + 1` in place of the guarded `return`, an
-unguarded payload read under manual admission (`payload.unguarded`);
+validity itself. The two forms have the same observations: a valid input
+publishes its value and an invalid input invalidates the output. In the guarded
+form, the first body's return prevents the invalidation clause from running.
+Deliberate rejections: replacing `if valid(value) { return value }` in
+`manual_forward` with `return value + 1`, an unguarded payload read under
+manual admission (`payload.unguarded`);
 `valid(value + 1)`, which names no input (`endpoint.argument`); a `let`
 beside the `when` (`node.statement`); and a `start` that reads or writes
 `out` (`out.lifecycle`).

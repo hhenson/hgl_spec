@@ -85,8 +85,9 @@ Local source/native declaration matching is defined in the native chapter.
   to a sink. All-scalar calls execute
   directly and invent no source timing. Ordinary validity is not `all_valid`.
 - **FN-7.** A composition return selects a connection; a runtime return
-  publishes and leaves the current handler/evaluation. Completing a runtime
-  handler without a write produces no tick. A value return yields an ordinary
+  publishes and exits the function's current evaluation, including any later
+  `when` handlers. Completing a runtime handler without a write produces no
+  tick. A value return yields an ordinary
   value. `return` with no value ends a function that declares no result;
   in a temporal function that declares one it ends the evaluation and
   publishes nothing itself: a write already made through `out` stands
