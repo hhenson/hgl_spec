@@ -160,10 +160,12 @@ expression; group a constant expression that uses them as operand data.
   literal, an enum member however it is written (TYPE-7), `Zero.nan` or
   `.nan`, a generic value parameter in scope, or a constant expression of
   those. Any other rejects. A generic value parameter the call does not
-  give takes its default, when it has one. An operator's so takes part in
-  the output requested: for
+  give takes its default, when it has one. An operator's takes part in
+  the output requested, in GEN-2's order: what the call writes, then what
+  its place expects, and the default where neither says. For
   `operator window<T, const size: i64 = 3>(value: T) -> list<T, size>`,
-  `window<f64>(x)` requests a `list<f64, 3>`.
+  `let xs = window<f64>(x)` requests a `list<f64, 3>`, and
+  `let ys: list<f64, 5> = window<f64>(x)` a `list<f64, 5>`.
 - **GEN-9.** Property clauses apply to explicit concrete domains. Missing
   metadata gives no algebraic guarantee. Recorded laws are contracts, not
   proofs authorizing reassociation across overflow or floating-point effects.
@@ -294,10 +296,13 @@ operator window<T, const size: i64 = 3>(value: T) -> list<T, size>
 ```
 
 `keep(xs)` has `size` 3 and `keep(xs, size: 5)` has it 5. `value: Window`
-is a `Window<3>`, and `Window<5>` is as written. `window<f64>(x)` requests
-a `list<f64, 3>`, and `window<f64, 5>(x)` a `list<f64, 5>`. Deliberate
-rejection: `value: Box` for `struct Box<T>`, whose parameter has no default
-and which a type position does not infer.
+is a `Window<3>`, and `Window<5>` is as written. `let xs = window<f64>(x)`
+requests a `list<f64, 3>`; `window<f64, 5>(x)` a `list<f64, 5>`; and
+`let ys: list<f64, 5> = window<f64>(x)` a `list<f64, 5>`, since the place
+says what `size` is before the default does. Deliberate rejections:
+`value: Box` for `struct Box<T>`, whose parameter has no default and which
+a type position does not infer; and `let zs: list<f64, 5> = window<f64, 3>(x)`,
+where what the call writes decides and the place then expects another size.
 
 Accepted value-function fragments for a symbol as its call, with `n` an
 `i64`, `xs` a `list<f64>`, and structs `Round` and `Square` that inherit
