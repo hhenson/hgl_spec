@@ -233,7 +233,7 @@ infrastructure and cannot satisfy a source-rejection expectation.
 | type | `rolling.size_bounds` | Invalid bounds; offending size/minimum |
 | type | `yield.time_type` | Wrong time type; yield time operand |
 | type | `test.raises_code` | Not a literal catalogued execution code; argument |
-| type | `eval.target` | Eval's first argument names no function or operator of a module (TST-5); the argument |
+| type | `eval.target` | Eval's first argument names no function of a module: an operator among them (TST-5); the argument |
 | type | `eval.no_result` | The value of an eval of an outputless target is bound or compared (TST-8); the eval |
 | type | `trace.placeholder` | `_` in a timed trace, or outside a trace of a test (EXPR-8, TST-7); the `_` |
 | type | `trace.style` | Dense and timed traces in one eval, its expectation included (TST-7); the later trace |

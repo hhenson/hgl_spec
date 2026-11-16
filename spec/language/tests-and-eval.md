@@ -62,10 +62,11 @@ arbitrary callable value. `raises` is contextual immediately after assert.
 ## Eval contract
 
 - **TST-5.** Eval selects a module function, binding arguments by its public
-  positional/named rules. Its first argument names a function or an operator
-  of a module. Temporal/value role selection follows FN-4; a
-  selected value helper uses ordinary lifting. An operator is wrapped in a
-  function for this profile. Const parameters receive configuration; temporal
+  positional/named rules. Its first argument names a function of a module.
+  Temporal/value role selection follows FN-4; a
+  selected value helper uses ordinary lifting. An operator is no target: a
+  function wraps it, and that function's parameters give the traces their
+  types. Const parameters receive configuration; temporal
   parameters receive contextually typed publication traces. A trace written
   out is dense, `[7, _, 9]`, or timed, `[0s: 7, 2s: 9]`. Each cell is read
   as its parameter's type for an input, and as the target's result type for
@@ -122,8 +123,8 @@ test bound_and_timed {
 The target publishes its own output; a composition identity would not exercise
 compute publication. Conformance source is planned, not supplied by this example.
 
-Deliberate source rejections: `eval(7, value: [7])`, whose first argument
-names no function (`eval.target`); `let seen = eval(sink, value: [7])` with
+Deliberate source rejections: `eval(7, value: [7])` and `eval(add_, lhs: [7],
+rhs: [9])`, whose first argument names no function (`eval.target`); `let seen = eval(sink, value: [7])` with
 an outputless `sink` (`eval.no_result`); `[0s: 7, 2s: _]` and a `_` outside
 a trace (`trace.placeholder`); `eval(pass_through_i64, value: [7, 9]) ==
 [0s: 7]`, a dense input with a timed expectation (`trace.style`);
