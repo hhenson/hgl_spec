@@ -201,9 +201,9 @@ fn sum_or_zero(a: f64, b: f64) -> f64 {
 fn sampled(a: f64, const every: duration = 1s) -> f64 {
     inject scheduler
     start { schedule(scheduler, every) }
-    when modified([]) && valid(a) {
+    when modified([]) && valid([]) {
         schedule(scheduler, every)
-        return a
+        if valid(a) { return a }
     }
 }
 ```
@@ -219,8 +219,10 @@ over three cycles, each input keeping its value while it is silent:
 | `sum_or_zero` | `valid([])` | 0.0, 11.0, 23.0 | Nothing is required of the inputs, and the body guards each read |
 
 `sampled` subscribes to no input. Its scheduler, which `start` sets going,
-is all that wakes it: once a second it publishes the value `a` holds, whether
-or not `a` has ticked. Deliberate rejections: in `while_a_valid`,
+is all that wakes it, and every wake asks for the next: it requires no
+input to be valid, so a wake before `a` has published still does. Once a
+second it publishes the value `a` holds, whether or not `a` has ticked, and
+nothing while `a` is invalid. Deliberate rejections: in `while_a_valid`,
 `return a + b`, a read of `b` that neither the header requires nor a guard
 proves (`payload.unguarded`); `modified([a, b])` and `valid([a, b])`, where
 the inputs are named as arguments; and `modified([])` in a node that injects
