@@ -42,10 +42,23 @@ Local source/native declaration matching is defined in the native chapter.
   function is a node. Classification precedes phase
   checking, even if the trigger occurs in an invalid nested position. Generic
   selection, target choice, and optimizer decisions cannot change the role.
+  A node's body is its `state`, `cache`, and `inject` declarations and then
+  its `start`, `when`, and `stop` hooks, and nothing else: a local that
+  every hook reads is a `cache`, and work done once belongs in `start`.
 - **FN-3.** Iteration and conditionals follow the containing phase. They do
   not alone classify a body as runtime. A composition body cannot read current
-  input payloads. A runtime hook can call value helpers but cannot silently
-  construct a temporal child call. Mixed incompatible phase work is rejected.
+  input payloads. There a temporal parameter, and the result of a temporal or
+  lifted call, is a connection: the argument of a call, the operand of a
+  symbol, a condition, a bound local, or what is returned. Where a constant
+  is required, a `switch` label, a `const` parameter's argument, a generic
+  argument, a size, or a tuple's index, a connection rejects. An ordinary
+  value of type T is accepted where composition expects a connection of T,
+  and is wired as a constant, one publication when the graph starts: a
+  literal, a `const` parameter, or an all-scalar call (FN-6).
+  A runtime hook can call value helpers but cannot silently
+  construct a temporal child call. In a hook a temporal parameter is a value
+  of its declared type, read as in a value function; TIME-9 has the
+  operations on the endpoint itself. Mixed incompatible phase work is rejected.
   A composition body calls any function: a value function called there is
   evaluated during wiring, or lifted when an argument is temporal (FN-6). A
   runtime body calls only value functions, and so does a value function.
@@ -205,6 +218,24 @@ test lifted_helper {
 The function/lifting relationship is agreed. The eval assertion illustrates the
 proposed harness contract. Deliberate rejection: a temporal call placed inside
 `when`. Conformance is planned.
+
+Accepted declaration fragments, a graph and what it admits of a connection
+(FN-3), with `scaled` and `scale` above:
+
+```hgl
+fn priced(price: f64, const lots: i64) -> f64 {
+    let doubled = scale(price)
+    if price > 0.0 { scaled(doubled, 3.0) } else { 0.0 }
+}
+```
+
+`price` is a connection: `scale(price)` lifts the value helper, `doubled`
+names the lifted connection, and `price > 0.0` is a temporal condition.
+`3.0` and the `0.0` of the other branch are ordinary values where a
+connection is expected, each wired as a constant. `lots` is an ordinary
+value. Deliberate source rejections: `switch lots { case price: ... }` and
+`pair[price]`, a connection where a constant is required
+(`connection.as_constant`).
 
 Accepted FN-11 binding illustration using `scale` above, with temporal inputs
 supplied for both parameters. Both endpoints start invalid; a dash denotes no

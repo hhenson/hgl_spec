@@ -46,7 +46,11 @@ flowchart LR
 - **TIME-4.** Aggregate subscriptions cover every handler. Node-wide validity
   includes only requirements common to executable handlers; other guards stay
   per-handler. A payload read under manual admission must be dominated by a
-  successful guard. `valid` and `all_valid` retain distinct child-validity rules.
+  successful guard. A guard is a test of `valid(input)`, on the input by its
+  name, that holds where the read stands: in the branch it holds for, in the
+  right operand of the `&&` it guards, and after a branch that returns, the
+  paths a null test is followed along (ERR-12). A saved bool proves nothing.
+  `valid` and `all_valid` retain distinct child-validity rules.
 - **TIME-5.** State/cache/inject declarations precede executable hooks. At most
   one start and one stop are admitted. State initializers cannot read current
   temporal inputs. Start follows initialization; stop performs semantic
@@ -58,8 +62,11 @@ flowchart LR
   Arbitrary opaque resources are not ordinary state/cache values.
 - **TIME-7.** A runtime return publishes to its result. `inject out` exposes that
   same result for reads, assignment, and admitted piecewise mutation. It adds
-  no second output and is rejected for outputless functions. Output access is
-  admitted during evaluation, not implicitly in start/stop. No write means no
+  no second output and is rejected for outputless functions. `out` is read
+  in a `when` and in `stop`, and written only in a `when`: `start` neither
+  reads nor writes it, and a `return` with a value stands in neither `start`
+  nor `stop`. A node that publishes when the graph starts schedules itself
+  in `start` and writes in its first scheduled evaluation. No write means no
   tick; whole-output invalidation is explicit and distinct from silence.
 - **TIME-8.** The injectables are `out`, `logger`, `clock`, and `scheduler`,
   and the proposed `alarm` and `global_state` below; `inject` names no other.
@@ -68,8 +75,15 @@ flowchart LR
   receiver-first forms such as `schedule(scheduler, delay)` and
   `info(logger, value)`, with no method-call aliases. Arbitrary helpers cannot
   receive a capability as ordinary data.
-- **TIME-9.** `scheduled()` is the scheduler handler selector. `activate(input)`
-  and `passivate(input)` operate on direct temporal inputs. These reserved
+- **TIME-9.** The operations on an endpoint are intrinsics of the language:
+  `valid`, `modified`, `delta_value`, `last_modified`, `invalidate`,
+  `scheduled`, `activate`, and `passivate`. No HGL declaration takes an
+  endpoint: a `const fn` takes its payload, and a temporal `fn` is not called
+  in a hook. `scheduled()` is the scheduler handler selector, and `modified`
+  and `valid` are selectors in a `when` header (TIME-3). Elsewhere each takes
+  a temporal input of the enclosing function by its name, or `out`;
+  `activate(input)` and `passivate(input)` operate on direct temporal inputs.
+  Core's endpoint contract says what each returns. These reserved
   intrinsics cannot be shadowed. Value helpers inherit admitted capabilities;
   they cannot acquire their own temporal output or scheduling lifetime.
 - **TIME-10.** A reference ticks on changed designation, not every target tick.
@@ -93,7 +107,35 @@ fn manual_forward(value: i64) -> i64 {
 
 `modified()` subscribes to input notifications. `valid([])` lets the body check
 validity itself. Invalid input invalidates the output.
-Deliberate rejection: an unguarded payload read under manual admission.
+Deliberate rejections: `return value + 1` in place of the guarded `return`, an
+unguarded payload read under manual admission (`payload.unguarded`);
+`valid(value + 1)`, which names no input (`endpoint.argument`); a `let`
+beside the `when` (`node.statement`); and a `start` that reads or writes
+`out` (`out.lifecycle`).
+Conformance planned.
+
+Accepted illustration, complete module, a node that publishes when the graph
+starts (TIME-7):
+
+```hgl
+module examples.first_tick
+
+fn counted(value: i64) -> i64 {
+    state seen: i64 = 0
+    inject scheduler
+    start { schedule(scheduler, 0s) }
+    when scheduled() && valid([]) { return seen }
+    when modified() {
+        seen += 1
+        return seen
+    }
+}
+```
+
+`start` schedules the node and writes nothing. The first evaluation is the
+scheduled one, which publishes 0: the graph is connected by then, and the
+publication is a tick like any other. `valid([])` admits that handler before
+`value` has published; it reads no input, so it needs no guard.
 Conformance planned.
 
 ## Proposed source and storage capabilities
