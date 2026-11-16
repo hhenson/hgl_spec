@@ -230,7 +230,7 @@ planned.
 | Runtime hook | A readable admitted payload plus endpoint metadata | Execute value helpers in the current node |
 | Value function | Ordinary invocation data | Execute value helpers |
 
-Proposed eval illustration, complete module with agreed function/lifting forms:
+Accepted eval illustration, complete module:
 
 ```hgl
 module examples.functions
@@ -296,7 +296,7 @@ const fn nullable_echo(value: f64? = 2.0) -> f64? => value
 
 Nullability uses TYPE-14's `T?` syntax. It is independent of the function-level
 `const` marker. Core owns the [lifting observations](https://github.com/hhenson/hgl_core/blob/main/spec/value-function-lifting.md);
-executable conformance is planned. The eval profile retains its proposed status.
+executable conformance is planned.
 
 Accepted FN-12 aggregate illustration, with a temporal unsized list supplied
 to this value helper:

@@ -1,7 +1,6 @@
 # Testing and eval boundary
 
-Status: agreed ownership. Source behavior belongs to the language chapter;
-its eval execution profile remains proposed.
+Status: agreed ownership. Source behavior belongs to the language chapter.
 
 ## Agreed boundary
 

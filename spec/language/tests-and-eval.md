@@ -1,7 +1,8 @@
 # Tests and eval
 
-Status: dense trace extent (TST-6) is agreed. The remaining proposed eval
-rules and the error expectation contracts retain their status below.
+Status: the eval rules, TST-5 to TST-9, are agreed. What a `const fn` is
+given for a trace (TST-16) is proposed. The error expectation contracts
+retain their status below.
 
 ## Grammar
 
@@ -37,8 +38,12 @@ arbitrary callable value. `raises` is contextual immediately after assert.
   Duplicate test names or roles reject.
 - **TST-3.** A test is a composition-phase block with assertions. It cannot
   itself declare state/cache, inject, lifecycle hooks, when, yield, or return.
-  Eval traces are test-local values: they may be bound and compared, not stored
-  as temporal arguments or passed through arbitrary ordinary functions.
+  Eval traces are test-local values. An eval of a target that has a result
+  is a trace of that result's type, and source writes no type for it. A
+  trace is bound with `let`, compared with `==` or `!=` against a trace
+  written out or another eval, and given to a `const fn` as an argument.
+  It is not a temporal argument outside an eval, is stored in no field, and
+  no function returns one.
 - **TST-4.** Assert requires a wiring-time bool. Harness comparison is intrinsic:
   compare presence, exact present data, and shape/length; overload candidates
   cannot change it. A mismatch identifies the first differing cycle/time and
@@ -54,13 +59,19 @@ arbitrary callable value. `raises` is contextual immediately after assert.
   result spans run start through its last recorded publication, with `_`
   in gaps. A recording with zero publications yields `[]`.
 
-## Proposed eval contract
+## Eval contract
 
 - **TST-5.** Eval selects a module function, binding arguments by its public
-  positional/named rules. Temporal/value role selection follows FN-4; a
-  selected value helper uses ordinary lifting. An operator is wrapped in a
-  function for this profile. Const parameters receive configuration; temporal
-  parameters receive contextually typed publication traces.
+  positional/named rules. Its first argument names a function of a module.
+  Temporal/value role selection follows FN-4; a
+  selected value helper uses ordinary lifting. An operator is no target: a
+  function wraps it, and that function's parameters give the traces their
+  types. Const parameters receive configuration; temporal
+  parameters receive contextually typed publication traces. A trace written
+  out is dense, `[7, _, 9]`, or timed, `[0s: 7, 2s: 9]`. Each cell is one
+  cycle's publication: it is read as the `delta<T>` (TYPE-16) of its
+  parameter's type T for an input, and of the target's result type for an
+  expectation. For a scalar that is T itself.
 - **TST-7.** Timed traces use the sequence-of-pairs syntax in EXPR-9; a
   one-entry trace is still a sequence. Timed entries use duration offsets from
   run start or absolute datetime keys. Keys strictly increase; no `_` occurs
@@ -68,7 +79,9 @@ arbitrary callable value. `raises` is contextual immediately after assert.
   dense/timed style. Sparse expectations enumerate exactly the actual output
   ticks and times.
 - **TST-8.** Eval constructs core replay, the selected target, and core record;
-  an outputless target has no recorder or comparable result. Each invocation
+  an outputless target has no recorder or comparable result. Its eval stands
+  as a statement and has no value: binding or comparing it rejects. Each
+  invocation
   has fresh run state and independent retained captures. An initialized empty
   recording is valid; missing recording or failure is never successful emptiness.
   Test imports/overloads cannot replace designated core replay/record.
@@ -77,7 +90,21 @@ arbitrary callable value. `raises` is contextual immediately after assert.
   Validate ordinary arguments and profile admission before graph start. A
   constructor failure retains its own code; it is not renamed as a profile error.
 
-Proposed illustration, complete module with an agreed compute fixture form:
+Proposed, what a `const fn` is given:
+
+- **TST-16.** A trace given to a `const fn` is an ordinary value there. Each
+  cell is what the target's result publishes in one cycle: for a result
+  type T, a `delta<T>` (TYPE-16), which is T itself for a scalar and V for
+  an `atomic<V>`. A dense trace is a `list<delta<T>?>`, with null where it
+  has `_`: a `list<i64?>` for an `i64` result. Where `delta<T>` is itself
+  nullable such a list cannot tell a published null from `_` (TYPE-15):
+  the dense trace is not given, and rejects there. A timed trace is a
+  `dict<duration, delta<T>>` or a `dict<datetime, delta<T>>`, by its keys,
+  and has an entry for each publication, a null one included. The
+  parameter is written with that type, and what the function returns is
+  ordinary data.
+
+Accepted illustration, complete module:
 
 ```hgl
 module examples.tests
@@ -92,10 +119,24 @@ test repeated_ticks {
     assert eval(pass_through_i64, value: [_, 7, _, _]) == [_, 7]
     assert eval(pass_through_i64, value: []) == []
 }
+
+test bound_and_timed {
+    let seen = eval(pass_through_i64, value: [7, _, 7, 9])
+    assert seen == [7, _, 7, 9]
+    assert eval(pass_through_i64, value: [0s: 7, 2s: 9]) == [0s: 7, 2s: 9]
+}
 ```
 
 The target publishes its own output; a composition identity would not exercise
 compute publication. Conformance source is planned, not supplied by this example.
+
+Deliberate source rejections: `eval(7, value: [7])` and `eval(add_, lhs: [7],
+rhs: [9])`, whose first argument names no function (`eval.target`); `let seen = eval(sink, value: [7])` with
+an outputless `sink` (`eval.no_result`); `[0s: 7, 2s: _]` and a `_` outside
+a trace (`trace.placeholder`); `eval(pass_through_i64, value: [7, 9]) ==
+[0s: 7]`, a dense input with a timed expectation (`trace.style`);
+`[2s: 7, 1s: 9]` (`trace.key_order`); and `Kept(values: seen)`, a trace
+stored in a field (`trace.escape`).
 
 ## Execution-error expectations
 
