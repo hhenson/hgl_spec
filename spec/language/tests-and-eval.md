@@ -91,12 +91,15 @@ arbitrary callable value. `raises` is contextual immediately after assert.
 
 Proposed, what a `const fn` is given:
 
-- **TST-16.** A trace given to a `const fn` is an ordinary value there. A
-  dense trace of a result type T is a `list<T?>`, with null where it has
-  `_`. Where T is itself nullable such a list cannot tell a published null
-  from `_` (TYPE-15): the dense trace is not given, and rejects there. A
-  timed trace is a `dict<duration, T>` or a `dict<datetime, T>`, by its
-  keys, and has an entry for each publication, a null one included. The
+- **TST-16.** A trace given to a `const fn` is an ordinary value there. Each
+  cell is what the target's result publishes in one cycle: for a result
+  type T, a `delta<T>` (TYPE-16), which is T itself for a scalar and V for
+  an `atomic<V>`. A dense trace is a `list<delta<T>?>`, with null where it
+  has `_`: a `list<i64?>` for an `i64` result. Where `delta<T>` is itself
+  nullable such a list cannot tell a published null from `_` (TYPE-15):
+  the dense trace is not given, and rejects there. A timed trace is a
+  `dict<duration, delta<T>>` or a `dict<datetime, delta<T>>`, by its keys,
+  and has an entry for each publication, a null one included. The
   parameter is written with that type, and what the function returns is
   ordinary data.
 
