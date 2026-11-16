@@ -53,7 +53,10 @@ expression; group a constant expression that uses them as operand data.
   or solvable equality. A generic struct application supplies all arguments or
   infers them from constructor fields and expected type. A type position, a
   parent included, has nothing to infer from and supplies them: `value: Box`
-  rejects where `Box(value: 7)` infers. A constructor takes the arguments
+  rejects where `Box(value: 7)` infers. Where an application supplies none,
+  a generic value parameter that nothing says anything of takes its
+  default: for `struct Window<const size: i64 = 3>`, `value: Window` is a
+  `Window<3>`. A constructor takes the arguments
   of the type expected when that is the same struct. Otherwise it matches
   each field's type, part for part, with the type of the value the field is
   given: `T` is `i64` for `values: list<T>` given a `list<i64>`. The first
@@ -70,8 +73,10 @@ expression; group a constant expression that uses them as operand data.
   such arguments does not matter. What the call writes, or its place
   expects, is not widened: `same<Round>(round, shape)` rejects at `shape`.
   Partial applications and `_` struct
-  arguments are not admitted. A generic value parameter of a function or a
-  candidate may have a default (GEN-8); no other generic parameter has one.
+  arguments are not admitted. A generic value parameter may have a default,
+  a function's, a candidate's, a struct's, or an operator's, which it takes
+  where a call or an application neither gives it nor resolves it (GEN-8).
+  A type parameter and a pack have none.
   A type pack is a sequence, not a singular source type.
 - **GEN-3.** `requires` may use type/category membership, equalities, the
   membership of a constant in a set of constants, field/pack reflection, and
@@ -155,7 +160,10 @@ expression; group a constant expression that uses them as operand data.
   literal, an enum member however it is written (TYPE-7), `Zero.nan` or
   `.nan`, a generic value parameter in scope, or a constant expression of
   those. Any other rejects. A generic value parameter the call does not
-  give takes its default, when it has one.
+  give takes its default, when it has one. An operator's so takes part in
+  the output requested: for
+  `operator window<T, const size: i64 = 3>(value: T) -> list<T, size>`,
+  `window<f64>(x)` requests a `list<f64, 3>`.
 - **GEN-9.** Property clauses apply to explicit concrete domains. Missing
   metadata gives no algebraic guarantee. Recorded laws are contracts, not
   proofs authorizing reassociation across overflow or floating-point effects.
@@ -275,6 +283,21 @@ decides T, and the `1` is widened. Deliberate rejections: `same("a", 1)`,
 at the `1`;
 `let real: f64 = same(1, count)`, at `count`, which is no literal; and
 `let names = repeat(3)`, which leaves T unresolved (`generic.unresolved`).
+
+Accepted declaration fragments, each with a default on a generic value
+parameter (GEN-2):
+
+```hgl
+const fn keep<const size: i64 = 3>(values: list<f64>) -> list<f64> => values
+struct Window<const size: i64 = 3> { values: list<f64, size> }
+operator window<T, const size: i64 = 3>(value: T) -> list<T, size>
+```
+
+`keep(xs)` has `size` 3 and `keep(xs, size: 5)` has it 5. `value: Window`
+is a `Window<3>`, and `Window<5>` is as written. `window<f64>(x)` requests
+a `list<f64, 3>`, and `window<f64, 5>(x)` a `list<f64, 5>`. Deliberate
+rejection: `value: Box` for `struct Box<T>`, whose parameter has no default
+and which a type position does not infer.
 
 Accepted value-function fragments for a symbol as its call, with `n` an
 `i64`, `xs` a `list<f64>`, and structs `Round` and `Square` that inherit
