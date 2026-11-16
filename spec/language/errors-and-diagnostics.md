@@ -172,6 +172,7 @@ infrastructure and cannot satisfy a source-rejection expectation.
 | phase | `state.input_read` | State initializer reads a temporal input (TIME-5); the read |
 | phase | `out.lifecycle` | `out` used in `start` or written in `stop`, or a `return` with a value in either (TIME-7); the use |
 | phase | `payload.unguarded` | Payload read under manual admission that no guard dominates (TIME-4); read |
+| phase | `modified.no_driver` | `modified([])` in a node that injects neither `scheduler` nor `alarm`, or whose `start` schedules no wake on it (TIME-3); the selector |
 | phase | `endpoint.argument` | Endpoint operation given what is no temporal input of its function and not `out` (TIME-9); argument |
 | phase | `connection.as_constant` | Temporal connection where composition requires a constant (FN-3); expression |
 | type | `generic.invalid_application` | Generic type's name before a `<` that opens no arguments (GEN-14); name |
