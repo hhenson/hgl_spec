@@ -196,24 +196,29 @@ rejection (TYPE-12, TYPE-14). TYPE-16 says what a `delta_type` is.
   [tag/refinement rules](errors-and-diagnostics.md) govern payload access.
   Silence, invalidity, null absence, and an error outcome are distinct.
 - **TYPE-16.** `delta<T>` is the ordinary value type of what a temporal value
-  of T publishes in one cycle. The table gives it for each T. A set's, a
-  dictionary's, and a struct's delta is a type of its own, which keeps T
-  whole in its identity: `delta<dict<str, f64>>` and `delta<dict<str, i64>>`
-  are two types. Such a delta is no T: a held complete value is not a delta,
-  and neither converts to the other. `delta<T>` is written wherever an
-  ordinary value type is: an annotation, a parameter or result of a value
-  function, a field, an element. In a generic declaration it stays as
-  written until T is known. A delta is a value like any other: it is bound,
-  stored, given as an argument, and returned. It is atomic and is not
-  modified: no property of one is assigned.
+  of T publishes in one cycle. The table gives it for each T. For most T it
+  is another type the language has: `delta<f64>` is `f64`, and
+  `delta<list<f64>>` is `dict<i64, f64>`, a dictionary as any other. A
+  set's, a dictionary's, and a struct's delta is a type of its own, which
+  keeps T whole in its identity: `delta<dict<str, f64>>` and
+  `delta<dict<str, i64>>` are two types. Such a delta is no T: a held
+  complete value is not a delta, and neither converts to the other. It is
+  atomic: it has properties, none is assigned, and as a temporal value it
+  publishes whole, so its own delta is itself. `delta<T>` is written
+  wherever an ordinary value type is: an annotation, a parameter or result
+  of a value function, a field, an element. In a generic declaration it
+  stays as written until T is known. A delta is a value like any other: it
+  is bound, stored, given as an argument, and returned.
 
 | T | `delta<T>` |
 | --- | --- |
-| A scalar, an enum, a `result`, an `error`, a native type | T itself |
+| A scalar, an enum, a `result`, an `error`, a native type, a delta that is a type of its own | T itself |
+| `V?`, V an ordinary value type | `delta<V>?`: null for a published null (TYPE-15) |
+| `V?`, V no ordinary value type, as `rolling<f64, 5>?` | `delta<V>`: the `?` marks an argument or a field that may be left out (TYPE-14), and is no part of what is published |
 | `atomic<V>` | V: an atomic publishes whole |
 | `rolling<V, Max, Min>` | V: the value that arrived |
 | `list<V>`, `list<V, N>` | `dict<i64, delta<V>>`: for each position that changed, its delta |
-| `tuple<A, B>` | `tuple<delta<A>?, delta<B>?>`: each position's delta, null where it did not change |
+| `tuple<A, B>` | `tuple<delta<A>?, delta<B>?>`: each position's delta, null where it did not change. A position of a nullable type has that one null for a published null too |
 | `set<K>` | A type of its own, with the properties `added` and `removed`, each a `set<K>` |
 | `dict<K, V>` | A type of its own: for each key that changed its `delta<V>`, and the keys removed |
 | A struct | A type of its own: for each field that changed, the delta of that field |
