@@ -380,7 +380,7 @@ under `is_ok` proves it a failure. `error.message` is a `str`; its `code`
 is a `str?` and is tested against null before use. Deliberate rejections:
 `let missing = ok(1)`, with nothing that says the result's type;
 `outcome.value` with no guard, and under `is_err(outcome)`; `value?` in a
-function that returns an `i64`, and in a `when` whose operand is a
+`const fn` that returns an `i64`, and in a `when` whose operand is a
 `result<i64, str>`; `value?` in a graph; and a function named `ok`.
 Conformance planned.
 
