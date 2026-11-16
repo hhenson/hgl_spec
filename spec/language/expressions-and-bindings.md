@@ -75,8 +75,9 @@ GEN-14 resolves generic construction versus comparison using declaration lookup.
   fill the parameters from the first and stop where they stop; named
   arguments come in any order, and a parameter that may be omitted may be
   left out. A parameter that may be omitted, one with a default or a type
-  written `T?`, follows every parameter that may not (UNIT-8). A
-  constructor's arguments are all named (TYPE-5).
+  written `T?`, follows every parameter that may not (UNIT-8). A struct's
+  constructor takes named arguments only (TYPE-5). An enum's takes one
+  argument, by position (TYPE-7).
 - **EXPR-3.** Initialization fixes a binding's value/connection category and
   type; an annotation checks that category rather than changing it. `let` is
   immutable, and so is a parameter; `var` may be assigned within the same
