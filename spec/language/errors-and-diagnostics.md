@@ -106,10 +106,10 @@ infrastructure and cannot satisfy a source-rejection expectation.
 | injectable | `inject.out_without_result` | `inject out` in a function that declares no result (TIME-7); `out` |
 | injectable | `capability.as_value` | Capability passed or kept as ordinary data (TIME-8); use |
 | phase | `node.nested` | `state`, `cache`, `inject`, `start`, `when`, or `stop` inside a block of a temporal function (TIME-3, TIME-5); keyword |
-| phase | `node.in_value_function` | `state`, `cache`, `inject`, `start`, `when`, or `stop` in a `const fn` (FN-1, FN-2); keyword |
+| phase | `node.in_value_function` | `state`, `cache`, `start`, `when`, or `stop` in a `const fn`, which may inject a capability (FN-1, FN-9); keyword |
 | phase | `node.declaration_order` | `state`, `cache`, or `inject` after a `start`, `when`, or `stop` (TIME-5); the declaration |
 | phase | `node.duplicate_hook` | Second `start` or second `stop` (TIME-5); later hook |
-| phase | `node.statement` | Statement of a node's body that is no declaration and no hook (FN-2); the statement |
+| phase | `node.statement` | Statement of a node's body that is no declaration and no hook, in a node that is no source (FN-2); the statement |
 | phase | `state.input_read` | State initializer reads a temporal input (TIME-5); the read |
 | phase | `out.lifecycle` | `out` used in `start` or written in `stop`, or a `return` with a value in either (TIME-7); the use |
 | phase | `payload.unguarded` | Payload read under manual admission that no guard dominates (TIME-4); read |

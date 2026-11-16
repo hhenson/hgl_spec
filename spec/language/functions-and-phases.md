@@ -45,6 +45,8 @@ Local source/native declaration matching is defined in the native chapter.
   A node's body is its `state`, `cache`, and `inject` declarations and then
   its `start`, `when`, and `stop` hooks, and nothing else: a local that
   every hook reads is a `cache`, and work done once belongs in `start`.
+  A source, a body with `yield`, is a node of the other form, with the
+  statements SOURCE-1 admits and no hooks.
 - **FN-3.** Iteration and conditionals follow the containing phase. They do
   not alone classify a body as runtime. A composition body cannot read current
   input payloads. There a temporal parameter, and the result of a temporal or
