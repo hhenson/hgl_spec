@@ -41,8 +41,7 @@ flowchart LR
   (FN-7). In a `when` header, `modified()` subscribes to all
   temporal inputs; `modified(a, b)` subscribes to both named inputs, and
   similarly for more inputs. A notification from any subscribed input can
-  wake the handler, and one from any other cannot. `modified([])` subscribes
-  to no input: only a scheduler or an alarm wakes the handler. `valid()`
+  wake the handler, and one from any other cannot. `valid()`
   requires all temporal inputs to be valid;
   `valid(a, b)` requires both named inputs, and similarly for more inputs.
   Omitting either selector uses the same default as its zero-argument form.
@@ -182,10 +181,6 @@ fn sum_or_zero(a: f64, b: f64) -> f64 {
         return 0.0
     }
 }
-
-fn dormant(a: f64, b: f64) -> f64 {
-    when modified([]) && valid([]) { return 0.0 }
-}
 ```
 
 With `a` publishing 1.0, nothing, 3.0 and `b` publishing nothing, 10.0, 20.0
@@ -197,12 +192,27 @@ over three cycles, each input keeping its value while it is silent:
 | `on_a` | `modified(a)` | Nothing, nothing, 23.0 | `b` cannot wake it; validity is the default, both inputs |
 | `while_a_valid` | `valid(a)` | 1.0, 1.0, 3.0 | Subscription is the default, so `b` wakes it while `a` holds 1.0 |
 | `sum_or_zero` | `valid([])` | 0.0, 11.0, 23.0 | Nothing is required of the inputs, and the body guards each read |
-| `dormant` | `modified([]) && valid([])` | Nothing | No input wakes it and it has no scheduler: the warning `node.no_activation` |
 
 Deliberate rejections: in `while_a_valid`, `return a + b`, a read of `b`
 that neither the header requires nor a guard proves (`payload.unguarded`);
 `modified([a, b])` and `valid([a, b])`, where the inputs are named as
 arguments. Conformance planned.
+
+## Proposed empty subscription
+
+`modified([])` subscribes to no input, as `valid([])` requires none: only a
+scheduler or an alarm wakes the handler. A node with no subscribed input and
+no such driver is the one the warning `node.no_activation` is for.
+
+Proposed illustration, declaration fragment:
+
+```hgl
+fn dormant(a: f64, b: f64) -> f64 {
+    when modified([]) && valid([]) { return 0.0 }
+}
+```
+
+Over the three cycles above it publishes nothing, and is warned of.
 
 ## Proposed source and storage capabilities
 
