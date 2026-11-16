@@ -1,7 +1,8 @@
 # Types and values
 
-Status: agreed type foundation. Ordinary delta storage and the storage
-extensions below remain proposed.
+Status: agreed type foundation, `delta<T>` included (TYPE-16). The
+properties of a dictionary's and a struct's delta and the storage extensions
+below remain proposed.
 
 ## Grammar
 
@@ -46,8 +47,7 @@ Semantic field rules distinguish a typed introduction from an inherited-default
 override. The productions admit `?` on a set's element and a dictionary's key,
 which TYPE-14 rejects. Where a production gives `value_type`, any `type` is
 admitted as syntax, and one that is no ordinary value type is a type
-rejection (TYPE-12, TYPE-14). `delta_type` syntax has the proposed formation
-domain below.
+rejection (TYPE-12, TYPE-14). TYPE-16 says what a `delta_type` is.
 
 ## Agreed value rules
 
@@ -195,6 +195,29 @@ domain below.
 - **TYPE-13.** Result and error envelopes are ordinary atomic values; their
   [tag/refinement rules](errors-and-diagnostics.md) govern payload access.
   Silence, invalidity, null absence, and an error outcome are distinct.
+- **TYPE-16.** `delta<T>` is the ordinary value type of what a temporal value
+  of T publishes in one cycle. The table gives it for each T. A set's, a
+  dictionary's, and a struct's delta is a type of its own, which keeps T
+  whole in its identity: `delta<dict<str, f64>>` and `delta<dict<str, i64>>`
+  are two types. Such a delta is no T: a held complete value is not a delta,
+  and neither converts to the other. `delta<T>` is written wherever an
+  ordinary value type is: an annotation, a parameter or result of a value
+  function, a field, an element. In a generic declaration it stays as
+  written until T is known. A delta is a value like any other: it is bound,
+  stored, given as an argument, and returned. It is atomic and is not
+  modified: no property of one is assigned.
+
+| T | `delta<T>` |
+| --- | --- |
+| A scalar, an enum, a `result`, an `error`, a native type | T itself |
+| `atomic<V>` | V: an atomic publishes whole |
+| `rolling<V, Max, Min>` | V: the value that arrived |
+| `list<V>`, `list<V, N>` | `dict<i64, delta<V>>`: for each position that changed, its delta |
+| `tuple<A, B>` | `tuple<delta<A>?, delta<B>?>`: each position's delta, null where it did not change |
+| `set<K>` | A type of its own, with the properties `added` and `removed`, each a `set<K>` |
+| `dict<K, V>` | A type of its own: for each key that changed its `delta<V>`, and the keys removed |
+| A struct | A type of its own: for each field that changed, the delta of that field |
+| `ref<V>`, `signal` | None: `delta.unsupported_shape` |
 
 Accepted illustration, complete module:
 
@@ -214,6 +237,29 @@ fn quote(bid: f64, ask: f64) -> Quote {
 The result is a structural temporal Quote. `atomic<Quote>` instead denotes
 whole snapshots. Deliberate rejection: a concrete struct used as a parent.
 Conformance is planned.
+
+Accepted illustration of `delta<T>` (TYPE-16), complete module:
+
+```hgl
+module examples.deltas
+
+export struct TimedValue<T> {
+    time: datetime
+    value: delta<T>
+}
+
+const fn arrived(change: delta<set<str>>) -> set<str> => change.added
+
+fn arrivals(members: set<str>) -> atomic<set<str>> {
+    when { return arrived(delta_value(members)) }
+}
+```
+
+`TimedValue<f64>` has a `value: f64`, and `TimedValue<set<str>>` a
+`value: delta<set<str>>`. `delta_value(members)` is the set's delta for this
+cycle, given to `arrived` as any value is. Deliberate source rejections:
+`delta<signal>` (`delta.unsupported_shape`); `change.added = []`, a property
+of a delta assigned (`binding.immutable`). Conformance is planned.
 
 Accepted declaration fragments, structs that hold themselves (TYPE-6):
 
@@ -314,10 +360,12 @@ rather than creating nullable endpoint handles.
 
 ## Proposed ordinary storage extensions
 
-`delta<T>` is an owned ordinary publication value for an admitted originating
-shape. Scalars reduce to themselves; composite atomic deltas are complete V;
-structural deltas retain exact nominal arguments and sizes. A held complete
-value is not a sparse delta. Data formation grants no publication admission.
+The properties of a dictionary's and a struct's delta. `delta<dict<K, V>>`
+has `updated`, a `dict<K, delta<V>>` of each key added or changed, and
+`removed`, a `set<K>`. The delta of a struct has a property for each field
+`name: F` of the struct, of the same name and of type `delta<F>?`: null
+where the field did not change. Data formation grants no publication
+admission.
 
 Views/borrows do not outlive their supplying hook. Typed
 empty-list construction and retained end growth support replay/record storage.
