@@ -220,8 +220,8 @@ struct Point {
     y: f64
 }
 
-const fn moved(start: Point, by: f64) -> Point {
-    var point = start
+const fn moved(origin: Point, by: f64) -> Point {
+    var point = origin
     point.x += by
     return point
 }
@@ -235,9 +235,9 @@ const fn counted(words: list<str>) -> dict<str, i64> {
 }
 ```
 
-`moved` returns a point `by` to the right and leaves `start` as it was: a
+`moved` returns a point `by` to the right and leaves `origin` as it was: a
 parameter is read-only all the way down. `counts[word] = 1` adds a key the
-dictionary has not. Deliberate source rejections: `start.x = by`, a field of
+dictionary has not. Deliberate source rejections: `origin.x = by`, a field of
 a parameter (`binding.immutable`); `point.x = "a"`, a `str` for an `f64`
 field (`type.mismatch`). Conformance is planned.
 
