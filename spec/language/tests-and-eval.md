@@ -68,9 +68,10 @@ arbitrary callable value. `raises` is contextual immediately after assert.
   function wraps it, and that function's parameters give the traces their
   types. Const parameters receive configuration; temporal
   parameters receive contextually typed publication traces. A trace written
-  out is dense, `[7, _, 9]`, or timed, `[0s: 7, 2s: 9]`. Each cell is read
-  as its parameter's type for an input, and as the target's result type for
-  an expectation.
+  out is dense, `[7, _, 9]`, or timed, `[0s: 7, 2s: 9]`. Each cell is one
+  cycle's publication: it is read as the `delta<T>` (TYPE-16) of its
+  parameter's type T for an input, and of the target's result type for an
+  expectation. For a scalar that is T itself.
 - **TST-7.** Timed traces use the sequence-of-pairs syntax in EXPR-9; a
   one-entry trace is still a sequence. Timed entries use duration offsets from
   run start or absolute datetime keys. Keys strictly increase; no `_` occurs
