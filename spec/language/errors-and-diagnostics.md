@@ -103,6 +103,18 @@ infrastructure and cannot satisfy a source-rejection expectation.
 | phase | `native.hook_without_when` | Start or stop hook with no `when` hook (NATIVE-3); hook |
 | phase | `native.duplicate_hook` | Second start or stop hook (NATIVE-3); later hook |
 | injectable | `inject.unknown_capability` | `inject` names no capability (TIME-8); name |
+| injectable | `inject.out_without_result` | `inject out` in a function that declares no result (TIME-7); `out` |
+| injectable | `capability.as_value` | Capability passed or kept as ordinary data (TIME-8); use |
+| phase | `node.nested` | `state`, `cache`, `inject`, `start`, `when`, or `stop` inside a block of a temporal function (TIME-3, TIME-5); keyword |
+| phase | `node.in_value_function` | `state`, `cache`, `start`, `when`, or `stop` in a `const fn`, which may inject a capability (FN-1, FN-9); keyword |
+| phase | `node.declaration_order` | `state`, `cache`, or `inject` after a `start`, `when`, or `stop` (TIME-5); the declaration |
+| phase | `node.duplicate_hook` | Second `start` or second `stop` (TIME-5); later hook |
+| phase | `node.statement` | Statement of a node's body that is no declaration and no hook, in a node that is no source (FN-2); the statement |
+| phase | `state.input_read` | State initializer reads a temporal input (TIME-5); the read |
+| phase | `out.lifecycle` | `out` used in `start` or written in `stop`, or a `return` with a value in either (TIME-7); the use |
+| phase | `payload.unguarded` | Payload read under manual admission that no guard dominates (TIME-4); read |
+| phase | `endpoint.argument` | Endpoint operation given what is no temporal input of its function and not `out` (TIME-9); argument |
+| phase | `connection.as_constant` | Temporal connection where composition requires a constant (FN-3); expression |
 | type | `generic.invalid_application` | Generic type's name before a `<` that opens no arguments (GEN-14); name |
 | type | `pack.default` | Pack parameter has a default (FN-8); `=` |
 | type | `pack.const` | Pack parameter is const (FN-8); `const` |
@@ -143,7 +155,7 @@ infrastructure and cannot satisfy a source-rejection expectation.
 | name | `argument.unknown` | Named argument names no parameter or field (EXPR-2); name |
 | name | `argument.duplicate` | Parameter or field given twice (EXPR-2); later name |
 | type | `argument.missing` | Parameter or field that may not be left out is given nothing (EXPR-2, TYPE-5); callee name |
-| function-kind | `call.role` | Temporal function called from a value function (FN-3); callee name |
+| function-kind | `call.role` | Temporal function called from a value function or a runtime hook (FN-3); callee name |
 | type | `return.missing` | Value function that declares a result can reach its end with no value (FN-7); function name |
 | type | `switch.duplicate_label` | Switch label has the value of an earlier label (CTRL-6); later label |
 | phase | `while.condition` | `while` with no condition in a value function (CTRL-12); `while` |
