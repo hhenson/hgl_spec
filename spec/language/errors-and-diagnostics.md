@@ -212,7 +212,7 @@ infrastructure and cannot satisfy a source-rejection expectation.
 | name | `binding.immutable` | Assignment to an immutable binding: a `let`, a parameter, an iteration binding (EXPR-3), or to a property of a native type (NATIVE-6); target |
 | type | `binding.category` | Assignment of a connection to a `var` that holds an ordinary value, or the reverse; assignment in a branch of a temporal `if` or `switch` to a `var` declared before it that holds an ordinary value (EXPR-4, CTRL-14); the value |
 | type | `argument.order` | Argument with no name after a named one (EXPR-2); the argument |
-| type | `argument.unexpected` | Positional argument that no parameter is left to take (EXPR-2), or one given to a constructor (TYPE-5); the argument |
+| type | `argument.unexpected` | Positional argument that no parameter is left to take (EXPR-2), one given to a struct's constructor (TYPE-5), or a second given to an enum's (TYPE-7); the argument |
 | name | `argument.unknown` | Named argument names no parameter or field (EXPR-2); name |
 | name | `argument.duplicate` | Parameter or field given twice (EXPR-2); later name |
 | type | `argument.missing` | Parameter or field that may not be left out is given nothing (EXPR-2, TYPE-5); callee name |

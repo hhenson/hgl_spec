@@ -124,7 +124,8 @@ domain below.
   With no enum type expected, `.member` rejects. Unnumbered numbering starts
   at zero and increments the previous member; explicit numbers reset the
   next value. Values fit signed `i64`; duplicates and overflow reject.
-  A call of the enum's name with one argument constructs a member:
+  A call of the enum's name constructs a member. It takes one argument, by
+  position, that is an `i64` or a `str`, and any other type rejects:
   `Side(1)` is the member whose number is 1, and `Side("buy")` the member of
   that exact name. Construction is checked: a constant that is no member's
   number or name rejects, and a value that is none fails where it is
