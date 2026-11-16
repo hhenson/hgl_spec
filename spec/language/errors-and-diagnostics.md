@@ -216,6 +216,7 @@ infrastructure and cannot satisfy a source-rejection expectation.
 | name | `argument.unknown` | Named argument names no parameter or field (EXPR-2); name |
 | name | `argument.duplicate` | Parameter or field given twice (EXPR-2); later name |
 | type | `argument.missing` | Parameter or field that may not be left out is given nothing (EXPR-2, TYPE-5); callee name |
+| type | `argument.constant` | In a hook or a value function, a `const` parameter given what is no constant expression (FN-1); argument |
 | function-kind | `call.role` | Temporal function called from a value function or a runtime hook (FN-3); callee name |
 | type | `return.missing` | Value function that declares a result can reach its end with no value (FN-7), or a graph that returns a value in a branch of a temporal `if` or `switch` can (CTRL-14); function name |
 | type | `switch.duplicate_label` | Switch label has the value of an earlier label (CTRL-6); later label |
