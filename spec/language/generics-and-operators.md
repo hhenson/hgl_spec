@@ -162,7 +162,8 @@ expression; group a constant expression that uses them as operand data.
   those. Any other rejects. A generic value parameter the call does not
   give takes its default, when it has one. An operator's takes part in
   the output requested, in GEN-2's order: what the call writes, then what
-  its place expects, and the default where neither says. For
+  its place expects, then its arguments, and the default where none of
+  them says. For
   `operator window<T, const size: i64 = 3>(value: T) -> list<T, size>`,
   `let xs = window<f64>(x)` requests a `list<f64, 3>`, and
   `let ys: list<f64, 5> = window<f64>(x)` a `list<f64, 5>`.
@@ -299,7 +300,10 @@ operator window<T, const size: i64 = 3>(value: T) -> list<T, size>
 is a `Window<3>`, and `Window<5>` is as written. `let xs = window<f64>(x)`
 requests a `list<f64, 3>`; `window<f64, 5>(x)` a `list<f64, 5>`; and
 `let ys: list<f64, 5> = window<f64>(x)` a `list<f64, 5>`, since the place
-says what `size` is before the default does. Deliberate rejections:
+says what `size` is before the default does. An argument does too: for
+`operator copy<const size: i64 = 3>(value: list<f64, size>) -> list<f64, size>`
+and a `list<f64, 5>` `xs`, `copy(xs)` requests a `list<f64, 5>`.
+Deliberate rejections:
 `value: Box` for `struct Box<T>`, whose parameter has no default and which
 a type position does not infer; and `let zs: list<f64, 5> = window<f64, 3>(x)`,
 where what the call writes decides and the place then expects another size.
