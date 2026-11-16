@@ -110,7 +110,7 @@ infrastructure and cannot satisfy a source-rejection expectation.
 | phase | `node.declaration_order` | `state`, `cache`, or `inject` after a `start`, `when`, or `stop` (TIME-5); the declaration |
 | phase | `node.duplicate_hook` | Second `start` or second `stop` (TIME-5); later hook |
 | phase | `node.statement` | Statement of a node's body that is no declaration and no hook, in a node that is no source (FN-2); the statement |
-| phase | `source.statement` | In a source with a declaration or a hook: a statement outside its one block, a second block, a hook out of order, or a `yield` in a hook. In any source: a `var`, a `cache`, or an `inject` of `out`, `scheduler`, or `alarm` (SOURCE-1); the statement |
+| phase | `source.statement` | In a source with a declaration or a hook: a statement outside its one block, a second block, a hook out of order, or a `yield` in a hook. In any source: a `var`, or an `inject` of `out`, `scheduler`, or `alarm` (SOURCE-1); the statement |
 | phase | `source.when` | `when` in a source (SOURCE-1); `when` |
 | phase | `source.input` | Temporal parameter of a source (SOURCE-1); the parameter |
 | phase | `state.input_read` | State initializer reads a temporal input (TIME-5); the read |
