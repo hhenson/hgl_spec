@@ -226,6 +226,10 @@ expression; group a constant expression that uses them as operand data.
   compile-time data; a named operator requirement tests callability with the
   supplied types. A result arrow constrains that operator's result type and
   is not admitted on a predicate call. This grants no arbitrary function calls.
+  A requirement names a value operation, whatever declares it: it is tested
+  against the operator's value candidates, and holds where one most-specific
+  value candidate takes the types supplied (GEN-5). So what a graph requires
+  is what a node or a value function it calls may require.
 
 Syntax binds these core identities independently of local same-named functions.
 A symbol is the call of its identity: its operands are read as that call's
