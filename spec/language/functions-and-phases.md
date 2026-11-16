@@ -53,7 +53,8 @@ Local source/native declaration matching is defined in the native chapter.
   lifted call, is a connection: the argument of a call, the operand of a
   symbol, a condition, a bound local, or what is returned. Where a constant
   is required, a `switch` label, a `const` parameter's argument, a generic
-  argument, a size, or a tuple's index, a connection rejects. An ordinary
+  argument, a size, a tuple's index, or the condition of a `while`
+  (CTRL-15), a connection rejects. An ordinary
   value of type T is accepted where composition expects a connection of T,
   and is wired as a constant, one publication when the graph starts: a
   literal, a `const` parameter, or an all-scalar call (FN-6).

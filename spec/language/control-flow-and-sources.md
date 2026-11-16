@@ -103,6 +103,45 @@ CTRL-9 places the opening brace of an `if`, `for`, `switch`, `when`, or
   value. Each label is a constant of the selector's type (CTRL-6): a
   literal, an enum member, or a generic value parameter. A `switch` is a
   statement and has no value.
+- **CTRL-13.** In composition the condition of an `if` is a `bool`, an
+  ordinary value or a connection (CTRL-1): a `bool?` or any other type
+  rejects. An `if` whose value is used has the one type its branches' values
+  have, and two types reject (CTRL-10). It is a connection when its condition
+  is one or either branch's value is, and an ordinary value in a branch is
+  then wired as a constant (FN-3). With no `else`, under a temporal condition
+  it is a connection of `T` that never ticks while the condition is false
+  (CTRL-3): `T`, not `T?`. Under a wiring-time condition a branch that is an
+  ordinary value makes it a `T?`, as in a value function, and a branch that
+  is a connection makes it a connection of `T` that never ticks where the
+  branch is not composed.
+- **CTRL-14.** In composition a `var` assigned in a branch of a wiring-time
+  `if` is assigned after it as CTRL-11 says. Under a temporal condition it
+  is one connection after the `if`: the branch's binding while that branch
+  is selected, and the binding it had before for a branch that does not
+  assign it (CTRL-4). With none before, every branch that does not return
+  assigns it. A `var` keeps the category of its first value (EXPR-3): a
+  connection assigned to one that holds an ordinary value, or the reverse,
+  rejects (EXPR-4). A `return value` in a branch of a temporal `if` makes the
+  graph's result that value while the branch is selected and the
+  continuation's otherwise (CTRL-5): the continuation returns a value too,
+  and one that can reach its end with none rejects.
+- **CTRL-15.** In composition a `switch` over an ordinary value composes the
+  one case selected, and over a connection each case is a child graph
+  selected at runtime. The selector is a `bool`, `i64`, `str`, or enum value
+  and each label a constant (CTRL-12); a case's assignments and returns
+  follow CTRL-14. `for item in items` over an ordinary list, set, or
+  dictionary composes its body once for each element, with ordinary values
+  bound, and may carry a `var` from one pass to the next. Over a connection
+  of `list<T, N>` it composes its body `N` times, `item` a connection of
+  `T`; over a connection of a tuple it rejects. Over a connection of
+  `list<T>`, `set<T>`, or `dict<K, V>` it makes one child for each member
+  (CTRL-7): `item` is a connection of `T` for a list and an ordinary `T`,
+  the member itself, for a set; `key` is an ordinary `K` and `value` a
+  connection of `V` for a dictionary. In such a loop an assignment to a
+  `var` declared outside it rejects (CTRL-8), and so does a `return`. The
+  condition of a `while` is an ordinary `bool`, tested while the graph is
+  built: a connection there rejects (FN-3), and the form with no condition
+  is a source's (SOURCE-4).
 
 Accepted illustrations, statement fragments with `ready` a bool, `items` a
 list, and `step` a function in scope:
@@ -132,6 +171,55 @@ fn choose(condition: bool, left: i64, right: i64) -> i64 {
 
 Only the selected child computes. Deliberate rejection: using a temporal input
 as a switch case constant. Conformance planned.
+
+Accepted declaration fragments, graphs (CTRL-13, CTRL-14, CTRL-15), with
+`window`, `scale`, and `log_tick` functions in scope:
+
+```hgl
+fn sized(price: f64, const wide: bool) -> f64 {
+    if wide { window(price, 20) } else { price }
+}
+
+fn gated(price: f64, open: bool) -> f64 {
+    if open { price }
+}
+
+fn adjusted(price: f64, rising: bool) -> f64 {
+    var chosen = price
+    if rising {
+        chosen = scale(price)
+    }
+    return chosen
+}
+
+fn chained(price: f64, const factors: list<f64>) -> f64 {
+    var running = price
+    for factor in factors {
+        running = running * factor
+    }
+    return running
+}
+
+fn each_price(prices: dict<str, f64>) {
+    for name, price in prices {
+        log_tick(price)
+    }
+}
+```
+
+`sized` composes one branch while the graph is built: `wide` is a `const`
+parameter. `gated` selects at runtime: its result is a connection of `f64`
+that never ticks while `open` is false. In `adjusted`, `chosen` is one
+connection after the `if`: the scaled price while `rising` holds, and the
+price otherwise. `chained` is unrolled while the graph is built, one
+multiplication for each factor, and carries `running` from pass to pass.
+`each_price` makes one child for each key: `name` is an ordinary `str`, and
+`price` a connection of `f64`. Deliberate rejections: `if price { ... }`,
+a condition that is no `bool`; `var size = 3` then `size = price`, a
+connection assigned to a `var` that holds an ordinary value; in
+`each_price`, an assignment in the body to a `var` declared before the
+loop, and a `return`; and `while open { ... }`, a connection as the
+condition of a `while`. Conformance planned.
 
 Accepted declaration fragments, value functions (CTRL-10, CTRL-11, FN-7):
 
