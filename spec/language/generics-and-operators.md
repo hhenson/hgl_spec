@@ -64,7 +64,10 @@ expression; group a constant expression that uses them as operand data.
   whatever order they are written in. The first of these that says what a
   parameter is decides it, and what follows is checked against that: an
   integer literal is widened to an `f64` so decided (EXPR-5), and another
-  argument of another type rejects. Partial applications and `_` struct
+  argument of another type rejects. One later argument changes what was
+  decided: an abstract struct that the type decided inherits from widens
+  the parameter to that struct, so the order of two such arguments does
+  not matter. Partial applications and `_` struct
   arguments are not admitted. A generic value parameter of a function or a
   candidate may have a default (GEN-8); no other generic parameter has one.
   A type pack is a sequence, not a singular source type.
@@ -95,7 +98,14 @@ expression; group a constant expression that uses them as operand data.
   A candidate that takes each integer literal as the `i64` it is outranks
   one for which a literal is widened to an `f64` (EXPR-5): `doubled(1)`
   selects `doubled(value: i64)` where there is one, and
-  `doubled(value: f64)` where there is not.
+  `doubled(value: f64)` where there is not. Whether a literal is widened
+  is settled by the candidates' result and parameter types, before their
+  conditions: where a candidate that gives the requested output takes
+  every integer literal as an `i64`, none is widened, and the conditions
+  select among the candidates that do. An option so does not change what
+  a literal is. Among candidates that tie and differ only in which integer
+  literals they take as an `f64`, the one that takes every one of them as
+  an `f64` is selected.
 - **GEN-6.** An operator declares the parameters every candidate takes.
   A candidate's shape honors them and the operator's generic relationships,
   and it may declare further options of its own, each with a default or
@@ -204,7 +214,11 @@ expression; group a constant expression that uses them as operand data.
   supplied types. A result arrow constrains that operator's result type and
   is not admitted on a predicate call. This grants no arbitrary function calls.
 
-Syntax binds these core identities independently of local same-named functions:
+Syntax binds these core identities independently of local same-named functions.
+A symbol is the call of its identity: its operands are read as that call's
+arguments are, the type its place expects is requested of the candidates
+(GEN-5), and its configuration gives the call's named arguments (EXPR-10).
+`n + 1` is `add_(n, 1)` wherever it stands.
 
 | Syntax | Identity |
 | --- | --- |
@@ -259,6 +273,27 @@ decides T, and the `1` is widened. Deliberate rejections: `same("a", 1)`,
 at the `1`;
 `let real: f64 = same(1, count)`, at `count`, which is no literal; and
 `let names = repeat(3)`, which leaves T unresolved (`generic.unresolved`).
+
+Accepted value-function fragments for a symbol as its call, with `n` an
+`i64`, `xs` a `list<f64>`, and structs `Round` and `Square` that inherit
+from the abstract `Shape`:
+
+```hgl
+let a: f64 = n + 1
+let b = xs == [1, 2]
+let c: f64 = 1 + 2
+let d = round == shape
+```
+
+`n + 1` is `add_(n, 1)`: its place requests an `f64`, and the candidate for
+an `i64` and an `f64` takes the `1` widened. `[1, 2]` is read as the
+`list<f64>` its parameter is. `1 + 2` ties three candidates that give an
+`f64`, and selects the one that takes both literals as an `f64`.
+`round == shape` compares two `Shape`: the second operand widens what the
+first decided, as `shape == round` decides it outright. Deliberate
+rejections: `n //{zero: .nan} 2`, where a division of two `i64` takes the
+`2` as the `i64` it is and none admits `.nan` (`operator.no_candidate`); and
+`round == square`, two structs of which neither inherits from the other.
 
 Accepted declaration fragments illustrating kind inference and constraints:
 
