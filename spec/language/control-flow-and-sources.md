@@ -1,7 +1,8 @@
 # Control flow and sources
 
 Status: agreed conditionals, switch design, and phase-dependent independent
-iteration. Generator syntax is agreed; its detailed source contract is proposed.
+iteration. Generator syntax and the shape of a source's body are agreed; the
+timing of a `yield` is proposed.
 
 ## Grammar
 
@@ -199,12 +200,26 @@ covers. In `side_of` each branch's value is a member of the enum the
 function returns: `.member` is an expression where it is the first
 statement of its block (LEX-5).
 
-## Proposed generators
+## Generators
 
-- **SOURCE-1.** A temporal fn containing yield is an output-producing source
-  with no temporal parameters. It may use const configuration, locals, clock,
-  logger, if, and while. State/cache, output/scheduler/alarm injection, lifecycle
-  hooks, when, and for are excluded from this bounded generator profile.
+SOURCE-1 is agreed. SOURCE-2 to SOURCE-4, the timing of a `yield`, are
+proposed.
+
+- **SOURCE-1.** A temporal `fn` whose body has a `yield` is a source: a node
+  that produces its output and has no temporal parameters. It injects
+  `clock`, `logger`, and the proposed `global_state`, and not `out`,
+  `scheduler`, or `alarm`: `yield time: value` writes its output and sets
+  its next evaluation. It declares `state`, which is what it keeps from one
+  `yield` to the next, and no `cache`. A source with no declaration and no
+  hook has a body of statements, `yield` among them. One with an `inject`,
+  a `state`, a `start`, or a `stop` has its declarations, then `start`, then
+  one block that holds every `yield`, then `stop`, and nothing else; the
+  block is `{ ... }`, a `while`, or a `for`. Its statements may use `const`
+  configuration, `if`, `while`, and `for`. A `let` there holds a working
+  value and is evaluated again on each pass of a loop; a source declares no
+  `var`. A source has no `when`. `stop`, where present, always runs when the
+  node ends, whatever state the generator is in: finished, suspended at a
+  `yield`, or not yet begun.
 - **SOURCE-2.** The first evaluation begins the body. Yield evaluates its time
   once, then payload once, before target validation. A duration is relative to
   current evaluation time; a datetime is absolute. Negative duration fails.
@@ -218,7 +233,7 @@ statement of its block (LEX-5).
   the body restarts. A valued return and yield inside a value expression reject.
   While repeats while its condition holds; omitted condition is unbounded.
 
-Proposed illustration, complete module:
+Accepted illustration of SOURCE-1, complete module:
 
 ```hgl
 module examples.source
@@ -227,10 +242,50 @@ export fn two_values() -> i64 {
     yield 1s: 7
     yield 1s: 9
 }
+
+export fn greeting(const every: duration = 1s) -> str {
+    inject logger
+    start { info(logger, "greeting starts") }
+    {
+        yield every: "hello"
+        yield every: "world"
+    }
+    stop { info(logger, "greeting ends") }
+}
+
+export fn counter(const every: duration = 1s, const limit: i64 = 3) -> i64 {
+    inject logger
+    state count: i64 = 0
+    while count < limit {
+        count += 1
+        yield every: count
+    }
+    stop { info(logger, str(count)) }
+}
+
+export fn replay(const values: list<f64>, const every: duration = 1s) -> f64 {
+    inject logger
+    start { info(logger, "replay starts") }
+    for value in values {
+        let doubled = value * 2.0
+        yield every: doubled
+    }
+    stop { info(logger, "replay ends") }
+}
 ```
 
-The second delay is relative to the resumed evaluation: publications occur one
-and two seconds after the initial evaluation. Conformance planned.
+`two_values` has no declaration and no hook: its body is its statements.
+`greeting` has an injectable and both hooks and no loop, so its yields stand
+in an anonymous block between them. `counter` keeps `count` from one `yield`
+to the next as a `state`, which `stop` reads. In `replay` the block is a
+`for`, and `doubled` is a working value evaluated on each pass. Deliberate
+rejections: a `when` in a source; a `yield` in `start` or `stop`; in
+`greeting`, a `yield` outside the block, or a second block; `var seen = 0`
+in any of them; `inject out`; and a temporal parameter.
+
+Proposed timing in `two_values`: the second delay is relative to the resumed
+evaluation, so publications occur one and two seconds after the initial
+evaluation. Conformance planned.
 
 ## Core boundary
 

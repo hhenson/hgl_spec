@@ -41,7 +41,7 @@ export fn heartbeat(const every: duration = 1s) -> datetime {
 }
 ```
 
-The entry relationship is reviewed; generator behavior remains proposed. Each
+The entry relationship is reviewed; the timing of a `yield` remains proposed. Each
 yield captures its payload before waiting, so its datetime is the earlier
 evaluation time, not the future publication time. This distinction is an
 observable source rule, not an implementation detail. Conformance planned.
