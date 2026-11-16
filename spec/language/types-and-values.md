@@ -124,8 +124,12 @@ domain below.
   With no enum type expected, `.member` rejects. Unnumbered numbering starts
   at zero and increments the previous member; explicit numbers reset the
   next value. Values fit signed `i64`; duplicates and overflow reject.
-  Construction from an exact member name or assigned integer is checked.
-  String conversion returns the member name. Numeric conversion is explicit.
+  A call of the enum's name with one argument constructs a member:
+  `Side(1)` is the member whose number is 1, and `Side("buy")` the member of
+  that exact name. Construction is checked: a constant that is no member's
+  number or name rejects, and a value that is none fails where it is
+  evaluated. String conversion returns the member name. Numeric conversion
+  is explicit.
 - **TYPE-8.** `any` owns a boxed value with its exact contained type; boxing
   adds no numeric conversion. Equality across contained types is false.
   Operations needing an absent capability fail rather than inventing an
@@ -264,14 +268,19 @@ test members {
     assert Side.buy != Side.sell
     assert str(Side.sell) == "sell"
     assert opposite(.buy) == Side.sell
+    assert Side(1) == Side.sell
+    assert Side("buy") == Side.buy
 }
 ```
 
 `Side.buy` and `Side.sell` name the members. A module that imports `Side`
 names them the same way. In `opposite`, the parameter, the result, and the
 other operand each give `.buy` and `.sell` the type `Side`; in a `switch` on
-a `Side`, `case .buy:` takes it from the selector. Deliberate source
-rejection: `let side = .buy`, where nothing gives a type. Conformance is
+a `Side`, `case .buy:` takes it from the selector. `Side(1)` constructs the
+member numbered 1, `sell`, and `Side("buy")` the member named `buy`.
+Deliberate source rejections: `let side = .buy`, where nothing gives a type;
+`Side(2)` and `Side("BUY")`, constants that are no member's number or name;
+and `Side(1.5)`, which is neither an `i64` nor a `str`. Conformance is
 planned.
 
 Accepted value-function fragment:

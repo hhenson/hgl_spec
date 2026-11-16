@@ -223,7 +223,7 @@ infrastructure and cannot satisfy a source-rejection expectation.
 | phase | `loop.carried` | Assignment to a `var` declared outside a composition loop that makes one child for each member, or a `return` in one (CTRL-8, CTRL-15); target |
 | type | `struct.abstract` | Abstract struct constructed (TYPE-3); name |
 | type | `call.not_callable` | Call of a native type's name, which no call constructs (NATIVE-6); name |
-| name | `member.unknown` | Struct has no field, or enum no member, of the name (EXPR-7, TYPE-7); name |
+| name | `member.unknown` | Struct has no field, or enum no member, of the name, or of the constant number or name an enum is constructed from (EXPR-7, TYPE-7); name or constant |
 | operator | `operator.no_candidate` | Call of an operator, by symbol or by name, that no candidate admits (GEN-5); operator |
 | operator | `operator.ambiguous` | Call of an operator that two most-specific candidates admit equally (GEN-5); operator |
 | type | `default.order` | Parameter that may not be omitted follows one that may (UNIT-8); the later parameter |
