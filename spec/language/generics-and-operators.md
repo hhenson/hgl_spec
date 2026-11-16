@@ -226,6 +226,10 @@ expression; group a constant expression that uses them as operand data.
   compile-time data; a named operator requirement tests callability with the
   supplied types. A result arrow constrains that operator's result type and
   is not admitted on a predicate call. This grants no arbitrary function calls.
+  A requirement names a value operation, whatever declares it: it is tested
+  against the operator's value candidates, and holds where one most-specific
+  value candidate takes the types supplied (GEN-5). So what a graph requires
+  is what a node or a value function it calls may require.
 
 Syntax binds these core identities independently of local same-named functions.
 A symbol is the call of its identity: its operands are read as that call's
@@ -383,6 +387,34 @@ declared too, `doubled(count)` in composition selects that temporal
 candidate, and `doubled(21)` in a `const fn` still the value one.
 Deliberate rejection: `doubled(1.5)` in a `const fn`, where no value
 candidate takes an `f64`.
+
+Accepted declaration fragments, a named operator requirement (GEN-7,
+GEN-16):
+
+```hgl
+operator tick<V>(value: V) -> V
+
+impl fn tick(value: i64) -> i64 {
+    when { return value }
+}
+
+impl const fn tick(value: f64) -> f64 => value
+
+operator pass<T>(a: T) -> T
+
+impl fn pass<T>(a: T) -> T requires tick(T) -> T => tick(a)
+
+fn reals(x: f64) -> f64 => pass(x)
+```
+
+`pass` requires `tick` of its `T`, and its body calls it under that
+requirement. `reals` gives `pass` an `f64`, for which `tick` has a value
+candidate: the requirement holds and the call selects `pass`. Deliberate
+source rejection: `fn wholes(n: i64) -> i64 => pass(n)`. For an `i64`,
+`tick` has a temporal candidate alone, which a call in composition may
+select and a requirement is not tested against: the requirement does not
+hold, no candidate of `pass` admits the call, and it rejects
+(`operator.no_candidate`). Conformance planned.
 
 Accepted declaration fragment, candidates for the values of an option that
 selects among them (GEN-6):
