@@ -42,9 +42,12 @@ flowchart LR
   temporal inputs; `modified(a, b)` subscribes to both named inputs, and
   similarly for more inputs. A notification from any subscribed input can
   wake the handler, and one from any other cannot. `modified([])` subscribes
-  to no input: it stands only in a node that injects `scheduler` or `alarm`
-  and schedules a wake on it in `start`, which is then what wakes the
-  handler. `valid()`
+  to no input: the node's scheduler or alarm is then what wakes the handler.
+  Where the node injects neither, or its `start` does not use the one it
+  injects, nothing wakes it: the node is dormant, and the selector is warned
+  of (`node.no_activation`, ERR-10). Any use in `start` counts; what a
+  function given the capability does with it is not followed. A node that is
+  dormant by design acknowledges the warning. `valid()`
   requires all temporal inputs to be valid;
   `valid(a, b)` requires both named inputs, and similarly for more inputs.
   Omitting either selector uses the same default as its zero-argument form.
@@ -206,6 +209,11 @@ fn sampled(a: f64, const every: duration = 1s) -> f64 {
         if valid(a) { return a }
     }
 }
+
+@suppress_warning("node.no_activation")
+fn null_sink(a: f64) {
+    when modified([]) { }
+}
 ```
 
 With `a` publishing 1.0, nothing, 3.0 and `b` publishing nothing, 10.0, 20.0
@@ -222,12 +230,14 @@ over three cycles, each input keeping its value while it is silent:
 is all that wakes it, and every wake asks for the next: it requires no
 input to be valid, so a wake before `a` has published still does. Once a
 second it publishes the value `a` holds, whether or not `a` has ticked, and
-nothing while `a` is invalid. Deliberate rejections: in `while_a_valid`,
+nothing while `a` is invalid. `null_sink` takes its input and does nothing
+with it: no input wakes it and it has no scheduler, so it is dormant, which
+is what it is for, and it acknowledges the warning. Without the annotation
+it is warned of (`node.no_activation`) and still accepted, as `sampled`
+would be with no `start`. Deliberate rejections: in `while_a_valid`,
 `return a + b`, a read of `b` that neither the header requires nor a guard
-proves (`payload.unguarded`); `modified([a, b])` and `valid([a, b])`, where
-the inputs are named as arguments; and `modified([])` in a node that injects
-neither `scheduler` nor `alarm`, or whose `start` schedules no wake
-(`modified.no_driver`). Conformance planned.
+proves (`payload.unguarded`); and `modified([a, b])` and `valid([a, b])`,
+where the inputs are named as arguments. Conformance planned.
 
 ## Alarm and global state
 
