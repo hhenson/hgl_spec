@@ -109,10 +109,11 @@ Local source/native declaration matching is defined in the native chapter.
   parameters of the same declaration, named bare. Packs have no defaults,
   cannot be const, and follow all fixed parameters. Cardinality and
   reflection follow the generic chapter.
-- **FN-9.** Selected value-helper capabilities propagate transitively to the
-  caller without adding parameters or activation inputs. Injection does not
-  turn a value function into a node. Missing or phase-forbidden capabilities
-  reject the call. Constructed nodes own their own output and scheduler.
+- **FN-9.** Capabilities belong to nodes: a node declares each with `inject`
+  and uses it in its hooks. A value function has none. A value it needs from
+  one, the evaluation time say, is its argument: the hook reads
+  `clock.evaluation_time` and passes it. Constructed nodes own their own
+  output and scheduler.
 - **FN-10.** An arrow body consumes the complete expression up to its enclosing
   delimiter or significant newline. A comma at the surrounding argument/list
   level ends the body; a comma in a nested expression does not. Existing
