@@ -140,9 +140,10 @@ expression; group a constant expression that uses them as operand data.
   `div_(a, b, zero: .error)`. A name binds the callee's generic value
   parameter of that name, or else its parameter of that name. The value a
   call gives a generic value parameter is a compile-time constant: a
-  literal, a `.member`, a generic value parameter in scope, or a constant
-  expression of those. Any other rejects. A generic value parameter the
-  call does not give takes its default, when it has one.
+  literal, an enum member however it is written (TYPE-7), `Zero.nan` or
+  `.nan`, a generic value parameter in scope, or a constant expression of
+  those. Any other rejects. A generic value parameter the call does not
+  give takes its default, when it has one.
 - **GEN-9.** Property clauses apply to explicit concrete domains. Missing
   metadata gives no algebraic guarantee. Recorded laws are contracts, not
   proofs authorizing reassociation across overflow or floating-point effects.
@@ -332,9 +333,10 @@ native impl fn ratio<const zero: Zero>(lhs: f64, rhs: f64) -> result<f64, error>
 For temporal `a` and `b` of `f64`, `ratio(a, b)` takes the default `.ieee`,
 selects the first candidate and is an `f64`, as `ratio(a, b, zero: .nan)`
 is. `ratio(a, b, zero: .error)` selects the second and is a
-`result<f64, error>`. A value candidate is written the same way. Deliberate
-rejections: `ratio(a, b, zero: policy)` for a parameter `policy`, which is
-no compile-time constant (`generic.argument_constant`); and under GEN-3
+`result<f64, error>`, as `ratio(a, b, zero: Zero.error)` is. A value
+candidate is written the same way. Deliberate rejections:
+`ratio(a, b, zero: policy)` for a parameter `policy`, which is no
+compile-time constant (`generic.argument_constant`); and under GEN-3
 `requires rhs == 0.0` on either candidate, which reads a temporal input.
 
 Accepted declaration fragment, an option that does not select and that one
