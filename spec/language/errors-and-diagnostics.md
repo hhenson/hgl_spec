@@ -159,7 +159,7 @@ infrastructure and cannot satisfy a source-rejection expectation.
 | phase | `native.duplicate_hook` | Second start or stop hook (NATIVE-3); later hook |
 | injectable | `inject.unknown_capability` | `inject` names no capability (TIME-8); name |
 | injectable | `inject.out_without_result` | `inject out` in a function that declares no result (TIME-7); `out` |
-| injectable | `capability.as_value` | Capability retained: the value of a `state` or `cache`, an entry of a tuple, list, set, dictionary, or struct, returned, or published; or a capability type written other than as a parameter's of a `const fn` or a native value function (TIME-8); use |
+| injectable | `capability.as_value` | Capability retained: the value of a `state` or `cache`, an entry of a tuple, list, set, dictionary, or struct, returned, or published; a capability given to a parameter written as a generic parameter or `any`; or a capability type written other than as a parameter's of a `const fn` or a native value function (TIME-8); use |
 | injectable | `inject.alarm_and_scheduler` | `alarm` and `scheduler` injected in one node (TIME-8); the later name |
 | phase | `node.nested` | `state`, `cache`, `inject`, `start`, `when`, or `stop` inside a block of a temporal function (TIME-3, TIME-5); keyword |
 | phase | `node.in_value_function` | `state`, `cache`, `inject`, `start`, `when`, or `stop` in a `const fn` (FN-1, FN-9); keyword |
