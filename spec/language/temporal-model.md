@@ -88,7 +88,9 @@ flowchart LR
   `cache`, an entry of a tuple, list, set, dictionary, or struct, what a
   function returns, what a node publishes, or a capture of an anonymous
   function (FN-14). Binding one to a `let` and giving one to a parameter of
-  its type are uses. Its properties are read-only, `clock.evaluation_time`,
+  its type are uses. A parameter written as a generic parameter or `any`
+  takes none, and no generic argument is a capability type. Its properties
+  are read-only, `clock.evaluation_time`,
   and its operations are functions that take it first,
   `schedule(scheduler, delay)`, with no method-call aliases. A node injects
   `alarm` or `scheduler`, not both.
@@ -274,9 +276,10 @@ fn poll(const every: duration = 1s) -> i64 {
 alarm wakes it, and each wake asks for the next and publishes the count
 held in the global state. Deliberate rejections: `state kept: Clock`, and
 `let pair = (clock, value)`, a capability retained; `stamped(logger, value)`,
-a `Logger` where a `Clock` is taken; `inject alarm, scheduler` in one node;
-and `clock.evaluation_time = value`, a property assigned. Conformance
-planned.
+a `Logger` where a `Clock` is taken; `boxed(clock)`, with
+`const fn boxed<T>(value: T) -> list<T>`, a capability given to a generic
+parameter; `inject alarm, scheduler` in one node; and
+`clock.evaluation_time = value`, a property assigned. Conformance planned.
 
 ## Core boundary
 
