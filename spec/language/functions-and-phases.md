@@ -32,6 +32,8 @@ Local source/native declaration matching is defined in the native chapter.
 
 - **FN-1.** A `const fn` is a value function. It computes ordinary values for
   one invocation: its parameter and result types are ordinary value types.
+  Two kinds of parameter are the exception: one of a capability's type
+  (TIME-8), and, in a native value function, one of `endpoint<T>` (TIME-9).
   It is not inherently pure or compile-time-only. Parameter-level `const`
   instead fixes configuration. A temporal `fn` has temporal non-const
   parameters and a temporal result; an omitted result arrow means outputless.
