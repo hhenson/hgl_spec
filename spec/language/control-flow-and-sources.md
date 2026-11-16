@@ -115,16 +115,19 @@ CTRL-9 places the opening brace of an `if`, `for`, `switch`, `when`, or
   is a connection makes it a connection of `T` that never ticks where the
   branch is not composed.
 - **CTRL-14.** In composition a `var` assigned in a branch of a wiring-time
-  `if` is assigned after it as CTRL-11 says. Under a temporal condition it
-  is one connection after the `if`: the branch's binding while that branch
-  is selected, and the binding it had before for a branch that does not
-  assign it (CTRL-4). With none before, every branch that does not return
-  assigns it. A `var` keeps the category of its first value (EXPR-3): a
-  connection assigned to one that holds an ordinary value, or the reverse,
-  rejects (EXPR-4). A `return value` in a branch of a temporal `if` makes the
-  graph's result that value while the branch is selected and the
-  continuation's otherwise (CTRL-5): the continuation returns a value too,
-  and one that can reach its end with none rejects.
+  `if` is assigned after it as CTRL-11 says. A `var` keeps the category of
+  its first value (EXPR-3): a connection assigned to one that holds an
+  ordinary value, or the reverse, rejects (EXPR-4). Under a temporal
+  condition a `var` declared before the `if` is assigned in a branch only
+  where it is a connection: one that holds an ordinary value would have its
+  value chosen at runtime, and the assignment rejects. After the `if` the
+  `var` is one connection: the branch's binding while that branch is
+  selected, and the binding it had before for a branch that does not assign
+  it (CTRL-4). With none before, every branch that does not return assigns
+  it. A `return value` in a branch of a temporal `if` makes the graph's
+  result that value while the branch is selected and the continuation's
+  otherwise (CTRL-5): the continuation returns a value too, and one that can
+  reach its end with none rejects.
 - **CTRL-15.** In composition a `switch` over an ordinary value composes the
   one case selected, and over a connection each case is a child graph
   selected at runtime. The selector is a `bool`, `i64`, `str`, or enum value
@@ -216,7 +219,8 @@ multiplication for each factor, and carries `running` from pass to pass.
 `each_price` makes one child for each key: `name` is an ordinary `str`, and
 `price` a connection of `f64`. Deliberate rejections: `if price { ... }`,
 a condition that is no `bool`; `var size = 3` then `size = price`, a
-connection assigned to a `var` that holds an ordinary value; in
+connection assigned to a `var` that holds an ordinary value; `var size = 3`
+then `if open { size = 4 }`, an ordinary value chosen at runtime; in
 `each_price`, an assignment in the body to a `var` declared before the
 loop, and a `return`; and `while open { ... }`, a connection as the
 condition of a `while`. Conformance planned.

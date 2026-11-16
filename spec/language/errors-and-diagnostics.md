@@ -150,7 +150,7 @@ infrastructure and cannot satisfy a source-rejection expectation.
 | type | `enum.context_type` | `.member` where no enum type is expected (TYPE-7); the member |
 | name | `binding.unassigned` | `var` read on a path that gives it no value (EXPR-3); the read |
 | name | `binding.immutable` | Assignment to an immutable binding: a `let`, a parameter, an iteration binding (EXPR-3); target |
-| type | `binding.category` | Assignment of a connection to a `var` that holds an ordinary value, or the reverse (EXPR-4, CTRL-14); the value |
+| type | `binding.category` | Assignment of a connection to a `var` that holds an ordinary value, or the reverse; assignment in a branch of a temporal `if` or `switch` to a `var` declared before it that holds an ordinary value (EXPR-4, CTRL-14); the value |
 | type | `argument.order` | Argument with no name after a named one (EXPR-2); the argument |
 | type | `argument.unexpected` | Positional argument that no parameter is left to take (EXPR-2), or one given to a constructor (TYPE-5); the argument |
 | name | `argument.unknown` | Named argument names no parameter or field (EXPR-2); name |
