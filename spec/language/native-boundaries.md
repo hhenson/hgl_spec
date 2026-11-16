@@ -6,7 +6,11 @@ helper realization are outside this portable declaration contract.
 ## Grammar
 
 ```ebnf
-native_type_decl = [ "export" ], "native", "type", IDENTIFIER ;
+native_type_decl = [ "export" ], "native", "type", IDENTIFIER,
+                   [ native_type_body ] ;
+native_type_body = "{", [ NL ],
+                   [ native_property, { NL, native_property }, [ NL ] ], "}" ;
+native_property = member_name, ":", value_type ;
 native_function_decl = "native", [ "impl" ], [ "const" ], "fn", callable_name,
                        [ generic_parameters ], function_signature,
                        [ requires_clause ], [ native_contract_body ] ;
@@ -56,7 +60,10 @@ ordinary HGL statements. Target-specific bodies are separate provider artifacts.
   capabilities. It may be an atomic payload/key only where those capabilities
   and ownership rules admit it. Matching external identity is not established
   by coincident display names. Opaque resource handles are not automatically
-  ordinary temporal values.
+  ordinary temporal values. A native type may declare read-only properties,
+  each a name and an ordinary value type, written as a struct's typed fields
+  are. `value.property` reads one as an ordinary value. None is assigned,
+  and a native type is not constructed in HGL.
 - **NATIVE-7.** Checking an interface needs no executable provider loading.
   Execution requires a compatible selected provider. An absent binding is an
   implementation/admission failure, never permission to change the role or

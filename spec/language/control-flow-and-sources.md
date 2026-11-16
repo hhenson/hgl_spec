@@ -299,7 +299,7 @@ proposed.
 
 - **SOURCE-1.** A temporal `fn` whose body has a `yield` is a source: a node
   that produces its output and has no temporal parameters. It injects
-  `clock`, `logger`, and the proposed `global_state`, and not `out`,
+  `clock`, `logger`, and `global_state`, and not `out`,
   `scheduler`, or `alarm`: `yield time: value` writes its output and sets
   its next evaluation. It declares `cache` and `state` (TIME-6), which are
   what it keeps from one `yield` to the next: a `cache` is rebuilt on every
@@ -338,12 +338,12 @@ export fn two_values() -> i64 {
 
 export fn greeting(const every: duration = 1s) -> str {
     inject logger
-    start { info(logger, "greeting starts") }
+    start { log_info(logger, "greeting starts") }
     {
         yield every: "hello"
         yield every: "world"
     }
-    stop { info(logger, "greeting ends") }
+    stop { log_info(logger, "greeting ends") }
 }
 
 export fn counter(const every: duration = 1s, const limit: i64 = 3) -> i64 {
@@ -353,17 +353,17 @@ export fn counter(const every: duration = 1s, const limit: i64 = 3) -> i64 {
         count += 1
         yield every: count
     }
-    stop { info(logger, str(count)) }
+    stop { log_info(logger, str(count)) }
 }
 
 export fn replay(const values: list<f64>, const every: duration = 1s) -> f64 {
     inject logger
-    start { info(logger, "replay starts") }
+    start { log_info(logger, "replay starts") }
     for value in values {
         let doubled = value * 2.0
         yield every: doubled
     }
-    stop { info(logger, "replay ends") }
+    stop { log_info(logger, "replay ends") }
 }
 ```
 

@@ -159,7 +159,8 @@ infrastructure and cannot satisfy a source-rejection expectation.
 | phase | `native.duplicate_hook` | Second start or stop hook (NATIVE-3); later hook |
 | injectable | `inject.unknown_capability` | `inject` names no capability (TIME-8); name |
 | injectable | `inject.out_without_result` | `inject out` in a function that declares no result (TIME-7); `out` |
-| injectable | `capability.as_value` | Capability passed or kept as ordinary data (TIME-8); use |
+| injectable | `capability.as_value` | Capability retained: the value of a `state` or `cache`, an entry of a tuple, list, set, dictionary, or struct, returned, or published; or a capability type written other than as a parameter's of a `const fn` or a native value function (TIME-8); use |
+| injectable | `inject.alarm_and_scheduler` | `alarm` and `scheduler` injected in one node (TIME-8); the later name |
 | phase | `node.nested` | `state`, `cache`, `inject`, `start`, `when`, or `stop` inside a block of a temporal function (TIME-3, TIME-5); keyword |
 | phase | `node.in_value_function` | `state`, `cache`, `inject`, `start`, `when`, or `stop` in a `const fn` (FN-1, FN-9); keyword |
 | phase | `node.declaration_order` | `state`, `cache`, or `inject` after a `start`, `when`, or `stop` (TIME-5); the declaration |
@@ -182,6 +183,7 @@ infrastructure and cannot satisfy a source-rejection expectation.
 | type | `type.not_a_type` | Name in a type position is no type: a function, operator, local, generic value parameter, or a type pack where one type is needed (UNIT-10, GEN-2, GEN-13); name |
 | type | `type.not_ordinary` | `rolling`, `ref`, `atomic` or `signal` where an ordinary value type is required, or under a `?` that is not on the whole type of an input or a field (TYPE-12, TYPE-14, FN-1); offending type |
 | type | `signal.position` | `signal` other than as the whole type of a function's temporal parameter (TYPE-12); `signal` |
+| type | `endpoint.position` | `endpoint<T>` other than as the whole type of a native value function's parameter (TYPE-12); `endpoint` |
 | type | `nullable.key` | Set element or dictionary key has a `?` (TYPE-14); the nullable type |
 | type | `generic.argument_count` | Generic type given the wrong number of arguments, or arguments given to a type or generic parameter that takes none (GEN-2, GEN-10, GEN-13); name |
 | type | `list.size` | List size is not a nonnegative count (TYPE-10); size |

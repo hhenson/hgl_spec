@@ -8,7 +8,7 @@ access remain proposed extensions.
 ```ebnf
 type = type_base, [ "?" ] ;
 type_base = scalar_type | named_type | tuple_type | list_type | set_type
-     | dict_type | rolling_type | ref_type | "signal"
+     | dict_type | rolling_type | ref_type | "signal" | endpoint_type
      | "atomic", "<", value_type, ">" | result_type | "error" | delta_type ;
 value_type = value_type_base, [ "?" ] ;
 value_type_base = scalar_type | named_type | value_tuple_type | value_list_type
@@ -28,6 +28,7 @@ value_dict_type = "dict", "<", value_type, ",", value_type, ">" ;
 rolling_type = "rolling", "<", value_type, ",", const_expression,
                [ ",", const_expression ], ">" ;
 ref_type = "ref", "<", type, ">" ;
+endpoint_type = "endpoint", "<", type, ">" ;
 result_type = "result", "<", value_type, ",", value_type, ">" ;
 delta_type = "delta", "<", type, ">" ;
 struct_decl = [ "export" ], [ "abstract" ], "struct", IDENTIFIER,
@@ -183,6 +184,9 @@ domain below.
   pack, `ticks: ...signal`. It is not a result, nested shape, field, const
   value, local's annotation, or anonymous function's parameter. A `signal`
   input takes no default but `null`.
+  `endpoint<T>` is the endpoint of a temporal value of T, for a function
+  that takes the endpoint and not its payload (TIME-9). It is the whole type
+  of a parameter of a native value function, and of nothing else.
 - **TYPE-13.** Result and error envelopes are ordinary atomic values; their
   [tag/refinement rules](errors-and-diagnostics.md) govern payload access.
   Silence, invalidity, null absence, and an error outcome are distinct.
