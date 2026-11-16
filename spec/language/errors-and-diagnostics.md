@@ -153,15 +153,17 @@ infrastructure and cannot satisfy a source-rejection expectation.
 | type | `enum.context_type` | `.member` where no enum type is expected (TYPE-7); the member |
 | name | `binding.unassigned` | `var` read on a path that gives it no value (EXPR-3); the read |
 | name | `binding.immutable` | Assignment to an immutable binding: a `let`, a parameter, an iteration binding (EXPR-3); target |
+| type | `binding.category` | Assignment of a connection to a `var` that holds an ordinary value, or the reverse; assignment in a branch of a temporal `if` or `switch` to a `var` declared before it that holds an ordinary value (EXPR-4, CTRL-14); the value |
 | type | `argument.order` | Argument with no name after a named one (EXPR-2); the argument |
 | type | `argument.unexpected` | Positional argument that no parameter is left to take (EXPR-2), or one given to a constructor (TYPE-5); the argument |
 | name | `argument.unknown` | Named argument names no parameter or field (EXPR-2); name |
 | name | `argument.duplicate` | Parameter or field given twice (EXPR-2); later name |
 | type | `argument.missing` | Parameter or field that may not be left out is given nothing (EXPR-2, TYPE-5); callee name |
 | function-kind | `call.role` | Temporal function called from a value function or a runtime hook (FN-3); callee name |
-| type | `return.missing` | Value function that declares a result can reach its end with no value (FN-7); function name |
+| type | `return.missing` | Value function that declares a result can reach its end with no value (FN-7), or a graph that returns a value in a branch of a temporal `if` or `switch` can (CTRL-14); function name |
 | type | `switch.duplicate_label` | Switch label has the value of an earlier label (CTRL-6); later label |
-| phase | `while.condition` | `while` with no condition in a value function (CTRL-12); `while` |
+| phase | `while.condition` | `while` with no condition in a value function or a graph (CTRL-12, CTRL-15); `while` |
+| phase | `loop.carried` | Assignment to a `var` declared outside a composition loop that makes one child for each member, or a `return` in one (CTRL-8, CTRL-15); target |
 | type | `struct.abstract` | Abstract struct constructed (TYPE-3); name |
 | name | `member.unknown` | Struct has no field, or enum no member, of the name (EXPR-7, TYPE-7); name |
 | operator | `operator.no_candidate` | Call of an operator, by symbol or by name, that no candidate admits (GEN-5); operator |
