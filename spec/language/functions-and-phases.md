@@ -112,8 +112,9 @@ Local source/native declaration matching is defined in the native chapter.
   reflection follow the generic chapter.
 - **FN-9.** Capabilities belong to nodes: a node declares each with `inject`
   and uses it in its hooks, and a source in its body (SOURCE-1). A value
-  function has none. A value it needs from one, the evaluation time say, is
-  its argument: the node reads `clock.evaluation_time` and passes it.
+  function injects none. What it needs of one is its argument: a value the
+  node reads from it, `clock.evaluation_time`, or the capability itself,
+  given to a parameter of its type (TIME-8).
   Constructed nodes own their own output and scheduler.
 - **FN-10.** An arrow body consumes the complete expression up to its enclosing
   delimiter or significant newline. A comma at the surrounding argument/list

@@ -1,7 +1,7 @@
 # Temporal model
 
 Status: agreed publication, handler, state/cache, and capability baseline.
-Source alarm and run-wide keyed storage extensions remain proposed.
+The alarm and the run-wide keyed store are agreed.
 
 ## Grammar
 
@@ -74,24 +74,37 @@ flowchart LR
   nor `stop`. A node that publishes when the graph starts schedules itself
   in `start` and writes in its first scheduled evaluation. No write means no
   tick; whole-output invalidation is explicit and distinct from silence.
-- **TIME-8.** The injectables are `out`, `logger`, `clock`, and `scheduler`,
-  and the proposed `alarm` and `global_state` below; `inject` names no other.
-  They are capabilities, not first-class payloads. Clock properties are
-  read-only, including `clock.evaluation_time`. Operations use direct
-  receiver-first forms such as `schedule(scheduler, delay)` and
-  `info(logger, value)`, with no method-call aliases. Arbitrary helpers cannot
-  receive a capability as ordinary data.
-- **TIME-9.** The operations on an endpoint are intrinsics of the language:
-  `valid`, `modified`, `delta_value`, `last_modified`, `invalidate`,
-  `scheduled`, `activate`, and `passivate`. No HGL declaration takes an
-  endpoint: a `const fn` takes its payload, and a temporal `fn` is not called
-  in a hook. `scheduled()` is the scheduler handler selector, and `modified`
-  and `valid` are selectors in a `when` header (TIME-3). Elsewhere each takes
-  a temporal input of the enclosing function by its name, or `out`;
-  `activate(input)` and `passivate(input)` operate on direct temporal inputs.
-  Core's endpoint contract says what each returns. These reserved
-  intrinsics cannot be shadowed. A value function has no capability, output,
-  or schedule of its own (FN-9).
+- **TIME-8.** The injectables are `out`, `logger`, `clock`, `scheduler`,
+  `alarm`, and `global_state`; `inject` names no other. `out` is the node's
+  result (TIME-7). `inject` binds each of the others to a local of its
+  capability's type, which core declares and names as the capability with a
+  capital: `Logger`, `Clock`, `Scheduler`, `Alarm`, `GlobalState`. A
+  capability type is written only as the type of a parameter of a `const fn`
+  or of a native value function. A capability is used within the node that
+  injects it and is not retained: it is not the value of a `state` or a
+  `cache`, an entry of a tuple, list, set, dictionary, or struct, what a
+  function returns, what a node publishes, or a capture of an anonymous
+  function (FN-14). Binding one to a `let` and giving one to a parameter of
+  its type are uses. Its properties are read-only, `clock.evaluation_time`,
+  and its operations are functions that take it first,
+  `schedule(scheduler, delay)`, with no method-call aliases. A node injects
+  `alarm` or `scheduler`, not both.
+- **TIME-9.** `endpoint<T>` is the type of the endpoint of a temporal value
+  of T, for a function that takes the endpoint and not its payload
+  (TYPE-12). The operations on an endpoint are core's native value functions
+  with such a parameter: `valid`, `modified`, `delta_value`,
+  `last_modified`, `invalidate`, `activate`, and `passivate`. A call gives
+  an `endpoint<T>` parameter a temporal input of the enclosing node by its
+  name, or `out`, and nothing else; the endpoint is not retained, as a
+  capability is not (TIME-8). Every other function takes the payload: a
+  `const fn` is given the value, and a temporal `fn` is not called in a
+  hook. `activate(input)` and `passivate(input)` operate on direct temporal
+  inputs. Core's endpoint contract says what each returns. `scheduled()` is
+  the handler selector for a wake by the node's scheduler or alarm, and
+  `modified` and `valid` are selectors in a `when` header (TIME-3): there
+  they are forms of the language, which set subscription and admission.
+  None of these names is shadowed (UNIT-12). A value function injects no
+  capability and has no output or schedule of its own (FN-9).
 - **TIME-10.** A reference ticks on changed designation, not every target tick.
   Ordinary followers observe the selected target; saved routes do not extend
   an expired child lifetime. Structural child membership, child validity, and
@@ -214,17 +227,54 @@ fn dormant(a: f64, b: f64) -> f64 {
 
 Over the three cycles above it publishes nothing, and is warned of.
 
-## Proposed source and storage capabilities
+## Alarm and global state
 
-`alarm` is source-only, exclusive with scheduler, and keeps the earliest
-requested wake without recovery/query state. A plain when handles its wake.
-The [generator form](control-flow-and-sources.md) owns its own wake mechanism.
+`alarm` is a scheduler that tracks nothing: a node asks it for a wake, and
+that wake is neither queried, moved, nor cancelled. It keeps the earliest
+wake asked for and is best effort. Any node injects it, with temporal inputs
+or with none, in place of `scheduler`. The wake is handled by a `when` with
+no selector, or by `when scheduled()`, which holds where the node is
+evaluated and no temporal input has ticked. The
+[generator form](control-flow-and-sources.md) owns its own wake mechanism.
 
 `global_state` is a run-wide typed store with const string keys prepared before
 root start. All uses/seeds bind the same exact ordinary type. Binding alone
-does not initialize a value. Get of an absent entry fails; set preserves type.
-Writable borrows are hook-scoped; retained results own independent values.
-Storage access adds no activation dependency or temporal endpoint type.
+does not initialize a value. Get of an absent entry fails; a write preserves
+the type. Writable borrows are hook-scoped; retained results own independent
+values. Storage access adds no activation dependency or temporal endpoint
+type. Seeding the store before a run is the run's to specify.
+
+Accepted illustration, complete module:
+
+```hgl
+module examples.capabilities
+
+const fn stamped(clock: Clock, value: f64) -> tuple<datetime, f64> =>
+    (clock.evaluation_time, value)
+
+fn stamp(value: f64) -> tuple<datetime, f64> {
+    inject clock
+    when { return stamped(clock, value) }
+}
+
+fn poll(const every: duration = 1s) -> i64 {
+    inject alarm, global_state
+    start { schedule(alarm, every) }
+    when scheduled() {
+        schedule(alarm, every)
+        return get<i64>(global_state, "count")
+    }
+}
+```
+
+`stamp` gives its clock to `stamped`, whose parameter is of the clock's type;
+`stamped` reads one of its properties. `poll` has no temporal input: its
+alarm wakes it, and each wake asks for the next and publishes the count
+held in the global state. Deliberate rejections: `state kept: Clock`, and
+`let pair = (clock, value)`, a capability retained; `stamped(logger, value)`,
+a `Logger` where a `Clock` is taken; `inject alarm, scheduler` in one node;
+and `clock.evaluation_time = value`, a property assigned. Conformance
+planned.
 
 ## Core boundary
 
