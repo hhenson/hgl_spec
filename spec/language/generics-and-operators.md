@@ -8,7 +8,7 @@ operation domains belong to core and retain their own decision status.
 ```ebnf
 generic_parameters = "<", generic_parameter, { ",", generic_parameter }, [ "," ], ">" ;
 generic_parameter = IDENTIFIER | "...", IDENTIFIER, [ cardinality ]
-                  | "const", IDENTIFIER, ":", value_type ;
+                  | "const", IDENTIFIER, ":", value_type, [ "=", const_expression ] ;
 cardinality = "{", INTEGER_LITERAL, [ ":", ( INTEGER_LITERAL | "*" ) ], "}" ;
 generic_arguments = "<", generic_argument, { ",", generic_argument }, [ "," ], ">" ;
 generic_argument = type | const_expression ;
@@ -64,8 +64,9 @@ expression; group a constant expression that uses them as operand data.
   whatever order they are written in. The first of these that says what a
   parameter is decides it, and what follows is checked against that: an
   integer literal is widened to an `f64` so decided (EXPR-5), and another
-  argument of another type rejects. Partial
-  applications, generic defaults, and `_` struct arguments are not admitted.
+  argument of another type rejects. Partial applications and `_` struct
+  arguments are not admitted. A generic value parameter of a function or a
+  candidate may have a default (GEN-8); no other generic parameter has one.
   A type pack is a sequence, not a singular source type.
 - **GEN-3.** `requires` may use type/category membership, equalities, the
   membership of a constant in a set of constants, field/pack reflection, and
@@ -97,26 +98,30 @@ expression; group a constant expression that uses them as operand data.
   `doubled(value: f64)` where there is not.
 - **GEN-6.** An operator declares the parameters every candidate takes.
   A candidate's shape honors them and the operator's generic relationships,
-  and it may declare further const options of its own, each with a default
-  or without. Scalar specialization may accept a constant where the
-  contract admits temporal lifting; it cannot require temporal data for a
-  declared const argument. A call is matched against each candidate's own
-  signature. One that names an option admits only the candidates that
-  declare it. An option the call omits takes its candidate's default, and
-  a candidate whose option has none is admitted only when the call gives
-  it. The operator owns the defaults of the parameters it declares. A
-  candidate states in `requires` the values of a const option it is for,
-  by comparing the option with constants: `requires zero == .error`,
-  `requires zero in {.ieee, .nan}`. A call admits the candidate only where
-  that holds for the option's value at the call, a default included.
-  Candidates for different values may differ in result type (EXPR-12). A
-  temporal candidate marks an option `const`, as an operator does one it
-  declares. Every parameter of a value candidate is a value, so it writes
-  the option with no marker. A candidate may give any of its inputs a
-  default. The candidates of an operator stay resolvable together:
-  once defaults fill what a call omits, no call matches two of them equally.
-  With candidates
-  `add(lhs = 1, rhs = 1)` and `add(lhs = 1.0, rhs = 2.0)`, `add()` would. A
+  and it may declare further options of its own, each with a default or
+  without. An option that selects among candidates is a generic value
+  parameter, `<const zero: Zero = .ieee>` (GEN-13): its value is known when
+  the call is checked, which is what lets it select. An option that does
+  not select is a parameter. Across the candidates of one operator an
+  option's name is one kind: a generic value parameter in every candidate
+  that declares it, or a parameter in every one, so that what
+  `{zero: .error}` names is known before a candidate is selected. Scalar
+  specialization may accept a constant where the contract admits temporal
+  lifting; it cannot require temporal data for a declared const argument.
+  A call is matched against each candidate's own signature. One that names
+  an option admits only the candidates that declare it. An option the call
+  omits takes its candidate's default, and a candidate whose option has
+  none is admitted only when the call gives it. The operator owns the
+  defaults of the parameters it declares. A candidate states in `requires`
+  the values of a generic value parameter it is for, by comparing it with
+  constants: `requires zero == .error`, `requires zero in {.ieee, .nan}`. A
+  call admits the candidate only where that holds for the parameter's value
+  at the call, a default included. Candidates for different values may
+  differ in result type (EXPR-12). A candidate may give any of its inputs a
+  default. The candidates of an operator stay resolvable together: once
+  defaults fill what a call omits, no call matches two of them equally. With
+  candidates `add(lhs = 1, rhs = 1)` and `add(lhs = 1.0, rhs = 2.0)`,
+  `add()` would. A
   value candidate and a temporal candidate with the same parameter types
   stay resolvable: a call in composition selects the temporal one (GEN-5),
   and a call in a value function or a runtime body the value one.
@@ -130,6 +135,15 @@ expression; group a constant expression that uses them as operand data.
   `operator convert<T, V>(value: V) -> T`, `convert<f64>(count)` supplies T
   and resolves V from `count`. A struct application supplies all or none
   (GEN-2). A call rejects when it leaves a generic parameter unresolved.
+  A call may give a generic value parameter of its callee by name, among
+  its named arguments or in a symbol's configuration (EXPR-10):
+  `div_(a, b, zero: .error)`. A name binds the callee's generic value
+  parameter of that name, or else its parameter of that name. The value a
+  call gives a generic value parameter is a compile-time constant: a
+  literal, an enum member however it is written (TYPE-7), `Zero.nan` or
+  `.nan`, a generic value parameter in scope, or a constant expression of
+  those. Any other rejects. A generic value parameter the call does not
+  give takes its default, when it has one.
 - **GEN-9.** Property clauses apply to explicit concrete domains. Missing
   metadata gives no algebraic guarantee. Recorded laws are contracts, not
   proofs authorizing reassociation across overflow or floating-point effects.
@@ -301,30 +315,32 @@ candidate, and `doubled(21)` in a `const fn` still the value one.
 Deliberate rejection: `doubled(1.5)` in a `const fn`, where no value
 candidate takes an `f64`.
 
-Accepted declaration fragment, candidates for the values of a const option
-that their operator declares (GEN-6):
+Accepted declaration fragment, candidates for the values of an option that
+selects among them (GEN-6):
 
 ```hgl
 export enum Zero { ieee, nan, error }
 
-operator ratio<L, R, O>(lhs: L, rhs: R, const zero: Zero = .ieee) -> O
+operator ratio<L, R, O>(lhs: L, rhs: R) -> O
 
-native impl fn ratio(lhs: f64, rhs: f64, const zero: Zero) -> f64
+native impl fn ratio<const zero: Zero = .ieee>(lhs: f64, rhs: f64) -> f64
     requires zero in {.ieee, .nan}
 
-native impl fn ratio(lhs: f64, rhs: f64, const zero: Zero) -> result<f64, error>
+native impl fn ratio<const zero: Zero>(lhs: f64, rhs: f64) -> result<f64, error>
     requires zero == .error
 ```
 
 For temporal `a` and `b` of `f64`, `ratio(a, b)` takes the default `.ieee`,
 selects the first candidate and is an `f64`, as `ratio(a, b, zero: .nan)`
 is. `ratio(a, b, zero: .error)` selects the second and is a
-`result<f64, error>`. A value candidate is written the same way with
-`zero: Zero`. Deliberate rejection under GEN-3: `requires rhs == 0.0` on
-either candidate, which reads a temporal input.
+`result<f64, error>`, as `ratio(a, b, zero: Zero.error)` is. A value
+candidate is written the same way. Deliberate rejections:
+`ratio(a, b, zero: policy)` for a parameter `policy`, which is no
+compile-time constant (`generic.argument_constant`); and under GEN-3
+`requires rhs == 0.0` on either candidate, which reads a temporal input.
 
-Accepted declaration fragment, an option that one candidate declares
-(GEN-6):
+Accepted declaration fragment, an option that does not select and that one
+candidate declares (GEN-6):
 
 ```hgl
 operator scaled<L, R, O>(lhs: L, rhs: R) -> O
@@ -338,9 +354,10 @@ impl const fn scaled(lhs: str, rhs: i64) -> str => lhs * rhs
 The operator declares what both candidates take, and the first declares
 `exact` beside it. `scaled(1.5, 2.0)` selects the first with `exact`
 false, and `scaled(1.5, 2.0, exact: true)` selects it too.
-`scaled("ab", 2)` selects the second. Deliberate rejection,
-`operator.no_candidate`: `scaled("ab", 2, exact: true)`, where no
-candidate for a `str` and an `i64` declares `exact`.
+`scaled("ab", 2)` selects the second. Deliberate rejections:
+`scaled("ab", 2, exact: true)`, `operator.no_candidate`, where no candidate
+for a `str` and an `i64` declares `exact`; and a third candidate declaring
+`<const exact: bool>`, since `exact` is a parameter in the first.
 
 ## Core boundary
 

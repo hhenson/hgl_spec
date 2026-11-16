@@ -69,8 +69,9 @@ GEN-14 resolves generic construction versus comparison using declaration lookup.
 - **EXPR-2.** Evaluate ordinary call/constructor arguments once in written
   order. Positional arguments precede named ones; reject duplicates, unknown
   names, missing required arguments, and wrong types. Named arguments use
-  the selected public callable's parameter names; a call of an operator may
-  also name an option its candidates declare (GEN-6). Positional arguments
+  the selected public callable's parameter names; a named argument may
+  also give a generic value parameter of the callee (GEN-8), and a call of
+  an operator an option its candidates declare (GEN-6). Positional arguments
   fill the parameters from the first and stop where they stop; named
   arguments come in any order, and a parameter that may be omitted may be
   left out. A parameter that may be omitted, one with a default or a type
@@ -132,9 +133,12 @@ GEN-14 resolves generic construction versus comparison using declaration lookup.
   may stand between. Bind these arguments to the same core identity as the
   named arguments of a call of it: to the operator's parameters and the
   options its candidates declare (GEN-6), with their roles, defaults,
-  and ordinary argument checks. Configuration changes neither precedence nor
-  associativity and creates no ambient policy. A named-entry brace in this
-  position is configuration, not the right operand's block. `{}` there is
+  and ordinary argument checks. An entry finds what it names as a named
+  argument does (GEN-8): the candidate's generic value parameter of that
+  name, or else its parameter of that name. Configuration changes neither
+  precedence nor associativity and creates no ambient policy. A named-entry
+  brace in this position is configuration, not the right operand's block.
+  `{}` there is
   configuration only when an operand follows it on its line; otherwise it is
   the operand's empty block. Reject empty configuration, duplicate
   options, incompatible types, and an option that no candidate for the
@@ -153,7 +157,9 @@ GEN-14 resolves generic construction versus comparison using declaration lookup.
   `result<f64, error>` as defined by its numeric contract; it must be known
   before checking uses of the result. The operator's candidates state which
   values of the option each is for (GEN-6), and the value at the call
-  selects among them. Ordinary type and phase checks apply.
+  selects among them. Such an option is a generic value parameter of its
+  candidates, so the value a call gives it is a compile-time constant
+  (GEN-8). Ordinary type and phase checks apply.
 - **EXPR-13.** Evaluate a configured binary expression in written order:
   left operand, configuration entries in their written order, then right
   operand, each once. Unary configuration precedes its operand. Preserve
@@ -262,7 +268,8 @@ chosen between `.ieee` and `.error`:
 a /{zero: selected_zero} b
 ```
 
-The selector cannot determine the source result type during checking.
+The selector cannot determine the source result type during checking: it is
+no compile-time constant (`generic.argument_constant`).
 Executable conformance is planned. The [error examples](errors-and-diagnostics.md#checked-division-propagation)
 distinguish returning Err data from explicitly propagating node failure.
 
