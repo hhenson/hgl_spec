@@ -110,7 +110,8 @@ atomic tuple list set dict rolling result ref signal delta error
 - **LEX-10.** The contextual names are `const`, `native`, and `type`;
   `switch`, `case`, `default`, `in`, `each`, `unbounded`, `properties`,
   `associative`, `commutative`, `identity`, `raises`, and `suppress_warning`;
-  and the capability names (TIME-8). Each acquires its special meaning only in
+  the capability names (TIME-8); and the result forms `ok`, `err`, `is_ok`,
+  `is_err`, and `capture` (ERR-13). Each acquires its special meaning only in
   its defined positions. A contextual spelling is not globally reserved.
   `str(value)` is a conversion expression despite `str` being reserved in
   ordinary name positions, and `error(message: text)` a constructor despite

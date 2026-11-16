@@ -3,29 +3,69 @@
 Status: agreed result, lookup, capture, and structured-error contracts. Codes
 for proposed features apply only within those proposed profiles.
 
+## Grammar
+
+```ebnf
+result_constructor = ( "ok" | "err" ), "(", expression, ")" ;
+tag_test = ( "is_ok" | "is_err" ), "(", expression, ")" ;
+error_constructor = "error", "(", error_argument, [ ",", error_argument ],
+                    [ "," ], ")" ;
+error_argument = ( "message" | "code" ), ":", expression ;
+capture_call = "capture", "(", ( IDENTIFIER | qualified_name ),
+               { ",", argument }, [ "," ], ")" ;
+propagation = postfix_expr, "?" ;
+```
+
+Each is a `postfix_expr` of the [expression grammar](expressions-and-bindings.md):
+the first four are calls whose callee is the name written, and `?` is the
+postfix suffix. `argument` is that grammar's call argument.
+
 ## Rules
 
 - **ERR-1.** Distinguish source rejection, execution failure, ordinary result
   data, and test/infrastructure failure. Messages add context; a stable code
   identifies a catalogued condition. A warning does not reject valid source.
-- **ERR-2.** `result<T,E>` owns exactly one tagged payload. `ok(value)` and
-  `err(value)` require a complete expected result type. Equality requires both
+- **ERR-2.** `result<T,E>` owns exactly one tagged payload: a success owns one
+  T, a failure one E. `ok(value)` constructs a success and `err(value)` a
+  failure. Each takes one argument by position and no generic argument, and
+  evaluates it once. Both type arguments come from the complete
+  `result<T,E>` its place expects: `value` is read as that T for `ok` and as
+  that E for `err`. Where the place expects no complete result type the
+  constructor rejects (`result.context_type`), and a payload that is not of
+  its side's type rejects as any value does (EXPR-5). Equality requires both
   payload types' equality and compares tag then selected payload. This adds
   no ordering/hash. Temporal outcomes publish atomically, including repeats.
-- **ERR-3.** An immutable result binding gains its tag fact from a direct
-  `is_ok`/`is_err` guard; `.value`/`.error` requires the matching fact. Track
+- **ERR-3.** `is_ok(value)` and `is_err(value)` take one `result<T,E>` by
+  position and give a `bool`; any other type rejects. An immutable result
+  binding, a `let`, a parameter, or an iteration binding, gains its tag fact
+  from a direct `is_ok`/`is_err` guard on it by its name: where `is_ok` holds
+  it is a success and where it does not a failure, and `is_err` the reverse.
+  `binding.value` is the T and `binding.error` the E; `.value`/`.error`
+  requires the matching fact, and without it, or on what is no such binding,
+  rejects (`result.required_variant`). Track
   negation, short-circuit paths, terminating branches, and merges. A saved bool,
   alias, fresh expression, or mutable var supplies no retained fact. Tag facts
-  grant no temporal validity or modification fact.
+  grant no temporal validity or modification fact. In composition a test of
+  a connection is an ordinary lifted call (FN-6): it gives a connection of
+  `bool` and no fact.
 - **ERR-4.** `error(message: text, code: optional_code)` owns a required string
-  message and optional string code. Equality excludes provenance. On first
+  message and optional string code, each given by its name: `message` is a
+  `str`, and `code` a `str?` that is null when omitted. `.message` is the
+  `str` and `.code` the `str?`. `.context` is a read-only nullable record of
+  `.node: str`, `.phase: str`, one of `"evaluate"`, `"start"`, and `"stop"`,
+  and `.evaluation_time: datetime`; a constructed error has none.
+  Equality excludes provenance. On first
   graph failure, attach original node identity, phase, and evaluation time;
   propagation/capture preserve them. A node's display name is not a stable
   code. Nullable code/context observations require presence checking.
 - **ERR-5.** Postfix `?` evaluates once. Success yields T. In a value function
   returning `result<U,E>`, failure returns the same E as Err. In when, only
   `result<T,error>` may propagate to node failure. No success output is written;
-  completed effects stand. Composition, lifecycle, and generator uses reject.
+  completed effects stand. Composition, lifecycle, and generator uses reject
+  (`result.propagation_phase`), and an operand or an enclosing result of
+  another type rejects (`result.propagation_type`). `?` binds as a call
+  suffix does and stands on its operand's line: `a()? + b` propagates before
+  the addition. It does not unwrap null (ERR-12).
   Returning Err as result data does not fail the node.
 - **ERR-6.** Ordinary/atomic dictionary brackets and `at` are strict point-in-
   time reads; absence fails. `get` with no fallback or null fallback yields
@@ -35,15 +75,26 @@ for proposed features apply only within those proposed profiles.
   Explicit nullable annotations follow TYPE-14; this lookup contract adds no
   null-return suppression.
 - **ERR-7.** In composition, `capture(callable, args...)` creates a temporal
-  error boundary. `.value` retains the normal output type; outputless calls
-  expose only `.error`. Capture of wiring-time scalar work rejects. Each
+  error boundary. It names a callable and gives it the arguments its own call
+  takes, positional or named, read, checked, and selected as that call's are
+  (EXPR-2, FN-4, GEN-5). In a value function or a hook it rejects
+  (`capture.phase`). What it gives is bound with `let` and read through two
+  connections: `.value` retains the normal output type; outputless calls
+  expose only `.error`, a connection of `error`, and `.value` rejects there
+  (`capture.output_field`). Capture of wiring-time scalar work rejects
+  (`capture.phase`). Capturing a node covers its evaluation; capturing a
+  graph covers failures that leave that subgraph. Each
   evaluation failure ticks its canonical error; before failure the stream is
   invalid, and later success leaves its retained error valid but unmodified.
+  A result the callable returns as data, an Err included, is its `.value`
+  and no failure.
 - **ERR-8.** Capture ends the failed pass without rollback or immediate retry.
   The child remains live for future ordinary work; unrelated outer/sibling
   work continues. The nearest boundary consumes the event once. Start/stop
   failures escape, including lifecycle work triggered during evaluation.
   Child errors follow child membership/lifetime. Earlier writes remain visible.
+  A consumer that propagates a retained error with `?` makes a new failure
+  event, whose error keeps its first provenance.
 - **ERR-9.** Required constant failures reject where specified. Optional
   folding of executed operations must preserve their execution-failure phase.
   Failure during argument evaluation precedes later admission checks. Do not
@@ -53,6 +104,10 @@ for proposed features apply only within those proposed profiles.
   comparison outcome are ordinary data, not execution errors or silence. Core
   specifies each policy's error outcome; the policy must not silently convert
   ordinary data into an exception or an error into a successful empty output.
+- **ERR-13.** `ok`, `err`, `is_ok`, `is_err`, and `capture` are contextual
+  names (LEX-10): as the callee of a call each is the form this chapter
+  defines, whatever else is in scope. No declaration, import alias,
+  parameter, or local takes one of them (UNIT-12); a member may (LEX-9).
 
 ## Diagnostic catalog
 
@@ -254,6 +309,144 @@ const fn price_or_zero(book: dict<str, i64>, key: str) -> i64 {
 
 Deliberate rejection: use price as a payload before its presence guard.
 An absent strict lookup instead fails with `value.missing_key`. Conformance planned.
+
+## Result forms
+
+| Form | Operand | Gives | Rejects |
+| --- | --- | --- | --- |
+| `ok(value)` | A T, where the place expects `result<T,E>` | That result, a success | `result.context_type` |
+| `err(value)` | An E, where the place expects `result<T,E>` | That result, a failure | `result.context_type` |
+| `is_ok(value)`, `is_err(value)` | A `result<T,E>` | A `bool`; a tag fact for an immutable binding | `type.mismatch` |
+| `binding.value` | A binding proved a success | The T | `result.required_variant` |
+| `binding.error` | A binding proved a failure | The E | `result.required_variant` |
+| `value?` | A `result<T,E>` | The T; a failure leaves the function or fails the node | `result.propagation_type`, `result.propagation_phase` |
+| `error(message: text, code: code)` | A `str`, and a `str?` | An `error` | `type.mismatch` |
+| `capture(callable, args...)` | A temporal call | `.value` and `.error` connections | `capture.phase`, `capture.output_field` |
+
+Accepted illustration, complete module:
+
+```hgl
+module examples.results
+
+const fn checked(value: i64) -> result<i64, error> {
+    if value < 0 {
+        return err(error(message: "negative price", code: "price.negative"))
+    }
+    return ok(value)
+}
+
+const fn doubled(value: i64) -> result<i64, error> {
+    let price = checked(value)?
+    return ok(price * 2)
+}
+
+const fn recovered(value: i64) -> i64 {
+    let outcome = checked(value)
+    if is_err(outcome) { return 0 }
+    return outcome.value
+}
+
+const fn diagnostic(outcome: result<i64, error>) -> str {
+    if is_ok(outcome) { return "ok" }
+    return outcome.error.message
+}
+
+fn required(value: i64) -> i64 {
+    when { return checked(value)? }
+}
+
+fn tagged(value: i64) -> result<i64, error> {
+    when { return checked(value) }
+}
+
+fn is_failure(value: result<i64, error>) -> bool => is_err(value)
+```
+
+| Evaluation | Outcome |
+| --- | --- |
+| `checked(7)` | A success holding 7 |
+| `checked(-1)` | A failure holding the error "negative price", code `price.negative` |
+| `doubled(7)` | A success holding 14 |
+| `doubled(-1)` | The failure of `checked(-1)`, unchanged; the multiplication is not reached |
+| `recovered(7)`, `recovered(-1)` | 7, and 0 |
+| `diagnostic(checked(-1))` | "negative price" |
+| `required` over the publications 7, -1 | Publishes 7; then the node fails with that error and publishes nothing |
+| `tagged` over the publications 7, -1, -1 | Three ticks: a success, a failure, and the equal failure again. The node does not fail |
+| `is_failure` over a success, a failure, a failure | `false`, `true`, `true`: `is_err` lifted over the connection |
+
+In `recovered` the early return under `is_err(outcome)` proves `outcome` a
+success after it, so `outcome.value` is read; in `diagnostic` the return
+under `is_ok` proves it a failure. `error.message` is a `str`; its `code`
+is a `str?` and is tested against null before use. Deliberate rejections:
+`let missing = ok(1)`, with nothing that says the result's type;
+`outcome.value` with no guard, and under `is_err(outcome)`; `value?` in a
+`const fn` that returns an `i64`, and in a `when` whose operand is a
+`result<i64, str>`; `value?` in a graph; and a function named `ok`.
+Conformance planned.
+
+Accepted illustration, complete module:
+
+```hgl
+module examples.capture
+
+const fn checked(value: i64) -> result<i64, error> {
+    if value < 0 { return err(error(message: "negative price")) }
+    return ok(value)
+}
+
+fn required(value: i64) -> i64 {
+    when { return checked(value)? }
+}
+
+fn forward(value: i64) -> i64 {
+    when { return value }
+}
+
+fn failed(failure: error, step: i64) -> bool {
+    when modified(step) && valid(step) { return modified(failure) }
+}
+
+fn held(failure: error, step: i64) -> bool {
+    when modified(step) && valid(step) { return valid(failure) }
+}
+
+fn captured_value(value: i64) -> i64 {
+    let seen = capture(required, value)
+    forward(seen.value)
+}
+
+fn captured_events(value: i64, step: i64) -> bool {
+    let seen = capture(required, value)
+    failed(seen.error, step)
+}
+
+fn captured_presence(value: i64, step: i64) -> bool {
+    let seen = capture(required, value)
+    held(seen.error, step)
+}
+```
+
+With `step` published on every cycle:
+
+| Cycle | `value` | `seen.value` | `seen.error` valid | `seen.error` modified | Error held |
+| --- | --- | --- | --- | --- | --- |
+| 0 | 7 | Ticks 7 | No | No | None |
+| 1 | -1 | Silent, 7 retained | Yes | Yes | "negative price" |
+| 2 | Silent | Silent | Yes | No | "negative price" |
+| 3 | 8 | Ticks 8 | Yes | No | "negative price" |
+| 4 | -1 | Silent, 8 retained | Yes | Yes | "negative price" |
+| 5 | -1 | Silent | Yes | Yes | "negative price" |
+
+`captured_value` publishes 7 at cycle 0 and 8 at cycle 3. `captured_events`
+publishes `false`, `true`, `false`, `false`, `true`, `true`, and
+`captured_presence` `false` and then `true`. The failure at cycle 5 equals
+that at cycle 4 as a value and still ticks; the success at cycle 3 neither
+clears the error nor publishes it again. Each failure's `context` names
+`required`'s node, the phase `"evaluate"`, and that cycle's evaluation time.
+Deliberate rejections: `capture(required, value)` in a `const fn` or in a
+`when`; `capture(checked, 1)`, a call evaluated while the graph is built;
+and `.value` of the capture of a callable that declares no result.
+Conformance planned.
 
 ## Checked-division propagation
 
