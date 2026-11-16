@@ -97,6 +97,7 @@ infrastructure and cannot satisfy a source-rejection expectation.
 | module | `test.export` | Exported declaration in a test context (TST-1); `export` |
 | operator | `test.implementation` | Operator candidate in a test context (TST-1); operator name |
 | operator | `impl.unknown_operator` | Operator candidate names no operator (GEN-4); operator name |
+| operator | `impl.option_kind` | Candidate declares as a parameter an option that another candidate of its operator declares as a generic value parameter (GEN-6); the parameter's name |
 | name | `native.missing_declaration` | Native implementation completes no declaration (NATIVE-2); function name |
 | phase | `native.const_hook` | Native const implementation has a lifecycle hook (NATIVE-3); hook |
 | phase | `native.hook_without_when` | Start or stop hook with no `when` hook (NATIVE-3); hook |

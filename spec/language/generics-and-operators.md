@@ -357,7 +357,8 @@ false, and `scaled(1.5, 2.0, exact: true)` selects it too.
 `scaled("ab", 2)` selects the second. Deliberate rejections:
 `scaled("ab", 2, exact: true)`, `operator.no_candidate`, where no candidate
 for a `str` and an `i64` declares `exact`; and a third candidate declaring
-`<const exact: bool>`, since `exact` is a parameter in the first.
+`<const exact: bool>`, since `exact` is a parameter in the first
+(`impl.option_kind`, at the first candidate's `exact`).
 
 ## Core boundary
 
