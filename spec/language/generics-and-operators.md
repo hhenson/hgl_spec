@@ -64,10 +64,12 @@ expression; group a constant expression that uses them as operand data.
   whatever order they are written in. The first of these that says what a
   parameter is decides it, and what follows is checked against that: an
   integer literal is widened to an `f64` so decided (EXPR-5), and another
-  argument of another type rejects. One later argument changes what was
-  decided: an abstract struct that the type decided inherits from widens
-  the parameter to that struct, so the order of two such arguments does
-  not matter. Partial applications and `_` struct
+  argument of another type rejects. One later argument changes what an
+  earlier argument decided: an abstract struct that the type decided
+  inherits from widens the parameter to that struct, so the order of two
+  such arguments does not matter. What the call writes, or its place
+  expects, is not widened: `same<Round>(round, shape)` rejects at `shape`.
+  Partial applications and `_` struct
   arguments are not admitted. A generic value parameter of a function or a
   candidate may have a default (GEN-8); no other generic parameter has one.
   A type pack is a sequence, not a singular source type.
