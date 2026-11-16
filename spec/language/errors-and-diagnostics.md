@@ -198,7 +198,7 @@ infrastructure and cannot satisfy a source-rejection expectation.
 | type | `struct.inheritance_cycle` | Structs inherit from one another (TYPE-6); a parent of the first struct of the cycle |
 | type | `field.conflict` | Field's type or optionality differs between two parents, or between a struct and a parent (TYPE-4); field, or the later parent |
 | type | `field.not_inherited` | `name = value` names no field of a parent (TYPE-4); name |
-| type | `field.duplicate` | Two members of a struct share a name (TYPE-4); later name |
+| type | `field.duplicate` | Two members of a struct, or two properties of a native type, share a name (TYPE-4, NATIVE-6); later name |
 | type | `field.recursive` | Field that makes its struct hold itself has no value that ends the recursion, being neither optional nor a collection that may be empty, or holds it through collection elements outside an `atomic<...>`, or gives a struct of its cycle a type built from a generic parameter, or has a default that is neither null nor empty, or a descendant's default removes its null (TYPE-6); field name, or the parent whose argument makes the field hold the struct |
 | type | `field.null_default` | Null default on a field that is not optional (TYPE-4); default |
 | type | `enum.value` | Enum number is not an integer (TYPE-7); number |
@@ -210,7 +210,7 @@ infrastructure and cannot satisfy a source-rejection expectation.
 | type | `sequence.context_type` | Sequence whose entries give no type, where none is expected (EXPR-9); the sequence |
 | type | `enum.context_type` | `.member` where no enum type is expected (TYPE-7); the member |
 | name | `binding.unassigned` | `var` read on a path that gives it no value (EXPR-3); the read |
-| name | `binding.immutable` | Assignment to an immutable binding: a `let`, a parameter, an iteration binding (EXPR-3); target |
+| name | `binding.immutable` | Assignment to an immutable binding: a `let`, a parameter, an iteration binding (EXPR-3), or to a property of a native type (NATIVE-6); target |
 | type | `binding.category` | Assignment of a connection to a `var` that holds an ordinary value, or the reverse; assignment in a branch of a temporal `if` or `switch` to a `var` declared before it that holds an ordinary value (EXPR-4, CTRL-14); the value |
 | type | `argument.order` | Argument with no name after a named one (EXPR-2); the argument |
 | type | `argument.unexpected` | Positional argument that no parameter is left to take (EXPR-2), or one given to a constructor (TYPE-5); the argument |
@@ -223,6 +223,7 @@ infrastructure and cannot satisfy a source-rejection expectation.
 | phase | `while.condition` | `while` with no condition in a value function or a graph (CTRL-12, CTRL-15); `while` |
 | phase | `loop.carried` | Assignment to a `var` declared outside a composition loop that makes one child for each member, or a `return` in one (CTRL-8, CTRL-15); target |
 | type | `struct.abstract` | Abstract struct constructed (TYPE-3); name |
+| type | `call.not_callable` | Call of a native type's name, which no call constructs (NATIVE-6); name |
 | name | `member.unknown` | Struct has no field, or enum no member, of the name (EXPR-7, TYPE-7); name |
 | operator | `operator.no_candidate` | Call of an operator, by symbol or by name, that no candidate admits (GEN-5); operator |
 | operator | `operator.ambiguous` | Call of an operator that two most-specific candidates admit equally (GEN-5); operator |

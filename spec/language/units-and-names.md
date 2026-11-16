@@ -36,7 +36,8 @@ admits one as a member name.
   public declarations; an alias qualifies a public interface with
   `alias::name` and names nothing alone. A dotted module path creates no
   privileged access to another module.
-- **UNIT-3.** Ordinary functions and types are private unless exported.
+- **UNIT-3.** Ordinary functions and types are private unless exported, a
+  native function and a native type among them (NATIVE-1).
   Operators are public by definition. A candidate, `impl fn` or
   `impl const fn`, is attached to its operator and is reached only through
   it. Exported signatures are closed over reachable types and required

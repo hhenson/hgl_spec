@@ -11,7 +11,10 @@ native_type_decl = [ "export" ], "native", "type", IDENTIFIER,
 native_type_body = "{", [ NL ],
                    [ native_property, { NL, native_property }, [ NL ] ], "}" ;
 native_property = member_name, ":", value_type ;
-native_function_decl = "native", [ "impl" ], [ "const" ], "fn", callable_name,
+native_function_decl = [ "export" ], "native", [ "const" ], "fn",
+                       callable_name, [ generic_parameters ],
+                       function_signature, [ requires_clause ]
+                     | "native", [ "impl" ], [ "const" ], "fn", callable_name,
                        [ generic_parameters ], function_signature,
                        [ requires_clause ], [ native_contract_body ] ;
 native_contract_body = "{", [ NL ],
@@ -31,7 +34,9 @@ ordinary HGL statements. Target-specific bodies are separate provider artifacts.
   payload type is scalar. All-const temporal declarations may still tick.
   A `native impl fn` or `native impl const fn` declares a candidate of the
   operator it names (GEN-4), temporal or value, whose body a provider
-  supplies.
+  supplies. A native function that is no candidate is private unless
+  exported, as a function is (UNIT-3). `export` is written on its
+  declaration, the form with no body, and nowhere else.
 - **NATIVE-2.** A selected implementation part completes exactly one shared
   declaration. Match name, public parameters/order, roles, generics, complete
   result type, constraints, and admitted failures. Native implicit conversions
@@ -62,8 +67,9 @@ ordinary HGL statements. Target-specific bodies are separate provider artifacts.
   by coincident display names. Opaque resource handles are not automatically
   ordinary temporal values. A native type may declare read-only properties,
   each a name and an ordinary value type, written as a struct's typed fields
-  are. `value.property` reads one as an ordinary value. None is assigned,
-  and a native type is not constructed in HGL.
+  are, no two of one name. `value.property` reads one as an ordinary value.
+  None is assigned, and a native type is not constructed in HGL: a call of
+  its name rejects.
 - **NATIVE-7.** Checking an interface needs no executable provider loading.
   Execution requires a compatible selected provider. An absent binding is an
   implementation/admission failure, never permission to change the role or
@@ -75,15 +81,23 @@ Accepted illustration, shared interface:
 ```hgl
 module examples.native
 
+export native type Handle {
+    size: i64
+}
+
 native fn accumulate(value: i64) -> i64
-native const fn describe(value: i64) -> str
+export native const fn describe(value: i64) -> str
 
 operator total<T>(lhs: T, rhs: T) -> T
 native impl const fn total(lhs: i64, rhs: i64) -> i64
 native impl const fn total(lhs: f64, rhs: f64) -> f64
+
+const fn larger(handle: Handle, limit: i64) -> bool => handle.size > limit
 ```
 
 The two `native impl` lines declare two value candidates of `total`.
+`describe` is exported, and another module calls it; `accumulate` is this
+module's own. `larger` reads a property of the native type it is given.
 
 Accepted illustration, selected same-module part:
 
@@ -101,9 +115,13 @@ native impl const fn total(lhs: i64, rhs: i64) -> i64 {}
 native impl const fn total(lhs: f64, rhs: f64) -> f64 {}
 ```
 
-These are contract fragments, not target implementations. Deliberate rejection:
-a scalar provider bound to the temporal accumulate declaration. Conformance
-is planned.
+These are contract fragments, not target implementations. The part does not
+repeat `export`: the declaration has said it. Deliberate rejections: a
+scalar provider bound to the temporal accumulate declaration;
+`export native impl const fn total(...)`, and `export` on the part's
+`describe`; `handle.size = 1`, a property assigned; `Handle(size: 1)`, a
+native type constructed; and a second `size` in `Handle`. Conformance is
+planned.
 
 ## Core boundary
 
