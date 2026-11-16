@@ -93,9 +93,12 @@ Proposed, what a `const fn` is given:
 
 - **TST-16.** A trace given to a `const fn` is an ordinary value there. A
   dense trace of a result type T is a `list<T?>`, with null where it has
-  `_`. A timed trace is a `dict<duration, T>` or a `dict<datetime, T>`, by
-  its keys. The parameter is written with that type, and what the function
-  returns is ordinary data.
+  `_`. Where T is itself nullable such a list cannot tell a published null
+  from `_` (TYPE-15): the dense trace is not given, and rejects there. A
+  timed trace is a `dict<duration, T>` or a `dict<datetime, T>`, by its
+  keys, and has an entry for each publication, a null one included. The
+  parameter is written with that type, and what the function returns is
+  ordinary data.
 
 Accepted illustration, complete module:
 
