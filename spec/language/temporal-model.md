@@ -39,8 +39,11 @@ flowchart LR
   without returning, checking continues with the next condition. A `return`
   exits the function's current evaluation; later handlers are not reached
   (FN-7). In a `when` header, `modified()` subscribes to all
-  temporal inputs. A notification from any subscribed input can wake the
-  handler. `valid()` requires all temporal inputs to be valid;
+  temporal inputs; `modified(a, b)` subscribes to both named inputs, and
+  similarly for more inputs. A notification from any subscribed input can
+  wake the handler, and one from any other cannot. `modified([])` subscribes
+  to no input: only a scheduler or an alarm wakes the handler. `valid()`
+  requires all temporal inputs to be valid;
   `valid(a, b)` requires both named inputs, and similarly for more inputs.
   Omitting either selector uses the same default as its zero-argument form.
   `valid([])` requires no inputs to be valid. A selector sets subscription or admission
@@ -150,6 +153,56 @@ scheduled one, which publishes 0: the graph is connected by then, and the
 publication is a tick like any other. `valid([])` admits that handler before
 `value` has published; it reads no input, so it needs no guard.
 Conformance planned.
+
+Accepted illustration, complete module, the selectors of a `when` header
+(TIME-3):
+
+```hgl
+module examples.selectors
+
+fn default_sum(a: f64, b: f64) -> f64 {
+    when { return a + b }
+}
+
+fn explicit_sum(a: f64, b: f64) -> f64 {
+    when modified(a, b) && valid(a, b) { return a + b }
+}
+
+fn on_a(a: f64, b: f64) -> f64 {
+    when modified(a) { return a + b }
+}
+
+fn while_a_valid(a: f64, b: f64) -> f64 {
+    when valid(a) { return a }
+}
+
+fn sum_or_zero(a: f64, b: f64) -> f64 {
+    when valid([]) {
+        if valid(a) && valid(b) { return a + b }
+        return 0.0
+    }
+}
+
+fn dormant(a: f64, b: f64) -> f64 {
+    when modified([]) && valid([]) { return 0.0 }
+}
+```
+
+With `a` publishing 1.0, nothing, 3.0 and `b` publishing nothing, 10.0, 20.0
+over three cycles, each input keeping its value while it is silent:
+
+| Function | Header | Publishes | Why |
+| --- | --- | --- | --- |
+| `default_sum`, `explicit_sum` | None; `modified(a, b) && valid(a, b)` | Nothing, 11.0, 23.0 | The two say the same: any input wakes it, and both are valid from the second cycle |
+| `on_a` | `modified(a)` | Nothing, nothing, 23.0 | `b` cannot wake it; validity is the default, both inputs |
+| `while_a_valid` | `valid(a)` | 1.0, 1.0, 3.0 | Subscription is the default, so `b` wakes it while `a` holds 1.0 |
+| `sum_or_zero` | `valid([])` | 0.0, 11.0, 23.0 | Nothing is required of the inputs, and the body guards each read |
+| `dormant` | `modified([]) && valid([])` | Nothing | No input wakes it and it has no scheduler: the warning `node.no_activation` |
+
+Deliberate rejections: in `while_a_valid`, `return a + b`, a read of `b`
+that neither the header requires nor a guard proves (`payload.unguarded`);
+`modified([a, b])` and `valid([a, b])`, where the inputs are named as
+arguments. Conformance planned.
 
 ## Proposed source and storage capabilities
 
