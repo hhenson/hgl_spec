@@ -209,7 +209,7 @@ infrastructure and cannot satisfy a source-rejection expectation.
 | type | `sequence.context_type` | Sequence whose entries give no type, where none is expected (EXPR-9); the sequence |
 | type | `enum.context_type` | `.member` where no enum type is expected (TYPE-7); the member |
 | name | `binding.unassigned` | `var` read on a path that gives it no value (EXPR-3); the read |
-| name | `binding.immutable` | Assignment to an immutable binding: a `let`, a parameter, an iteration binding, or a field or element of one (EXPR-3), or to a property of a native type (NATIVE-6); target |
+| name | `binding.immutable` | Assignment to an immutable binding: a `let`, a parameter, an iteration binding, or a field or element of one (EXPR-3), or to a property of a native type (NATIVE-6) or of a delta (TYPE-16); target |
 | type | `binding.category` | Assignment of a connection to a `var` that holds an ordinary value, or the reverse; assignment in a branch of a temporal `if` or `switch` to a `var` declared before it that holds an ordinary value (EXPR-4, CTRL-14); the value |
 | type | `argument.order` | Argument with no name after a named one (EXPR-2); the argument |
 | type | `argument.unexpected` | Positional argument that no parameter is left to take (EXPR-2), one given to a struct's constructor (TYPE-5), or a second given to an enum's (TYPE-7); the argument |
@@ -248,7 +248,7 @@ infrastructure and cannot satisfy a source-rejection expectation.
 | phase | `capture.phase` | Non-temporal capture/context; call |
 | type | `capture.output_field` | Value requested from outputless capture; property |
 | type | `value.constant_capability` | Required constant lacks contained capability; operation |
-| shape | `delta.unsupported_shape` | No admitted delta type; shape/application |
+| shape | `delta.unsupported_shape` | `delta<T>` of a T that has no delta: a `ref` or a `signal` (TYPE-16); the application |
 | type | `delta.type_mismatch` | Incompatible originating delta/destination; value |
 | name | `delta.argument_name` | Unknown delta field/argument; name |
 | name | `delta.duplicate_argument` | Repeated delta argument; later name |
