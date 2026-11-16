@@ -209,17 +209,18 @@ proposed.
   that produces its output and has no temporal parameters. It injects
   `clock`, `logger`, and the proposed `global_state`, and not `out`,
   `scheduler`, or `alarm`: `yield time: value` writes its output and sets
-  its next evaluation. It declares `state`, which is what it keeps from one
-  `yield` to the next, and no `cache`. A source with no declaration and no
+  its next evaluation. It declares `cache` and `state` (TIME-6), which are
+  what it keeps from one `yield` to the next: a `cache` is rebuilt on every
+  start, and a `state` is recorded. A source with no declaration and no
   hook has a body of statements, `yield` among them. One with an `inject`,
-  a `state`, a `start`, or a `stop` has its declarations, then `start`, then
-  one block that holds every `yield`, then `stop`, and nothing else; the
-  block is `{ ... }`, a `while`, or a `for`. Its statements may use `const`
-  configuration, `if`, `while`, and `for`. A `let` there holds a working
-  value and is evaluated again on each pass of a loop; a source declares no
-  `var`. A source has no `when`. `stop`, where present, always runs when the
-  node ends, whatever state the generator is in: finished, suspended at a
-  `yield`, or not yet begun.
+  a `cache`, a `state`, a `start`, or a `stop` has its declarations, then
+  `start`, then one block that holds every `yield`, then `stop`, and
+  nothing else; the block is `{ ... }`, a `while`, or a `for`. Its
+  statements may use `const` configuration, `if`, `while`, and `for`. A
+  `let` there holds a working value and is evaluated again on each pass of
+  a loop; a source declares no `var`. A source has no `when`. `stop`, where
+  present, always runs when the node ends, whatever state the generator is
+  in: finished, suspended at a `yield`, or not yet begun.
 - **SOURCE-2.** The first evaluation begins the body. Yield evaluates its time
   once, then payload once, before target validation. A duration is relative to
   current evaluation time; a datetime is absolute. Negative duration fails.
@@ -255,7 +256,7 @@ export fn greeting(const every: duration = 1s) -> str {
 
 export fn counter(const every: duration = 1s, const limit: i64 = 3) -> i64 {
     inject logger
-    state count: i64 = 0
+    cache count: i64 = 0
     while count < limit {
         count += 1
         yield every: count
@@ -277,7 +278,7 @@ export fn replay(const values: list<f64>, const every: duration = 1s) -> f64 {
 `two_values` has no declaration and no hook: its body is its statements.
 `greeting` has an injectable and both hooks and no loop, so its yields stand
 in an anonymous block between them. `counter` keeps `count` from one `yield`
-to the next as a `state`, which `stop` reads. In `replay` the block is a
+to the next as a `cache`, which `stop` reads. In `replay` the block is a
 `for`, and `doubled` is a working value evaluated on each pass. Deliberate
 rejections: a `when` in a source; a `yield` in `start` or `stop`; in
 `greeting`, a `yield` outside the block, or a second block; `var seen = 0`
