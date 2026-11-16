@@ -35,7 +35,11 @@ Local source/native declaration matching is defined in the native chapter.
   Two kinds of parameter are the exception: one of a capability's type
   (TIME-8), and, in a native value function, one of `endpoint<T>` (TIME-9).
   It is not inherently pure or compile-time-only. Parameter-level `const`
-  instead fixes configuration. A temporal `fn` has temporal non-const
+  instead fixes configuration: a `const` parameter takes what is fixed when
+  the graph is built. In composition that is any ordinary value. In a hook
+  and in a value function it is a constant expression: of literals, enum
+  members, generic value parameters, and the enclosing function's own
+  `const` parameters. A temporal `fn` has temporal non-const
   parameters and a temporal result; an omitted result arrow means outputless.
   An operator is neither: each of its candidates is one or the other (GEN-4).
 - **FN-2.** An ordinary temporal body with no node-only construct describes
@@ -170,6 +174,22 @@ fn sampled(value: f64, tick: signal?) -> f64 => value
 Deliberate source rejections: a result of type `ref<f64>?` (TYPE-14);
 `tick: signal = 1`, a default a signal cannot take (TYPE-12). Executable
 conformance is planned.
+
+Accepted declaration fragments, a `const` parameter of a value function:
+
+```hgl
+native type Store
+native const fn held(store: Store, const key: str) -> bool
+
+const fn counted(store: Store) -> bool => held(store, "count")
+const fn named(store: Store, const key: str) -> bool => held(store, key)
+```
+
+`counted` gives the key as a literal, and `named` its own `const` parameter,
+which is fixed wherever `named` is called. Deliberate source rejection:
+`const fn found(store: Store, key: str) -> bool => held(store, key)`, whose
+`key` is a value of one call (`argument.constant`). Executable conformance is
+planned.
 
 Accepted declaration fragments showing modifier and ordinary-name positions:
 
