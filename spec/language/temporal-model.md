@@ -84,16 +84,13 @@ flowchart LR
   result's type T, published whole, or a `delta<T>` (TYPE-16), published as
   that change; so does a source's `yield` (SOURCE-1). The place expects T
   (EXPR-5), so a value that is a T is published whole: `return []` for a
-  `list<i64>` result publishes the empty list. A value that is no T and is
-  a `delta<T>` is published as that change; a binding annotated with that
-  type gives one, `let change: delta<list<i64>> = []`. Where T publishes
-  whole, as a scalar does, `delta<T>` is T and the two are one. A tuple
-  can have a delta of its own type and not publish whole:
-  `tuple<i64?, f64?>` has, each position nullable and its own delta
-  (TYPE-16). A value of such a tuple's type is a T: it is published whole,
-  a null position as a null. A change to one position of such a result is
-  published through `out`, `out[1] = 3` (EXPR-3). A result of `atomic<V>`
-  takes a V.
+  `list<i64>` result publishes the empty list, and `return null` for an
+  `i64?` result a null, as `return delta<i64?>()` does. A value that is no
+  T and is a `delta<T>` is published as that change; a binding annotated
+  with that type gives one, `let change: delta<list<i64>> = []`. Where T
+  publishes whole, as a scalar does, `delta<T>` is T and the two are one.
+  A `return` with no value publishes nothing (FN-7). A result of
+  `atomic<V>` takes a V.
 - **TIME-8.** The injectables are `out`, `logger`, `clock`, `scheduler`,
   `alarm`, and `global_state`; `inject` names no other. `out` is the node's
   result (TIME-7). `inject` binds each of the others to a local of its
