@@ -277,12 +277,15 @@ no selector, or by `when scheduled()`, which holds where the node is
 evaluated and no temporal input has ticked. The
 [generator form](control-flow-and-sources.md) owns its own wake mechanism.
 
-`global_state` is a run-wide typed store with const string keys prepared before
-root start. All uses/seeds bind the same exact ordinary type. Binding alone
-does not initialize a value. Get of an absent entry fails; a write preserves
-the type. Writable borrows are hook-scoped; retained results own independent
-values. Storage access adds no activation dependency or temporal endpoint
-type. Seeding the store before a run is the run's to specify.
+`global_state` is a run-wide typed store with const string keys. It is empty
+when the graph is built, and nothing outside the program puts a value in
+it: an entry is configured by its const arguments. All uses of a key bind
+the same exact ordinary type. Binding alone does not initialize a value. Get
+of an absent entry fails; a write preserves the type. Writable borrows are
+hook-scoped; retained results own independent values. Storage access adds no
+activation dependency or temporal endpoint type. The key `"run.output"` is
+the run's own, where it keeps its output: a program that names it rejects
+(`store.reserved_key`).
 
 Accepted illustration, complete module:
 
