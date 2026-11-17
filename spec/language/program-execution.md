@@ -97,8 +97,10 @@ for a `duration`; `run(scaled(price: [1.0]))`, a call of a function with a
 temporal input, which is no entry (`run.entry`); an application with no run
 statement, or a second one (`application.run_count`); a run statement in a
 module, or one that a declaration follows (`run.position`); `export fn` in an application
-(`application.export`); and `use examples.entry.live::{heartbeat}`, an
-import of an application (`application.import`).
+(`application.export`); `use examples.entry.live::{heartbeat}`, an
+import of an application (`application.import`); and a second file headed
+`application examples.entry.live`, or one headed `module
+examples.entry.live` (`application.duplicate_path`).
 
 ## Core boundary
 

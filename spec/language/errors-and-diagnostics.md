@@ -141,6 +141,7 @@ infrastructure and cannot satisfy a source-rejection expectation.
 | name | `import.unknown_name` | Module declares no such name (UNIT-2); imported name |
 | module | `import.private` | Imported declaration is not public (UNIT-2, UNIT-3); imported name |
 | module | `import.cycle` | Modules import one another (UNIT-3); first import of the cycle |
+| module | `application.duplicate_path` | Application's path is also a module's or another application's (UNIT-14); the path in every such file but one |
 | module | `application.import` | `use` names an application (UNIT-14); module path |
 | module | `application.export` | `export` in an application (UNIT-14); `export` |
 | module | `application.run_count` | Application with no run statement, or with a second (UNIT-14); the application's path, or the later statement |
