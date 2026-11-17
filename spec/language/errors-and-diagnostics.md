@@ -171,7 +171,8 @@ infrastructure and cannot satisfy a source-rejection expectation.
 | phase | `source.input` | Temporal parameter of a source (SOURCE-1); the parameter |
 | phase | `state.input_read` | State initializer reads a temporal input (TIME-5); the read |
 | phase | `out.lifecycle` | `out` used in `start` or written in `stop`, or a `return` with a value in either (TIME-7); the use |
-| phase | `payload.unguarded` | Payload read under manual admission that no guard dominates (TIME-4); read |
+| phase | `input.lifecycle` | A temporal input read, or given to an endpoint operation, in `start` (TIME-5); the use |
+| phase | `payload.unguarded` | Payload read under manual admission, in a `when` or in `stop`, that no guard dominates (TIME-4, TIME-5); read |
 | phase | `endpoint.argument` | Endpoint operation given what is no temporal input of its function and not `out` (TIME-9); argument |
 | phase | `connection.as_constant` | Temporal connection where composition requires a constant (FN-3); expression |
 | type | `generic.invalid_application` | Generic type's name before a `<` that opens no arguments (GEN-14); name |
