@@ -36,7 +36,8 @@ expression of each is a call, and the second a run configuration.
   in real time: it follows the host clock and admits outside events, from
   the present or the configuration's start, until the configuration's end
   or until its host stops it. Start is inclusive, end exclusive. `eval` is
-  written in a test and in an application; `run` in an application. Core's
+  written in a test and in an application; `run` in an application and in
+  an integration test (TST-17). Core's
   execution contract gives the earliest start, the smallest step between two
   cycles, and what a start or an end left out means; a source file does not
   read the host clock to choose its own semantics.
