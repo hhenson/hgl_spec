@@ -141,6 +141,11 @@ infrastructure and cannot satisfy a source-rejection expectation.
 | name | `import.unknown_name` | Module declares no such name (UNIT-2); imported name |
 | module | `import.private` | Imported declaration is not public (UNIT-2, UNIT-3); imported name |
 | module | `import.cycle` | Modules import one another (UNIT-3); first import of the cycle |
+| module | `application.import` | `use` names an application (UNIT-14); module path |
+| module | `application.export` | `export` in an application (UNIT-14); `export` |
+| module | `application.run_count` | Application with no run statement, or with a second (UNIT-14); the application's path, or the later statement |
+| phase | `run.position` | Run statement in a module, or `run` in a test (RUN-3); the word |
+| type | `run.entry` | A run statement's first argument is no call of an entry (RUN-1); the argument |
 | name | `name.duplicate` | Binding takes a name already in scope (UNIT-5, UNIT-12, TST-2, NATIVE-2); later name |
 | name | `name.used_before_declaration` | Local used before the statement that declares it (UNIT-6); use |
 | name | `constant.cycle` | Constant whose value depends on itself (UNIT-13); name |
@@ -236,7 +241,7 @@ infrastructure and cannot satisfy a source-rejection expectation.
 | type | `rolling.size_bounds` | Invalid bounds; offending size/minimum |
 | type | `yield.time_type` | Wrong time type; yield time operand |
 | type | `test.raises_code` | Not a literal catalogued execution code; argument |
-| type | `eval.target` | Eval's first argument names no function of a module: an operator among them (TST-5); the argument |
+| type | `eval.target` | Eval's first argument is no call of a function of a module: a call of an operator among them (TST-5); the argument |
 | type | `eval.no_result` | The value of an eval of an outputless target is bound or compared (TST-8); the eval |
 | type | `trace.placeholder` | `_` in a timed trace, or outside a trace of a test (EXPR-8, TST-7); the `_` |
 | type | `trace.style` | Dense and timed traces in one eval, its expectation included (TST-7); the later trace |

@@ -1,19 +1,21 @@
 # Units and names
 
-Status: agreed module, visibility, default-binding, lookup, and constant
-rules.
+Status: agreed module, application, visibility, default-binding, lookup, and
+constant rules.
 
 ## Grammar
 
 ```ebnf
-source_file = [ NL ], module_decl, { NL, top_level_item }, [ NL ], EOF ;
+source_file = [ NL ], ( module_decl | application_decl ),
+              { NL, top_level_item }, [ NL ], EOF ;
 module_decl = "module", module_path, [ "part", IDENTIFIER ] ;
+application_decl = "application", module_path ;
 module_path = IDENTIFIER, { ".", IDENTIFIER } ;
 qualified_name = IDENTIFIER, "::", import_name ;
 use_decl = "use", module_path, ( "::", import_set | "as", IDENTIFIER ) ;
 import_set = "{", import_name, { ",", import_name }, [ "," ], "}" ;
 import_name = IDENTIFIER ;
-top_level_item = use_decl | declaration ;
+top_level_item = use_decl | declaration | run_statement ;
 declaration = function_decl | struct_decl | enum_decl | operator_decl
             | instantiate_decl | native_type_decl | native_function_decl
             | constant_decl | test_decl | test_context ;
@@ -24,7 +26,9 @@ callable_name = IDENTIFIER ;
 ```
 
 The referenced declarations belong to their type, function, generic, native,
-or test chapters. Portable source is covered here; target build metadata is not.
+or test chapters, and `run_statement` to
+[program execution](program-execution.md). Portable source is covered here;
+target build metadata is not.
 The hard reserved words are listed in [source text](source-text.md); LEX-9
 admits one as a member name.
 
@@ -121,6 +125,12 @@ admits one as a member name.
   (GEN-8) or a `switch` label (CTRL-12) requires one. It is referenced
   forward as any module declaration is (UNIT-6), and its value depends on
   no constant that depends on it.
+- **UNIT-14.** An application is one file, headed `application name`, where
+  a module's files are headed `module name`. It holds what a module holds,
+  and one run statement (RUN-1), which follows its declarations. A module
+  holds none. An application's path is no module's and no other
+  application's. Its declarations are private: an application exports
+  nothing, and no `use` names one.
 
 Accepted illustration, complete module:
 

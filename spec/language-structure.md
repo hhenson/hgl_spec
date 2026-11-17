@@ -19,7 +19,7 @@ baseline; each chapter labels proposed extensions separately.
 | 9 | [Native boundaries](language/native-boundaries.md) | Native types and declarations, capability contracts, dependency discovery, and core realization boundaries |
 | 10 | [Errors and diagnostics](language/errors-and-diagnostics.md) | Source rejection, execution failure, result data, propagation/capture, cleanup, diagnostic categories, and stable codes |
 | 11 | [Tests and eval](language/tests-and-eval.md) | Test scopes, visibility, assertions, targets, input/expected traces, comparison, run isolation, and test outcomes |
-| 12 | [Program execution](language/program-execution.md) | Entry selection, constant configuration, observable run bounds, termination, and results |
+| 12 | [Program execution](language/program-execution.md) | Entries, applications and their run statements, run configuration, observable run bounds, termination, and results |
 | 13 | [Source documentation](language/source-documentation.md) | Documentation comments, attachment, declaration association, and non-semantic presentation |
 
 The table is a dependency-aware reading order, not a compiler pipeline. A
