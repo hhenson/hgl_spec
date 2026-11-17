@@ -1,8 +1,7 @@
 # Types and values
 
-Status: agreed type foundation, `delta<T>` included (TYPE-16). The
-properties of a struct's delta and the storage extensions below remain
-proposed.
+Status: agreed type foundation, `delta<T>` included (TYPE-16). The storage
+extensions below remain proposed.
 
 ## Grammar
 
@@ -199,8 +198,8 @@ rejection (TYPE-12, TYPE-14). TYPE-16 says what a `delta_type` is.
   of T publishes in one cycle. The table gives it for each T. For most T it
   is another type the language has: `delta<f64>` is `f64`, and
   `delta<list<f64>>` is `dict<i64, f64>`, a dictionary as any other. A
-  set's, a dictionary's, and a struct's delta is a type of its own, which
-  keeps T whole in its identity: `delta<dict<str, f64>>` and
+  nullable's, a set's, a dictionary's, and a struct's delta is a type of
+  its own, which keeps T whole in its identity: `delta<dict<str, f64>>` and
   `delta<dict<str, i64>>` are two types. Such a delta is no T: a held
   complete value is not a delta, and neither converts to the other. It is
   atomic: it has properties, none is assigned, and as a temporal value it
@@ -208,26 +207,34 @@ rejection (TYPE-12, TYPE-14). TYPE-16 says what a `delta_type` is.
   wherever an ordinary value type is: an annotation, a parameter or result
   of a value function, a field, an element. In a generic declaration it
   stays as written until T is known. A delta is a value like any other: it
-  is bound, stored, given as an argument, and returned. A set's and a
-  dictionary's delta is constructed by its properties, by name:
+  is bound, stored, given as an argument, and returned. One that is a type
+  of its own is constructed by its properties, by name:
   `delta<set<i64>>(added: [1, 2], removed: [3])`,
-  `delta<dict<i64, i64>>(updated: [7: 10], removed: [9])`. A property left
-  out is empty. A list's and a tuple's delta are an ordinary dictionary and
-  tuple, and are written as those are. A dictionary's delta names its
-  changes `updated`, and not `modified`, which is the endpoint operation.
+  `delta<dict<i64, i64>>(updated: [7: 10], removed: [9])`,
+  `delta<Quote>(bid: 1.0)`, `delta<i64?>(value: 7)`. A property left out is
+  empty, or null for a struct's field and a nullable's `value`. A list's
+  and a tuple's delta are an ordinary dictionary and tuple, and are written
+  as those are. A dictionary's delta names its changes `updated`, and not
+  `modified`, which is the endpoint operation. A nullable's delta is an
+  optional: it holds what was published, a null among them, so that null
+  in a delta's place always means that nothing was published there.
+  `delta<i64?>()` is a published null. In a tuple's position or a struct's
+  field, null leaves the position or the field as it was, and
+  `delta<i64?>()` sets it to null. A `delta<V>` is a value where a
+  `delta<V?>` is expected, as a T is where a `T?` is (TYPE-14).
 
 | T | `delta<T>` |
 | --- | --- |
 | A scalar, an enum, a `result`, an `error`, a native type, a delta that is a type of its own | T itself |
-| `V?`, V an ordinary value type | `delta<V>?`: null for a published null (TYPE-15) |
+| `V?`, V an ordinary value type | A type of its own, an optional, with the property `value`, a `delta<V>?`: null for a published null (TYPE-15) |
 | `V?`, V no ordinary value type, as `rolling<f64, 5>?` | `delta<V>`: the `?` marks an argument or a field that may be left out (TYPE-14), and is no part of what is published |
 | `atomic<V>` | V: an atomic publishes whole |
 | `rolling<V, Max, Min>` | V: the value that arrived |
 | `list<V>`, `list<V, N>` | `dict<i64, delta<V>>`: for each position that changed, its delta |
-| `tuple<A, B>` | `tuple<delta<A>?, delta<B>?>`: each position's delta, null where it did not change. A position of a nullable type has that one null for a published null too |
+| `tuple<A, B>` | `tuple<delta<A>?, delta<B>?>`: each position's delta, null where it did not change |
 | `set<K>` | A type of its own, with the properties `added` and `removed`, each a `set<K>` |
 | `dict<K, V>` | A type of its own, with the properties `updated`, a `dict<K, delta<V>>` of each key added or changed with its delta, and `removed`, a `set<K>` |
-| A struct | A type of its own: for each field that changed, the delta of that field |
+| A struct | A type of its own, with a property for each field `name: F`, of the same name and of type `delta<F>?`: null where the field did not change |
 | `ref<V>`, `signal` | None: `delta.unsupported_shape` |
 
 Accepted illustration, complete module:
@@ -263,6 +270,8 @@ const fn arrived(change: delta<set<str>>) -> set<str> => change.added
 
 const fn joined(name: str) -> delta<set<str>> => delta<set<str>>(added: [name])
 
+const fn cleared() -> delta<f64?> => delta<f64?>()
+
 fn arrivals(members: set<str>) -> atomic<set<str>> {
     when { return arrived(delta_value(members)) }
 }
@@ -275,8 +284,10 @@ fn relayed(members: set<str>) -> set<str> {
 `TimedValue<f64>` has a `value: f64`, and `TimedValue<set<str>>` a
 `value: delta<set<str>>`. `delta_value(members)` is the set's delta for this
 cycle, given to `arrived` as any value is. `joined` constructs a delta by
-its properties: `removed`, left out, is empty. `relayed` publishes the delta
-it reads, as that change (TIME-7). Deliberate source rejections:
+its properties: `removed`, left out, is empty. `cleared` is the delta of an
+`f64?` that published a null: its `value`, left out, is null. `relayed`
+publishes the delta it reads, as that change (TIME-7). Deliberate source
+rejections:
 `delta<signal>` (`delta.unsupported_shape`); `change.added = []`, a property
 of a delta assigned (`binding.immutable`). Conformance is planned.
 
@@ -379,13 +390,7 @@ rather than creating nullable endpoint handles.
 
 ## Proposed ordinary storage extensions
 
-The properties of a struct's delta. The delta of a struct has a property
-for each field `name: F` of the struct, of the same name and of type
-`delta<F>?`: null where the field did not change. It is constructed by
-them, `delta<Quote>(bid: 1.0)`, and a field left out is null. Data
-formation grants no publication admission.
-
-Views/borrows do not outlive their supplying hook. Typed
+Data formation grants no publication admission. Views/borrows do not outlive their supplying hook. Typed
 empty-list construction and retained end growth support replay/record storage.
 These storage proposals add no `mut` type qualifier. Explicit nullable value
 annotations follow TYPE-14/15 independently of these proposals.

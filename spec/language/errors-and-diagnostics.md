@@ -238,7 +238,7 @@ infrastructure and cannot satisfy a source-rejection expectation.
 | type | `trace.placeholder` | `_` in a timed trace, or outside a trace of a test (EXPR-8, TST-7); the `_` |
 | type | `trace.style` | Dense and timed traces in one eval, its expectation included (TST-7); the later trace |
 | type | `trace.key_order` | Constant keys of a timed trace that do not strictly increase (TST-7); the later key |
-| type | `trace.escape` | A trace stored in a field, returned, or given as a temporal argument outside an eval (TST-3); a dense trace of a nullable result type given to a `const fn` (TST-16); the use |
+| type | `trace.escape` | A trace stored in a field, returned, or given as a temporal argument outside an eval (TST-3); the use |
 | type | `nullable.required_presence` | Unguarded nullable payload; payload use |
 | type | `lookup.default_type` | Non-null fallback is not exact V; fallback |
 | type | `result.context_type` | Missing complete outcome context; constructor |

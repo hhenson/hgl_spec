@@ -1,8 +1,7 @@
 # Expressions and bindings
 
-Status: agreed expression/binding baseline. The constructor of a struct's
-delta and the sparse-field rules of structural delta construction retain
-their proposed status.
+Status: agreed expression/binding baseline. The sparse-field rules of
+structural delta construction retain their proposed status.
 
 ## Grammar
 
@@ -333,8 +332,8 @@ distinguish returning Err data from explicitly propagating node failure.
 
 ## Structural delta construction
 
-Agreed: the constructor of a set's and a dictionary's delta, by its
-properties (TYPE-16). A struct's is proposed with its properties.
+Agreed: the constructor of a delta that is a type of its own, by its
+properties (TYPE-16).
 
 ```ebnf
 delta_constructor = "delta", "<", type, ">", "(", [ delta_arguments ], ")" ;

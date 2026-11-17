@@ -1,8 +1,8 @@
 # Tests and eval
 
-Status: the eval rules, TST-5 to TST-9, are agreed. What a `const fn` is
-given for a trace (TST-16) is proposed. The error expectation contracts
-retain their status below.
+Status: the eval rules, TST-5 to TST-9, and what a `const fn` is given for
+a trace, TST-16, are agreed. The error expectation contracts retain their
+status below.
 
 ## Grammar
 
@@ -71,7 +71,10 @@ arbitrary callable value. `raises` is contextual immediately after assert.
   out is dense, `[7, _, 9]`, or timed, `[0s: 7, 2s: 9]`. Each cell is one
   cycle's publication: it is read as the `delta<T>` (TYPE-16) of its
   parameter's type T for an input, and of the target's result type for an
-  expectation. For a scalar that is T itself.
+  expectation. For a scalar that is T itself. For a nullable scalar it is
+  the optional that holds what was published: a cell written as a value is
+  that value, and one written `null` a published null, as `return null` is
+  (TIME-7). `_` is no publication.
 - **TST-7.** Timed traces use the sequence-of-pairs syntax in EXPR-9; a
   one-entry trace is still a sequence. Timed entries use duration offsets from
   run start or absolute datetime keys. Keys strictly increase; no `_` occurs
@@ -90,17 +93,17 @@ arbitrary callable value. `raises` is contextual immediately after assert.
   Validate ordinary arguments and profile admission before graph start. A
   constructor failure retains its own code; it is not renamed as a profile error.
 
-Proposed, what a `const fn` is given:
-
-- **TST-16.** A trace given to a `const fn` is an ordinary value there. Each
-  cell is what the target's result publishes in one cycle: for a result
-  type T, a `delta<T>` (TYPE-16), which is T itself for a scalar and V for
-  an `atomic<V>`. A dense trace is a `list<delta<T>?>`, with null where it
-  has `_`: a `list<i64?>` for an `i64` result. Where `delta<T>` is itself
-  nullable such a list cannot tell a published null from `_` (TYPE-15):
-  the dense trace is not given, and rejects there. A timed trace is a
-  `dict<duration, delta<T>>` or a `dict<datetime, delta<T>>`, by its keys,
-  and has an entry for each publication, a null one included. The
+- **TST-16.** A trace given to a `const fn` is an ordinary value there: for
+  a result type T a `list<tuple<datetime, delta<T>>>`, one tuple for each
+  publication, in time order. A tuple holds the instant of the publication
+  and what the target's result published then, a `delta<T>` (TYPE-16),
+  which is T itself for a scalar and V for an `atomic<V>`: a
+  `list<tuple<datetime, i64>>` for an `i64` result. Nothing published is
+  no entry: a dense trace's `_` gives none, and a published null is the
+  delta that holds one. The instant of a dense trace's position i is the
+  run's start plus i minimum engine steps (TST-6); of a timed entry keyed
+  by a duration, the run's start plus its key; of one keyed by a datetime,
+  its key. A trace written out is given as an eval's result is. The
   parameter is written with that type, and what the function returns is
   ordinary data.
 
@@ -125,10 +128,21 @@ test bound_and_timed {
     assert seen == [7, _, 7, 9]
     assert eval(pass_through_i64, value: [0s: 7, 2s: 9]) == [0s: 7, 2s: 9]
 }
+
+const fn ticks(seen: list<tuple<datetime, i64>>) -> i64 {
+    var count = 0
+    for tick in seen { count += 1 }
+    return count
+}
+
+test counted {
+    assert ticks(eval(pass_through_i64, value: [7, _, 7, 9])) == 3
+}
 ```
 
 The target publishes its own output; a composition identity would not exercise
-compute publication. Conformance source is planned, not supplied by this example.
+compute publication. `ticks` is given the trace as a list with a tuple for
+each of its three publications, and none for its `_` (TST-16). Conformance source is planned, not supplied by this example.
 
 Deliberate source rejections: `eval(7, value: [7])` and `eval(add_, lhs: [7],
 rhs: [9])`, whose first argument names no function (`eval.target`); `let seen = eval(sink, value: [7])` with
