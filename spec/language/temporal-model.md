@@ -65,7 +65,11 @@ flowchart LR
   `valid` and `all_valid` retain distinct child-validity rules.
 - **TIME-5.** State/cache/inject declarations precede executable hooks. At most
   one start and one stop are admitted. State initializers cannot read current
-  temporal inputs. Start follows initialization; stop performs semantic
+  temporal inputs. `start` reads no temporal input and gives none to an
+  endpoint operation: it runs before any has a value. `stop` reads a
+  temporal input under manual admission, as a `when` under `valid([])`
+  does: no header stands over it, so each payload read is dominated by a
+  guard (TIME-4). Start follows initialization; stop performs semantic
   finalization. Runtime ownership handles destruction.
 - **TIME-6.** State is persistent, recordable node history. Initializers do not
   overwrite restored state. Cache is reconstructible node-local value data,
@@ -147,6 +151,14 @@ fn guarded_forward(value: i64) -> i64 {
     when modified() && valid(value) { return value }
     when modified() && valid([]) { invalidate(out) }
 }
+
+fn last_seen(value: i64) -> i64 {
+    state last: i64 = 0
+    when { return value }
+    stop {
+        if valid(value) { last = value }
+    }
+}
 ```
 
 `modified()` subscribes to input notifications. `valid([])` lets the body check
@@ -158,7 +170,10 @@ Deliberate rejections: replacing `if valid(value) { return value }` in
 manual admission (`payload.unguarded`);
 `valid(value + 1)`, which names no input (`endpoint.argument`); a `let`
 beside the `when` (`node.statement`); and a `start` that reads or writes
-`out` (`out.lifecycle`).
+`out` (`out.lifecycle`). In `last_seen` the `stop` reads `value` under its
+guard (TIME-5); `stop { last = value }` is an unguarded read
+(`payload.unguarded`), and `start { last = value }` reads an input where
+none has a value (`input.lifecycle`).
 Conformance planned.
 
 Accepted illustration, complete module, a node that publishes when the graph
