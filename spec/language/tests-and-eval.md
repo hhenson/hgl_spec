@@ -117,10 +117,12 @@ a run configuration (RUN-1). `raises` is contextual immediately after assert.
   named test that may run in real time: beside `eval` it writes
   `run(call, config)` (RUN-3), whose value is the run's output as an eval's
   is. It is for what a simulation cannot reach: the host clock, adaptors,
-  and outside events. An integration test is run only when it is asked for;
-  a run of a module's tests leaves it out. In every other respect it is a
-  test: its name is one of its module's test names (TST-2), and its block
-  is a test's (TST-3, TST-4).
+  and outside events. In a test's block `run` as the callee of a call is
+  that form, whatever else is in scope (LEX-10); in a test that is no
+  integration test it rejects. An integration test is run only when it is
+  asked for; a run of a module's tests leaves it out. In every other
+  respect it is a test: its name is one of its module's test names (TST-2),
+  and its block is a test's (TST-3, TST-4).
 
 Accepted illustration, complete module:
 

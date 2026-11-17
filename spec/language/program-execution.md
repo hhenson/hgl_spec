@@ -11,7 +11,9 @@ run_expression = "run", "(", expression, [ ",", expression ], [ "," ], ")" ;
 ```
 
 `eval_expression` is in [tests and eval](tests-and-eval.md). The first
-expression of each is a call, and the second a run configuration.
+expression of each is a call, and the second a run configuration. As an
+expression, `run_expression` is read in a test's block and nowhere else
+(TST-17): elsewhere `run(...)` is a call of what `run` names.
 
 ## Rules
 
