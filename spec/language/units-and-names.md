@@ -1,6 +1,7 @@
 # Units and names
 
-Status: agreed module, visibility, default-binding, and lookup rules.
+Status: agreed module, visibility, default-binding, lookup, and constant
+rules.
 
 ## Grammar
 
@@ -15,7 +16,9 @@ import_name = IDENTIFIER ;
 top_level_item = use_decl | declaration ;
 declaration = function_decl | struct_decl | enum_decl | operator_decl
             | instantiate_decl | native_type_decl | native_function_decl
-            | test_decl | test_context ;
+            | constant_decl | test_decl | test_context ;
+constant_decl = [ "export" ], "const", IDENTIFIER, ":", value_type,
+                "=", const_expression ;
 member_name = IDENTIFIER | ? a hard reserved word ? ;
 callable_name = IDENTIFIER ;
 ```
@@ -36,8 +39,8 @@ admits one as a member name.
   public declarations; an alias qualifies a public interface with
   `alias::name` and names nothing alone. A dotted module path creates no
   privileged access to another module.
-- **UNIT-3.** Ordinary functions and types are private unless exported, a
-  native function and a native type among them (NATIVE-1).
+- **UNIT-3.** Ordinary functions, types, and constants are private unless
+  exported, a native function and a native type among them (NATIVE-1).
   Operators are public by definition. A candidate, `impl fn` or
   `impl const fn`, is attached to its operator and is reached only through
   it. Exported signatures are closed over reachable types and required
@@ -106,13 +109,26 @@ admits one as a member name.
   (GEN-4), not a name. A member name is not a binding and may match any
   name. A test's name is not one either: it may match a declaration's, and
   is unique among its module's tests (TST-2).
+- **UNIT-13.** A constant, `const name: T = expression`, names one ordinary
+  value of the type T. Its expression is a const expression (EXPR-5) checked
+  against T: of literals, enum members, constructors, other constants, and
+  calls of value functions and operators on those. It reads no parameter,
+  local, temporal value, or capability. The constant has that one value
+  wherever it is read, and a failure in evaluating it is a required-constant
+  failure (ERR-9). A constant is read by its name wherever an ordinary value
+  is, and is a constant expression where one is required (FN-1). It is
+  referenced forward as any module declaration is (UNIT-6), and its value
+  depends on no constant that depends on it.
 
 Accepted illustration, complete module:
 
 ```hgl
 module examples.defaults
 
-const fn seed() -> i64 => 7
+export const scale: i64 = 2
+const first: i64 = 3 * scale + 1
+
+const fn seed() -> i64 => first
 const fn choose(base: i64, value: i64 = seed()) -> i64 => base + value
 
 test defining_closure {
@@ -120,8 +136,10 @@ test defining_closure {
 }
 ```
 
-The default calls the module's `seed` (UNIT-7); the body reads its
-parameters (UNIT-10). The [eval illustration](tests-and-eval.md) calls
+`first` is a constant whose expression reads another, `scale`, which other
+modules may import (UNIT-13). The default calls the module's `seed`
+(UNIT-7); the body reads its parameters (UNIT-10). The
+[eval illustration](tests-and-eval.md) calls
 `delta_value` with no `use`: it is a prelude name (UNIT-11). Two blocks,
 neither enclosing the other, may each bind the same local name.
 Deliberate source rejections: a default of `base` in place of `seed()` reads
@@ -130,7 +148,9 @@ a formal argument (UNIT-7); a first parameter named `seed`, a local named
 earlier local of a block around it, a local declared in two cases of one
 `switch`, a test helper named `choose`, or any
 function, parameter, or local named `delta_value` or for a declaration its
-file imports, takes a name already in scope (UNIT-12). Conformance is planned.
+file imports, takes a name already in scope (UNIT-12), as does a parameter
+or a local named `scale`; and `const twice: i64 = twice + 1`, a constant
+whose value depends on itself (`constant.cycle`). Conformance is planned.
 
 ## Core boundary
 
