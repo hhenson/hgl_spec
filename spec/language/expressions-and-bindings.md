@@ -1,8 +1,9 @@
 # Expressions and bindings
 
-Status: agreed expression/binding baseline. Structural delta constructors
-retain their proposed status, and so does assignment into a place in a
-graph (EXPR-15).
+Status: agreed expression/binding baseline. The constructor of a struct's
+delta and the sparse-field rules of structural delta construction retain
+their proposed status, and so does assignment into a place in a graph
+(EXPR-15).
 
 ## Grammar
 
@@ -322,7 +323,10 @@ no compile-time constant (`generic.argument_constant`).
 Executable conformance is planned. The [error examples](errors-and-diagnostics.md#checked-division-propagation)
 distinguish returning Err data from explicitly propagating node failure.
 
-## Proposed structural delta construction
+## Structural delta construction
+
+Agreed: the constructor of a set's and a dictionary's delta, by its
+properties (TYPE-16). A struct's is proposed with its properties.
 
 ```ebnf
 delta_constructor = "delta", "<", type, ">", "(", [ delta_arguments ], ")" ;
@@ -330,8 +334,9 @@ delta_arguments = delta_argument, { ",", delta_argument }, [ "," ] ;
 delta_argument = member_name, ":", expression ;
 ```
 
-Sparse fields use the shared sequence-of-pairs syntax, including empty brackets;
-their key/index expressions must satisfy the required-constant restrictions.
+Proposed: sparse fields use the shared sequence-of-pairs syntax, including
+empty brackets; their key/index expressions must satisfy the
+required-constant restrictions.
 Entries retain exact originating shape. Names, key/index types, duplicate
 entries, and fixed bounds are checked before publication admission. Omitted
 children are sparse omissions, not ordinary unset required fields. Construction
