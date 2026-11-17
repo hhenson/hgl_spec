@@ -51,8 +51,9 @@ arbitrary callable value. `raises` is contextual immediately after assert.
 
 ## Dense trace extent
 
-- **TST-6.** Dense position i denotes the simulation start plus i minimum
-  engine steps. All input traces share that indexing.
+- **TST-6.** Dense position i denotes the run's start plus i smallest
+  steps, which core gives as a microsecond each. All input traces share that
+  indexing.
   Input `_` adds no scheduled event. Leading and intervening placeholders
   locate later publications. Trailing placeholders have no effect. An input
   with only placeholders supplies an empty replay, just like `[]`. A dense
@@ -81,13 +82,15 @@ arbitrary callable value. `raises` is contextual immediately after assert.
   in timed traces. Within one eval all inputs and expectation use the same
   dense/timed style. Sparse expectations enumerate exactly the actual output
   ticks and times.
-- **TST-8.** Eval constructs core replay, the selected target, and core record;
-  an outputless target has no recorder or comparable result. Its eval stands
-  as a statement and has no value: binding or comparing it rejects. Each
-  invocation
-  has fresh run state and independent retained captures. An initialized empty
-  recording is valid; missing recording or failure is never successful emptiness.
-  Test imports/overloads cannot replace designated core replay/record.
+- **TST-8.** Eval is a run (RUN-4) of an entry made for it: core's replay for
+  each temporal input, then the selected target, whose result is the entry's.
+  The run is a simulation from the earliest start until nothing is
+  scheduled, and its output is the eval's value. An outputless target has no
+  recording or comparable result. Its eval stands as a statement and has no
+  value: binding or comparing it rejects. Each invocation is a fresh run with
+  independent retained captures. An empty recording is valid; missing
+  recording or failure is never successful emptiness. Test imports/overloads
+  cannot replace core's replay or record.
 - **TST-9.** Scalar false/zero/empty values are present publications. Structural
   input cells follow the admitted delta profile rather than a held snapshot.
   Validate ordinary arguments and profile admission before graph start. A
@@ -101,7 +104,7 @@ arbitrary callable value. `raises` is contextual immediately after assert.
   `list<tuple<datetime, i64>>` for an `i64` result. Nothing published is
   no entry: a dense trace's `_` gives none, and a published null is the
   delta that holds one. The instant of a dense trace's position i is the
-  run's start plus i minimum engine steps (TST-6); of a timed entry keyed
+  run's start plus i smallest steps (TST-6); of a timed entry keyed
   by a duration, the run's start plus its key; of one keyed by a datetime,
   its key. A trace written out is given as an eval's result is. The
   parameter is written with that type, and what the function returns is

@@ -161,6 +161,7 @@ infrastructure and cannot satisfy a source-rejection expectation.
 | injectable | `inject.out_without_result` | `inject out` in a function that declares no result (TIME-7); `out` |
 | injectable | `capability.as_value` | Capability retained: the value of a `state` or `cache`, an entry of a tuple, list, set, dictionary, or struct, returned, or published; a capability given to a parameter written as a generic parameter or `any`; or a capability type written other than as a parameter's of a `const fn` or a native value function (TIME-8); use |
 | injectable | `inject.alarm_and_scheduler` | `alarm` and `scheduler` injected in one node (TIME-8); the later name |
+| injectable | `store.reserved_key` | A key of the global store that is the run's own, `"run.output"` (TIME-8); the key |
 | phase | `node.nested` | `state`, `cache`, `inject`, `start`, `when`, or `stop` inside a block of a temporal function (TIME-3, TIME-5); keyword |
 | phase | `node.in_value_function` | `state`, `cache`, `inject`, `start`, `when`, or `stop` in a `const fn` (FN-1, FN-9); keyword |
 | phase | `node.declaration_order` | `state`, `cache`, or `inject` after a `start`, `when`, or `stop` (TIME-5); the declaration |
