@@ -186,7 +186,6 @@ GEN-14 resolves generic construction versus comparison using declaration lookup.
   temporal input: time-varying temporal configuration requires a signature
   explicitly admitting that input. EXPR-12 still requires result-type selectors
   to resolve during checking. Configuration grants no purity or phase exemption.
-
 - **EXPR-15.** In a graph, an assignment into a place of a `var` is copy on
   write. A graph's `var` denotes a connection (EXPR-4), and a field of a
   connection is no storage: `point.x = price` rebinds `point` to a new
