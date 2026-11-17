@@ -116,9 +116,11 @@ admits one as a member name.
   local, temporal value, or capability. The constant has that one value
   wherever it is read, and a failure in evaluating it is a required-constant
   failure (ERR-9). A constant is read by its name wherever an ordinary value
-  is, and is a constant expression where one is required (FN-1). It is
-  referenced forward as any module declaration is (UNIT-6), and its value
-  depends on no constant that depends on it.
+  is. It is a constant expression where a `const` parameter requires one
+  (FN-1), and a compile-time constant where a generic value argument
+  (GEN-8) or a `switch` label (CTRL-12) requires one. It is referenced
+  forward as any module declaration is (UNIT-6), and its value depends on
+  no constant that depends on it.
 
 Accepted illustration, complete module:
 
