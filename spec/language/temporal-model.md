@@ -79,7 +79,11 @@ flowchart LR
   reads nor writes it, and a `return` with a value stands in neither `start`
   nor `stop`. A node that publishes when the graph starts schedules itself
   in `start` and writes in its first scheduled evaluation. No write means no
-  tick; whole-output invalidation is explicit and distinct from silence.
+  tick; whole-output invalidation is explicit and distinct from silence. In
+  a hook, `return value` and `out = value` take a complete value of the
+  result's type T, published whole, or a `delta<T>` (TYPE-16), published as
+  that change; so does a source's `yield` (SOURCE-1). A result of
+  `atomic<V>` takes a V.
 - **TIME-8.** The injectables are `out`, `logger`, `clock`, `scheduler`,
   `alarm`, and `global_state`; `inject` names no other. `out` is the node's
   result (TIME-7). `inject` binds each of the others to a local of its
