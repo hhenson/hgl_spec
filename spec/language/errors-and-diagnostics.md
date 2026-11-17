@@ -143,6 +143,7 @@ infrastructure and cannot satisfy a source-rejection expectation.
 | module | `import.cycle` | Modules import one another (UNIT-3); first import of the cycle |
 | name | `name.duplicate` | Binding takes a name already in scope (UNIT-5, UNIT-12, TST-2, NATIVE-2); later name |
 | name | `name.used_before_declaration` | Local used before the statement that declares it (UNIT-6); use |
+| name | `constant.cycle` | Constant whose value depends on itself (UNIT-13); name |
 | name | `name.test_only` | Test-only declaration used outside the tests (TST-2); use |
 | name | `name.captured` | Anonymous function uses an enclosing `var`, `state`, `cache`, or injected capability (FN-14); use |
 | name | `default.formal_argument` | Default names a parameter of its declaration or a field of its struct (UNIT-7); use |

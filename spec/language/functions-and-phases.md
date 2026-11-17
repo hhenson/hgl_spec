@@ -38,8 +38,8 @@ Local source/native declaration matching is defined in the native chapter.
   instead fixes configuration: a `const` parameter takes what is fixed when
   the graph is built. In composition that is any ordinary value. In a hook
   and in a value function it is a constant expression: of literals, enum
-  members, generic value parameters, and the enclosing function's own
-  `const` parameters. A temporal `fn` has temporal non-const
+  members, constants (UNIT-13), generic value parameters, and the enclosing
+  function's own `const` parameters. A temporal `fn` has temporal non-const
   parameters and a temporal result; an omitted result arrow means outputless.
   An operator is neither: each of its candidates is one or the other (GEN-4).
 - **FN-2.** An ordinary temporal body with no node-only construct describes
@@ -63,7 +63,8 @@ Local source/native declaration matching is defined in the native chapter.
   (CTRL-15), a connection rejects. An ordinary
   value of type T is accepted where composition expects a connection of T,
   and is wired as a constant, one publication when the graph starts: a
-  literal, a `const` parameter, or an all-scalar call (FN-6).
+  literal, a constant (UNIT-13), a `const` parameter, or an all-scalar call
+  (FN-6).
   A runtime hook can call value helpers but cannot silently
   construct a temporal child call. In a hook a temporal parameter is a value
   of its declared type, read as in a value function; TIME-9 has the

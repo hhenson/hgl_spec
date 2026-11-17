@@ -102,8 +102,8 @@ CTRL-9 places the opening brace of an `if`, `for`, `switch`, `when`, or
   condition holds; the form with no condition is a source's (SOURCE-4) and
   rejects there. A `switch` there selects on a `bool`, `i64`, `str`, or enum
   value. Each label is a constant of the selector's type (CTRL-6): a
-  literal, an enum member, or a generic value parameter. A `switch` is a
-  statement and has no value.
+  literal, an enum member, a constant (UNIT-13), or a generic value
+  parameter. A `switch` is a statement and has no value.
 - **CTRL-13.** In composition the condition of an `if` is a `bool`, an
   ordinary value or a connection (CTRL-1): a `bool?` or any other type
   rejects. An `if` whose value is used has the one type its branches' values

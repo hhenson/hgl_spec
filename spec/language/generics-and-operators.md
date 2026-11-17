@@ -158,8 +158,8 @@ expression; group a constant expression that uses them as operand data.
   parameter of that name, or else its parameter of that name. The value a
   call gives a generic value parameter is a compile-time constant: a
   literal, an enum member however it is written (TYPE-7), `Zero.nan` or
-  `.nan`, a generic value parameter in scope, or a constant expression of
-  those. Any other rejects. A generic value parameter the call does not
+  `.nan`, a constant (UNIT-13), a generic value parameter in scope, or a
+  constant expression of those. Any other rejects. A generic value parameter the call does not
   give takes its default, when it has one. An operator's takes part in
   the output requested, in GEN-2's order: what the call writes, then what
   its place expects, then its arguments, and the default where none of
