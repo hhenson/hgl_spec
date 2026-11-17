@@ -302,19 +302,27 @@ fn stamp(value: f64) -> tuple<datetime, f64> {
 
 fn poll(const every: duration = 1s) -> i64 {
     inject alarm, global_state
-    start { schedule(alarm, every) }
+    start {
+        put(global_state, "count", 0)
+        schedule(alarm, every)
+    }
     when scheduled() {
         schedule(alarm, every)
-        return get<i64>(global_state, "count")
+        let count = get<i64>(global_state, "count") + 1
+        put(global_state, "count", count)
+        return count
     }
 }
 ```
 
 `stamp` gives its clock to `stamped`, whose parameter is of the clock's type;
 `stamped` reads one of its properties. `poll` has no temporal input: its
-alarm wakes it, and each wake asks for the next and publishes the count
-held in the global state. Deliberate rejections: `state kept: Clock`, and
-`let pair = (clock, value)`, a capability retained; `stamped(logger, value)`,
+alarm wakes it. Its `start` puts the count in the global state, which holds
+nothing until a program puts it there, and each wake asks for the next, adds
+one to the count held there, and publishes it. Deliberate rejections:
+`put(global_state, "run.output", 0)`, a key that is the run's own;
+`state kept: Clock`, and `let pair = (clock, value)`, a capability
+retained; `stamped(logger, value)`,
 a `Logger` where a `Clock` is taken; `boxed(clock)`, with
 `const fn boxed<T>(value: T) -> list<T>`, a capability given to a generic
 parameter; `inject alarm, scheduler` in one node; and
