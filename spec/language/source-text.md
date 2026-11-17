@@ -108,8 +108,9 @@ atomic tuple list set dict rolling result ref signal endpoint delta error
   modifier only in positions that admit it; elsewhere it is an ordinary
   identifier, including callable and imported names (FN-5).
 - **LEX-10.** The contextual names are `const`, `native`, and `type`;
-  `application`, at the head of a file (UNIT-14), and `run`, the word of an
-  application's run statement (RUN-1);
+  `application`, at the head of a file (UNIT-14), `run`, the word of a
+  run in real time (RUN-3), and `integration_test`, before a test's name
+  (TST-17);
   `switch`, `case`, `default`, `in`, `each`, `unbounded`, `properties`,
   `associative`, `commutative`, `identity`, `raises`, and `suppress_warning`;
   the capability names (TIME-8); and the result forms `ok`, `err`, `is_ok`,

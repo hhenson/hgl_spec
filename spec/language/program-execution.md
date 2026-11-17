@@ -11,7 +11,9 @@ run_expression = "run", "(", expression, [ ",", expression ], [ "," ], ")" ;
 ```
 
 `eval_expression` is in [tests and eval](tests-and-eval.md). The first
-expression of each is a call, and the second a run configuration.
+expression of each is a call, and the second a run configuration. As an
+expression, `run_expression` is read in a test's block and nowhere else
+(TST-17): elsewhere `run(...)` is a call of what `run` names.
 
 ## Rules
 
@@ -36,7 +38,8 @@ expression of each is a call, and the second a run configuration.
   in real time: it follows the host clock and admits outside events, from
   the present or the configuration's start, until the configuration's end
   or until its host stops it. Start is inclusive, end exclusive. `eval` is
-  written in a test and in an application; `run` in an application. Core's
+  written in a test and in an application; `run` in an application and in
+  an integration test (TST-17). Core's
   execution contract gives the earliest start, the smallest step between two
   cycles, and what a start or an end left out means; a source file does not
   read the host clock to choose its own semantics.
@@ -93,9 +96,11 @@ Deliberate rejections: `run(heartbeat(every: 1))`, an entry given an `i64`
 for a `duration`; `run(scaled(price: [1.0]))`, a call of a function with a
 temporal input, which is no entry (`run.entry`); an application with no run
 statement, or a second one (`application.run_count`); a run statement in a
-module (`run.position`); `export fn` in an application
-(`application.export`); and `use examples.entry.live::{heartbeat}`, an
-import of an application (`application.import`).
+module, or one that a declaration follows (`run.position`); `export fn` in an application
+(`application.export`); `use examples.entry.live::{heartbeat}`, an
+import of an application (`application.import`); and a second file headed
+`application examples.entry.live`, or one headed `module
+examples.entry.live` (`application.duplicate_path`).
 
 ## Core boundary
 

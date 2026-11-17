@@ -1,13 +1,13 @@
 # Tests and eval
 
-Status: the eval rules, TST-5 to TST-9, and what a `const fn` is given for
-a trace, TST-16, are agreed. The error expectation contracts retain their
-status below.
+Status: the eval rules, TST-5 to TST-9, what a `const fn` is given for
+a trace, TST-16, and integration tests, TST-17, are agreed. The error
+expectation contracts retain their status below.
 
 ## Grammar
 
 ```ebnf
-test_decl = "test", IDENTIFIER, block ;
+test_decl = ( "test" | "integration_test" ), IDENTIFIER, block ;
 test_context = "test", "{", [ NL ],
                [ test_item, { NL, test_item }, [ NL ] ], "}" ;
 test_item = function_decl | struct_decl | enum_decl | test_decl ;
@@ -113,6 +113,16 @@ a run configuration (RUN-1). `raises` is contextual immediately after assert.
   written as: `ticks([(@2026-01-01T00:00:00Z, 7)])` gives `ticks` one
   tuple. The parameter is written with that type, and what the function
   returns is ordinary data.
+- **TST-17.** An integration test, `integration_test name { ... }`, is a
+  named test that may run in real time: beside `eval` it writes
+  `run(call, config)` (RUN-3), whose value is the run's output as an eval's
+  is. It is for what a simulation cannot reach: the host clock, adaptors,
+  and outside events. In a test's block `run` as the callee of a call is
+  that form, whatever else is in scope (LEX-10); in a test that is no
+  integration test it rejects. An integration test is run only when it is
+  asked for; a run of a module's tests leaves it out. In every other
+  respect it is a test: its name is one of its module's test names (TST-2),
+  and its block is a test's (TST-3, TST-4).
 
 Accepted illustration, complete module:
 

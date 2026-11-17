@@ -31,7 +31,7 @@ primary_expr = literal | IDENTIFIER | qualified_name | implied_member
              | "(", expression, ")" | tuple_literal | sequence_literal
              | typed_constructor | delta_constructor | type_call
              | function_expr | if_expression
-             | eval_expression | block ;
+             | eval_expression | run_expression | block ;
 arguments = argument, { ",", argument }, [ "," ] ;
 argument = [ member_name, ":" ], expression ;
 tuple_literal = "(", expression, ",", [ expression, { ",", expression }, [ "," ] ], ")" ;
