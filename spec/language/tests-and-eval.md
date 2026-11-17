@@ -165,15 +165,22 @@ fn beats(const every: duration) -> i64 {
 }
 
 test bounded {
-    assert ticks(eval(beats(every: 1s), RunConfig(end: earliest_start + 4s))) == 3
+    assert ticks(eval(beats(every: 1s), RunConfig(length: 4s))) == 3
+}
+
+integration_test beats_live {
+    let seen = run(beats(every: 10ms), RunConfig(length: 1s))
+    assert ticks(seen) > 0
 }
 ```
 
 The target publishes its own output; a composition identity would not exercise
 compute publication. `ticks` is given the trace as a list with a tuple for
 each of its three publications, and none for the cycle in which nothing was
-published (TST-16). Conformance source is planned, not supplied by this
-example.
+published (TST-16). `beats` never stops of itself, so each run of it is
+given a length: `bounded` evaluates four seconds of it in simulation, and
+`beats_live` runs it for a second of the host clock, when it is asked for
+(TST-17). Conformance source is planned, not supplied by this example.
 
 Deliberate source rejections: `eval(7)`, `eval(pass_through_i64)`, and
 `eval(add_(lhs: [7], rhs: [9]))`, whose first argument is no call of a

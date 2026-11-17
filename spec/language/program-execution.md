@@ -41,8 +41,9 @@ expression, `run_expression` is read in a test's block and nowhere else
   written in a test and in an application; `run` in an application and in
   an integration test (TST-17). Core's
   execution contract gives the earliest start, the smallest step between two
-  cycles, and what a start or an end left out means; a source file does not
-  read the host clock to choose its own semantics.
+  cycles, what a start or an end left out means, and how a configuration
+  gives its end, as an instant or as a length from its start; a source file
+  does not read the host clock to choose its own semantics.
 - **RUN-4.** Each run has independent runtime-owned state, captures,
   capabilities, store, and lifecycle. Start and stop follow the required
   graph order; construction/start/evaluation/stop failures preserve their
@@ -72,7 +73,7 @@ application examples.entry.backtest
 
 use examples.entry::{heartbeat}
 
-eval(heartbeat(every: 500ms), RunConfig(end: earliest_start + 3s))
+eval(heartbeat(every: 500ms), RunConfig(length: 3s))
 ```
 
 ```hgl
