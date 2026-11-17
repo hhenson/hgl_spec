@@ -1,8 +1,9 @@
 # Expressions and bindings
 
-Status: agreed expression/binding baseline. Structural delta constructors
-retain their proposed status, and so does assignment into a place in a
-graph (EXPR-15).
+Status: agreed expression/binding baseline. The constructor of a struct's
+delta and the sparse-field rules of structural delta construction retain
+their proposed status, and so does assignment into a place in a graph
+(EXPR-15).
 
 ## Grammar
 
