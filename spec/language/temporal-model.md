@@ -88,9 +88,10 @@ flowchart LR
   a `delta<T>` is published as that change; a binding annotated with that
   type gives one, `let change: delta<list<i64>> = []`. Where T publishes
   whole, as a scalar does, `delta<T>` is T and the two are one. A tuple
-  whose every position is nullable has a delta of the tuple's own type
-  (TYPE-16), and a value of that type is a T: it is published whole, a
-  null position as a null. A change to one position of such a result is
+  can have a delta of its own type and not publish whole:
+  `tuple<i64?, f64?>` has, each position nullable and its own delta
+  (TYPE-16). A value of such a tuple's type is a T: it is published whole,
+  a null position as a null. A change to one position of such a result is
   published through `out`, `out[1] = 3` (EXPR-3). A result of `atomic<V>`
   takes a V.
 - **TIME-8.** The injectables are `out`, `logger`, `clock`, `scheduler`,
