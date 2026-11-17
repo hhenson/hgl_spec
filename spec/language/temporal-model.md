@@ -82,7 +82,12 @@ flowchart LR
   tick; whole-output invalidation is explicit and distinct from silence. In
   a hook, `return value` and `out = value` take a complete value of the
   result's type T, published whole, or a `delta<T>` (TYPE-16), published as
-  that change; so does a source's `yield` (SOURCE-1). A result of
+  that change; so does a source's `yield` (SOURCE-1). The place expects T
+  (EXPR-5), so a value that is a T is published whole: `return []` for a
+  `list<i64>` result publishes the empty list, and where `delta<T>` is T
+  itself there is one publication to make. A value that is no T and is a
+  `delta<T>` is published as that change; a binding annotated with that
+  type gives one, `let change: delta<list<i64>> = []`. A result of
   `atomic<V>` takes a V.
 - **TIME-8.** The injectables are `out`, `logger`, `clock`, `scheduler`,
   `alarm`, and `global_state`; `inject` names no other. `out` is the node's
