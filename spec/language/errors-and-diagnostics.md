@@ -275,6 +275,7 @@ infrastructure and cannot satisfy a source-rejection expectation.
 | `value.capability` | Boxed executed operation lacks a required contained capability |
 | `value.byte_range` | Bytes construction receives an octet outside 0–255 |
 | `numeric.division_by_zero` | Explicit `?` propagation in `when` turns a checked-division Err into node failure; see the [core numeric contract](https://github.com/hhenson/hgl_core/blob/main/spec/numeric-operators.md) |
+| `numeric.out_of_range` | A result is outside its type's range: an `i64`, a `duration` or an instant; see the core [numeric](https://github.com/hhenson/hgl_core/blob/main/spec/numeric-operators.md) and [scalar operator](https://github.com/hhenson/hgl_core/blob/main/spec/scalar-operators.md) contracts |
 | `yield.negative_duration` | Both yield operands succeeded; delay is negative |
 | `yield.non_increasing_time` | Resolved target does not exceed the previous target |
 | `eval.input_delta_profile` | Executed eval input violates its admitted publication profile before start |
