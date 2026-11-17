@@ -96,19 +96,18 @@ arbitrary callable value. `raises` is contextual immediately after assert.
   Validate ordinary arguments and profile admission before graph start. A
   constructor failure retains its own code; it is not renamed as a profile error.
 
-- **TST-16.** A trace given to a `const fn` is an ordinary value there: for
-  a result type T a `list<tuple<datetime, delta<T>>>`, one tuple for each
-  publication, in time order. A tuple holds the instant of the publication
-  and what the target's result published then, a `delta<T>` (TYPE-16),
-  which is T itself for a scalar and V for an `atomic<V>`: a
-  `list<tuple<datetime, i64>>` for an `i64` result. Nothing published is
-  no entry: a dense trace's `_` gives none, and a published null is the
-  delta that holds one. The instant of a dense trace's position i is the
-  run's start plus i smallest steps (TST-6); of a timed entry keyed
-  by a duration, the run's start plus its key; of one keyed by a datetime,
-  its key. A trace written out is given as an eval's result is. The
-  parameter is written with that type, and what the function returns is
-  ordinary data.
+- **TST-16.** A trace given to a `const fn` is an ordinary value there, the
+  output of the eval's run (RUN-1): for a result type T a
+  `list<tuple<datetime, delta<T>>>`, one tuple for each publication, in
+  time order. A tuple holds the instant of the publication and what the
+  target's result published then, a `delta<T>` (TYPE-16), which is T itself
+  for a scalar and V for an `atomic<V>`: a `list<tuple<datetime, i64>>` for
+  an `i64` result. Nothing published is no entry, and a published null is
+  the delta that holds one. The trace is an eval's, bound or not. A
+  sequence written where a `const fn` takes an argument is the list it is
+  written as: `ticks([(@2026-01-01T00:00:00Z, 7)])` gives `ticks` one
+  tuple. The parameter is written with that type, and what the function
+  returns is ordinary data.
 
 Accepted illustration, complete module:
 
@@ -145,15 +144,18 @@ test counted {
 
 The target publishes its own output; a composition identity would not exercise
 compute publication. `ticks` is given the trace as a list with a tuple for
-each of its three publications, and none for its `_` (TST-16). Conformance source is planned, not supplied by this example.
+each of its three publications, and none for the cycle in which nothing was
+published (TST-16). Conformance source is planned, not supplied by this
+example.
 
 Deliberate source rejections: `eval(7, value: [7])` and `eval(add_, lhs: [7],
 rhs: [9])`, whose first argument names no function (`eval.target`); `let seen = eval(sink, value: [7])` with
 an outputless `sink` (`eval.no_result`); `[0s: 7, 2s: _]` and a `_` outside
 a trace (`trace.placeholder`); `eval(pass_through_i64, value: [7, 9]) ==
 [0s: 7]`, a dense input with a timed expectation (`trace.style`);
-`[2s: 7, 1s: 9]` (`trace.key_order`); and `Kept(values: seen)`, a trace
-stored in a field (`trace.escape`).
+`[2s: 7, 1s: 9]` (`trace.key_order`); `Kept(values: seen)`, a trace
+stored in a field (`trace.escape`); and `ticks([7, 9])`, a list of `i64`
+where a list of tuples is taken (`type.mismatch`).
 
 ## Execution-error expectations
 
