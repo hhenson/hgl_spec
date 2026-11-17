@@ -108,6 +108,8 @@ atomic tuple list set dict rolling result ref signal endpoint delta error
   modifier only in positions that admit it; elsewhere it is an ordinary
   identifier, including callable and imported names (FN-5).
 - **LEX-10.** The contextual names are `const`, `native`, and `type`;
+  `application`, at the head of a file (UNIT-14), and `run`, the word of an
+  application's run statement (RUN-1);
   `switch`, `case`, `default`, `in`, `each`, `unbounded`, `properties`,
   `associative`, `commutative`, `identity`, `raises`, and `suppress_warning`;
   the capability names (TIME-8); and the result forms `ok`, `err`, `is_ok`,
@@ -254,7 +256,7 @@ PUNCTUATION = "..." | "<=>" | "//="
   call's or index's: LEX-5 says whether it begins a statement or completes
   the one before. A call here is a call suffix, the arguments of a typed or
   delta constructor, a conversion such as `str(value)`, `eval(...)`,
-  `raises(...)`, a constraint call, and a warning annotation. In an
+  `run(...)`, `raises(...)`, a constraint call, and a warning annotation. In an
   expression, a `<` that stands apart from the name before it is a
   comparison.
 

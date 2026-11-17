@@ -13,15 +13,16 @@ test_context = "test", "{", [ NL ],
 test_item = function_decl | struct_decl | enum_decl | test_decl ;
 assert_statement = "assert", ( expression | raises_assertion ) ;
 raises_assertion = "raises", "(", expression, ")", block ;
-eval_expression = "eval", "(", expression, { ",", argument }, [ "," ], ")" ;
+eval_expression = "eval", "(", expression, [ ",", expression ], [ "," ], ")" ;
 expect_error = "#", gap, "expect-error", "(", gap, error_category, gap, ",",
                gap, STRING_LITERAL, gap, ")", gap ;
 gap = { ? U+0020 or U+0009 ? } ;
 error_category = ? a source category of the diagnostic catalog ? ;
 ```
 
-Target checking restricts eval's first expression; grammar alone admits no
-arbitrary callable value. `raises` is contextual immediately after assert.
+Target checking restricts eval's first expression to a call of a function;
+grammar alone admits no arbitrary expression. The second, where written, is
+a run configuration (RUN-1). `raises` is contextual immediately after assert.
 `expect_error` gives the characters of one line comment, not a token sequence.
 
 ## Test scope and assertions
@@ -62,13 +63,16 @@ arbitrary callable value. `raises` is contextual immediately after assert.
 
 ## Eval contract
 
-- **TST-5.** Eval selects a module function, binding arguments by its public
-  positional/named rules. Its first argument names a function of a module.
-  Temporal/value role selection follows FN-4; a
+- **TST-5.** Eval takes a call of a module function, written as any call is:
+  `eval(target(value: [7, _, 9]))`. The call binds its arguments by the
+  function's public positional/named rules, and its generic arguments as
+  any call does. Temporal/value role selection follows FN-4; a
   selected value helper uses ordinary lifting. An operator is no target: a
   function wraps it, and that function's parameters give the traces their
   types. Const parameters receive configuration; temporal
-  parameters receive contextually typed publication traces. A trace written
+  parameters receive contextually typed publication traces. A trace is an
+  argument of that call and of no call inside it. A second argument is the
+  run's configuration, a `RunConfig` (RUN-1). A trace written
   out is dense, `[7, _, 9]`, or timed, `[0s: 7, 2s: 9]`. Each cell is one
   cycle's publication: it is read as the `delta<T>` (TYPE-16) of its
   parameter's type T for an input, and of the target's result type for an
@@ -84,8 +88,9 @@ arbitrary callable value. `raises` is contextual immediately after assert.
   ticks and times.
 - **TST-8.** Eval is a run (RUN-4) of an entry made for it: core's replay for
   each temporal input, then the selected target, whose result is the entry's.
-  The run is a simulation from the earliest start until nothing is
-  scheduled, and its output is the eval's value. An outputless target has no
+  The run is a simulation (RUN-3) under the eval's configuration: with none
+  written, from the earliest start until nothing is scheduled. Its output is
+  the eval's value. An outputless target has no
   recording or comparable result. Its eval stands as a statement and has no
   value: binding or comparing it rejects. Each invocation is a fresh run with
   independent retained captures. An empty recording is valid; missing
@@ -119,16 +124,16 @@ fn pass_through_i64(value: i64) -> i64 {
 }
 
 test repeated_ticks {
-    assert eval(pass_through_i64, value: [7, _, 7, 9]) == [7, _, 7, 9]
-    assert eval(pass_through_i64, value: [_, _, _]) == []
-    assert eval(pass_through_i64, value: [_, 7, _, _]) == [_, 7]
-    assert eval(pass_through_i64, value: []) == []
+    assert eval(pass_through_i64(value: [7, _, 7, 9])) == [7, _, 7, 9]
+    assert eval(pass_through_i64(value: [_, _, _])) == []
+    assert eval(pass_through_i64(value: [_, 7, _, _])) == [_, 7]
+    assert eval(pass_through_i64(value: [])) == []
 }
 
 test bound_and_timed {
-    let seen = eval(pass_through_i64, value: [7, _, 7, 9])
+    let seen = eval(pass_through_i64(value: [7, _, 7, 9]))
     assert seen == [7, _, 7, 9]
-    assert eval(pass_through_i64, value: [0s: 7, 2s: 9]) == [0s: 7, 2s: 9]
+    assert eval(pass_through_i64(value: [0s: 7, 2s: 9])) == [0s: 7, 2s: 9]
 }
 
 const fn ticks(seen: list<tuple<datetime, i64>>) -> i64 {
@@ -138,7 +143,19 @@ const fn ticks(seen: list<tuple<datetime, i64>>) -> i64 {
 }
 
 test counted {
-    assert ticks(eval(pass_through_i64, value: [7, _, 7, 9])) == 3
+    assert ticks(eval(pass_through_i64(value: [7, _, 7, 9]))) == 3
+}
+
+fn beats(const every: duration) -> i64 {
+    state count: i64 = 0
+    while {
+        count += 1
+        yield every: count
+    }
+}
+
+test bounded {
+    assert ticks(eval(beats(every: 1s), RunConfig(end: earliest_start + 4s))) == 3
 }
 ```
 
@@ -148,10 +165,11 @@ each of its three publications, and none for the cycle in which nothing was
 published (TST-16). Conformance source is planned, not supplied by this
 example.
 
-Deliberate source rejections: `eval(7, value: [7])` and `eval(add_, lhs: [7],
-rhs: [9])`, whose first argument names no function (`eval.target`); `let seen = eval(sink, value: [7])` with
+Deliberate source rejections: `eval(7)`, `eval(pass_through_i64)`, and
+`eval(add_(lhs: [7], rhs: [9]))`, whose first argument is no call of a
+function (`eval.target`); `let seen = eval(sink(value: [7]))` with
 an outputless `sink` (`eval.no_result`); `[0s: 7, 2s: _]` and a `_` outside
-a trace (`trace.placeholder`); `eval(pass_through_i64, value: [7, 9]) ==
+a trace (`trace.placeholder`); `eval(pass_through_i64(value: [7, 9])) ==
 [0s: 7]`, a dense input with a timed expectation (`trace.style`);
 `[2s: 7, 1s: 9]` (`trace.key_order`); `Kept(values: seen)`, a trace
 stored in a field (`trace.escape`); and `ticks([7, 9])`, a list of `i64`
