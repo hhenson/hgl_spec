@@ -2,8 +2,7 @@
 
 Status: agreed expression/binding baseline. The constructor of a struct's
 delta and the sparse-field rules of structural delta construction retain
-their proposed status, and so does assignment into a place in a graph
-(EXPR-15).
+their proposed status.
 
 ## Grammar
 
@@ -188,11 +187,13 @@ GEN-14 resolves generic construction versus comparison using declaration lookup.
   explicitly admitting that input. EXPR-12 still requires result-type selectors
   to resolve during checking. Configuration grants no purity or phase exemption.
 
-Proposed, a place in a graph:
-
-- **EXPR-15.** In a graph, an assignment into a place rejects: a graph's
-  `var` denotes a connection (EXPR-4), and a field of a connection is no
-  storage. The whole `var` is assigned.
+- **EXPR-15.** In a graph, an assignment into a place of a `var` is copy on
+  write. A graph's `var` denotes a connection (EXPR-4), and a field of a
+  connection is no storage: `point.x = price` rebinds `point` to a new
+  connection, which is `point` with its `x` from `price`. Nothing is
+  changed in place: what read `point` before the assignment keeps the
+  connection it had. The place, the type of its value, and a compound
+  assignment are as EXPR-3 has them.
 
 Accepted illustration, complete module:
 
@@ -234,11 +235,19 @@ const fn counted(words: list<str>) -> dict<str, i64> {
     }
     return counts
 }
+
+fn shifted(first: Point, price: f64) -> Point {
+    var point = first
+    point.x = price
+    return point
+}
 ```
 
 `moved` returns a point `by` to the right and leaves `origin` as it was: a
 parameter is read-only all the way down. `counts[word] = 1` adds a key the
-dictionary has not. Deliberate source rejections: `origin.x = by`, a field of
+dictionary has not. In `shifted`, a graph, `point.x = price` makes `point`
+a new connection, `first` with its `x` from `price` (EXPR-15); `first` is
+the connection it was. Deliberate source rejections: `origin.x = by`, a field of
 a parameter (`binding.immutable`); `point.x = "a"`, a `str` for an `f64`
 field (`type.mismatch`). Conformance is planned.
 
