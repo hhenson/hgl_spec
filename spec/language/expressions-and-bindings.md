@@ -77,11 +77,12 @@ GEN-14 resolves generic construction versus comparison using declaration lookup.
   left out. A parameter that may be omitted, one with a default or a type
   written `T?`, follows every parameter that may not (UNIT-8). A struct's
   constructor takes named arguments only (TYPE-5). An enum's takes one
-  argument, by position (TYPE-7).
+  argument, by position (TYPE-7). An argument of a `var` parameter is a
+  place, which the call assigns (FN-15).
 - **EXPR-3.** Initialization fixes a binding's value/connection category and
   type; an annotation checks that category rather than changing it. `let` is
-  immutable, and so is a parameter; `var` may be assigned within the same
-  category/type. An uninitialized
+  immutable, and so is a parameter that is not `var` (FN-15); `var` may be
+  assigned within the same category/type. An uninitialized
   typed var supplies no value or connection; reaching assignments must resolve
   consistently and every path reaching a read must assign it. In a value
   function, one whose type is written `T?` is null instead, and is assigned
@@ -89,11 +90,12 @@ GEN-14 resolves generic construction versus comparison using declaration lookup.
   declaration remains local. A compound assignment reads its existing target.
   An assignment may name a place inside a value, at any depth: a field,
   `point.x = 1`, or an element, `row[0] = 1`, `book["a"] = 1`. The place's
-  root is a `var`, a `state`, a `cache`, or, in a `when`, `out` (TIME-7). A
-  `let`, a parameter, and an iteration binding are read-only all the way
-  down. The value is of the field's type; of a list's element type, under an
-  `i64` index; of a dictionary's value type, under a key of its key type;
-  or of a tuple's position, under a constant index. A key the dictionary
+  root is a `var`, a `var` parameter, a `state`, a `cache`, or, in a
+  `when`, `out` (TIME-7). A `let`, any other parameter, and an iteration
+  binding are read-only all the way down. The value is of the field's type;
+  of a list's element type, under an `i64` index; of a dictionary's value
+  type, under a key of its key type; or of a tuple's position, under a
+  constant index. A key the dictionary
   has not is added. An index outside a list fails where it is evaluated. A
   set has no place to assign. A compound assignment reads the place first:
   `total.count += 1`.

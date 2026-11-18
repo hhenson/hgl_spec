@@ -219,7 +219,7 @@ infrastructure and cannot satisfy a source-rejection expectation.
 | type | `sequence.context_type` | Sequence whose entries give no type, where none is expected (EXPR-9); the sequence |
 | type | `enum.context_type` | `.member` where no enum type is expected (TYPE-7); the member |
 | name | `binding.unassigned` | `var` read on a path that gives it no value (EXPR-3); the read |
-| name | `binding.immutable` | Assignment to an immutable binding: a `let`, a parameter, an iteration binding, or a field or element of one (EXPR-3), or to a property of a native type (NATIVE-6) or of a delta (TYPE-16); target |
+| name | `binding.immutable` | Assignment to an immutable binding: a `let`, a parameter, an iteration binding, or a field or element of one (EXPR-3), or to a property of a native type (NATIVE-6) or of a delta (TYPE-16); or one given to a `var` parameter (FN-15); target |
 | type | `binding.category` | Assignment of a connection to a `var` that holds an ordinary value, or the reverse; assignment in a branch of a temporal `if` or `switch` to a `var` declared before it that holds an ordinary value (EXPR-4, CTRL-14); the value |
 | type | `argument.order` | Argument with no name after a named one (EXPR-2); the argument |
 | type | `argument.unexpected` | Positional argument that no parameter is left to take (EXPR-2), one given to a struct's constructor (TYPE-5), or a second given to an enum's (TYPE-7); the argument |
@@ -227,6 +227,8 @@ infrastructure and cannot satisfy a source-rejection expectation.
 | name | `argument.duplicate` | Parameter or field given twice (EXPR-2); later name |
 | type | `argument.missing` | Parameter or field that may not be left out is given nothing (EXPR-2, TYPE-5); callee name |
 | type | `argument.constant` | In a hook or a value function, a `const` parameter given what is no constant expression (FN-1); argument |
+| type | `argument.place` | `var` parameter given what is no place: a literal, what a call gives, or any other expression that nothing assigns (FN-15); argument |
+| function-kind | `parameter.var` | `var` parameter of a temporal function, an operator, or a candidate (FN-15); `var` |
 | function-kind | `call.role` | Temporal function called from a value function or a runtime hook (FN-3); callee name |
 | type | `return.missing` | Value function that declares a result can reach its end with no value (FN-7), or a graph that returns a value in a branch of a temporal `if` or `switch` can (CTRL-14); function name |
 | type | `switch.duplicate_label` | Switch label has the value of an earlier label (CTRL-6); later label |

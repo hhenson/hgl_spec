@@ -14,6 +14,7 @@ function_signature = "(", [ parameters ], ")", [ "->", type ] ;
 parameters = parameter, { ",", parameter }, [ "," ] ;
 parameter = IDENTIFIER, ":", type, [ "=", const_expression ]
           | "const", IDENTIFIER, ":", value_type, [ "=", const_expression ]
+          | "var", IDENTIFIER, ":", value_type
           | [ "const" ], IDENTIFIER, ":", pack, [ "=", const_expression ] ;
 pack = "...", type, [ cardinality ]
      | "...", "{", type, "}", [ cardinality ] ;
@@ -25,7 +26,8 @@ lambda_parameter = IDENTIFIER, [ ":", type ] ;
 ```
 
 Parameter role is checked from the containing declaration. The production
-admits `const` and a default on a pack, which FN-8 rejects.
+admits `const` and a default on a pack, which FN-8 rejects. A `var`
+parameter has no default, and is neither `const` nor a pack (FN-15).
 Local source/native declaration matching is defined in the native chapter.
 
 ## Rules
@@ -154,6 +156,25 @@ Local source/native declaration matching is defined in the native chapter.
   uses only parameters, generic parameters, `let` locals, and iteration
   bindings. Use of an enclosing `var`, `state`, `cache`, or injected
   capability rejects.
+- **FN-15.** A value function, a `const fn` or a native one, may mark a
+  parameter `var`: `const fn bump(var count: i64, by: i64)`. A call gives a
+  `var` parameter a place, as the left of an assignment is (EXPR-3): a
+  `var`, a `state`, or a `cache`, or a place inside one, that holds an
+  ordinary value of the parameter's type. What is read-only rejects, a
+  `let`, a parameter that is not `var`, a constant, or an iteration binding
+  (`binding.immutable`); so does what is no place, a literal or what a call
+  gives (`argument.place`). The call assigns the place. In the function the
+  parameter is a `var`, whose first value is the place's when the call's
+  arguments are evaluated (EXPR-2); what it holds when the function returns
+  is what the place is given, and a call with several gives each place its
+  value in the order of the parameters. A function that fails assigns
+  nothing. The call changes the place and no value: a value taken from the
+  place before the call is as it was (TYPE-5). A `var` parameter may be
+  given on to a `var` parameter of a function the body calls. A temporal
+  `fn`, an operator, and a candidate declare none (`parameter.var`). A
+  function that declares one is not lifted (FN-6): a call of it stands in a
+  value function, in a runtime hook, or in composition where the place
+  holds an ordinary value.
 
 Accepted declaration fragment, a temporal input with a default (UNIT-8):
 
@@ -191,6 +212,40 @@ which is fixed wherever `named` is called. Deliberate source rejection:
 `const fn found(store: Store, key: str) -> bool => held(store, key)`, whose
 `key` is a value of one call (`argument.constant`). Executable conformance is
 planned.
+
+Accepted declaration fragments, a `var` parameter (FN-15):
+
+```hgl
+const fn bump(var count: i64, by: i64) {
+    count += by
+}
+
+const fn set_first(var items: list<i64>, value: i64) {
+    items[0] = value
+}
+
+const fn total(values: list<i64>) -> i64 {
+    var sum: i64 = 0
+    for value in values {
+        bump(sum, value)
+    }
+    return sum
+}
+
+const fn kept() -> bool {
+    var entries: list<i64> = [1, 2]
+    let before = entries
+    set_first(entries, 9)
+    return before == [1, 2] && entries == [9, 2]
+}
+```
+
+`bump(sum, value)` assigns `sum`, the caller's `var`. In `kept`, the call
+gives `entries` a new value, and `before`, which took the list first, is as
+it was. Deliberate source rejections: `bump(1, 2)`, whose first argument is
+no place (`argument.place`); `bump(fixed, 2)` for `let fixed = 0`
+(`binding.immutable`); `fn ticking(var value: i64) -> i64`, a temporal
+function (`parameter.var`). Executable conformance is planned.
 
 Accepted declaration fragments showing modifier and ordinary-name positions:
 
