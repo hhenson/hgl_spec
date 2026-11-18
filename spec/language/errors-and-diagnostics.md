@@ -146,6 +146,7 @@ infrastructure and cannot satisfy a source-rejection expectation.
 | module | `application.import` | `use` names an application (UNIT-14); module path |
 | module | `application.export` | `export` in an application (UNIT-14); `export` |
 | module | `application.run_count` | Application with no run statement, or with a second (UNIT-14); the application's path, or the later statement |
+| phase | `application.statement` | Statement of an application that is no `inject global_state` and no call of `put` on it, or that follows the run statement or precedes a declaration; and either of those in a module (UNIT-14); the statement |
 | phase | `run.position` | Run statement in a module or before a declaration of its application (UNIT-14), or `run` in a test that is no integration test (RUN-3); the word |
 | type | `run.entry` | A run statement's first argument is no call of an entry (RUN-1); the argument |
 | name | `name.duplicate` | Binding takes a name already in scope (UNIT-5, UNIT-12, TST-2, NATIVE-2); later name |

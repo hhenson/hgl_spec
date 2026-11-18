@@ -93,6 +93,40 @@ is the earlier evaluation time, not the future publication time. This
 distinction is an observable source rule, not an implementation detail.
 Conformance planned.
 
+Accepted illustration, a module and an application that sets the run's store
+before its run (UNIT-14):
+
+```hgl
+module examples.limited
+
+export fn counted(const every: duration = 1s) -> i64 {
+    inject global_state
+    cache count: i64 = 0
+    while count < get<i64>(global_state, "limit") {
+        count += 1
+        yield every: count
+    }
+}
+```
+
+```hgl
+application examples.limited.three
+
+use examples.limited::{counted}
+
+inject global_state
+put(global_state, "limit", 3)
+
+eval(counted())
+```
+
+The store holds `"limit"` when the graph is built, so `counted` reads 3 from
+its first evaluation and the run's output is 1, 2 and 3, a second apart.
+With no `put` the first `get` fails the source: the key is absent.
+Deliberate rejections in the application: `inject clock`; `let limit = 3`; a
+`put` after the run statement; and the two store statements in a module
+(`application.statement`). Conformance planned.
+
 Deliberate rejections: `run(heartbeat(every: 1))`, an entry given an `i64`
 for a `duration`; `run(scaled(price: [1.0]))`, a call of a function with a
 temporal input, which is no entry (`run.entry`); an application with no run

@@ -15,7 +15,8 @@ qualified_name = IDENTIFIER, "::", import_name ;
 use_decl = "use", module_path, ( "::", import_set | "as", IDENTIFIER ) ;
 import_set = "{", import_name, { ",", import_name }, [ "," ], "}" ;
 import_name = IDENTIFIER ;
-top_level_item = use_decl | declaration | run_statement ;
+top_level_item = use_decl | declaration | store_statement | run_statement ;
+store_statement = inject_decl | expression ;
 declaration = function_decl | struct_decl | enum_decl | operator_decl
             | instantiate_decl | native_type_decl | native_function_decl
             | constant_decl | test_decl | test_context ;
@@ -26,8 +27,9 @@ callable_name = IDENTIFIER ;
 ```
 
 The referenced declarations belong to their type, function, generic, native,
-or test chapters, and `run_statement` to
-[program execution](program-execution.md). Portable source is covered here;
+or test chapters, `run_statement` to
+[program execution](program-execution.md), and `inject_decl` to the
+[temporal model](temporal-model.md). Portable source is covered here;
 target build metadata is not.
 The hard reserved words are listed in [source text](source-text.md); LEX-9
 admits one as a member name.
@@ -130,8 +132,13 @@ admits one as a member name.
   no constant that depends on it.
 - **UNIT-14.** An application is one file, headed `application name`, where
   a module's files are headed `module name`. It holds what a module holds,
-  and one run statement (RUN-1), which follows its declarations. A module
-  holds none. An application's path is no module's and no other
+  and one run statement (RUN-1), which follows its declarations. Between its
+  declarations and its run statement it may set the run's store: `inject
+  global_state`, and then calls of `put` on it. Each is evaluated once, in
+  the order written, before the run's graph is built, and its value is read
+  as a constant's is (UNIT-13), with no parameter in scope. Any other
+  statement there rejects (`application.statement`). A module
+  holds none of these. An application's path is no module's and no other
   application's. Its declarations are private: an application exports
   nothing, and no `use` names one.
 
