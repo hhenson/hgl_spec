@@ -43,6 +43,9 @@ flowchart LR
   similarly for more inputs. A notification from any subscribed input can
   wake the handler, and one from any other cannot. `modified([])` subscribes
   to no input: the node's scheduler or alarm is then what wakes the handler.
+  A wake by the scheduler or alarm wakes the handlers that subscribe to no
+  input and those whose header has `scheduled()` (TIME-9) alone or as a
+  top-level conjunct.
   Where the node injects neither, or its `start` does not use the one it
   injects, nothing wakes it: the node is dormant, and the selector is warned
   of (`node.no_activation`, ERR-10). Any use in `start` counts; what a
@@ -123,7 +126,12 @@ flowchart LR
   `const fn` is given the value, and a temporal `fn` is not called in a
   hook. `activate(input)` and `passivate(input)` operate on direct temporal
   inputs. Core's endpoint contract says what each returns. `scheduled()` is
-  the handler selector for a wake by the node's scheduler or alarm, and
+  the handler selector for a wake by the node's scheduler or alarm. In a
+  node that injects `scheduler` it is the scheduler's `is_scheduled_now`
+  (core's capability contract): a wake asked of the scheduler is due in this
+  evaluation, whether or not a temporal input has ticked. In a node that
+  injects `alarm` it holds where the node is evaluated and no temporal input
+  has ticked. A node that injects neither rejects it (`inject.no_scheduler`).
   `modified` and `valid` are selectors in a `when` header (TIME-3): there
   they are forms of the language, which set subscription and admission.
   None of these names is shadowed (UNIT-12). A value function injects no
@@ -200,6 +208,41 @@ publication is a tick like any other. `valid([])` admits that handler before
 `value` has published; it reads no input, so it needs no guard.
 Conformance planned.
 
+Accepted illustration, complete module, a wake that lands with an input's
+tick (TIME-9):
+
+```hgl
+module examples.sampled
+
+fn sampled(price: f64, const every: duration = 1s) -> f64 {
+    state last: f64 = 0.0
+    inject scheduler
+    start { schedule(scheduler, every) }
+    when modified(price) && valid(price) {
+        last = price
+    }
+    when scheduled() {
+        schedule(scheduler, every)
+        return last
+    }
+}
+```
+
+`price` publishes 10.0 at 0.4s and 11.0 at 1s, where the first wake is due.
+
+| Evaluation | `last` | `scheduled()` | Published |
+| --- | --- | --- | --- |
+| 0.4s | 10.0 | False | Nothing |
+| 1s | 11.0 | True: the wake is due, and `price` has ticked too | 11.0, and the next wake is asked for |
+| 2s | 11.0 | True | 11.0, and the next wake is asked for |
+
+The wake at 2s does not run the first handler, which `price` wakes.
+
+With `inject alarm` in place of `inject scheduler`, `scheduled()` is false
+at 1s, where `price` has ticked: nothing is published, and no further wake is
+asked for. Deliberate rejection: `when scheduled()` in a node that injects
+neither (`inject.no_scheduler`). Conformance planned.
+
 Accepted illustration, complete module, the selectors of a `when` header
 (TIME-3):
 
@@ -272,9 +315,13 @@ where the inputs are named as arguments. Conformance planned.
 `alarm` is a scheduler that tracks nothing: a node asks it for a wake, and
 that wake is neither queried, moved, nor cancelled. It keeps the earliest
 wake asked for and is best effort. Any node injects it, with temporal inputs
-or with none, in place of `scheduler`. The wake is handled by a `when` with
-no selector, or by `when scheduled()`, which holds where the node is
-evaluated and no temporal input has ticked. The
+or with none, in place of `scheduler`. An alarm keeps no record of a wake, so
+its wake is told from the inputs (TIME-9): an evaluation in which a temporal
+input has ticked runs the handlers that tick wakes, and one in which none
+has ticked is the alarm's, and runs the handlers a wake does (TIME-3). A
+wake that lands with an input's tick is not told from the tick. In a node
+with no temporal input every handler subscribes to none, so a `when` with no
+selector handles the wake as `when scheduled()` does. The
 [generator form](control-flow-and-sources.md) owns its own wake mechanism.
 
 `global_state` is a run-wide typed store with const string keys. It is empty
