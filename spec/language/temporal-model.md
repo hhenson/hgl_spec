@@ -31,7 +31,10 @@ flowchart LR
   requires admission/readability; metadata may observe an invalid endpoint.
 - **TIME-2.** Composition describes a typed graph without reading live
   payloads. Evaluation propagates changes in dependency order, at most once
-  per node per cycle. Input activity controls notification; required validity
+  per node per cycle. A node's rank is one more than the greatest rank of
+  the nodes it depends on, and the least where it depends on none. A cycle
+  evaluates nodes in rank order, and the order of two nodes of one rank is
+  undefined. Input activity controls notification; required validity
   controls admission. Mutation of output and mutation of configuration are
   different effects.
 - **TIME-3.** Function-level `when` conditions are checked in source order.
@@ -330,7 +333,11 @@ it: an entry is configured by its const arguments. All uses of a key bind
 the same exact ordinary type. Binding alone does not initialize a value. Get
 of an absent entry fails; a write preserves the type. Writable borrows are
 hook-scoped; retained results own independent values. Storage access adds no
-activation dependency or temporal endpoint type. The key `"run.output"` is
+activation dependency or temporal endpoint type, and so no rank (TIME-2): a
+`put` is seen by what is evaluated after it, and what a node sees of a `put`
+by a node of its own rank in the same cycle is undefined. A program that
+shares a key between two such nodes takes that order on itself. The key
+`"run.output"` is
 the run's own, where it keeps its output: a program that names it rejects
 (`store.reserved_key`).
 
