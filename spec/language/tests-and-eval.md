@@ -7,7 +7,9 @@ expectation contracts retain their status below.
 ## Grammar
 
 ```ebnf
-test_decl = ( "test" | "integration_test" ), IDENTIFIER, block ;
+test_decl = "test", IDENTIFIER, block
+          | [ timeout_annotation, NL ], "integration_test", IDENTIFIER, block ;
+timeout_annotation = "@", "timeout", "(", TEMPORAL_LITERAL, ")" ;
 test_context = "test", "{", [ NL ],
                [ test_item, { NL, test_item }, [ NL ] ], "}" ;
 test_item = function_decl | struct_decl | enum_decl | test_decl ;
@@ -120,7 +122,12 @@ a run configuration (RUN-1). `raises` is contextual immediately after assert.
   and outside events. In a test's block `run` as the callee of a call is
   that form, whatever else is in scope (LEX-10); in a test that is no
   integration test it rejects. An integration test is run only when it is
-  asked for; a run of a module's tests leaves it out. In every other
+  asked for; a run of a module's tests leaves it out. It is time-bound: it
+  runs within a time limit by the host clock, the duration `@timeout(5s)`
+  gives on the line before it, or one minute where none is written. One
+  still running when its limit passes is stopped, and has failed (TST-11).
+  The annotation's literal is a duration, and `timeout` is a name with that
+  meaning only there (LEX-10). In every other
   respect it is a test: its name is one of its module's test names (TST-2),
   and its block is a test's (TST-3, TST-4).
 
@@ -168,6 +175,7 @@ test bounded {
     assert ticks(eval(beats(every: 1s), RunConfig(length: 4s))) == 3
 }
 
+@timeout(5s)
 integration_test beats_live {
     let seen = run(beats(every: 10ms), RunConfig(length: 1s))
     assert ticks(seen) > 0
@@ -180,7 +188,8 @@ each of its three publications, and none for the cycle in which nothing was
 published (TST-16). `beats` never stops of itself, so each run of it is
 given a length: `bounded` evaluates four seconds of it in simulation, and
 `beats_live` runs it for a second of the host clock, when it is asked for
-(TST-17). Conformance source is planned, not supplied by this example.
+(TST-17), and has failed if it is still running after five. Conformance
+source is planned, not supplied by this example.
 
 Deliberate source rejections: `eval(7)`, `eval(pass_through_i64)`, and
 `eval(add_(lhs: [7], rhs: [9]))`, whose first argument is no call of a
@@ -189,8 +198,10 @@ an outputless `sink` (`eval.no_result`); `[0s: 7, 2s: _]` and a `_` outside
 a trace (`trace.placeholder`); `eval(pass_through_i64(value: [7, 9])) ==
 [0s: 7]`, a dense input with a timed expectation (`trace.style`);
 `[2s: 7, 1s: 9]` (`trace.key_order`); `Kept(values: seen)`, a trace
-stored in a field (`trace.escape`); and `ticks([7, 9])`, a list of `i64`
-where a list of tuples is taken (`type.mismatch`).
+stored in a field (`trace.escape`); `ticks([7, 9])`, a list of `i64`
+where a list of tuples is taken (`type.mismatch`); and `@timeout(5s)` before
+a `test` that is no integration test, and `@timeout(5)`, whose argument is no
+duration (`syntax.expected_token`).
 
 ## Execution-error expectations
 
