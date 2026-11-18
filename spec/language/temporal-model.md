@@ -40,8 +40,14 @@ flowchart LR
   exits the function's current evaluation; later handlers are not reached
   (FN-7). In a `when` header, `modified()` subscribes to all
   temporal inputs; `modified(a, b)` subscribes to both named inputs, and
-  similarly for more inputs. A notification from any subscribed input can
-  wake the handler, and one from any other cannot. `modified([])` subscribes
+  similarly for more inputs. The subscription supplies inputs that can wake
+  the node. Manually passivating an input removes it from those wake sources.
+  Once the node runs, the handler considers the named inputs' current
+  publications even if they are passive. A publication solely on an unnamed
+  input does not satisfy this selector. For example, if a probe wakes the
+  node in a cycle when passive `data` publishes, `when modified(data)`
+  matches. `when modified(data) && is_active(data)` also requires the data
+  input to be active. `modified([])` subscribes
   to no input: the node's scheduler or alarm is then what wakes the handler.
   A wake by the scheduler or alarm wakes the handlers that subscribe to no
   input and those whose header has `scheduled()` (TIME-9) alone or as a
@@ -119,13 +125,15 @@ flowchart LR
   of T, for a function that takes the endpoint and not its payload
   (TYPE-12). The operations on an endpoint are core's native value functions
   with such a parameter: `valid`, `modified`, `delta_value`,
-  `last_modified`, `invalidate`, `activate`, and `passivate`. A call gives
+  `last_modified`, `invalidate`, `is_active`, `activate`, and `passivate`. A call gives
   an `endpoint<T>` parameter a temporal input of the enclosing node by its
   name, or `out`, and nothing else; the endpoint is not retained, as a
   capability is not (TIME-8). Every other function takes the payload: a
   `const fn` is given the value, and a temporal `fn` is not called in a
-  hook. `activate(input)` and `passivate(input)` operate on direct temporal
-  inputs. Core's endpoint contract says what each returns. `scheduled()` is
+  hook. `is_active(input)`, `activate(input)` and `passivate(input)` operate
+  on direct temporal inputs. `is_active` is a boolean predicate in a handler
+  condition. It reads the binding's current activity without setting a
+  subscription or validity requirement. Core's endpoint contract says what each returns. `scheduled()` is
   the handler selector for a wake by the node's scheduler or alarm. In a
   node that injects `scheduler` it is the scheduler's `is_scheduled_now`
   (core's capability contract): a wake asked of the scheduler is due in this
