@@ -31,7 +31,10 @@ flowchart LR
   requires admission/readability; metadata may observe an invalid endpoint.
 - **TIME-2.** Composition describes a typed graph without reading live
   payloads. Evaluation propagates changes in dependency order, at most once
-  per node per cycle. Input activity controls notification; required validity
+  per node per cycle. A node's rank is one more than the greatest rank of
+  the nodes it depends on, and the least where it depends on none. A cycle
+  evaluates nodes in rank order, and the order of two nodes of one rank is
+  undefined. Input activity controls notification; required validity
   controls admission. Mutation of output and mutation of configuration are
   different effects.
 - **TIME-3.** Function-level `when` conditions are checked in source order.
@@ -330,7 +333,11 @@ it: an entry is configured by its const arguments. All uses of a key bind
 the same exact ordinary type. Binding alone does not initialize a value. Get
 of an absent entry fails; a write preserves the type. Writable borrows are
 hook-scoped; retained results own independent values. Storage access adds no
-activation dependency or temporal endpoint type. The key `"run.output"` is
+activation dependency or temporal endpoint type, and so no rank (TIME-2): a
+`put` is seen by what is evaluated after it, and what a node sees of a `put`
+by a node of its own rank in the same cycle is undefined. A program that
+shares a key between two such nodes takes that order on itself. The key
+`"run.output"` is
 the run's own, where it keeps its output: a program that names it rejects
 (`store.reserved_key`).
 
@@ -374,6 +381,46 @@ a `Logger` where a `Clock` is taken; `boxed(clock)`, with
 `const fn boxed<T>(value: T) -> list<T>`, a capability given to a generic
 parameter; `inject alarm, scheduler` in one node; and
 `clock.evaluation_time = value`, a property assigned. Conformance planned.
+
+Accepted illustration, complete module, a `put` and a `get` of one key in
+two nodes (TIME-2):
+
+```hgl
+module examples.store_order
+
+fn change(value: i64) -> i64 {
+    inject global_state
+    when {
+        put(global_state, "seen", value)
+        return 0
+    }
+}
+
+fn observe(value: i64) -> i64 {
+    inject global_state
+    when {
+        if has(global_state, "seen") { return get<i64>(global_state, "seen") }
+        return 0
+    }
+}
+
+fn ranked(value: i64) -> i64 => observe(change(value))
+
+fn level(value: i64) -> i64 {
+    let changed = change(value)
+    let observed = observe(value)
+    return changed + observed
+}
+```
+
+In `ranked`, `observe` takes what `change` publishes: it depends on
+`change`, is of the next rank, and is evaluated after it. It sees the `put`,
+and `eval(ranked(value: [7]))` is `[7]`. In `level` each takes `value` and
+neither takes the other's output: they are of one rank, their order is
+undefined, and `eval(level(value: [7]))` is `[7]` where `change` is evaluated
+first and `[0]` where `observe` is. A program that needs one of the two
+gives `observe` a dependency on `change`, as `ranked` does. Conformance
+planned for `ranked`; `level` has no one observation to test.
 
 ## Core boundary
 
