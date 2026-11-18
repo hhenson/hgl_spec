@@ -45,7 +45,7 @@ flowchart LR
   to no input: the node's scheduler or alarm is then what wakes the handler.
   A wake by the scheduler or alarm wakes the handlers that subscribe to no
   input and those whose header has `scheduled()` (TIME-9) alone or as a
-  top-level conjunct, and no other.
+  top-level conjunct.
   Where the node injects neither, or its `start` does not use the one it
   injects, nothing wakes it: the node is dormant, and the selector is warned
   of (`node.no_activation`, ERR-10). Any use in `start` counts; what a
