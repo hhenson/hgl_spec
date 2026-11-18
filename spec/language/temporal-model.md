@@ -57,7 +57,9 @@ flowchart LR
   no input and selects a wake from the node's scheduler or alarm.
   A wake by the scheduler or alarm wakes the handlers that subscribe to no
   input and those whose header has `scheduled()` (TIME-9) alone or as a
-  top-level conjunct.
+  top-level conjunct. Such a wake alone runs no other handler: one with no
+  `modified` selector subscribes to every temporal input, and is run by an
+  input's wake.
   Where the node injects neither, or its `start` does not use the one it
   injects, nothing wakes it: the node is dormant, and the selector is warned
   of (`node.no_activation`, ERR-10). Any use in `start` counts; what a
@@ -66,6 +68,9 @@ flowchart LR
   requires all temporal inputs to be valid;
   `valid(a, b)` requires both named inputs, and similarly for more inputs.
   Omitting the validity selector requires all temporal inputs to be valid.
+  A header that is `scheduled()` alone is the exception: it requires no
+  input to be valid, as one that writes `valid([])` does, since it runs at
+  the wake whatever the inputs hold.
   `valid([])` requires no inputs to be valid. A selector sets subscription or admission
   when it stands alone in the header or appears as a top-level conjunct.
   Selectors under negation or disjunction leave the default in place.
@@ -254,7 +259,10 @@ fn sampled(price: f64, const every: duration = 1s) -> f64 {
 | 1s | 11.0 | True: the wake is due, and `price` has ticked too | 11.0, and the next wake is asked for |
 | 2s | 11.0 | True | 11.0, and the next wake is asked for |
 
-The wake at 2s does not run the first handler, which `price` wakes.
+The wake at 2s does not run the first handler, which `price` wakes. Had
+`price` published nothing by 1s, the wake there would still run the second
+handler, whose header is `scheduled()` alone and requires no input to be
+valid, and publish 0.0.
 
 With `inject alarm` in place of `inject scheduler`, `scheduled()` is false
 at 1s, where `price` has ticked: nothing is published, and no further wake is
