@@ -1,9 +1,7 @@
 # Generics and operators
 
 Status: agreed generic, pack, and nominal-operator baseline. Detailed core
-operation domains belong to core and retain their own decision status. That
-a candidate with a `var` parameter answers no requirement (GEN-16) is
-proposed.
+operation domains belong to core and retain their own decision status.
 
 ## Grammar
 
