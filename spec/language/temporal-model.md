@@ -108,8 +108,9 @@ flowchart LR
   capital: `Logger`, `Clock`, `Scheduler`, `Alarm`, `GlobalState`. A
   capability type is written only as the type of a parameter of a `const fn`
   or of a native value function. A capability is used within the node that
-  injects it, or, for the `global_state` an application injects, in the
-  statements before its run statement (UNIT-14), and is not retained: it is
+  injects it, or, for `global_state`, in the graph that injects it, where
+  the graph is built (FN-9), and in the statements an application sets its
+  run's store with (UNIT-14), and is not retained: it is
   not the value of a `state` or a
   `cache`, an entry of a tuple, list, set, dictionary, or struct, what a
   function returns, what a node publishes, or a capture of an anonymous
@@ -329,10 +330,11 @@ with no temporal input every handler subscribes to none, so a `when` with no
 selector handles the wake as `when scheduled()` does. The
 [generator form](control-flow-and-sources.md) owns its own wake mechanism.
 
-`global_state` is a run-wide typed store with const string keys. When the
-graph is built it holds what the run's application put there before its run
-statement (UNIT-14), and nothing else: nothing outside the program puts a
-value in it. All uses of a key bind
+`global_state` is a run-wide typed store with const string keys. Before the
+graph is built it holds what the run's application put there (UNIT-14), and
+nothing else. A graph that injects it puts values there as it is built
+(FN-9), before any node starts. Nothing outside the program puts a value in
+it. All uses of a key bind
 the same exact ordinary type. Binding alone does not initialize a value. Get
 of an absent entry fails; a write preserves the type. Writable borrows are
 hook-scoped; retained results own independent values. Storage access adds no
@@ -424,6 +426,43 @@ undefined, and `eval(level(value: [7]))` is `[7]` where `change` is evaluated
 first and `[0]` where `observe` is. A program that needs one of the two
 gives `observe` a dependency on `change`, as `ranked` does. Conformance
 planned for `ranked`; `level` has no one observation to test.
+
+Accepted illustration, complete module, a graph that sets the store for what
+it wraps (FN-9):
+
+```hgl
+module examples.seeded
+
+fn counted(const every: duration = 1s) -> i64 {
+    inject global_state
+    cache count: i64 = 0
+    while count < get<i64>(global_state, "limit") {
+        count += 1
+        yield every: count
+    }
+}
+
+fn seeded(const limit: i64) -> i64 {
+    inject global_state
+    put(global_state, "limit", limit)
+    return counted()
+}
+
+test the_store_is_set_where_the_graph_is_built {
+    assert eval(seeded(limit: 2)) == [1s: 1, 2s: 2]
+    assert eval(seeded(limit: 3)) == [1s: 1, 2s: 2, 3s: 3]
+}
+```
+
+`seeded` is a graph: `inject global_state` alone makes no node of it (FN-2).
+Its `put` is evaluated once, where the graph is built, so `counted` reads its
+limit in its first evaluation. Each eval is a run of its own with a store of
+its own (RUN-4): the second reads 3, and nothing of the first. Deliberate
+rejections: `inject clock` in `seeded`, which makes it a node whose body
+then holds what a node's does not (`node.statement`); and
+`put(global_state, "limit", value)` with `value` a temporal input, a
+connection given where the graph is built (`connection.as_constant`).
+Conformance planned.
 
 ## Core boundary
 

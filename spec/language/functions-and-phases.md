@@ -45,9 +45,10 @@ Local source/native declaration matching is defined in the native chapter.
   parameters and a temporal result; an omitted result arrow means outputless.
   An operator is neither: each of its candidates is one or the other (GEN-4).
 - **FN-2.** An ordinary temporal body with no node-only construct describes
-  composition: the function is a graph. `state`, `cache`, `inject`, `start`,
-  `when`, `stop`, or `yield` classifies that complete body as runtime: the
-  function is a node. Classification precedes phase
+  composition: the function is a graph. `state`, `cache`, `start`, `when`,
+  `stop`, `yield`, or an `inject` of any capability but `global_state`
+  classifies that complete body as runtime: the function is a node. A graph
+  may inject `global_state` (FN-9). Classification precedes phase
   checking, even if the trigger occurs in an invalid nested position. Generic
   selection, target choice, and optimizer decisions cannot change the role.
   A node's body is its `state`, `cache`, and `inject` declarations and then
@@ -122,7 +123,10 @@ Local source/native declaration matching is defined in the native chapter.
 - **FN-9.** Capabilities belong to nodes: a node declares each with `inject`
   and uses it in its hooks, and a source in its body (SOURCE-1). An
   application injects `global_state` and no other, and uses it only to set
-  the run's store before its run statement (UNIT-14). A value
+  the run's store before its run statement (UNIT-14). A graph injects
+  `global_state` and no other, and uses it where the graph is built: each
+  call on it is evaluated once then, in the order written, before any node
+  starts, and is given no connection (`connection.as_constant`). A value
   function injects none. What it needs of one is its argument: a value the
   node reads from it, `clock.evaluation_time`, or the capability itself,
   given to a parameter of its type (TIME-8).
