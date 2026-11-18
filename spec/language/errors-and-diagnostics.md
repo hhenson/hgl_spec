@@ -125,10 +125,11 @@ infrastructure and cannot satisfy a source-rejection expectation.
 | parse | `string.invalid_escape` | `\u{...}` names no Unicode scalar value (LEX-24); escape |
 | parse | `string.malformed_text_block` | Text block breaks LEX-25's layout; offending delimiter or line |
 | parse | `comment.unclosed` | Block or documentation comment reaches EOF (LEX-2); comment |
-| parse | `number.malformed` | Numeric or duration run is not one literal (LEX-8, LEX-18, LEX-22); run |
+| parse | `number.malformed` | Numeric, duration or tenor run is not one literal (LEX-8, LEX-18, LEX-22); run |
 | parse | `number.integer_range` | Integer literal outside its required domain (LEX-7, LEX-23); literal |
 | parse | `number.float_range` | Float literal rounds to infinity (LEX-7, LEX-20); literal |
 | parse | `duration.invalid` | Duration violates LEX-13; literal |
+| parse | `tenor.invalid` | Tenor violates LEX-28; literal |
 | parse | `date_time.malformed` | `@` run matches no temporal form (LEX-18); run |
 | parse | `date_time.invalid_field` | Date, time, or offset field violates LEX-11 or LEX-19; literal |
 | parse | `date_time.invalid_zone` | Zone name violates LEX-12's source form, an empty component included; literal |
@@ -278,7 +279,8 @@ infrastructure and cannot satisfy a source-rejection expectation.
 | `value.capability` | Boxed executed operation lacks a required contained capability |
 | `value.byte_range` | Bytes construction receives an octet outside 0–255 |
 | `numeric.division_by_zero` | Explicit `?` propagation in `when` turns a checked-division Err into node failure; see the [core numeric contract](https://github.com/hhenson/hgl_core/blob/main/spec/numeric-operators.md) |
-| `numeric.out_of_range` | A result is outside its type's range: an `i64`, a `duration` or an instant; see the core [numeric](https://github.com/hhenson/hgl_core/blob/main/spec/numeric-operators.md) and [scalar operator](https://github.com/hhenson/hgl_core/blob/main/spec/scalar-operators.md) contracts |
+| `numeric.out_of_range` | A result is outside its type's range: an `i64`, a `duration`, an instant or a count of a `tenor`; see the core [numeric](https://github.com/hhenson/hgl_core/blob/main/spec/numeric-operators.md) and [scalar operator](https://github.com/hhenson/hgl_core/blob/main/spec/scalar-operators.md) contracts |
+| `tenor.mixed_units` | A sum or a difference of a `tenor` of business days and one of months and days; see the core [scalar operator contract](https://github.com/hhenson/hgl_core/blob/main/spec/scalar-operators.md) |
 | `yield.negative_duration` | Both yield operands succeeded; delay is negative |
 | `yield.non_increasing_time` | Resolved target does not exceed the previous target |
 | `eval.input_delta_profile` | Executed eval input violates its admitted publication profile before start |

@@ -1,7 +1,7 @@
 # Types and values
 
-Status: agreed type foundation, `delta<T>` included (TYPE-16). The storage
-extensions below remain proposed.
+Status: agreed type foundation, `delta<T>` (TYPE-16) and `tenor` (TYPE-17)
+included. The storage extensions below remain proposed.
 
 ## Grammar
 
@@ -15,7 +15,7 @@ value_type_base = scalar_type | named_type | value_tuple_type | value_list_type
            | set_type | value_dict_type | result_type | "error" | delta_type ;
 scalar_type = "bool" | "i64" | "f64" | "str" | "bytes" | "any"
             | "date" | "time" | "datetime" | "duration" | "civil_datetime"
-            | "timezone" | "zoned_datetime" | "zoned_time" ;
+            | "timezone" | "zoned_datetime" | "zoned_time" | "tenor" ;
 named_type = ( IDENTIFIER | qualified_name ), [ generic_arguments ] ;
 tuple_type = "tuple", "<", type, { ",", type }, ">" ;
 value_tuple_type = "tuple", "<", value_type, { ",", value_type }, ">" ;
@@ -60,6 +60,13 @@ rejection (TYPE-12, TYPE-14). TYPE-16 says what a `delta_type` is.
   date-independent `zoned_time`. Instants/durations use signed 64-bit
   microseconds; representable literal instants retain canonical calendar range.
   Same-instant zoned values need not be equal; zone aliases are distinct names.
+- **TYPE-17.** A `tenor` is a rule for moving a `date`, and no elapsed time.
+  It is a count of months and a count of days, or it is a count of business
+  days; each count is a signed 64-bit integer. Two tenors are equal when they
+  are of the same form and their counts are equal, however each was written:
+  `1Y` is `12M` and `1W` is `7D`, `1M` is not `30D`, and `0B` is not `0D`.
+  The core contract gives a tenor's operators, how each form moves a date,
+  and what a business day is.
 - **TYPE-3.** Structs are nominal, with public ordered fields and no methods.
   Only abstract structs may be parents, each listed once; abstract values are
   not constructible. Concrete structs are final. Generic applications are

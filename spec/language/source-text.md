@@ -80,9 +80,10 @@ A lone `_` is classified as a placeholder token, not an identifier.
   which enum numbering admits too. Runtime overflow policy is not supplied
   by lexing.
 - **LEX-8.** Nested generic closers use separate `>` tokens. A digit run
-  immediately followed by letters is a duration candidate; an unknown unit
-  is rejected rather than split into a number and identifier. A valid exponent
-  without a following unit remains a float: `1e5` is valid, `1e5m` is not.
+  immediately followed by letters is a duration or tenor candidate; an
+  unknown unit is rejected rather than split into a number and identifier. A
+  valid exponent without a following unit remains a float: `1e5` is valid,
+  `1e5m` is not.
 - **LEX-15.** A line break is a line feed, a carriage return immediately
   followed by a line feed, or a carriage return alone. A carriage return and
   the line feed directly after it are one line break, not two. The three forms
@@ -96,8 +97,9 @@ Hard reserved words:
 module part use as export abstract impl instantiate operator fn struct enum
 requires is let var state cache inject return if else start when stop
 for while yield test assert eval true false null bool i64 f64 str bytes any
-date time datetime duration civil_datetime zoned_datetime zoned_time timezone
-atomic tuple list set dict rolling result ref signal endpoint delta error
+date time datetime duration tenor civil_datetime zoned_datetime zoned_time
+timezone atomic tuple list set dict rolling result ref signal endpoint delta
+error
 ```
 
 - **LEX-9.** A member name is any word of identifier form (LEX-1), a hard
@@ -123,7 +125,7 @@ atomic tuple list set dict rolling result ref signal endpoint delta error
 ## Temporal literals
 
 ```ebnf
-TEMPORAL_LITERAL = "@", temporal_body | duration_literal ;
+TEMPORAL_LITERAL = "@", temporal_body | duration_literal | tenor_literal ;
 temporal_body = calendar_date, [ "T", clock_time, [ utc_offset, [ zone_annotation ] ] ]
               | clock_time, [ zone_annotation ] | zone_annotation ;
 calendar_date = digit4, "-", digit2, "-", digit2 ;
@@ -138,6 +140,9 @@ fraction = digit, [ digit, [ digit, [ digit, [ digit, [ digit ] ] ] ] ] ;
 duration_literal = duration_part, { duration_part } ;
 duration_part = digits, [ ".", digits ], duration_unit ;
 duration_unit = "d" | "h" | "m" | "s" | "ms" | "us" ;
+tenor_literal = tenor_part, { tenor_part } ;
+tenor_part = digits, tenor_unit ;
+tenor_unit = "Y" | "M" | "W" | "D" | "B" ;
 ```
 
 - **LEX-11.** `T`/`Z` are uppercase. Seconds and offset minutes default to
@@ -160,6 +165,14 @@ duration_unit = "d" | "h" | "m" | "s" | "ms" | "us" ;
   final part may have a fraction. Exact decimal scaling must yield whole
   microseconds in the duration domain. No exponent or internal whitespace is
   admitted. One day is exactly 86,400 seconds.
+- **LEX-28.** A tenor's units are uppercase: `Y` years, `M` months, `W`
+  weeks, `D` days, and `B` business days. `Y`, `M`, `W`, and `D` occur once
+  each, in that order; `B` is written alone. Each part is a whole number: no
+  fraction, exponent, or internal whitespace is admitted. A year is twelve
+  months and a week seven days, so the literal denotes a count of months and
+  a count of days, or a count of business days (TYPE-17), each in the i64
+  domain. Case tells a tenor from a duration: `3M` is three months and `3m`
+  three minutes.
 - **LEX-14.** `<=>` is one full-comparison operator token, not `<` followed
   by `=>` or `<=` followed by `>`. It continues a line as the other binary
   operators do (LEX-5). Operator configuration uses ordinary brace/colon
@@ -171,12 +184,16 @@ Accepted illustrations, lexical fragments:
 | --- | --- |
 | `1h30m` | One duration token, ninety minutes |
 | `-250ms` | Minus followed by a duration token |
+| `1Y6M` | One tenor token, eighteen months |
+| `2W` | One tenor token, fourteen days |
+| `2B` | One tenor token, two business days |
 | `@09:30` | Time, seconds zero |
 | `@2026-09-03T09:30Z` | UTC instant |
 | `@[Europe/London]` | Named zone, subject to provider validation |
 
-Deliberate rejections: `30m1h`, `0.5us`, `@2026-02-29`, and an unclosed string
-violate the corresponding lexical/literal rules. Conformance is planned.
+Deliberate rejections: `30m1h`, `0.5us`, `6M1Y`, `1M2B`, `1.5M`,
+`@2026-02-29`, and an unclosed string violate the corresponding
+lexical/literal rules. Conformance is planned.
 
 Accepted illustration, line breaks, with LF and CR naming the two characters:
 the source `a` LF `b` CR LF `c` CR `d` has four physical lines and `d` begins
@@ -205,8 +222,8 @@ PUNCTUATION = "..." | "<=>" | "//="
   instance. No token joins `>` to a following `>`, which gives LEX-8's separate
   closers. `>` directly followed by `=` is `>=` even after generic arguments:
   write `list<i64> = value`.
-- **LEX-18.** A numeric, duration, or temporal literal is never split into a
-  literal and a name. It can end only where the next character is not an
+- **LEX-18.** A numeric, duration, tenor, or temporal literal is never split
+  into a literal and a name. It can end only where the next character is not an
   ASCII letter, digit, or underscore; when the text up to there is not one
   valid literal, all of it is rejected. `12abc` is one malformed literal, not
   `12` followed by `abc`; so are `1.5x`, `1e`, `1_`, and `1h_`. `@` directly
@@ -221,13 +238,14 @@ PUNCTUATION = "..." | "<=>" | "//="
   position. A line comment ends before its line break, which remains. `/**/`
   is an empty block comment, not a documentation comment.
 - **LEX-22.** One `_` may stand between two digits of any digit run in an
-  integer, float, or duration literal: a whole part, a fraction, an exponent,
-  and hexadecimal or binary digits. It does not change the value.
+  integer, float, duration, or tenor literal: a whole part, a fraction, an
+  exponent, and hexadecimal or binary digits. It does not change the value.
 - **LEX-23.** `0x` directly followed by a hexadecimal digit begins a
   hexadecimal integer literal; `0b` directly followed by `0` or `1` begins a
-  binary one. Neither is a duration candidate (LEX-8). The prefix letter is
-  lowercase; hexadecimal digits may be of either case. The value is a
-  non-negative integer under the range rule for decimal literals (LEX-7).
+  binary one. Neither is a duration or tenor candidate (LEX-8). The prefix
+  letter is lowercase; hexadecimal digits may be of either case. The value
+  is a non-negative integer under the range rule for decimal literals
+  (LEX-7).
 - **LEX-24.** `\u{...}` in a string denotes the Unicode scalar value numbered
   by its one to six hexadecimal digits. A surrogate or a number above 10FFFF
   is rejected.
