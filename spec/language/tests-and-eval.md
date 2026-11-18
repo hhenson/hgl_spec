@@ -256,8 +256,8 @@ Proposed/reviewed rejection illustration, complete module:
 ```hgl
 module examples.rejection
 
-# expect-error(type, "rolling.size_kind")
-fn invalid(value: rolling<f64, 5m, 3>) { when {} }
+# expect-error(type, "rolling_window.size_kind")
+fn invalid(value: rolling_window<f64, 5m, 3>) { when {} }
 
 test survives { assert true }
 ```

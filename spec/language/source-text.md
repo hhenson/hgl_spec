@@ -98,8 +98,8 @@ module part use as export abstract impl instantiate operator fn struct enum
 requires is let var state cache inject return if else start when stop
 for while yield test assert eval true false null bool i64 f64 str bytes any
 date time datetime duration tenor civil_datetime zoned_datetime zoned_time
-timezone atomic tuple list set dict rolling result ref signal endpoint delta
-error
+timezone atomic tuple list set dict rolling_window result ref signal endpoint
+delta error
 ```
 
 - **LEX-9.** A member name is any word of identifier form (LEX-1), a hard
