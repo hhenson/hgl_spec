@@ -108,7 +108,9 @@ flowchart LR
   capital: `Logger`, `Clock`, `Scheduler`, `Alarm`, `GlobalState`. A
   capability type is written only as the type of a parameter of a `const fn`
   or of a native value function. A capability is used within the node that
-  injects it and is not retained: it is not the value of a `state` or a
+  injects it, or, for the `global_state` an application injects, in the
+  statements before its run statement (UNIT-14), and is not retained: it is
+  not the value of a `state` or a
   `cache`, an entry of a tuple, list, set, dictionary, or struct, what a
   function returns, what a node publishes, or a capture of an anonymous
   function (FN-14). Binding one to a `let` and giving one to a parameter of
@@ -327,9 +329,10 @@ with no temporal input every handler subscribes to none, so a `when` with no
 selector handles the wake as `when scheduled()` does. The
 [generator form](control-flow-and-sources.md) owns its own wake mechanism.
 
-`global_state` is a run-wide typed store with const string keys. It is empty
-when the graph is built, and nothing outside the program puts a value in
-it: an entry is configured by its const arguments. All uses of a key bind
+`global_state` is a run-wide typed store with const string keys. When the
+graph is built it holds what the run's application put there before its run
+statement (UNIT-14), and nothing else: nothing outside the program puts a
+value in it. All uses of a key bind
 the same exact ordinary type. Binding alone does not initialize a value. Get
 of an absent entry fails; a write preserves the type. Writable borrows are
 hook-scoped; retained results own independent values. Storage access adds no

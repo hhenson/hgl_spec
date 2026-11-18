@@ -120,7 +120,9 @@ Local source/native declaration matching is defined in the native chapter.
   cannot be const, and follow all fixed parameters. Cardinality and
   reflection follow the generic chapter.
 - **FN-9.** Capabilities belong to nodes: a node declares each with `inject`
-  and uses it in its hooks, and a source in its body (SOURCE-1). A value
+  and uses it in its hooks, and a source in its body (SOURCE-1). An
+  application injects `global_state` and no other, and uses it only to set
+  the run's store before its run statement (UNIT-14). A value
   function injects none. What it needs of one is its argument: a value the
   node reads from it, `clock.evaluation_time`, or the capability itself,
   given to a parameter of its type (TIME-8).
