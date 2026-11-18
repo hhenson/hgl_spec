@@ -84,7 +84,10 @@ expression; group a constant expression that uses them as operand data.
   arbitrary language functions. A positive conjunctive equality
   may bind one unresolved generic from known data; under negation/disjunction
   it only tests already-resolved data. Solve bindings to a fixed point; reject
-  unresolved/conflicting dependencies.
+  unresolved/conflicting dependencies. A call of a function whose `requires`
+  does not hold with the generic arguments the call resolves is rejected,
+  and so is an application of a struct whose `requires` does not hold with
+  its arguments.
 - **GEN-4.** An operator has nominal identity `(module, name)` and owns public
   names/order, roles, defaults, generic relationships, and requirements. An
   `impl fn` is a temporal candidate of the operator it names and an
@@ -350,8 +353,10 @@ const fn configuration<N>() -> bool requires type(N) in {i64, f64} { return true
 are not comparisons. In `preserve`, T is a type and N is a compile-time integer
 size. In `configuration`, N is a compile-time value restricted to those ordinary types;
 its value must still be resolved under GEN-2. These are source illustrations,
-not execution claims. Deliberate source rejection under GEN-13: using the same
-generic as both an element type and a list size. Conformance is planned.
+not execution claims. Deliberate source rejections: under GEN-13, using the
+same generic as both an element type and a list size; under GEN-3, a call of
+`numeric` with a `str`, whose `requires` does not hold (`requires.unmet`).
+Conformance is planned.
 
 Accepted declaration fragments illustrating pack cardinality:
 

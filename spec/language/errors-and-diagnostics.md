@@ -201,6 +201,7 @@ infrastructure and cannot satisfy a source-rejection expectation.
 | type | `generic.argument_kind` | Generic argument is a value where the parameter is a type, or a type where it is a value (GEN-14); argument |
 | type | `generic.unresolved` | Call leaves a generic parameter of its callee unresolved (GEN-2, GEN-8); callee name |
 | type | `generic.argument_constant` | Call gives a generic value parameter of its callee no compile-time constant (GEN-8); argument |
+| constraint | `requires.unmet` | Call of a function, or application of a struct, whose `requires` does not hold with its generic arguments (GEN-3, GEN-16); the call or the application |
 | type | `struct.parent` | Parent is not an abstract struct (TYPE-3); parent |
 | type | `struct.duplicate_parent` | Struct lists one parent twice (TYPE-3); later parent |
 | type | `struct.inheritance_cycle` | Structs inherit from one another (TYPE-6); a parent of the first struct of the cycle |
@@ -279,6 +280,7 @@ infrastructure and cannot satisfy a source-rejection expectation.
 | `yield.negative_duration` | Both yield operands succeeded; delay is negative |
 | `yield.non_increasing_time` | Resolved target does not exceed the previous target |
 | `eval.input_delta_profile` | Executed eval input violates its admitted publication profile before start |
+| `run.end_and_length` | A run's configuration gives both an `end` and a `length`; refused before the run's graph is built. See the [core execution contract](https://github.com/hhenson/hgl_core/blob/main/spec/execution.md) (CRUN-2) |
 
 Where a primary location is the later of two, order a module's files with its
 unnamed file first and its parts by part name, and each file by source order.
