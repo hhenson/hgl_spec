@@ -333,8 +333,8 @@ selector handles the wake as `when scheduled()` does. The
 `global_state` is a run-wide typed store with const string keys. Before the
 graph is built it holds what the run's application put there (UNIT-14), and
 nothing else. A graph that injects it puts values there as it is built
-(FN-9), before any node starts. Nothing outside the program puts a value in
-it. All uses of a key bind
+(FN-9), before any node of that graph starts. Nothing outside the program
+puts a value in it. All uses of a key bind
 the same exact ordinary type. Binding alone does not initialize a value. Get
 of an absent entry fails; a write preserves the type. Writable borrows are
 hook-scoped; retained results own independent values. Storage access adds no

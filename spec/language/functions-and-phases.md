@@ -126,7 +126,10 @@ Local source/native declaration matching is defined in the native chapter.
   the run's store before its run statement (UNIT-14). A graph injects
   `global_state` and no other, and uses it where the graph is built: each
   call on it is evaluated once then, in the order written, before any node
-  starts, and is given no connection (`connection.as_constant`). A value
+  of that graph starts, and is given no connection
+  (`connection.as_constant`). A graph built while the run is under way, a
+  child of a `switch` or of a `for` over a temporal collection (CTRL-15), is
+  built then, and its calls are evaluated then. A value
   function injects none. What it needs of one is its argument: a value the
   node reads from it, `clock.evaluation_time`, or the capability itself,
   given to a parameter of its type (TIME-8).
