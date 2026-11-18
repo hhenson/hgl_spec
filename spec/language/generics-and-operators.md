@@ -1,7 +1,9 @@
 # Generics and operators
 
 Status: agreed generic, pack, and nominal-operator baseline. Detailed core
-operation domains belong to core and retain their own decision status.
+operation domains belong to core and retain their own decision status. That
+a candidate with a `var` parameter answers no requirement (GEN-16) is
+proposed.
 
 ## Grammar
 
@@ -138,7 +140,9 @@ expression; group a constant expression that uses them as operand data.
   call admits the candidate only where that holds for the parameter's value
   at the call, a default included. Candidates for different values may
   differ in result type (EXPR-12). A candidate may give any of its inputs a
-  default. The candidates of an operator stay resolvable together: once
+  default. A value candidate may mark a parameter `var` (FN-15); the
+  operator's declaration marks none, and the mark takes no part in selecting
+  a candidate. The candidates of an operator stay resolvable together: once
   defaults fill what a call omits, no call matches two of them equally. With
   candidates `add(lhs = 1, rhs = 1)` and `add(lhs = 1.0, rhs = 2.0)`,
   `add()` would. A
@@ -232,7 +236,9 @@ expression; group a constant expression that uses them as operand data.
   A requirement names a value operation, whatever declares it: it is tested
   against the operator's value candidates, and holds where one most-specific
   value candidate takes the types supplied (GEN-5). So what a graph requires
-  is what a node or a value function it calls may require.
+  is what a node or a value function it calls may require. A candidate that
+  marks a parameter `var` (FN-15) answers no requirement: a requirement
+  supplies types, and no place.
 
 Syntax binds these core identities independently of local same-named functions.
 A symbol is the call of its identity: its operands are read as that call's
