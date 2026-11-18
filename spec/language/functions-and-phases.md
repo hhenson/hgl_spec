@@ -180,9 +180,10 @@ Local source/native declaration matching is defined in the native chapter.
   parameter is a `var`, whose first value is the place's when the call's
   arguments are evaluated (EXPR-2); what it holds when the function returns is
   what the place is given, and a call with several gives each place its value
-  in the order of the parameters. A function that fails assigns nothing. The
-  call changes the place and no value: a value taken from the place before the
-  call is as it was (TYPE-5). A `var` parameter may be given on to a `var`
+  in the order of the parameters. A function that fails leaves the place
+  holding what its parameter held when it failed: no change it had made is
+  undone. The call changes the place and no value: a value taken from the
+  place before the call is as it was (TYPE-5). A `var` parameter may be given on to a `var`
   parameter of a function the body calls. A temporal `fn`, a temporal
   candidate, and an operator declare none (`parameter.var`): an operator
   gives the parameters every candidate takes, and each candidate says which
@@ -258,6 +259,11 @@ const fn kept() -> bool {
     return before == [1, 2] && entries == [9, 2]
 }
 
+const fn fill(var rows: list<i64>, count: i64) {
+    append(rows, 1)
+    append(rows, 6 // count)
+}
+
 operator push<C, V>(values: C, item: V)
 
 impl const fn push(var values: list<i64>, item: i64) {
@@ -271,7 +277,9 @@ impl const fn push(var values: dict<str, i64>, item: str) {
 
 `bump(sum, value)` assigns `sum`, the caller's `var`. In `kept`, the call
 gives `entries` a new value, and `before`, which took the list first, is as
-it was. `push` is an operator whose candidates each take a place: the
+it was. For `var rows: list<i64> = []`, `fill(rows, 0)` fails at its second
+`append`, where it divides by zero, and `rows` is then `[1]`: what the first
+had added stays. `push` is an operator whose candidates each take a place: the
 operator's declaration marks none, `push(entries, 3)` resolves by the types
 of its arguments to the candidate for a list, and that candidate's mark makes
 `entries` a place. Deliberate source rejections: `bump(1, 2)`, whose first
