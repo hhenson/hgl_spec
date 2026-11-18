@@ -114,7 +114,8 @@ delta error
   run in real time (RUN-3), and `integration_test`, before a test's name
   (TST-17);
   `switch`, `case`, `default`, `in`, `each`, `unbounded`, `properties`,
-  `associative`, `commutative`, `identity`, `raises`, and `suppress_warning`;
+  `associative`, `commutative`, `identity`, `raises`, `suppress_warning`,
+  and `timeout`;
   the capability names (TIME-8); and the result forms `ok`, `err`, `is_ok`,
   `is_err`, and `capture` (ERR-13). Each acquires its special meaning only in
   its defined positions. A contextual spelling is not globally reserved.
@@ -275,7 +276,8 @@ PUNCTUATION = "..." | "<=>" | "//="
   call's or index's: LEX-5 says whether it begins a statement or completes
   the one before. A call here is a call suffix, the arguments of a typed or
   delta constructor, a conversion such as `str(value)`, `eval(...)`,
-  `run(...)`, `raises(...)`, a constraint call, and a warning annotation. In an
+  `run(...)`, `raises(...)`, a constraint call, and a warning or a timeout
+  annotation. In an
   expression, a `<` that stands apart from the name before it is a
   comparison.
 
