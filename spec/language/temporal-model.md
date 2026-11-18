@@ -108,7 +108,9 @@ flowchart LR
   capital: `Logger`, `Clock`, `Scheduler`, `Alarm`, `GlobalState`. A
   capability type is written only as the type of a parameter of a `const fn`
   or of a native value function. A capability is used within the node that
-  injects it and is not retained: it is not the value of a `state` or a
+  injects it, or, for the `global_state` an application injects, in the
+  statements before its run statement (UNIT-14), and is not retained: it is
+  not the value of a `state` or a
   `cache`, an entry of a tuple, list, set, dictionary, or struct, what a
   function returns, what a node publishes, or a capture of an anonymous
   function (FN-14). Binding one to a `let` and giving one to a parameter of
