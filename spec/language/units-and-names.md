@@ -69,15 +69,17 @@ admits one as a member name.
   default that names one of them rejects. Imported defaults retain their
   defining closure, including private references.
 - **UNIT-8.** Defaults remain required-constant/cold expressions checked against
-  the expected type. Any parameter but a pack may have one: a value function's,
-  const configuration, or a temporal input. An omitted temporal argument is
+  the expected type. Any parameter but a pack and a `var` parameter (FN-15)
+  may have one: a value function's, const configuration, or a temporal input. An omitted temporal argument is
   wired as a constant of its default, so the default is a value a constant of
   the parameter's type can publish. A default of `null` marks a temporal input
   optional: an omitted argument binds an input that is never valid. A
   parameter whose type is written `T?` needs no default to be omitted: it is
   taken to have a default of `null`, so an omitted value parameter is null
-  and an omitted temporal input is never valid. A parameter that may be
-  omitted follows every parameter that may not. A default cannot use caller
+  and an omitted temporal input is never valid. A `var` parameter is the
+  exception: it is always given, whatever its type, since the call assigns
+  the place it is given (FN-15). A parameter that may be omitted follows
+  every parameter that may not. A default cannot use caller
   bindings or invent numeric generic values.
 - **UNIT-9.** Compare inherited defaults by bound expression and canonical type
   after substitution, before folding. Declaration identity matters; source

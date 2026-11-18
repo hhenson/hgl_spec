@@ -182,7 +182,7 @@ infrastructure and cannot satisfy a source-rejection expectation.
 | phase | `input.lifecycle` | A temporal input read, or given to an endpoint operation, in `start` (TIME-5); the use |
 | phase | `payload.unguarded` | Payload read under manual admission, in a `when` or in `stop`, that no guard dominates (TIME-4, TIME-5); read |
 | phase | `endpoint.argument` | Endpoint operation given what is no temporal input of its function and not `out` (TIME-9); argument |
-| phase | `connection.as_constant` | Temporal connection where composition requires a constant (FN-3); expression |
+| phase | `connection.as_constant` | Temporal connection where composition requires a constant (FN-3), or given to a function that declares a `var` parameter, which is not lifted (FN-15); expression |
 | type | `generic.invalid_application` | Generic type's name before a `<` that opens no arguments (GEN-14); name |
 | type | `pack.default` | Pack parameter has a default (FN-8); `=` |
 | type | `pack.const` | Pack parameter is const (FN-8); `const` |
@@ -219,7 +219,7 @@ infrastructure and cannot satisfy a source-rejection expectation.
 | type | `sequence.context_type` | Sequence whose entries give no type, where none is expected (EXPR-9); the sequence |
 | type | `enum.context_type` | `.member` where no enum type is expected (TYPE-7); the member |
 | name | `binding.unassigned` | `var` read on a path that gives it no value (EXPR-3); the read |
-| name | `binding.immutable` | Assignment to an immutable binding: a `let`, a parameter, an iteration binding, or a field or element of one (EXPR-3), or to a property of a native type (NATIVE-6) or of a delta (TYPE-16); target |
+| name | `binding.immutable` | Assignment to an immutable binding: a `let`, a parameter, an iteration binding, or a field or element of one (EXPR-3), or to a property of a native type (NATIVE-6) or of a delta (TYPE-16); or one given to a `var` parameter (FN-15); target |
 | type | `binding.category` | Assignment of a connection to a `var` that holds an ordinary value, or the reverse; assignment in a branch of a temporal `if` or `switch` to a `var` declared before it that holds an ordinary value (EXPR-4, CTRL-14); the value |
 | type | `argument.order` | Argument with no name after a named one (EXPR-2); the argument |
 | type | `argument.unexpected` | Positional argument that no parameter is left to take (EXPR-2), one given to a struct's constructor (TYPE-5), or a second given to an enum's (TYPE-7); the argument |
@@ -227,6 +227,8 @@ infrastructure and cannot satisfy a source-rejection expectation.
 | name | `argument.duplicate` | Parameter or field given twice (EXPR-2); later name |
 | type | `argument.missing` | Parameter or field that may not be left out is given nothing (EXPR-2, TYPE-5); callee name |
 | type | `argument.constant` | In a hook or a value function, a `const` parameter given what is no constant expression (FN-1); argument |
+| type | `argument.place` | `var` parameter given what is no place: a literal, what a call gives, or any other expression that nothing assigns (FN-15); argument |
+| function-kind | `parameter.var` | `var` parameter of a temporal function, an operator, or a candidate, or one whose type is a capability's or `endpoint<T>` (FN-15); `var` |
 | function-kind | `call.role` | Temporal function called from a value function or a runtime hook (FN-3); callee name |
 | type | `return.missing` | Value function that declares a result can reach its end with no value (FN-7), or a graph that returns a value in a branch of a temporal `if` or `switch` can (CTRL-14); function name |
 | type | `switch.duplicate_label` | Switch label has the value of an earlier label (CTRL-6); later label |
@@ -243,7 +245,7 @@ infrastructure and cannot satisfy a source-rejection expectation.
 | type | `rolling.size_bounds` | Invalid bounds; offending size/minimum |
 | type | `yield.time_type` | Wrong time type; yield time operand |
 | type | `test.raises_code` | Not a literal catalogued execution code; argument |
-| type | `eval.target` | Eval's first argument is no call of a function of a module: a call of an operator among them (TST-5); the argument |
+| type | `eval.target` | Eval's first argument is no call of a function of a module: a call of an operator among them (TST-5); or a call of a function that declares a `var` parameter (FN-15); the argument |
 | type | `eval.no_result` | The value of an eval of an outputless target is bound or compared (TST-8); the eval |
 | type | `trace.placeholder` | `_` in a timed trace, or outside a trace of a test (EXPR-8, TST-7); the `_` |
 | type | `trace.style` | Dense and timed traces in one eval, its expectation included (TST-7); the later trace |
