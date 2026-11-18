@@ -38,17 +38,20 @@ flowchart LR
   The first satisfied condition runs its body first. If that body completes
   without returning, checking continues with the next condition. A `return`
   exits the function's current evaluation; later handlers are not reached
-  (FN-7). In a `when` header, `modified()` subscribes to all
-  temporal inputs; `modified(a, b)` subscribes to both named inputs, and
-  similarly for more inputs. The subscription supplies inputs that can wake
-  the node. Manually passivating an input removes it from those wake sources.
-  Once the node runs, the handler considers the named inputs' current
-  publications even if they are passive. A publication solely on an unnamed
-  input does not satisfy this selector. For example, if a probe wakes the
+  (FN-7). A handler with no `modified` selector subscribes to every temporal
+  input. On an input wake it checks its admission and condition without
+  requiring a publication. An active input's transition to invalid wakes
+  the node, so `when valid([])` can inspect the cleared endpoint.
+  An explicit `modified()` also subscribes to every temporal input and
+  requires at least one of them to have published this cycle.
+  `modified(a, b)` subscribes to the named inputs and requires a publication
+  on at least one of them. Invalidation of an active or passive input never
+  satisfies a modification test for that input.
+  Passivating an input removes it as a wake source. If a probe wakes the
   node in a cycle when passive `data` publishes, `when modified(data)`
-  matches. `when modified(data) && is_active(data)` also requires the data
-  input to be active. `modified([])` subscribes
-  to no input: the node's scheduler or alarm is then what wakes the handler.
+  matches. `when modified(data) && is_active(data)` additionally requires
+  the input to be active. The empty selection `modified([])` subscribes to
+  no input and selects a wake from the node's scheduler or alarm.
   A wake by the scheduler or alarm wakes the handlers that subscribe to no
   input and those whose header has `scheduled()` (TIME-9) alone or as a
   top-level conjunct.
@@ -59,7 +62,7 @@ flowchart LR
   dormant by design acknowledges the warning. `valid()`
   requires all temporal inputs to be valid;
   `valid(a, b)` requires both named inputs, and similarly for more inputs.
-  Omitting either selector uses the same default as its zero-argument form.
+  Omitting the validity selector requires all temporal inputs to be valid.
   `valid([])` requires no inputs to be valid. A selector sets subscription or admission
   when it stands alone in the header or appears as a top-level conjunct.
   Selectors under negation or disjunction leave the default in place.
@@ -156,7 +159,7 @@ module examples.handlers
 
 fn manual_forward(value: i64) -> i64 {
     inject out
-    when modified() && valid([]) {
+    when valid([]) {
         if valid(value) { return value }
         invalidate(out)
     }
@@ -164,8 +167,8 @@ fn manual_forward(value: i64) -> i64 {
 
 fn guarded_forward(value: i64) -> i64 {
     inject out
-    when modified() && valid(value) { return value }
-    when modified() && valid([]) { invalidate(out) }
+    when modified(value) { return value }
+    when valid([]) { invalidate(out) }
 }
 
 fn last_seen(value: i64) -> i64 {
@@ -177,10 +180,11 @@ fn last_seen(value: i64) -> i64 {
 }
 ```
 
-`modified()` subscribes to input notifications. `valid([])` lets the body check
-validity itself. The two forms have the same observations: a valid input
-publishes its value and an invalid input invalidates the output. In the guarded
-form, the first body's return prevents the invalidation clause from running.
+Both forwarders publish each value and clear their output when the active
+input becomes invalid. In `manual_forward`, `when valid([])` admits both
+wakes and the body checks validity. In `guarded_forward`, a publication
+satisfies `modified(value)` and the first handler returns. On invalidation,
+that guard is false and the second handler clears the output.
 Deliberate rejections: replacing `if valid(value) { return value }` in
 `manual_forward` with `return value + 1`, an unguarded payload read under
 manual admission (`payload.unguarded`);
@@ -300,7 +304,7 @@ over three cycles, each input keeping its value while it is silent:
 
 | Function | Header | Publishes | Why |
 | --- | --- | --- | --- |
-| `default_sum`, `explicit_sum` | None; `modified(a, b) && valid(a, b)` | Nothing, 11.0, 23.0 | The two say the same: any input wakes it, and both are valid from the second cycle |
+| `default_sum`, `explicit_sum` | None; `modified(a, b) && valid(a, b)` | Nothing, 11.0, 23.0 | Both inputs are valid from the second cycle, and at least one publishes in each cycle |
 | `on_a` | `modified(a)` | Nothing, nothing, 23.0 | `b` cannot wake it; validity is the default, both inputs |
 | `while_a_valid` | `valid(a)` | 1.0, 1.0, 3.0 | Subscription is the default, so `b` wakes it while `a` holds 1.0 |
 | `sum_or_zero` | `valid([])` | 0.0, 11.0, 23.0 | Nothing is required of the inputs, and the body guards each read |
