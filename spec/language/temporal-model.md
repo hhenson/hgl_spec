@@ -382,6 +382,46 @@ a `Logger` where a `Clock` is taken; `boxed(clock)`, with
 parameter; `inject alarm, scheduler` in one node; and
 `clock.evaluation_time = value`, a property assigned. Conformance planned.
 
+Accepted illustration, complete module, a `put` and a `get` of one key in
+two nodes (TIME-2):
+
+```hgl
+module examples.store_order
+
+fn change(value: i64) -> i64 {
+    inject global_state
+    when {
+        put(global_state, "seen", value)
+        return 0
+    }
+}
+
+fn observe(value: i64) -> i64 {
+    inject global_state
+    when {
+        if has(global_state, "seen") { return get<i64>(global_state, "seen") }
+        return 0
+    }
+}
+
+fn ranked(value: i64) -> i64 => observe(change(value))
+
+fn level(value: i64) -> i64 {
+    let changed = change(value)
+    let observed = observe(value)
+    return changed + observed
+}
+```
+
+In `ranked`, `observe` takes what `change` publishes: it depends on
+`change`, is of the next rank, and is evaluated after it. It sees the `put`,
+and `eval(ranked(value: [7]))` is `[7]`. In `level` each takes `value` and
+neither takes the other's output: they are of one rank, their order is
+undefined, and `eval(level(value: [7]))` is `[7]` where `change` is evaluated
+first and `[0]` where `observe` is. A program that needs one of the two
+gives `observe` a dependency on `change`, as `ranked` does. Conformance
+planned for `ranked`; `level` has no one observation to test.
+
 ## Core boundary
 
 Core defines clock/scheduler interfaces, graph lifecycle, publication/delta
