@@ -8,7 +8,7 @@ included. The storage extensions below remain proposed.
 ```ebnf
 type = type_base, [ "?" ] ;
 type_base = scalar_type | named_type | tuple_type | list_type | set_type
-     | dict_type | rolling_type | ref_type | "signal" | endpoint_type
+     | dict_type | rolling_window_type | ref_type | "signal" | endpoint_type
      | "atomic", "<", value_type, ">" | result_type | "error" | delta_type ;
 value_type = value_type_base, [ "?" ] ;
 value_type_base = scalar_type | named_type | value_tuple_type | value_list_type
@@ -25,8 +25,8 @@ size_expression = additive_expr | "unbounded" ;
 set_type = "set", "<", value_type, ">" ;
 dict_type = "dict", "<", value_type, ",", type, ">" ;
 value_dict_type = "dict", "<", value_type, ",", value_type, ">" ;
-rolling_type = "rolling", "<", value_type, ",", const_expression,
-               [ ",", const_expression ], ">" ;
+rolling_window_type = "rolling_window", "<", value_type, ",", const_expression,
+                      [ ",", const_expression ], ">" ;
 ref_type = "ref", "<", type, ">" ;
 endpoint_type = "endpoint", "<", type, ">" ;
 result_type = "result", "<", value_type, ",", value_type, ">" ;
@@ -146,9 +146,9 @@ rejection (TYPE-12, TYPE-14). TYPE-16 says what a `delta_type` is.
   T is an admitted ordinary value type. It may annotate parameters, results,
   bindings, and admitted container element/value positions. A set's element
   and a dictionary's key are never null and take no `?`. Where T is no
-  ordinary value type, as `rolling<f64, 5>`, `atomic<Quote>`, `ref<f64>`,
-  and `signal` are not, `T?` is admitted only as the whole type of a
-  function's temporal parameter, whose argument may be omitted (UNIT-8), or
+  ordinary value type, as `rolling_window<f64, 5>`, `atomic<Quote>`,
+  `ref<f64>`, and `signal` are not, `T?` is admitted only as the whole type
+  of a function's temporal parameter, whose argument may be omitted (UNIT-8), or
   of a struct field, which is then optional (TYPE-4); `signal` is no field
   with `?` or without (TYPE-12). It is no result type, local's annotation,
   or part of another type. Nullability is
@@ -176,20 +176,21 @@ rejection (TYPE-12, TYPE-14). TYPE-16 says what a `delta_type` is.
   `unbounded` is the size sentinel. Size participates in identity;
   an unsized parameter pattern can accept a fixed size. A tuple retains
   positional identity and is not a fixed list alias.
-- **TYPE-11.** A rolling maximum/minimum has one constant kind: tick count or
-  duration. A size that is a generic value parameter has its declared type's
-  kind: `i64` a tick count, `duration` a duration. One declared with no type
-  has its kind once resolved. Omitted minimum equals
-  maximum: `rolling<i64, 5>` and `rolling<i64, 5, 5>` are one type. Tick
-  sizes are positive; duration maximum is positive and minimum may be zero:
-  `rolling<f64, 5m, 0s>` is admitted and `rolling<f64, 0s>` rejects. Minimum
-  cannot exceed maximum. Size/kind are part of identity; window publications
-  obey core's contract.
+- **TYPE-11.** `rolling_window<V, Max, Min>` is a rolling window of V. Its
+  maximum and minimum have one constant kind: tick count or duration. A size
+  that is a generic value parameter has its declared type's kind: `i64` a
+  tick count, `duration` a duration. One declared with no type has its kind
+  once resolved. Omitted minimum equals maximum: `rolling_window<i64, 5>` and
+  `rolling_window<i64, 5, 5>` are one type. Tick sizes are positive; duration
+  maximum is positive and minimum may be zero: `rolling_window<f64, 5m, 0s>`
+  is admitted and `rolling_window<f64, 0s>` rejects. Minimum cannot exceed
+  maximum. Size/kind are part of identity; window publications obey core's
+  contract.
 - **TYPE-12.** `ref<T>` designates an endpoint, not an ordinary payload type.
   It is excluded from const values, atomic payloads, keys, and window values.
-  An ordinary value type is written with no `rolling`, `ref`, `atomic`, or
-  `signal` at any depth: `set<list<ref<f64>>>` rejects. A dictionary's value
-  and the argument of `ref` or `delta` are any type.
+  An ordinary value type is written with no `rolling_window`, `ref`,
+  `atomic`, or `signal` at any depth: `set<list<ref<f64>>>` rejects. A
+  dictionary's value and the argument of `ref` or `delta` are any type.
   `signal` is a complete temporal input constraint with no readable payload:
   the whole type of a function's temporal parameter, or of its positional
   pack, `ticks: ...signal`. It is not a result, nested shape, field, const
@@ -234,9 +235,9 @@ rejection (TYPE-12, TYPE-14). TYPE-16 says what a `delta_type` is.
 | --- | --- |
 | A scalar, an enum, a `result`, an `error`, a native type, a delta that is a type of its own | T itself |
 | `V?`, V an ordinary value type | A type of its own, an optional, with the property `value`, a `delta<V>?`: null for a published null (TYPE-15) |
-| `V?`, V no ordinary value type, as `rolling<f64, 5>?` | `delta<V>`: the `?` marks an argument or a field that may be left out (TYPE-14), and is no part of what is published |
+| `V?`, V no ordinary value type, as `rolling_window<f64, 5>?` | `delta<V>`: the `?` marks an argument or a field that may be left out (TYPE-14), and is no part of what is published |
 | `atomic<V>` | V: an atomic publishes whole |
-| `rolling<V, Max, Min>` | V: the value that arrived |
+| `rolling_window<V, Max, Min>` | V: the value that arrived |
 | `list<V>`, `list<V, N>` | `dict<i64, delta<V>>`: for each position that changed, its delta |
 | `tuple<A, B>` | `tuple<delta<A>?, delta<B>?>`: each position's delta, null where it did not change |
 | `set<K>` | A type of its own, with the properties `added` and `removed`, each a `set<K>` |

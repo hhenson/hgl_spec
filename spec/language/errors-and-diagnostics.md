@@ -191,7 +191,7 @@ infrastructure and cannot satisfy a source-rejection expectation.
 | type | `pack.undeclared` | `...{Name}` names no type pack of its declaration (FN-8); name in the braces |
 | type | `pack.cardinality` | Cardinality's upper bound is below its lower (GEN-10); upper bound |
 | type | `type.not_a_type` | Name in a type position is no type: a function, operator, local, generic value parameter, or a type pack where one type is needed (UNIT-10, GEN-2, GEN-13); name |
-| type | `type.not_ordinary` | `rolling`, `ref`, `atomic` or `signal` where an ordinary value type is required, or under a `?` that is not on the whole type of an input or a field (TYPE-12, TYPE-14, FN-1); offending type |
+| type | `type.not_ordinary` | `rolling_window`, `ref`, `atomic` or `signal` where an ordinary value type is required, or under a `?` that is not on the whole type of an input or a field (TYPE-12, TYPE-14, FN-1); offending type |
 | type | `signal.position` | `signal` other than as the whole type of a function's temporal parameter (TYPE-12); `signal` |
 | type | `endpoint.position` | `endpoint<T>` other than as the whole type of a native value function's parameter (TYPE-12); `endpoint` |
 | type | `nullable.key` | Set element or dictionary key has a `?` (TYPE-14); the nullable type |
@@ -242,8 +242,8 @@ infrastructure and cannot satisfy a source-rejection expectation.
 | operator | `operator.ambiguous` | Call of an operator that two most-specific candidates admit equally (GEN-5); operator |
 | type | `default.order` | Parameter that may not be omitted follows one that may (UNIT-8); the later parameter |
 | type | `tuple.index` | Tuple's index is no constant, or is outside the tuple (EXPR-7); index |
-| type | `rolling.size_kind` | Wrong/mixed size kind; offending size, the minimum when the two differ in kind |
-| type | `rolling.size_bounds` | Invalid bounds; offending size/minimum |
+| type | `rolling_window.size_kind` | Wrong/mixed size kind; offending size, the minimum when the two differ in kind |
+| type | `rolling_window.size_bounds` | Invalid bounds; offending size/minimum |
 | type | `yield.time_type` | Wrong time type; yield time operand |
 | type | `test.raises_code` | Not a literal catalogued execution code; argument |
 | type | `eval.target` | Eval's first argument is no call of a function of a module: a call of an operator among them (TST-5); or a call of a function that declares a `var` parameter (FN-15); the argument |
