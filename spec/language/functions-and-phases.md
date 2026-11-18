@@ -157,7 +157,8 @@ Local source/native declaration matching is defined in the native chapter.
   bindings. Use of an enclosing `var`, `state`, `cache`, or injected
   capability rejects.
 - **FN-15.** A value function, a `const fn` or a native one, may mark a
-  parameter `var`: `const fn bump(var count: i64, by: i64)`. Its type is an
+  parameter `var`: `const fn bump(var count: i64, by: i64)`. So may a value
+  candidate of an operator (GEN-6). Its type is an
   ordinary value type, and no capability's (TIME-8) or `endpoint<T>` (TIME-9),
   which no place holds (`parameter.var`). A call gives a `var` parameter a
   place, as the left of an assignment is (EXPR-3): a `var`, a `state`, or a
@@ -173,12 +174,17 @@ Local source/native declaration matching is defined in the native chapter.
   in the order of the parameters. A function that fails assigns nothing. The
   call changes the place and no value: a value taken from the place before the
   call is as it was (TYPE-5). A `var` parameter may be given on to a `var`
-  parameter of a function the body calls. A temporal `fn`, an operator, and a
-  candidate declare none (`parameter.var`). A function that declares one is
-  not lifted (FN-6): a call of it stands in a value function, in a runtime
-  hook, or in composition where the place holds an ordinary value. No argument
-  of such a call is a connection (`connection.as_constant`), and the function
-  is no target of an `eval` (`eval.target`).
+  parameter of a function the body calls. A temporal `fn`, a temporal
+  candidate, and an operator declare none (`parameter.var`): an operator
+  gives the parameters every candidate takes, and each candidate says which
+  of its own is `var`. The mark takes no part in selecting a candidate
+  (GEN-5): a call of an operator is resolved as any other, and the candidate
+  it resolves to says which of its arguments are places. A function or a
+  candidate that declares one is not lifted (FN-6): a call of it stands in a
+  value function, in a runtime hook, or in composition where the place holds
+  an ordinary value. No argument of such a call is a connection
+  (`connection.as_constant`), and the function is no target of an `eval`
+  (`eval.target`).
 
 Accepted declaration fragment, a temporal input with a default (UNIT-8):
 
@@ -242,14 +248,29 @@ const fn kept() -> bool {
     set_first(entries, 9)
     return before == [1, 2] && entries == [9, 2]
 }
+
+operator push<C, V>(values: C, item: V)
+
+impl const fn push(var values: list<i64>, item: i64) {
+    append(values, item)
+}
+
+impl const fn push(var values: dict<str, i64>, item: str) {
+    values[item] = 1
+}
 ```
 
 `bump(sum, value)` assigns `sum`, the caller's `var`. In `kept`, the call
 gives `entries` a new value, and `before`, which took the list first, is as
-it was. Deliberate source rejections: `bump(1, 2)`, whose first argument is
-no place (`argument.place`); `bump(fixed, 2)` for `let fixed = 0`
+it was. `push` is an operator whose candidates each take a place: the
+operator's declaration marks none, `push(entries, 3)` resolves by the types
+of its arguments to the candidate for a list, and that candidate's mark makes
+`entries` a place. Deliberate source rejections: `bump(1, 2)`, whose first
+argument is no place (`argument.place`); `push([1], 2)`, the same once the
+candidate is selected; `bump(fixed, 2)` for `let fixed = 0`
 (`binding.immutable`); `fn ticking(var value: i64) -> i64`, a temporal
-function (`parameter.var`); and, for
+function, and `operator push<C, V>(var values: C, item: V)`, an operator
+(`parameter.var`); and, for
 `const fn clear(var value: i64?) { value = null }`, the call `clear()`: a
 `var` parameter is given though its type is nullable (`argument.missing`).
 Executable conformance is planned.
