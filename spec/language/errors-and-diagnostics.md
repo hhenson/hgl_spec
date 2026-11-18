@@ -156,6 +156,7 @@ infrastructure and cannot satisfy a source-rejection expectation.
 | name | `default.formal_argument` | Default names a parameter of its declaration or a field of its struct (UNIT-7); use |
 | name | `alias.unqualified` | Import alias used without `::name` (UNIT-2); alias |
 | name | `alias.unknown` | Name before `::` is no import alias of its file (UNIT-2); name |
+| name | `name.unknown` | Name that nothing in scope binds: no local, parameter, generic parameter, declaration, import, or prelude declaration (UNIT-10); name |
 | name | `test.duplicate_name` | Two tests of a module share a name (TST-2); later name |
 | module | `test.export` | Exported declaration in a test context (TST-1); `export` |
 | operator | `test.implementation` | Operator candidate in a test context (TST-1); operator name |
