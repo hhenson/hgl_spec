@@ -88,7 +88,8 @@ admits one as a member name.
 - **UNIT-10.** A name resolves to the one binding in scope for it (UNIT-12):
   an earlier local or iteration binding of an enclosing block; a parameter of
   an enclosing function; a generic parameter of an enclosing declaration
-  (GEN-1); a module declaration; a selective import; or the prelude. Direct
+  (GEN-1); a module declaration; a selective import; or the prelude. A name
+  that none of these binds rejects (`name.unknown`). Direct
   capability receivers select their capability operation; reserved activation
   forms are not shadowable identifiers. Resolution grants no payload read
   during composition and does not change default binding (UNIT-7). A name
