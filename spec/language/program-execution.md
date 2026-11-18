@@ -123,8 +123,9 @@ eval(counted())
 The store holds `"limit"` when the graph is built, so `counted` reads 3 from
 its first evaluation and the run's output is 1, 2 and 3, a second apart.
 With no `put` the first `get` fails the source: the key is absent.
-Deliberate rejections in the application: `inject clock`; `let limit = 3`; a
-`put` after the run statement; and the two store statements in a module
+Deliberate rejections in the application: `inject clock`;
+`has(global_state, "limit")`, a call that is no `put`; a `put` after the run
+statement; and the two store statements in a module
 (`application.statement`). Conformance planned.
 
 Deliberate rejections: `run(heartbeat(every: 1))`, an entry given an `i64`

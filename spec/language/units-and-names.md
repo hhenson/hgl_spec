@@ -16,7 +16,7 @@ use_decl = "use", module_path, ( "::", import_set | "as", IDENTIFIER ) ;
 import_set = "{", import_name, { ",", import_name }, [ "," ], "}" ;
 import_name = IDENTIFIER ;
 top_level_item = use_decl | declaration | store_statement | run_statement ;
-store_statement = inject_decl | expression ;
+store_statement = inject_decl | IDENTIFIER, call_suffix ;
 declaration = function_decl | struct_decl | enum_decl | operator_decl
             | instantiate_decl | native_type_decl | native_function_decl
             | constant_decl | test_decl | test_context ;
@@ -28,8 +28,9 @@ callable_name = IDENTIFIER ;
 
 The referenced declarations belong to their type, function, generic, native,
 or test chapters, `run_statement` to
-[program execution](program-execution.md), and `inject_decl` to the
-[temporal model](temporal-model.md). Portable source is covered here;
+[program execution](program-execution.md), `inject_decl` to the
+[temporal model](temporal-model.md), and `call_suffix` to
+[expressions](expressions-and-bindings.md). Portable source is covered here;
 target build metadata is not.
 The hard reserved words are listed in [source text](source-text.md); LEX-9
 admits one as a member name.
