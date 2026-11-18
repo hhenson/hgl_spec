@@ -158,28 +158,27 @@ Local source/native declaration matching is defined in the native chapter.
   capability rejects.
 - **FN-15.** A value function, a `const fn` or a native one, may mark a
   parameter `var`: `const fn bump(var count: i64, by: i64)`. Its type is an
-  ordinary value type, and no capability's (TIME-8) or `endpoint<T>`
-  (TIME-9), which no place holds. A call gives a `var` parameter a place, as
-  the left of an assignment is (EXPR-3): a `var`, a `state`, or a `cache`,
-  or a place inside one, that holds an ordinary value of the parameter's
-  type. It is always given: it has no default, and is not left out where
-  its type is written `T?` (UNIT-8). What is read-only rejects, a
-  `let`, a parameter that is not `var`, a constant, or an iteration binding
+  ordinary value type, and no capability's (TIME-8) or `endpoint<T>` (TIME-9),
+  which no place holds (`parameter.var`). A call gives a `var` parameter a
+  place, as the left of an assignment is (EXPR-3): a `var`, a `state`, or a
+  `cache`, or a place inside one, that holds an ordinary value of the
+  parameter's type. It is always given: it has no default, and is not left out
+  where its type is written `T?` (UNIT-8). What is read-only rejects, a `let`,
+  a parameter that is not `var`, a constant, or an iteration binding
   (`binding.immutable`); so does what is no place, a literal or what a call
   gives (`argument.place`). The call assigns the place. In the function the
   parameter is a `var`, whose first value is the place's when the call's
-  arguments are evaluated (EXPR-2); what it holds when the function returns
-  is what the place is given, and a call with several gives each place its
-  value in the order of the parameters. A function that fails assigns
-  nothing. The call changes the place and no value: a value taken from the
-  place before the call is as it was (TYPE-5). A `var` parameter may be
-  given on to a `var` parameter of a function the body calls. A temporal
-  `fn`, an operator, and a candidate declare none (`parameter.var`). A
-  function that declares one is not lifted (FN-6): a call of it stands in a
-  value function, in a runtime hook, or in composition where the place
-  holds an ordinary value. No argument of such a call is a connection
-  (`connection.as_constant`), and the function is no target of an `eval`
-  (`eval.target`).
+  arguments are evaluated (EXPR-2); what it holds when the function returns is
+  what the place is given, and a call with several gives each place its value
+  in the order of the parameters. A function that fails assigns nothing. The
+  call changes the place and no value: a value taken from the place before the
+  call is as it was (TYPE-5). A `var` parameter may be given on to a `var`
+  parameter of a function the body calls. A temporal `fn`, an operator, and a
+  candidate declare none (`parameter.var`). A function that declares one is
+  not lifted (FN-6): a call of it stands in a value function, in a runtime
+  hook, or in composition where the place holds an ordinary value. No argument
+  of such a call is a connection (`connection.as_constant`), and the function
+  is no target of an `eval` (`eval.target`).
 
 Accepted declaration fragment, a temporal input with a default (UNIT-8):
 
