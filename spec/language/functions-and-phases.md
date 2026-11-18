@@ -157,10 +157,13 @@ Local source/native declaration matching is defined in the native chapter.
   bindings. Use of an enclosing `var`, `state`, `cache`, or injected
   capability rejects.
 - **FN-15.** A value function, a `const fn` or a native one, may mark a
-  parameter `var`: `const fn bump(var count: i64, by: i64)`. A call gives a
-  `var` parameter a place, as the left of an assignment is (EXPR-3): a
-  `var`, a `state`, or a `cache`, or a place inside one, that holds an
-  ordinary value of the parameter's type. What is read-only rejects, a
+  parameter `var`: `const fn bump(var count: i64, by: i64)`. Its type is an
+  ordinary value type, and no capability's (TIME-8) or `endpoint<T>`
+  (TIME-9), which no place holds. A call gives a `var` parameter a place, as
+  the left of an assignment is (EXPR-3): a `var`, a `state`, or a `cache`,
+  or a place inside one, that holds an ordinary value of the parameter's
+  type. It is always given: it has no default, and is not left out where
+  its type is written `T?` (UNIT-8). What is read-only rejects, a
   `let`, a parameter that is not `var`, a constant, or an iteration binding
   (`binding.immutable`); so does what is no place, a literal or what a call
   gives (`argument.place`). The call assigns the place. In the function the
@@ -174,7 +177,9 @@ Local source/native declaration matching is defined in the native chapter.
   `fn`, an operator, and a candidate declare none (`parameter.var`). A
   function that declares one is not lifted (FN-6): a call of it stands in a
   value function, in a runtime hook, or in composition where the place
-  holds an ordinary value.
+  holds an ordinary value. No argument of such a call is a connection
+  (`connection.as_constant`), and the function is no target of an `eval`
+  (`eval.target`).
 
 Accepted declaration fragment, a temporal input with a default (UNIT-8):
 
@@ -245,7 +250,10 @@ gives `entries` a new value, and `before`, which took the list first, is as
 it was. Deliberate source rejections: `bump(1, 2)`, whose first argument is
 no place (`argument.place`); `bump(fixed, 2)` for `let fixed = 0`
 (`binding.immutable`); `fn ticking(var value: i64) -> i64`, a temporal
-function (`parameter.var`). Executable conformance is planned.
+function (`parameter.var`); and, for
+`const fn clear(var value: i64?) { value = null }`, the call `clear()`: a
+`var` parameter is given though its type is nullable (`argument.missing`).
+Executable conformance is planned.
 
 Accepted declaration fragments showing modifier and ordinary-name positions:
 

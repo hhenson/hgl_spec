@@ -75,7 +75,8 @@ GEN-14 resolves generic construction versus comparison using declaration lookup.
   fill the parameters from the first and stop where they stop; named
   arguments come in any order, and a parameter that may be omitted may be
   left out. A parameter that may be omitted, one with a default or a type
-  written `T?`, follows every parameter that may not (UNIT-8). A struct's
+  written `T?` that is no `var` parameter, follows every parameter that may
+  not (UNIT-8). A struct's
   constructor takes named arguments only (TYPE-5). An enum's takes one
   argument, by position (TYPE-7). An argument of a `var` parameter is a
   place, which the call assigns (FN-15).
