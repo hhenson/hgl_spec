@@ -112,9 +112,11 @@ flowchart LR
   paths a null test is followed along (ERR-12). A saved bool proves nothing.
   `valid` and `all_valid` retain distinct child-validity rules. A child's
   guard is a test of `all_valid` of its input, or of `valid` of the child
-  as the read names it, `valid(parts[1])` for `parts[1]` (TIME-1). A whole
-  read's guard is a test of `all_valid` of what it reads, `all_valid(quote)`
-  for `quote`. A `when` header that has the test alone or as a top-level
+  as the read names it, `valid(parts[1])` for `parts[1]` (TIME-1). The
+  guard of a whole read of a struct, a tuple or a fixed list is a test of
+  `all_valid` of what it reads, `all_valid(quote)` for `quote`; of a
+  dictionary or an unsized list, `valid` of it, as of any input. A `when`
+  header that has the test alone or as a top-level
   conjunct guards its body, `when all_valid(quote)`.
 - **TIME-5.** State/cache/inject declarations precede executable hooks. At most
   one start and one stop are admitted. State initializers cannot read current
