@@ -174,12 +174,12 @@ flowchart LR
   are read-only, `clock.evaluation_time`,
   and its operations are functions that take it first,
   `schedule(scheduler, delay)`, with no method-call aliases. A node injects
-  `alarm` or `scheduler`, not both. A wake asked of either with a
-  `duration` takes one more than zero, but for a scheduler's in `start`,
-  which takes zero too: `schedule(scheduler, 0s)` there asks for a wake at
-  the start, the node's first evaluation. Proposed: an alarm's in `start`
-  takes zero as well, as the scheduler's does. A duration that is not
-  admitted, a negative one in `start` included, rejects where the compiler
+  `alarm` or `scheduler`, not both. What may be asked of the scheduler may
+  be asked of the alarm alike, and each rule on a wake that follows holds
+  of both. A wake asked for with a `duration` takes one more than zero, but
+  in `start`, which takes zero too: `schedule(scheduler, 0s)` there asks
+  for a wake at the start, the node's first evaluation. A duration that is
+  not admitted, a negative one in `start` included, rejects where the compiler
   sees its value, a literal or a constant (UNIT-13), and elsewhere fails
   the call as the program runs. Proposed: both with the code
   `schedule.non_positive_duration`. A wake asked for at a `datetime`
