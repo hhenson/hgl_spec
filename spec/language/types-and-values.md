@@ -271,7 +271,11 @@ rejection (TYPE-12, TYPE-14). TYPE-16 says what a `delta_type` is.
   positions, the third not valid. A `list<V, N>` keeps its
   bounds: a constant entry past them rejects (`delta.index_bounds`), and
   one in a delta made as the program runs fails the write that publishes
-  it, as an index outside a list does (EXPR-3). The delta read gives the
+  it, as an index outside a list does (EXPR-3). An `updated` entry at or
+  past the size that a `size_modified` written in the same delta gives
+  contradicts it: where the compiler sees both, a constant delta whose
+  size is no reduction, it rejects (`delta.index_bounds`), and elsewhere
+  the write that publishes it fails. The delta read gives the
   new size where it moves, never a negative one, and on a shrink names the
   tail positions it drops in `removed`. A nullable's delta is an
   optional: it holds what was published, a null among them, so that null
@@ -285,7 +289,8 @@ rejection (TYPE-12, TYPE-14). TYPE-16 says what a `delta_type` is.
   (`delta.overlap`). A run
   makes no check, and what it does with one is undefined. A `removed` that
   names a key a dictionary does not hold is ignored, and is no failure, as
-  one that names a member a set does not hold is.
+  one that names a member a set does not hold is. So is one that names a
+  position of a list that holds no value, never set or already removed.
 
 | T | `delta<T>` |
 | --- | --- |

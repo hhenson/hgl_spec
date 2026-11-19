@@ -83,7 +83,9 @@ postfix suffix. `argument` is that grammar's call argument.
   a child that is not valid fails the read with `value.unset_read`: in a
   `when` the node fails, as `?` makes it (ERR-5). A read of a struct, a
   tuple or a fixed list whole that is checked when it runs, `rows[i]`,
-  takes its form the same way, for one that is not all valid (TIME-1).
+  takes its form the same way, for one that is not all valid (TIME-1), and
+  so does a read of an unsized list whole with a position that holds no
+  value, where its element type has no value for that (TIME-1).
 - **ERR-7.** In composition, `capture(callable, args...)` creates a temporal
   error boundary. It names a callable and gives it the arguments its own call
   takes, positional or named, read, checked, and selected as that call's are
@@ -285,14 +287,14 @@ infrastructure and cannot satisfy a source-rejection expectation.
 | type | `delta.entry_constant` | Entry is not admitted constant/cold data; entry |
 | type | `delta.entry_type` | Wrong entry key/index/member type; entry |
 | type | `delta.duplicate_entry` | Known equal entries; later entry |
-| type | `delta.index_bounds` | Negative/out-of-fixed-range index; index |
+| type | `delta.index_bounds` | Negative/out-of-fixed-range index, or an `updated` index at or past the size a `size_modified` of the same delta gives (TYPE-16); index |
 | type | `delta.overlap` | Known overlapping addition/removal; later entry |
 | phase | `test.statement_phase` | Node/lifecycle/return statement in test; keyword |
 
 | Execution code | Required condition |
 | --- | --- |
 | `value.missing_key` | Strict ordinary dictionary lookup has no member |
-| `value.unset_read` | Executed operation requires an unset ordinary payload, a collection's child that is not valid, or a struct, a tuple or a fixed list read whole that is not all valid, read where that is checked when it runs among them (TIME-1, ERR-14), or a window's value read before it is `all_valid` (TYPE-11) |
+| `value.unset_read` | Executed operation requires an unset ordinary payload, a collection's child that is not valid, or a struct, a tuple or a fixed list read whole that is not all valid, read where that is checked when it runs among them (TIME-1, ERR-14), an unsized list read whole with a position that holds no value, where its element type has no value for that (TIME-1), or a window's value read before it is `all_valid` (TYPE-11) |
 | `value.capability` | Boxed executed operation lacks a required contained capability |
 | `value.byte_range` | Bytes construction receives an octet outside 0–255 |
 | `numeric.division_by_zero` | Explicit `?` propagation in `when` turns a checked-division Err into node failure; see the [core numeric contract](https://github.com/hhenson/hgl_core/blob/main/spec/numeric-operators.md) |

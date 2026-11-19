@@ -162,7 +162,10 @@ Local source/native declaration matching is defined in the native chapter.
   one helper invocation, not separate elementwise invocations. The value is
   passed where it may be read whole (TIME-1). An unsized `list<T>` and a
   dictionary need `valid`; lifting adds no required size or
-  recursive `all_valid` check. A struct, a tuple and a fixed-size list need
+  recursive `all_valid` check. A position of an unsized list that holds no
+  value is passed as TIME-1's table reads it, NaN for an `f64`; where the
+  element type has no value for it, the invocation fails
+  (`value.unset_read`). A struct, a tuple and a fixed-size list need
   `all_valid`, and an optional child that is not valid is passed as null.
   A window is passed only where it is `all_valid`: its value is not read
   before (TYPE-11). Unchanged
