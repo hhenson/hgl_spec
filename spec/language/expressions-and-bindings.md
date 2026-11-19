@@ -124,9 +124,11 @@ GEN-14 resolves generic construction versus comparison using declaration lookup.
   projection computes from a whole payload. Temporal dictionary key selection
   may give a reference, a designation of the keyed child (TIME-10);
   strict/safe ordinary dictionary reads follow
-  [lookup rules](errors-and-diagnostics.md). A projection of a `ref`
-  parameter selects its child and reads no payload, whatever the member's
-  name. Brackets read an element of a
+  [lookup rules](errors-and-diagnostics.md). A structural projection of a
+  `ref` parameter selects its child and reads no payload, whatever the
+  member's name; an atomic projection of one, `quote.bid` of
+  `ref quote: atomic<Quote>`, reads its payload and rejects (FN-16).
+  Brackets read an element of a
   list or a tuple by an `i64` index, and the value a dictionary has for a
   key. A tuple's index is a constant within its length: it selects the
   element's type.
