@@ -111,8 +111,8 @@ flowchart LR
   (EXPR-5), so a value that is a T is published whole: `return []` for a
   `list<i64>` result publishes the empty list, and `return null` for an
   `i64?` result a null, as `return delta<i64?>()` does. A value that is no
-  T and is a `delta<T>` is published as that change; a binding annotated
-  with that type gives one, `let change: delta<list<i64>> = []`. Where T
+  T and is a `delta<T>` is published as that change,
+  `return delta<list<i64>>(modified: [0: 5])`. Where T
   publishes whole, as a scalar does, `delta<T>` is T and the two are one.
   A `return` with no value publishes nothing (FN-7). A result of
   `atomic<V>` takes a V.
