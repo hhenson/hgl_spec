@@ -2,7 +2,8 @@
 
 Status: agreed conditionals, switch design, and phase-dependent independent
 iteration. Generator syntax and the shape of a source's body are agreed; the
-timing of a `yield` is proposed.
+timing of a `yield` and the sentence of CTRL-6 that begins "Proposed:" are
+proposed.
 
 ## Grammar
 
@@ -53,9 +54,12 @@ CTRL-9 places the opening brace of an `if`, `for`, `switch`, `when`, or
 - **CTRL-5.** Return targets the enclosing HGL function. Work after a conditional
   early return belongs to the non-returning continuation and its lifetime.
   Definite assignment ignores paths that have already returned.
-- **CTRL-6.** Switch labels are typed source constants, compared by resolved
-  value. Duplicate values reject, including differently spelled equal enum
-  members. There is no fallthrough. An unmatched selector uses default or fails.
+- **CTRL-6.** Switch labels are typed source constants (UNIT-13), compared by
+  resolved value. Duplicate values reject, including differently spelled
+  equal enum members, and `case 1:` beside `case 0x1:`. Proposed: two
+  labels are duplicates where `==` of the selector's type holds for them,
+  and not by their sameness as constants. There is no fallthrough. An
+  unmatched selector uses default or fails.
   Enum coverage can establish exhaustiveness; partial coverage is admitted.
 - **CTRL-7.** A composition loop over fixed structure receives child connections;
   a loop over ordinary wiring-time data receives values. Dynamic independent

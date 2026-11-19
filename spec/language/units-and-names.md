@@ -86,8 +86,9 @@ admits one as a member name.
   bindings or invent numeric generic values.
 - **UNIT-9.** Compare inherited defaults by bound expression and canonical type
   after substitution, before folding. Declaration identity matters; source
-  location and alias spelling do not. Conflicting inherited defaults require
-  an explicit child override.
+  location, alias spelling, and how a literal is written do not (UNIT-13):
+  `= 1` and `= 1.0` of an `f64` field are one default. Conflicting
+  inherited defaults require an explicit child override.
 - **UNIT-10.** A name resolves to the one binding in scope for it (UNIT-12):
   an earlier local or iteration binding of an enclosing block; a parameter of
   an enclosing function; a generic parameter of an enclosing declaration
@@ -131,6 +132,21 @@ admits one as a member name.
   (GEN-8) or a `switch` label (CTRL-12) requires one. It is referenced
   forward as any module declaration is (UNIT-6), and its value depends on
   no constant that depends on it.
+  A compile-time constant (GEN-8), a literal or a constant among them, is
+  one value of the type its place gives it (EXPR-5): `1` where an `f64` is
+  expected is `1.0`. Two compile-time constants are one where those values
+  are the same, however each is written: `1`, `1.0` and `1.00` as an
+  `f64`; `60s` and `1m`; the `datetime`s `@2026-09-03T09:30Z` and
+  `@2026-09-03T10:30+01:00`, one instant. The same value is not `==`,
+  which the [core numeric contract](https://github.com/hhenson/hgl_core/blob/main/spec/numeric-operators.md)
+  gives: `-0.0` and `0.0` are two constants, though `-0.0 == 0.0`, and any
+  two NaNs, `0.0 / 0.0` among them, are one constant, though `==` holds
+  for no NaN. That sameness gives type identity (TYPE-3) and the instance
+  a call makes (GEN-13). An equality the program writes, in a `requires`
+  as elsewhere, is the language's `==` (GEN-3). How a constant is written
+  is kept with it, for diagnostics and for a formatter, which writes it
+  back as written, and is never compared: a constant has one value
+  however it is written.
 - **UNIT-14.** An application is one file, headed `application name`, where
   a module's files are headed `module name`. It holds what a module holds,
   and one run statement (RUN-1), which follows its declarations. Between its

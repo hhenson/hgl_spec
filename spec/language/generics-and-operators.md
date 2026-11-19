@@ -45,10 +45,10 @@ expression; group a constant expression that uses them as operand data.
 ## Rules
 
 - **GEN-1.** Generic scope covers the whole declaration. Repeated parameters
-  require equivalent types or equal constants; differently named variables are
-  independent. Occurrence requirements intersect: ordinary positions require
-  value types, temporal positions admit temporal shapes, and delta formation
-  imposes its own admitted domain.
+  require equivalent types or one constant (UNIT-13); differently named
+  variables are independent. Occurrence requirements intersect: ordinary
+  positions require value types, temporal positions admit temporal shapes,
+  and delta formation imposes its own admitted domain.
 - **GEN-2.** Resolve every needed generic from actual inputs, requested output,
   or solvable equality. A generic struct application supplies all arguments or
   infers them from constructor fields and expected type. A type position, a
@@ -87,7 +87,9 @@ expression; group a constant expression that uses them as operand data.
   unresolved/conflicting dependencies. A call of a function whose `requires`
   does not hold with the generic arguments the call resolves is rejected,
   and so is an application of a struct whose `requires` does not hold with
-  its arguments.
+  its arguments. An equality of two constants there is the `==` a program
+  evaluates, and not their sameness (UNIT-13): with `const k: f64`,
+  `requires k == 0.0` holds where `k` is `-0.0`.
 - **GEN-4.** An operator has nominal identity `(module, name)` and owns public
   names/order, roles, defaults, generic relationships, and requirements. An
   `impl fn` is a temporal candidate of the operator it names and an
@@ -212,7 +214,11 @@ expression; group a constant expression that uses them as operand data.
   parameter whose kind no field or constraint determines. A function whose
   signature determines no kind for a parameter is accepted: a call supplies
   the parameter, and one that does not rejects. Constraining N's type does
-  not resolve N's value.
+  not resolve N's value. Generic arguments that are the same, each type
+  canonical and each value one constant (UNIT-13), make one type, or one
+  instance of a generic function; arguments that differ make another. For
+  `struct Scaled<const k: f64>`, `Scaled<1>` and `Scaled<1.0>` are one
+  type, and `Scaled<-0.0>` is not `Scaled<0.0>`.
 - **GEN-14.** Retain `<...>` for generic arguments. In a type position, or
   directly following (LEX-27) a name resolved to a generic type, function,
   or operator in an expression, `<` opens generic arguments rather than a
@@ -319,6 +325,21 @@ Deliberate rejections:
 `value: Box` for `struct Box<T>`, whose parameter has no default and which
 a type position does not infer; and `let zs: list<f64, 5> = window<f64, 3>(x)`,
 where what the call writes decides and the place then expects another size.
+
+Accepted declaration fragments, generic value arguments that are one
+constant or two (GEN-13, UNIT-13):
+
+```hgl
+struct Scaled<const k: f64> { value: f64 }
+const fn reciprocal<const k: f64>() -> f64 => 1.0 / k
+```
+
+`Scaled<1>`, `Scaled<1.0>` and `Scaled<1.00>` are one type, and
+`reciprocal<1>()` and `reciprocal<1.0>()` call one instance.
+`reciprocal<0.0>()` is positive infinity and `reciprocal<-0.0>()` negative
+infinity, whichever is called first. With `requires k == 0.0` added,
+`reciprocal` admits both of those calls (GEN-3). Deliberate rejection: a
+`Scaled<-0.0>` where a `Scaled<0.0>` is expected (`type.mismatch`).
 
 Accepted value-function fragments for a symbol as its call, with `n` an
 `i64`, `xs` a `list<f64>`, and structs `Round` and `Square` that inherit
