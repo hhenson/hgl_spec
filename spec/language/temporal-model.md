@@ -4,7 +4,8 @@ Status: agreed publication, handler, state/cache, and capability baseline.
 The alarm, the run-wide keyed store, collection validity with
 `all_valid` (TIME-9), and the read of a collection's child and of a
 collection whole (TIME-1) are agreed. The sentences of TIME-8, TIME-9 and
-TIME-10 that begin "Proposed:" are proposed.
+TIME-10 that begin "Proposed:", and the rows of TIME-1's table marked
+proposed, are proposed.
 
 ## Grammar
 
@@ -55,7 +56,24 @@ flowchart LR
   checked when it runs: one that is not all valid fails it
   (`value.unset_read`), or gives an `err` where its place takes a
   `result` (ERR-14). A dictionary and an unsized list hold what they hold:
-  a read of one whole requires its `valid` and no more.
+  a read of one whole requires its `valid` and no more. A position of an
+  unsized list that holds no value, a gap or one removed (TYPE-16), reads
+  in the whole value as the table below has it for the element type: as
+  that type's value for "not set" where it has one. Where it has none the
+  read fails (`value.unset_read`), or gives an `err` where its place takes
+  a `result`, as a child's read checked when it runs does (ERR-14).
+  `valid` of the position tells a value published there from none: a
+  published NaN from a gap. So `updated: [3: 5.0]` on a `list<f64>` that
+  holds `[1.0, 2.0]` leaves one read whole as `[1.0, 2.0, NaN, 5.0]`, and
+  `updated: [3: 5]` on a `list<i64>` that holds `[1, 2]` leaves one whose
+  whole read fails.
+
+  | Element type | A position that holds no value reads as | Status |
+  | --- | --- | --- |
+  | `f64` | NaN | Agreed |
+  | `i64` | Nothing: the read fails | Agreed |
+  | `V?` | Null, as an optional child that is not valid is in any whole value (TYPE-15) | Agreed |
+  | Any other: `bool`, `str`, `bytes`, a time scalar, a `tenor`, an enum, a struct, a collection | Nothing: the read fails | Proposed |
 - **TIME-2.** Composition describes a typed graph without reading live
   payloads. Evaluation propagates changes in dependency order, at most once
   per node per cycle. A node's rank is one more than the greatest rank of
