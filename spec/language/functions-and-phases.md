@@ -70,8 +70,9 @@ Local source/native declaration matching is defined in the native chapter.
   (FN-6).
   A runtime hook can call value helpers but cannot silently
   construct a temporal child call. In a hook a temporal parameter is a value
-  of its declared type, read as in a value function; TIME-9 has the
-  operations on the endpoint itself. Mixed incompatible phase work is rejected.
+  of its declared type, read as in a value function, a collection's child
+  where it is admitted (TIME-1); TIME-9 has the operations on the endpoint
+  itself. Mixed incompatible phase work is rejected.
   A composition body calls any function: a value function called there is
   evaluated during wiring, or lifted when an argument is temporal (FN-6). A
   runtime body calls only value functions, and so does a value function.
