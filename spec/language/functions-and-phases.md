@@ -148,9 +148,11 @@ Local source/native declaration matching is defined in the native chapter.
 - **FN-11.** A lifted argument with a declared default does not require a valid
   input: bind the default when that input is invalid. Otherwise, an argument
   whose value contract admits null does not require a valid input: bind null
-  when it is invalid. Every other input must satisfy ordinary `valid(input)`,
-  and a struct, a tuple or a fixed list `all_valid(input)` as well (FN-12).
-  A valid value, including a valid null, is supplied as published. Fallback
+  when it is invalid. Every other input must satisfy ordinary `valid(input)`.
+  A valid value, including a valid null, is supplied as published. A struct,
+  a tuple or a fixed list is supplied only where it is `all_valid` as well,
+  whatever its default or null contract (FN-12): one that is valid and not
+  all valid binds no fallback, and the helper is not invoked. Fallback
   changes admission/binding, not activation, and invents no input tick.
 - **FN-12.** Aggregate lifting passes the current ordinary aggregate value to
   one helper invocation, not separate elementwise invocations. The value is
