@@ -228,8 +228,9 @@ rejection (TYPE-12, TYPE-14). TYPE-16 says what a `delta_type` is.
   its new value; `removed`, the positions that lost their value, so a fixed
   list can say a position became invalid; and `size_modified`, set only
   when the size moves up or down, to the new size, which tells growth and
-  shrinking apart from a position only becoming invalid. A shrink also
-  names the tail positions it drops in `removed`. A nullable's delta is an
+  shrinking apart from a position only becoming invalid. A delta written
+  with a smaller `size_modified` and no `removed` shrinks the list; the
+  delta read on a shrink names the tail positions it drops in `removed`. A nullable's delta is an
   optional: it holds what was published, a null among them, so that null
   in a delta's place always means that nothing was published there.
   `delta<i64?>()` is a published null. In a tuple's position or a struct's
