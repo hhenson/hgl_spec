@@ -232,12 +232,17 @@ rejection (TYPE-12, TYPE-14). TYPE-16 says what a `delta_type` is.
   shrinking apart from a position only becoming invalid. A delta written
   with a smaller `size_modified` and no `removed` shrinks the list. A
   negative `size_modified` written reduces the list by that count:
-  `size_modified: -1` drops its last position. An `updated` entry written
-  at the position after a `list<V>`'s last, with no `size_modified`,
-  extends the list to hold it; a `list<V, N>` keeps its bounds
-  (`delta.index_bounds`). The delta read gives the new size where it
-  moves, never a negative one, and on a shrink names the tail positions it
-  drops in `removed`. A nullable's delta is an
+  `size_modified: -1` drops its last position, and a count more than the
+  list holds leaves it empty, which is no failure. An `updated` entry
+  written past a `list<V>`'s last position, with no `size_modified`,
+  extends the list to hold it, and the positions between hold no value
+  and are not valid (TIME-9, TIME-1): `updated: [3: 5]` on `[1, 2]` gives
+  four positions, the third not valid. A `list<V, N>` keeps its bounds: a
+  constant entry past them rejects (`delta.index_bounds`), and one in a
+  delta made as the program runs fails the write that publishes it, as an
+  index outside a list does (EXPR-3). The delta read gives the new size
+  where it moves, never a negative one, and on a shrink names the tail
+  positions it drops in `removed`. A nullable's delta is an
   optional: it holds what was published, a null among them, so that null
   in a delta's place always means that nothing was published there.
   `delta<i64?>()` is a published null. In a tuple's position or a struct's
