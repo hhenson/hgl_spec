@@ -1,7 +1,8 @@
 # Temporal model
 
 Status: agreed publication, handler, state/cache, and capability baseline.
-The alarm and the run-wide keyed store are agreed.
+The alarm, the run-wide keyed store, and collection validity with
+`all_valid` (TIME-9) are agreed.
 
 ## Grammar
 
@@ -138,8 +139,14 @@ flowchart LR
 - **TIME-9.** `endpoint<T>` is the type of the endpoint of a temporal value
   of T, for a function that takes the endpoint and not its payload
   (TYPE-12). The operations on an endpoint are core's native value functions
-  with such a parameter: `valid`, `modified`, `delta_value`,
-  `last_modified`, `invalidate`, `is_active`, `activate`, and `passivate`. A call gives
+  with such a parameter: `valid`, `all_valid`, `modified`, `delta_value`,
+  `last_modified`, `invalidate`, `is_active`, `activate`, and `passivate`.
+  `valid` of a list, a struct or a dictionary is true where any element,
+  field or entry is valid: work is possible on a partly populated value.
+  `all_valid` is true where every one is, by its own `valid`, one level
+  deep: for a list of lists, each contained list is present and has a
+  valid element. `all_valid` takes only a list, a struct or a dictionary;
+  another endpoint is rejected (`endpoint.argument`). A call gives
   an `endpoint<T>` parameter a temporal input of the enclosing node by its
   name, or `out`, and nothing else; the endpoint is not retained, as a
   capability is not (TIME-8). Every other function takes the payload: a
@@ -205,6 +212,31 @@ beside the `when` (`node.statement`); and a `start` that reads or writes
 guard (TIME-5); `stop { last = value }` is an unguarded read
 (`payload.unguarded`), and `start { last = value }` reads an input where
 none has a value (`input.lifecycle`).
+Conformance planned.
+
+Accepted illustration, complete module, collection validity (TIME-9):
+
+```hgl
+module examples.collection_validity
+
+struct Quote {
+    bid: f64
+    ask: f64
+}
+
+fn spread(quote: Quote) -> f64 {
+    when all_valid(quote) { return quote.ask - quote.bid }
+}
+
+fn has_quote(quote: Quote) -> bool {
+    when valid([]) { return valid(quote) }
+}
+```
+
+Once the bid alone has published, `valid(quote)` is true and
+`all_valid(quote)` false: `has_quote` publishes true and `spread` stays
+silent. When the ask publishes, `spread` runs. Deliberate rejection:
+`all_valid` given an `f64` input (`endpoint.argument`).
 Conformance planned.
 
 Accepted illustration, complete module, a node that publishes when the graph

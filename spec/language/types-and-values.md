@@ -230,6 +230,9 @@ rejection (TYPE-12, TYPE-14). TYPE-16 says what a `delta_type` is.
   field, null leaves the position or the field as it was, and
   `delta<i64?>()` sets it to null. A `delta<V>` is a value where a
   `delta<V?>` is expected, as a T is where a `T?` is (TYPE-14).
+  A delta that names one member or key both as added or updated and as
+  removed is malformed. A constant one is rejected (`delta.overlap`). A run
+  makes no check, and what it does with one is undefined.
 
 | T | `delta<T>` |
 | --- | --- |
@@ -297,7 +300,9 @@ its properties: `removed`, left out, is empty. `cleared` is the delta of an
 publishes the delta it reads, as that change (TIME-7). Deliberate source
 rejections:
 `delta<signal>` (`delta.unsupported_shape`); `change.added = []`, a property
-of a delta assigned (`binding.immutable`). Conformance is planned.
+of a delta assigned (`binding.immutable`);
+`delta<set<str>>(added: ["a"], removed: ["a"])`, a malformed delta
+(`delta.overlap`). Conformance is planned.
 
 Accepted declaration fragments, structs that hold themselves (TYPE-6):
 
