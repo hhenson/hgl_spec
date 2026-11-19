@@ -248,7 +248,7 @@ rejection (TYPE-12, TYPE-14). TYPE-16 says what a `delta_type` is.
 | `V?`, V no ordinary value type, as `rolling_window<f64, 5>?` | `delta<V>`: the `?` marks an argument or a field that may be left out (TYPE-14), and is no part of what is published |
 | `atomic<V>` | V: an atomic publishes whole |
 | `rolling_window<V, Max, Min>` | V: the value that arrived |
-| `list<V>`, `list<V, N>` | A type of its own, with the properties `modified`, a `dict<i64, V>` of each position given a value, `removed`, a `set<i64>` of the positions that lost their value, and `size_modified`, an `i64?`: the new size where the size changed, else null |
+| `list<V>`, `list<V, N>` | A type of its own, with the properties `modified`, a `dict<i64, V>` of each position given a value (a `dict<i64, delta<V>>` where V is no ordinary value type, as `rolling_window<f64, 5>`), `removed`, a `set<i64>` of the positions that lost their value, and `size_modified`, an `i64?`: the new size where the size changed, else null |
 | `tuple<A, B>` | `tuple<delta<A>?, delta<B>?>`: each position's delta, null where it did not change |
 | `set<K>` | A type of its own, with the properties `added` and `removed`, each a `set<K>` |
 | `dict<K, V>` | A type of its own, with the properties `updated`, a `dict<K, delta<V>>` of each key added or changed with its delta, and `removed`, a `set<K>` |
