@@ -175,10 +175,14 @@ flowchart LR
   and its operations are functions that take it first,
   `schedule(scheduler, delay)`, with no method-call aliases. A node injects
   `alarm` or `scheduler`, not both. A wake asked of either with a
-  `duration` takes one more than zero. A duration that is not rejects where
-  the compiler sees its value, a literal or a constant (UNIT-13), and
-  elsewhere fails the call as the program runs. Proposed: both with the
-  code `schedule.non_positive_duration`. A wake asked for at a `datetime`
+  `duration` takes one more than zero, but for a scheduler's in `start`,
+  which takes zero too: `schedule(scheduler, 0s)` there asks for a wake at
+  the start, the node's first evaluation. Proposed: an alarm's in `start`
+  takes zero as well, as the scheduler's does. A duration that is not
+  admitted, a negative one in `start` included, rejects where the compiler
+  sees its value, a literal or a constant (UNIT-13), and elsewhere fails
+  the call as the program runs. Proposed: both with the code
+  `schedule.non_positive_duration`. A wake asked for at a `datetime`
   before the evaluation time is dropped: there is no wake, and no failure.
   Core's capability contract has the rest of what a wake is.
 - **TIME-9.** `endpoint<T>` is the type of the endpoint of a temporal value
@@ -350,7 +354,7 @@ module examples.first_tick
 fn counted(value: i64) -> i64 {
     state seen: i64 = 0
     inject scheduler
-    start { schedule(scheduler, 1us) }
+    start { schedule(scheduler, 0s) }
     when scheduled() && valid([]) { return seen }
     when modified() {
         seen += 1
@@ -359,13 +363,13 @@ fn counted(value: i64) -> i64 {
 }
 ```
 
-`start` asks for a wake a microsecond after the graph starts, the least
-delay more than zero (TIME-8), and writes nothing. Where `value` has not
-published by then, that wake is the first evaluation, which publishes 0: the
-graph is connected by then, and the publication is a tick like any other.
-`valid([])` admits that handler before `value` has published; it reads no
-input, so it needs no guard. Deliberate rejection: `schedule(scheduler, 0s)`,
-a delay that is not more than zero (TIME-8). Conformance planned.
+`start` schedules the node and writes nothing: a zero duration in `start`
+asks for a wake at the start (TIME-8). The first evaluation is the scheduled
+one, which publishes 0: the graph is connected by then, and the publication
+is a tick like any other. `valid([])` admits that handler before `value` has
+published; it reads no input, so it needs no guard. Deliberate rejection:
+`schedule(scheduler, 0s)` in a `when`, where a delay is more than zero
+(TIME-8). Conformance planned.
 
 Accepted illustration, complete module, a wake that lands with an input's
 tick (TIME-9):
