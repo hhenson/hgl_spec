@@ -1,7 +1,8 @@
 # Temporal model
 
 Status: agreed publication, handler, state/cache, and capability baseline.
-The alarm and the run-wide keyed store are agreed.
+The alarm, the run-wide keyed store, and collection validity with
+`all_valid` (TIME-9) are agreed.
 
 ## Grammar
 
@@ -110,8 +111,8 @@ flowchart LR
   (EXPR-5), so a value that is a T is published whole: `return []` for a
   `list<i64>` result publishes the empty list, and `return null` for an
   `i64?` result a null, as `return delta<i64?>()` does. A value that is no
-  T and is a `delta<T>` is published as that change; a binding annotated
-  with that type gives one, `let change: delta<list<i64>> = []`. Where T
+  T and is a `delta<T>` is published as that change,
+  `return delta<list<i64>>(updated: [0: 5])`. Where T
   publishes whole, as a scalar does, `delta<T>` is T and the two are one.
   A `return` with no value publishes nothing (FN-7). A result of
   `atomic<V>` takes a V.
@@ -138,8 +139,17 @@ flowchart LR
 - **TIME-9.** `endpoint<T>` is the type of the endpoint of a temporal value
   of T, for a function that takes the endpoint and not its payload
   (TYPE-12). The operations on an endpoint are core's native value functions
-  with such a parameter: `valid`, `modified`, `delta_value`,
-  `last_modified`, `invalidate`, `is_active`, `activate`, and `passivate`. A call gives
+  with such a parameter: `valid`, `all_valid`, `modified`, `delta_value`,
+  `last_modified`, `invalidate`, `is_active`, `activate`, and `passivate`.
+  A collection is a type whose temporal form has children valid on their
+  own (TYPE-9): a list, a tuple, a struct and a dictionary. `valid` of a
+  collection is true where any element, field or entry is valid: work is
+  possible on a partly populated value.
+  A published empty list or dictionary has no element and is valid.
+  `all_valid` is true where every one is, by its own `valid`, one level
+  deep: for a list of lists, each contained list is present and has a
+  valid element or is a published empty list. It is true of a valid empty
+  collection. `all_valid` takes only a collection; another endpoint is rejected (`endpoint.argument`). A call gives
   an `endpoint<T>` parameter a temporal input of the enclosing node by its
   name, or `out`, and nothing else; the endpoint is not retained, as a
   capability is not (TIME-8). Every other function takes the payload: a
@@ -205,6 +215,31 @@ beside the `when` (`node.statement`); and a `start` that reads or writes
 guard (TIME-5); `stop { last = value }` is an unguarded read
 (`payload.unguarded`), and `start { last = value }` reads an input where
 none has a value (`input.lifecycle`).
+Conformance planned.
+
+Accepted illustration, complete module, collection validity (TIME-9):
+
+```hgl
+module examples.collection_validity
+
+struct Quote {
+    bid: f64
+    ask: f64
+}
+
+fn spread(quote: Quote) -> f64 {
+    when all_valid(quote) { return quote.ask - quote.bid }
+}
+
+fn has_quote(quote: Quote) -> bool {
+    when valid([]) { return valid(quote) }
+}
+```
+
+Once the bid alone has published, `valid(quote)` is true and
+`all_valid(quote)` false: `has_quote` publishes true and `spread` stays
+silent. When the ask publishes, `spread` runs. Deliberate rejection:
+`all_valid` given an `f64` input (`endpoint.argument`).
 Conformance planned.
 
 Accepted illustration, complete module, a node that publishes when the graph

@@ -185,7 +185,7 @@ infrastructure and cannot satisfy a source-rejection expectation.
 | phase | `out.lifecycle` | `out` used in `start` or written in `stop`, or a `return` with a value in either (TIME-7); the use |
 | phase | `input.lifecycle` | A temporal input read, or given to an endpoint operation, in `start` (TIME-5); the use |
 | phase | `payload.unguarded` | Payload read under manual admission, in a `when` or in `stop`, that no guard dominates (TIME-4, TIME-5); read |
-| phase | `endpoint.argument` | Endpoint operation given what is no temporal input of its function and not `out` (TIME-9); argument |
+| phase | `endpoint.argument` | Endpoint operation given what is no temporal input of its function and not `out`, or `all_valid` given no collection: a list, tuple, struct or dictionary (TIME-9); argument |
 | phase | `connection.as_constant` | Temporal connection where composition requires a constant (FN-3), given to a function that declares a `var` parameter, which is not lifted (FN-15), or given to a call on the store a graph injects (FN-9); expression |
 | type | `generic.invalid_application` | Generic type's name before a `<` that opens no arguments (GEN-14); name |
 | type | `pack.default` | Pack parameter has a default (FN-8); `=` |

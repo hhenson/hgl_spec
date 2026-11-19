@@ -153,8 +153,9 @@ Local source/native declaration matching is defined in the native chapter.
 - **FN-12.** Aggregate lifting passes the current ordinary aggregate value to
   one helper invocation, not separate elementwise invocations. Use its type's
   ordinary validity contract. An unsized `list<T>` needs `valid(list_value)`;
-  lifting adds no required size or recursive `all_valid` check. Fixed-size
-  lists and windows retain their own shape/readiness contracts. Unchanged
+  lifting adds no required size or recursive `all_valid` check. A fixed-size
+  list is valid as any list is (TIME-9); a window has its own readiness
+  contract. Unchanged
   inputs supply retained values; they need not publish together.
 - **FN-13.** Each invocation observes a stable ordinary argument value or an
   admitted read-only view. Retained results must remain independent of later
