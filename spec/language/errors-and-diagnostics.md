@@ -195,6 +195,7 @@ infrastructure and cannot satisfy a source-rejection expectation.
 | phase | `out.lifecycle` | `out` used in `start` or written in `stop`, or a `return` with a value in either (TIME-7); the use |
 | phase | `input.lifecycle` | A temporal input read, or given to an endpoint operation, in `start` (TIME-5); the use |
 | phase | `payload.unguarded` | Payload read under manual admission, in a `when` or in `stop`, that no guard dominates (TIME-4, TIME-5); or a read of a child at a constant index or a field that nothing admits, or of a struct, a tuple or a fixed list whole that its `all_valid` does not admit (TIME-1); read |
+| phase | `ref.read` | Proposed: the value or the `delta_value` of a `ref` parameter, of a child of one, or of `out` of a `ref` result, read (FN-16); the read |
 | phase | `endpoint.argument` | Endpoint operation given what is no temporal input of its function, no child of one, and not `out`, or `all_valid` given neither a collection (a list, tuple, struct or dictionary) nor a window (TIME-9); argument |
 | type | `schedule.non_positive_duration` | Proposed: a wake asked for with a `duration` that is not more than zero, other than a zero in `start`, whose value the compiler sees (TIME-8); the duration |
 | phase | `scheduled.lifecycle` | `scheduled()` in `start` or `stop` (TIME-9); the selector |
@@ -206,7 +207,7 @@ infrastructure and cannot satisfy a source-rejection expectation.
 | type | `pack.undeclared` | `...{Name}` names no type pack of its declaration (FN-8); name in the braces |
 | type | `pack.cardinality` | Cardinality's upper bound is below its lower (GEN-10); upper bound |
 | type | `type.not_a_type` | Name in a type position is no type: a function, operator, local, generic value parameter, or a type pack where one type is needed (UNIT-10, GEN-2, GEN-13); name |
-| type | `type.not_ordinary` | `rolling_window`, `ref`, `atomic` or `signal` where an ordinary value type is required, or under a `?` that is not on the whole type of an input or a field (TYPE-12, TYPE-14, FN-1); offending type |
+| type | `type.not_ordinary` | `rolling_window`, `atomic` or `signal` where an ordinary value type is required, or under a `?` that is not on the whole type of an input or a field (TYPE-12, TYPE-14, FN-1); offending type |
 | type | `signal.position` | `signal` other than as the whole type of a function's temporal parameter (TYPE-12); `signal` |
 | type | `endpoint.position` | `endpoint<T>` other than as the whole type of a native value function's parameter (TYPE-12); `endpoint` |
 | type | `nullable.key` | Set element or dictionary key has a `?` (TYPE-14); the nullable type |
@@ -230,7 +231,7 @@ infrastructure and cannot satisfy a source-rejection expectation.
 | type | `enum.duplicate_value` | Two members of an enum share a number (TYPE-7); later member |
 | type | `enum.overflow` | Unnumbered member follows the largest `i64` (TYPE-7); member |
 | type | `enum.duplicate_member` | Two members of an enum share a name (TYPE-7); later name |
-| type | `type.mismatch` | Value's type is not the type its place expects: an annotation, a `var`, a result, an operand, an element, an argument (EXPR-5); `null` where the type has no `?` (TYPE-14); a `return` that does not fit its function (FN-7); a list of another length than the size expected (TYPE-10); value |
+| type | `type.mismatch` | Value's type is not the type its place expects: an annotation, a `var`, a result, an operand, an element, an argument (EXPR-5); `null` where the type has no `?` (TYPE-14); a `return` that does not fit its function (FN-7), a value among them where a `ref` result takes an endpoint (FN-16); a list of another length than the size expected (TYPE-10); value |
 | type | `null.context_type` | `null` where nothing gives it a type (TYPE-14); the literal |
 | type | `sequence.context_type` | Sequence whose entries give no type, where none is expected (EXPR-9); the sequence |
 | type | `enum.context_type` | `.member` where no enum type is expected (TYPE-7); the member |
@@ -245,6 +246,7 @@ infrastructure and cannot satisfy a source-rejection expectation.
 | type | `argument.constant` | In a hook or a value function, a `const` parameter given what is no constant expression (FN-1); argument |
 | type | `argument.place` | `var` parameter given what is no place: a literal, what a call gives, or any other expression that nothing assigns (FN-15); argument |
 | function-kind | `parameter.var` | `var` parameter of a temporal function, a temporal candidate, or an operator, or one whose type is a capability's or `endpoint<T>` (FN-15); `var` |
+| function-kind | `ref.position` | Proposed: `ref` on a parameter or the result of what is no node, a value function, a graph or an operator (FN-16); `ref` |
 | function-kind | `call.role` | Temporal function called from a value function or a runtime hook (FN-3); callee name |
 | type | `return.missing` | Value function that declares a result can reach its end with no value (FN-7), or a graph that returns a value in a branch of a temporal `if` or `switch` can (CTRL-14); function name |
 | type | `switch.duplicate_label` | Switch label has the value of an earlier label (CTRL-6); later label |
@@ -276,7 +278,7 @@ infrastructure and cannot satisfy a source-rejection expectation.
 | phase | `capture.phase` | Non-temporal capture/context; call |
 | type | `capture.output_field` | Value requested from outputless capture; property |
 | type | `value.constant_capability` | Required constant lacks contained capability; operation |
-| shape | `delta.unsupported_shape` | `delta<T>` of a T that has no delta: a `ref` or a `signal` (TYPE-16); the application |
+| shape | `delta.unsupported_shape` | `delta<T>` of a T that has no delta: a `signal` (TYPE-16); the application |
 | type | `delta.type_mismatch` | Incompatible originating delta/destination; value |
 | name | `delta.argument_name` | Unknown delta field/argument; name |
 | name | `delta.duplicate_argument` | Repeated delta argument; later name |

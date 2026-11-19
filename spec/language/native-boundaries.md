@@ -38,9 +38,9 @@ ordinary HGL statements. Target-specific bodies are separate provider artifacts.
   exported, as a function is (UNIT-3). `export` is written on its
   declaration, the form with no body, and nowhere else.
 - **NATIVE-2.** A selected implementation part completes exactly one shared
-  declaration. Match name, public parameters/order and their `var` marks
-  (FN-15), roles, generics, complete result type, constraints, and admitted
-  failures. Native implicit conversions
+  declaration. Match name, public parameters/order and their `var` and
+  `ref` marks (FN-15, FN-16), roles, generics, complete result type and its
+  `ref` mark, constraints, and admitted failures. Native implicit conversions
   cannot satisfy an incompatible contract. Duplicate declarations or selected
   implementations are errors, not overloads. An implementation with no
   declaration of its name and role in its module rejects, selected or not.

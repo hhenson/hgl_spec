@@ -65,7 +65,8 @@ CTRL-9 places the opening brace of an `if`, `for`, `switch`, `when`, or
 - **CTRL-8.** During node evaluation, traversal uses current values/child views
   with hook-scoped borrowed lifetime. Lists preserve index order; sets promise
   no ordering. `elements` serves lists/sets; dictionaries/bundles use keys,
-  values, or items. Iteration does not cross REF boundaries implicitly.
+  values, or items. Iteration reads what it traverses, so over a `ref`
+  parameter it rejects (FN-16).
   Dynamic composition loops do not admit loop-carried accumulation or inferred
   reductions. Conditions inside a loop retain their own phase rules.
 - **CTRL-9.** After `if`, `for`, `switch`, `when`, or `while`, the first `{`

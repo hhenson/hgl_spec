@@ -1,7 +1,8 @@
 # Functions and phases
 
 Status: agreed function roles, classification, defaults, lifting, and
-anonymous-function scope.
+anonymous-function scope. The `ref` mode (FN-16) is agreed, but for its
+sentences that begin "Proposed:", which are proposed.
 
 ## Grammar
 
@@ -10,9 +11,9 @@ function_decl = { warning_annotation, NL },
                 [ "export" | "impl" ], [ "const" ], "fn",
                 callable_name, [ generic_parameters ], function_signature,
                 [ requires_clause ], function_body ;
-function_signature = "(", [ parameters ], ")", [ "->", type ] ;
+function_signature = "(", [ parameters ], ")", [ "->", [ "ref" ], type ] ;
 parameters = parameter, { ",", parameter }, [ "," ] ;
-parameter = IDENTIFIER, ":", type, [ "=", const_expression ]
+parameter = [ "ref" ], IDENTIFIER, ":", type, [ "=", const_expression ]
           | "const", IDENTIFIER, ":", value_type, [ "=", const_expression ]
           | "var", IDENTIFIER, ":", value_type
           | [ "const" ], IDENTIFIER, ":", pack, [ "=", const_expression ] ;
@@ -27,7 +28,9 @@ lambda_parameter = IDENTIFIER, [ ":", type ] ;
 
 Parameter role is checked from the containing declaration. The production
 admits `const` and a default on a pack, which FN-8 rejects. A `var`
-parameter has no default, and is neither `const` nor a pack (FN-15).
+parameter has no default, and is neither `const` nor a pack (FN-15). A
+`ref` parameter is neither `const` nor a pack, and FN-16 says which
+functions take the mark.
 Local source/native declaration matching is defined in the native chapter.
 
 ## Rules
@@ -69,8 +72,9 @@ Local source/native declaration matching is defined in the native chapter.
   literal, a constant (UNIT-13), a `const` parameter, or an all-scalar call
   (FN-6).
   A runtime hook can call value helpers but cannot silently
-  construct a temporal child call. In a hook a temporal parameter is a value
-  of its declared type, read as in a value function, a collection's child
+  construct a temporal child call. In a hook a temporal parameter that is
+  not `ref` (FN-16) is a value of its declared type, read as in a value
+  function, a collection's child
   where it is admitted (TIME-1); TIME-9 has the operations on the endpoint
   itself. Mixed incompatible phase work is rejected.
   A composition body calls any function: a value function called there is
@@ -202,6 +206,34 @@ Local source/native declaration matching is defined in the native chapter.
   an ordinary value. No argument of such a call is a connection
   (`connection.as_constant`), and the function is no target of an `eval`
   (`eval.target`).
+- **FN-16.** A node (FN-2, NATIVE-3) may mark a temporal parameter `ref`,
+  `ref low: f64`, and its result, `-> ref f64`. The mark is a mode, as
+  `var` is (FN-15), and no part of the type (TYPE-12): a caller and the
+  type checker see the T after it. A connection of T is given to a `ref`
+  parameter, and a `ref` result is a connection of T to whoever reads it.
+  A value function, a graph, and an operator mark none, and a mark there
+  rejects: an operator gives the parameters every candidate takes, and a
+  candidate that is a node marks its own. The mark takes no part in
+  selecting a candidate (GEN-5, GEN-12). A `ref` parameter and its
+  children, `xs[i]` and `quote.bid`, are endpoints, not values: the
+  endpoint operations take them (TIME-9), `delta_value` aside, and a
+  `return` to a `ref` result designates them. A read of the value or of
+  the `delta_value` of one rejects when the program is compiled.
+  Proposed: that read rejects with the code `ref.read`, and a mark on what
+  is no node with `ref.position`.
+  A `return` to a `ref` result is given an expression that names an
+  endpoint: a temporal input of the node, `ref` or not, or a child of one,
+  `items[idx]`. The result designates the logical endpoint that path
+  names: its readers follow what that endpoint is bound to, a later
+  re-binding upstream included, and the node is not woken for it. No
+  payload is read, so nothing needs admitting (TIME-1), and a child is an
+  endpoint whether or not it is valid. A value that names no endpoint
+  rejects there (`type.mismatch`). A parameter that is not `ref` may be
+  designated too, and a body may both read and designate it. Proposed:
+  `out = items[idx]` designates as `return items[idx]` does, and is
+  rejected where the `return` would be; otherwise `out` of a `ref` result
+  is as a `ref` parameter is: the endpoint operations take it,
+  `delta_value` aside, and a read of its value rejects.
 
 Accepted declaration fragment, a temporal input with a default (UNIT-8):
 
@@ -210,8 +242,9 @@ fn scaled(value: f64, factor: f64 = 2.0) -> f64 => value * factor
 ```
 
 `scaled(price)` wires `factor` as a constant 2.0. `scaled(price, rate)` wires
-the connection `rate`. Deliberate source rejection under FN-1: a `const fn`
-parameter of type `ref<f64>`. Executable conformance is planned.
+the connection `rate`. Deliberate source rejection under FN-16: a `const fn`
+parameter marked `ref`, `const fn scale(ref value: f64) -> f64`. Executable
+conformance is planned.
 
 Accepted declaration fragment, an input that may be omitted (TYPE-14):
 
@@ -220,7 +253,8 @@ fn sampled(value: f64, tick: signal?) -> f64 => value
 ```
 
 `sampled(price)` omits `tick`, an input that is then never valid (UNIT-8).
-Deliberate source rejections: a result of type `ref<f64>?` (TYPE-14);
+Deliberate source rejections: a result of type `rolling_window<f64, 5>?`
+(TYPE-14);
 `tick: signal = 1`, a default a signal cannot take (TYPE-12). Executable
 conformance is planned.
 
@@ -298,6 +332,39 @@ function, and `operator push<C, V>(var values: C, item: V)`, an operator
 `const fn clear(var value: i64?) { value = null }`, the call `clear()`: a
 `var` parameter is given though its type is nullable (`argument.missing`).
 Executable conformance is planned.
+
+Accepted illustration, complete module, a `ref` result (FN-16):
+
+```hgl
+module examples.routes
+
+fn route<T>(idx: i64, items: list<T, 3>) -> ref T {
+    when modified(idx) { return items[idx] }
+}
+
+fn follow(value: f64) -> f64 {
+    when { return value }
+}
+
+fn routed(idx: i64, items: list<f64, 3>) -> f64 => follow(route(idx, items))
+```
+
+`when modified(idx)` selects `idx` alone, so `items` is passive: its ticks
+do not wake `route`. `return items[idx]` reads no payload: it designates
+the endpoint `items[idx]`, which needs no admission, and `items` is not
+marked `ref`. A caller sees `route` take a `list<f64, 3>` and give an
+`f64`. With `items[0]` and `items[1]` published, and `idx` publishing 1 and
+then 2: while `idx` is 1, a tick of `items[1]` reaches `follow` and one of
+`items[0]` does not; after the change to 2, `follow` is silent until
+`items[2]` first publishes, and then publishes it. `route` is woken for none
+of these ticks. Where what `items[1]` is bound to is re-bound upstream,
+`follow` observes the new target, and `route` is not woken. With
+`ref items: list<T, 3>`, `route` is accepted as well, and a read of `items`
+in its body then rejects. Deliberate source rejections: `ref idx: i64` on
+`routed`, a graph (FN-16); and, for
+`fn first(items: list<f64, 3>) -> ref f64`, the body
+`when all_valid(items) { return items[0] * 2.0 }`, a value where the `ref`
+result takes an endpoint (`type.mismatch`). Conformance is planned.
 
 Accepted declaration fragments showing modifier and ordinary-name positions:
 
