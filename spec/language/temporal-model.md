@@ -31,7 +31,8 @@ flowchart LR
 - **TIME-1.** A temporal endpoint has validity, modification at the current
   evaluation time, retained data, and publication-delta observations. Silence
   is not a value. An equal publication may still be a new tick; a delta
-  that changes nothing is none (TIME-7). A payload read requires
+  that names no change, where the value is valid, is none (TIME-7). A
+  payload read requires
   admission/readability; metadata may observe an invalid endpoint.
   A child of a collection (TIME-9), an element, a field or an entry, is an
   endpoint whether or not it is valid: `parts[1]` is given to `valid` and
