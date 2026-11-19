@@ -66,10 +66,13 @@ flowchart LR
   Passivating an input removes it as a wake source. If a probe wakes the
   node in a cycle when passive `data` publishes, `when modified(data)`
   matches. `when modified(data) && is_active(data)` additionally requires
-  the input to be active. The empty selection `modified([])` subscribes to
-  no input and selects a wake from the node's scheduler or alarm. Where it
-  is a bool, in a body or under a negation or a disjunction, it is true in
-  a cycle where no temporal input was modified.
+  the input to be active. The empty selection `modified([])` makes every
+  temporal input passive for its handler: it subscribes to none, and
+  selects a wake from the node's scheduler or alarm. In that handler's
+  body `modified([])`, as a bool, is true, at a wake that lands with an
+  input's tick included: what the header selected is taken as nothing
+  modified. Elsewhere, in another body or under a negation or a
+  disjunction, it is true in a cycle where no temporal input was modified.
   A wake by the scheduler or alarm wakes the handlers that subscribe to no
   input and those whose header has `scheduled()` (TIME-9) alone or as a
   top-level conjunct. Such a wake alone runs no other handler: one with no
@@ -168,7 +171,9 @@ flowchart LR
   `all_valid` is true where every one is, by its own `valid`, one level
   deep: for a list of lists, each contained list is present and has a
   valid element or is a published empty list. It is true of a valid empty
-  collection. `all_valid` takes only a collection; another endpoint is rejected (`endpoint.argument`). A call gives
+  collection. A window is valid and all valid as TYPE-11 has it.
+  `all_valid` takes only a collection or a window; another endpoint is
+  rejected (`endpoint.argument`). A call gives
   an `endpoint<T>` parameter a temporal input of the enclosing node by its
   name, a child of one, `parts[1]`, `quote.bid` or `parts[i]`, or `out`,
   and nothing else; the endpoint is not retained, as a
@@ -189,9 +194,10 @@ flowchart LR
   they are forms of the language, which set subscription and admission.
   None of these names is shadowed (UNIT-12). A value function injects no
   capability and has no output or schedule of its own (FN-9).
-- **TIME-10.** A reference ticks on changed designation, not every target tick.
-  Ordinary followers observe the selected target; saved routes do not extend
-  an expired child lifetime. Structural child membership, child validity, and
+- **TIME-10.** A reference ticks where its designation changes, not at every
+  tick of its target. A designation published again unchanged is no tick,
+  and wakes no subscriber. Ordinary followers observe the selected target;
+  saved routes do not extend an expired child lifetime. Structural child membership, child validity, and
   child publications are separate observations supplied by core.
 
 Accepted illustration, complete module:
@@ -390,12 +396,14 @@ over three cycles, each input keeping its value while it is silent:
 | `while_a_valid` | `valid(a)` | 1.0, 1.0, 3.0 | Subscription is the default, so `b` wakes it while `a` holds 1.0 |
 | `sum_or_zero` | `valid([])` | 0.0, 11.0, 23.0 | Nothing is required of the inputs, and the body guards each read |
 
-`sampled` subscribes to no input. Its scheduler, which `start` sets going,
-is all that wakes it, and every wake asks for the next: it requires no
-input to be valid, so a wake before `a` has published still does. Once a
-second it publishes the value `a` holds, whether or not `a` has ticked, and
-nothing while `a` is invalid. In its body `modified([])` is a bool, true at
-a wake where `a` has not ticked and false at one where it has. `null_sink`
+`sampled` subscribes to no input: `a` is passive for it. Its scheduler,
+which `start` sets going, is all that wakes it, and every wake asks for the
+next: it requires no input to be valid, so a wake before `a` has published
+still does. Once a second it publishes the value `a` holds, whether or not
+`a` has ticked, and nothing while `a` is invalid. In its body `modified([])`
+is a bool, and true at every wake, one where `a` has ticked included: its
+header selects it. In the body of a handler whose header is `scheduled()`,
+it is false at a wake where `a` has ticked. `null_sink`
 takes its input and does nothing with it: no input wakes it and it has no
 scheduler, so it is dormant, which is what it is for, and it acknowledges
 the warning. Without the annotation it is warned of (`node.no_activation`)
@@ -404,6 +412,40 @@ rejections: in `while_a_valid`, `return a + b`, a read of `b` that neither
 the header requires nor a guard proves (`payload.unguarded`); and
 `modified([a, b])` and `valid([a, b])`, where the inputs are named as
 arguments. Conformance planned.
+
+Accepted illustration, complete module, a reference published again
+(TIME-10), with connections of `f64` given to `ref<f64>` inputs (TYPE-12):
+
+```hgl
+module examples.references
+
+fn pick(flag: bool, low: ref<f64>, high: ref<f64>) -> ref<f64> {
+    when modified(flag) {
+        if flag { return high }
+        return low
+    }
+}
+
+fn designations(target: ref<f64>) -> i64 {
+    state count: i64 = 0
+    when {
+        count += 1
+        return count
+    }
+}
+
+fn changes(flag: bool, bid: f64, ask: f64) -> i64 =>
+    designations(pick(flag, bid, ask))
+```
+
+`changes` gives `pick` the connections `bid` and `ask` where it takes
+references. With `bid` and `ask` each publishing in the first cycle, and
+`flag` publishing true, true, false over three cycles, `pick` returns
+`high`, `high` and `low`. The second return publishes the designation that
+`pick`'s result holds: it is no tick, so `designations` publishes 1,
+nothing, 2. A later tick of `bid` or `ask` does not wake `designations`.
+Deliberate rejection: `pick(flag, "a", ask)`, a `str` where a reference of
+`f64` is taken (`type.mismatch`). Conformance planned.
 
 ## Alarm and global state
 

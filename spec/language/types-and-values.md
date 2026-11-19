@@ -1,8 +1,9 @@
 # Types and values
 
 Status: agreed type foundation, `delta<T>` (TYPE-16) and `tenor` (TYPE-17)
-included, but for TYPE-16's last sentence, on a gap in a list, which is
-proposed. The storage extensions below remain proposed.
+included. Proposed: TYPE-2's spelling of a comparison as UTC; TYPE-11's
+last sentence, on what the read of a window's value gives; and the storage
+extensions below.
 
 ## Grammar
 
@@ -60,7 +61,13 @@ rejection (TYPE-12, TYPE-14). TYPE-16 says what a `delta_type` is.
   `civil_datetime`, named `timezone`, resolved `zoned_datetime`, and
   date-independent `zoned_time`. Instants/durations use signed 64-bit
   microseconds; representable literal instants retain canonical calendar range.
-  Same-instant zoned values need not be equal; zone aliases are distinct names.
+  Two `zoned_datetime` values are equal when both their instants and their
+  zone names are: one instant in two zones, or under two aliases of one
+  zone, is two values. Compared as UTC, they are equal when their instants
+  are. Proposed: that comparison is written `a =={utc: true} b`, beside the
+  tolerance options (EXPR-10). A duration added to a zoned datetime, or taken
+  from one, moves its instant, not its wall clock. Zone aliases are distinct
+  names.
 - **TYPE-17.** A `tenor` is a rule for moving a `date`, and no elapsed time.
   It is a count of months and a count of days, or it is a count of business
   days; each count is a signed 64-bit integer. Two tenors are equal when they
@@ -186,12 +193,28 @@ rejection (TYPE-12, TYPE-14). TYPE-16 says what a `delta_type` is.
   maximum is positive and minimum may be zero: `rolling_window<f64, 5m, 0s>`
   is admitted and `rolling_window<f64, 0s>` rejects. Minimum cannot exceed
   maximum. Size/kind are part of identity; window publications obey core's
-  contract.
+  contract. A window holds the values that arrived at it, oldest first. One
+  of a tick count holds the last Max: an arrival beyond them drops the
+  oldest. In one of a duration, a value that arrived at t is held while the
+  evaluation time is at most t + Max, and leaves at the first time after, a
+  microsecond later (TYPE-2), whether or not a value arrives then; the
+  window ticks for that exit, so its readers are woken for it. `valid` of a
+  window is true once it holds a value, fewer than its minimum included.
+  `all_valid` is true where it holds at least its minimum (TIME-9): of a
+  tick count, Min values; of a duration, values whose arrival times, from
+  the oldest held to the newest, span at least Min. So a window of a
+  duration may hold its minimum and later not, as values leave. A read of a
+  window's value before it is `all_valid` fails. Proposed: that value, read
+  in a hook or given to a lifted helper (FN-12), is a `list<V>` of the
+  values held, oldest first, and the read before `all_valid` fails with
+  `value.unset_read`.
 - **TYPE-12.** `ref<T>` designates an endpoint, not an ordinary payload type.
   It is excluded from const values, atomic payloads, keys, and window values.
   An ordinary value type is written with no `rolling_window`, `ref`,
   `atomic`, or `signal` at any depth: `set<list<ref<f64>>>` rejects. A
   dictionary's value and the argument of `ref` or `delta` are any type.
+  A connection of T is given to a `ref<T>` input as a reference is: the
+  input designates that connection's endpoint (GEN-11).
   `signal` is a complete temporal input constraint with no readable payload:
   the whole type of a function's temporal parameter, or of its positional
   pack, `ticks: ...signal`. It is not a result, nested shape, field, const
@@ -236,7 +259,10 @@ rejection (TYPE-12, TYPE-14). TYPE-16 says what a `delta_type` is.
   `size_modified: -1` drops its last position, and a count more than the
   list holds leaves it empty, which is no failure. An `updated` entry
   written at the position after a `list<V>`'s last, with no
-  `size_modified`, extends the list to hold it. A `list<V, N>` keeps its
+  `size_modified`, extends the list to hold it. One written further past
+  it extends the list as well, and the positions between hold no value and
+  are not valid (TIME-9, TIME-1): `updated: [3: 5]` on `[1, 2]` gives four
+  positions, the third not valid. A `list<V, N>` keeps its
   bounds: a constant entry past them rejects (`delta.index_bounds`), and
   one in a delta made as the program runs fails the write that publishes
   it, as an index outside a list does (EXPR-3). The delta read gives the
@@ -251,11 +277,9 @@ rejection (TYPE-12, TYPE-14). TYPE-16 says what a `delta_type` is.
   A delta that names one member, key or position both as added or updated
   and as removed is malformed. A constant one is rejected
   (`delta.overlap`). A run
-  makes no check, and what it does with one is undefined. Proposed: an
-  `updated` entry written further past a `list<V>`'s last position extends
-  the list as well, and the positions between hold no value and are not
-  valid (TIME-9, TIME-1): `updated: [3: 5]` on `[1, 2]` gives four
-  positions, the third not valid.
+  makes no check, and what it does with one is undefined. A `removed` that
+  names a key a dictionary does not hold is ignored, and is no failure, as
+  one that names a member a set does not hold is.
 
 | T | `delta<T>` |
 | --- | --- |
@@ -326,6 +350,51 @@ rejections:
 of a delta assigned (`binding.immutable`);
 `delta<set<str>>(added: ["a"], removed: ["a"])`, a malformed delta
 (`delta.overlap`). Conformance is planned.
+
+Accepted illustration, complete module, a window of a duration (TYPE-11):
+
+```hgl
+module examples.windows
+
+fn collect(price: f64) -> rolling_window<f64, 3s, 2s> {
+    when { return price }
+}
+
+fn readiness(prices: rolling_window<f64, 3s, 2s>) -> list<bool, 2> {
+    when valid([]) { return [valid(prices), all_valid(prices)] }
+}
+
+fn observed(price: f64) -> list<bool, 2> => readiness(collect(price))
+```
+
+`price` publishes 1.0 at 0s, 2.0 at 1s, 3.0 at 2s and 4.0 at 4s, in a run
+that ends at 6s. Each exit is a tick of the window, which wakes `readiness`:
+
+| Evaluation | Arrives | Leaves | Held | `observed` publishes |
+| --- | --- | --- | --- | --- |
+| 0s | 1.0 | | 1.0 | `[true, false]` |
+| 1s | 2.0 | | 1.0, 2.0 | `[true, false]`: the two span 1s |
+| 2s | 3.0 | | 1.0, 2.0, 3.0 | `[true, true]`: they span 2s |
+| 3s + 1us | | 1.0 | 2.0, 3.0 | `[true, false]` |
+| 4s | 4.0 | | 2.0, 3.0, 4.0 | `[true, true]`: 2.0 arrived at 1s and is held at 4s |
+| 4s + 1us | | 2.0 | 3.0, 4.0 | `[true, true]` |
+| 5s + 1us | | 3.0 | 4.0 | `[true, false]` |
+
+With `rolling_window<f64, 3, 2>` in place of the duration, the window is
+all valid from 1s, the arrival of 4.0 drops 1.0, and no value leaves as
+time passes. A handler that reads the value of `prices` where it is not
+all valid, at 0s, 1s, 3s + 1us or 5s + 1us, fails. Conformance is planned.
+
+Accepted expression fragments, zoned datetimes (TYPE-2); London's clocks go
+forward an hour at 01:00 UTC on 29 March 2026:
+
+| Expression | Value |
+| --- | --- |
+| `@2026-03-28T12:00+00:00[Europe/London] + 1d` | `@2026-03-29T13:00+01:00[Europe/London]`: 86,400 seconds later (LEX-13), across the change |
+| `@2026-09-03T09:30+01:00[Europe/London] == @2026-09-03T08:30+00:00[UTC]` | false: one instant, two zones |
+| `@2026-09-03T09:30+01:00[Europe/London] =={utc: true} @2026-09-03T08:30+00:00[UTC]` | true; the spelling is proposed |
+
+Core owns the operators' observations; conformance is planned.
 
 Accepted declaration fragments, structs that hold themselves (TYPE-6):
 

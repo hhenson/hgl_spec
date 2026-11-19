@@ -190,7 +190,9 @@ expression; group a constant expression that uses them as operand data.
   facility.
 - **GEN-11.** Argument inference removes reference boundaries recursively from
   an otherwise unbound generic; such an input observes values. An explicit
-  ref pattern binds its underlying type. A stated resolution preserves its
+  ref pattern binds its underlying type, from a reference or from a
+  connection of that type (TYPE-12): `ref<T>` given a connection of `f64`
+  binds T to `f64`. A stated resolution preserves its
   reference boundaries. A requested output binds a whole output variable as
   requested; nested structural variables follow ordinary reference removal.
   A structural projection resolves no generic and preserves a declared ref.
