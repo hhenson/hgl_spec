@@ -1,9 +1,7 @@
 # Types and values
 
 Status: agreed type foundation, `delta<T>` (TYPE-16) and `tenor` (TYPE-17)
-included. Proposed: TYPE-2's spelling of a comparison as UTC; TYPE-11's
-last sentence, on what the read of a window's value gives; and the storage
-extensions below.
+included. The storage extensions below are proposed.
 
 ## Grammar
 
@@ -64,7 +62,7 @@ rejection (TYPE-12, TYPE-14). TYPE-16 says what a `delta_type` is.
   Two `zoned_datetime` values are equal when both their instants and their
   zone names are: one instant in two zones, or under two aliases of one
   zone, is two values. Compared as UTC, they are equal when their instants
-  are. Proposed: that comparison is written `a =={utc: true} b`, beside the
+  are. That comparison is written `a =={utc: true} b`, beside the
   tolerance options (EXPR-10). A duration added to a zoned datetime, or taken
   from one, moves its instant, not its wall clock. Zone aliases are distinct
   names.
@@ -197,18 +195,20 @@ rejection (TYPE-12, TYPE-14). TYPE-16 says what a `delta_type` is.
   maximum. Size/kind are part of identity; window publications obey core's
   contract. A window holds the values that arrived at it, oldest first. One
   of a tick count holds the last Max: an arrival beyond them drops the
-  oldest. In one of a duration, a value that arrived at t is held while the
-  evaluation time is at most t + Max, and leaves at the first time after, a
-  microsecond later (TYPE-2), whether or not a value arrives then; the
-  window ticks for that exit, so its readers are woken for it. `valid` of a
-  window is true once it holds a value, fewer than its minimum included.
+  oldest. In one of a duration, a value is still held when its age is Max,
+  and one older than Max leaves when the next value arrives, and not
+  before: an arrival at t drops every value that arrived before t - Max.
+  Nothing ticks for an exit, so no reader is woken for one, and between
+  arrivals the window may hold values older than Max. `valid` of a window
+  is true once it holds a value, fewer than its minimum included.
   `all_valid` is true where it holds at least its minimum (TIME-9): of a
   tick count, Min values; of a duration, values whose arrival times, from
-  the oldest held to the newest, span at least Min. So a window of a
-  duration may hold its minimum and later not, as values leave. A read of a
-  window's value before it is `all_valid` fails. Proposed: that value, read
-  in a hook or given to a lifted helper (FN-12), is a `list<V>` of the
-  values held, oldest first, and the read before `all_valid` fails with
+  the oldest held to the newest, span at least Min, a minimum of `0s` being
+  read as Max. So a window of a duration may hold its minimum and later
+  not, as values leave. A read of a
+  window's value before it is `all_valid` fails. That value, read in a hook
+  or given to a lifted helper (FN-12), is a `list<V>` of the values held,
+  oldest first, and the read before `all_valid` fails with
   `value.unset_read`.
 - **TYPE-12.** `ref<T>` designates an endpoint, not an ordinary payload type.
   It is excluded from const values, atomic payloads, keys, and window values.
@@ -369,23 +369,23 @@ fn readiness(prices: rolling_window<f64, 3s, 2s>) -> list<bool, 2> {
 fn observed(price: f64) -> list<bool, 2> => readiness(collect(price))
 ```
 
-`price` publishes 1.0 at 0s, 2.0 at 1s, 3.0 at 2s and 4.0 at 4s, in a run
-that ends at 6s. Each exit is a tick of the window, which wakes `readiness`:
+`price` publishes 1.0 at 0s, 2.0 at 1s, 3.0 at 2s, 4.0 at 4s and 5.0 at 9s.
+The window ticks only at an arrival, which is when `readiness` is woken:
 
 | Evaluation | Arrives | Leaves | Held | `observed` publishes |
 | --- | --- | --- | --- | --- |
 | 0s | 1.0 | | 1.0 | `[true, false]` |
 | 1s | 2.0 | | 1.0, 2.0 | `[true, false]`: the two span 1s |
 | 2s | 3.0 | | 1.0, 2.0, 3.0 | `[true, true]`: they span 2s |
-| 3s + 1us | | 1.0 | 2.0, 3.0 | `[true, false]` |
-| 4s | 4.0 | | 2.0, 3.0, 4.0 | `[true, true]`: 2.0 arrived at 1s and is held at 4s |
-| 4s + 1us | | 2.0 | 3.0, 4.0 | `[true, true]` |
-| 5s + 1us | | 3.0 | 4.0 | `[true, false]` |
+| 4s | 4.0 | 1.0 | 2.0, 3.0, 4.0 | `[true, true]`: 2.0, of age 3s, is held |
+| 9s | 5.0 | 2.0, 3.0, 4.0 | 5.0 | `[true, false]` |
 
-With `rolling_window<f64, 3, 2>` in place of the duration, the window is
-all valid from 1s, the arrival of 4.0 drops 1.0, and no value leaves as
-time passes. A handler that reads the value of `prices` where it is not
-all valid, at 0s, 1s, 3s + 1us or 5s + 1us, fails. Conformance is planned.
+At 3.5s the window still holds 1.0, older than 3s: nothing has arrived to
+drop it, and nothing ticks. From 4s to 9s it holds values older than 3s
+in the same way. With `rolling_window<f64, 3, 2>` in place of the
+duration, the window is all valid from 1s, and the arrival of 4.0 drops
+1.0. A handler that reads the value of `prices` where it is not all valid,
+at 0s, 1s or 9s, fails. Conformance is planned.
 
 Accepted expression fragments, zoned datetimes (TYPE-2); London's clocks go
 forward an hour at 01:00 UTC on 29 March 2026:
@@ -394,7 +394,7 @@ forward an hour at 01:00 UTC on 29 March 2026:
 | --- | --- |
 | `@2026-03-28T12:00+00:00[Europe/London] + 1d` | `@2026-03-29T13:00+01:00[Europe/London]`: 86,400 seconds later (LEX-13), across the change |
 | `@2026-09-03T09:30+01:00[Europe/London] == @2026-09-03T08:30+00:00[UTC]` | false: one instant, two zones |
-| `@2026-09-03T09:30+01:00[Europe/London] =={utc: true} @2026-09-03T08:30+00:00[UTC]` | true; the spelling is proposed |
+| `@2026-09-03T09:30+01:00[Europe/London] =={utc: true} @2026-09-03T08:30+00:00[UTC]` | true |
 
 Core owns the operators' observations; conformance is planned.
 
