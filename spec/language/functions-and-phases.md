@@ -148,15 +148,18 @@ Local source/native declaration matching is defined in the native chapter.
 - **FN-11.** A lifted argument with a declared default does not require a valid
   input: bind the default when that input is invalid. Otherwise, an argument
   whose value contract admits null does not require a valid input: bind null
-  when it is invalid. Every other input must satisfy ordinary `valid(input)`.
+  when it is invalid. Every other input must satisfy ordinary `valid(input)`,
+  and a struct, a tuple or a fixed list `all_valid(input)` as well (FN-12).
   A valid value, including a valid null, is supplied as published. Fallback
   changes admission/binding, not activation, and invents no input tick.
 - **FN-12.** Aggregate lifting passes the current ordinary aggregate value to
-  one helper invocation, not separate elementwise invocations. Use its type's
-  ordinary validity contract. An unsized `list<T>` needs `valid(list_value)`;
-  lifting adds no required size or recursive `all_valid` check. A fixed-size
-  list is valid as any list is (TIME-9). A window is passed only where it
-  is `all_valid`: its value is not read before (TYPE-11). Unchanged
+  one helper invocation, not separate elementwise invocations. The value is
+  passed where it may be read whole (TIME-1). An unsized `list<T>` and a
+  dictionary need `valid`; lifting adds no required size or
+  recursive `all_valid` check. A struct, a tuple and a fixed-size list need
+  `all_valid`, and an optional child that is not valid is passed as null.
+  A window is passed only where it is `all_valid`: its value is not read
+  before (TYPE-11). Unchanged
   inputs supply retained values; they need not publish together.
 - **FN-13.** Each invocation observes a stable ordinary argument value or an
   admitted read-only view. Retained results must remain independent of later

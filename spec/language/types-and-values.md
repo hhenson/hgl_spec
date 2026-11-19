@@ -167,7 +167,9 @@ rejection (TYPE-12, TYPE-14). TYPE-16 says what a `delta_type` is.
   [nullable refinement](errors-and-diagnostics.md#nullable-value-refinement).
 - **TYPE-15.** The suffix applies to the complete preceding type: `list<f64?>`
   has nullable elements; `list<f64>?` is a nullable list value. A present null
-  is ordinary data, distinct from an invalid temporal input or silence.
+  is ordinary data, distinct from an invalid temporal input or silence. In a
+  collection read whole, an optional child that is not valid is null as well
+  (TIME-1); `valid` of the child tells the two apart.
   Nullable/default lifted argument binding follows FN-11. A type-position `?`
   declares nullability; expression-position `?` retains ERR-5's result
   propagation meaning. Field requiredness/defaults still follow TYPE-4.
