@@ -197,7 +197,7 @@ infrastructure and cannot satisfy a source-rejection expectation.
 | phase | `payload.unguarded` | Payload read under manual admission, in a `when` or in `stop`, that no guard dominates (TIME-4, TIME-5); or a read of a child at a constant index or a field that nothing admits, or of a struct, a tuple or a fixed list whole that its `all_valid` does not admit (TIME-1); read |
 | phase | `ref.read` | Proposed: the value or the `delta_value` of a `ref` parameter, of a child of one, or of `out` of a `ref` result, read (FN-16); the read |
 | phase | `endpoint.argument` | Endpoint operation given what is no temporal input of its function, no child of one, and not `out`, or `all_valid` given neither a collection (a list, tuple, struct or dictionary) nor a window (TIME-9); argument |
-| type | `schedule.non_positive_duration` | Proposed: a wake asked for with a `duration` that is not more than zero, whose value the compiler sees (TIME-8); the duration |
+| type | `schedule.non_positive_duration` | Proposed: a wake asked for with a `duration` that is not more than zero, other than a zero in `start`, whose value the compiler sees (TIME-8); the duration |
 | phase | `scheduled.lifecycle` | `scheduled()` in `start` or `stop` (TIME-9); the selector |
 | phase | `connection.as_constant` | Temporal connection where composition requires a constant (FN-3), given to a function that declares a `var` parameter, which is not lifted (FN-15), or given to a call on the store a graph injects (FN-9); expression |
 | type | `generic.invalid_application` | Generic type's name before a `<` that opens no arguments (GEN-14); name |
@@ -300,7 +300,7 @@ infrastructure and cannot satisfy a source-rejection expectation.
 | `tenor.mixed_units` | A sum or a difference of a `tenor` of business days and one of months and days; see the core [scalar operator contract](https://github.com/hhenson/hgl_core/blob/main/spec/scalar-operators.md) |
 | `convert.invalid` | A conversion fails under `invalid: .fail`, or explicit `?` propagation in `when` turns a checked conversion's Err into node failure; see the core [scalar operator contract](https://github.com/hhenson/hgl_core/blob/main/spec/scalar-operators.md) |
 | `yield.negative_duration` | Both yield operands succeeded; delay is negative |
-| `schedule.non_positive_duration` | Proposed: a wake asked of the scheduler or the alarm with a `duration` that is not more than zero (TIME-8) |
+| `schedule.non_positive_duration` | Proposed: a wake asked of the scheduler or the alarm with a `duration` that is not more than zero, other than a zero in `start` (TIME-8) |
 | `yield.non_increasing_time` | Resolved target does not exceed the previous target |
 | `eval.input_delta_profile` | Executed eval input violates its admitted publication profile before start |
 | `run.end_and_length` | A run's configuration gives both an `end` and a `length`; refused before the run's graph is built. See the [core execution contract](https://github.com/hhenson/hgl_core/blob/main/spec/execution.md) (CRUN-2) |
