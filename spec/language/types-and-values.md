@@ -1,7 +1,8 @@
 # Types and values
 
 Status: agreed type foundation, `delta<T>` (TYPE-16) and `tenor` (TYPE-17)
-included. The storage extensions below are proposed.
+included. The sentence of TYPE-16 that begins "Proposed:" and the storage
+extensions below are proposed.
 
 ## Grammar
 
@@ -75,7 +76,8 @@ rejection (TYPE-12, TYPE-14). TYPE-16 says what a `delta_type` is.
 - **TYPE-3.** Structs are nominal, with public ordered fields and no methods.
   Only abstract structs may be parents, each listed once; abstract values are
   not constructible. Concrete structs are final. Generic applications are
-  invariant by origin and complete canonical arguments. A struct is a value
+  invariant by origin and complete canonical arguments, a value argument
+  by its value (UNIT-13). A struct is a value
   where an abstract struct it inherits from is expected, through any number
   of parents, each with the arguments the struct below gives it; a
   `list<Child>` is no `list<Base>`.
@@ -287,7 +289,10 @@ rejection (TYPE-12, TYPE-14). TYPE-16 says what a `delta_type` is.
   A delta that names one member, key or position both as added or updated
   and as removed is malformed. A constant one is rejected
   (`delta.overlap`). A run
-  makes no check, and what it does with one is undefined. A `removed` that
+  makes no check, and what it does with one is undefined. Proposed: two
+  keys, or two members, that a delta names are one where its collection
+  takes them as one, and not by their sameness as constants (UNIT-13).
+  A `removed` that
   names a key a dictionary does not hold is ignored, and is no failure, as
   one that names a member a set does not hold is. So is one that names a
   position of a list that holds no value, never set or already removed.
