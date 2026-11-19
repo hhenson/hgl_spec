@@ -36,14 +36,18 @@ flowchart LR
   endpoint whether or not it is valid: `parts[1]` is given to `valid` and
   passed on as a connection while it is invalid. In a hook, a read of a
   child's value, or of its `delta_value`, requires that child's admission:
-  `all_valid(parts)` admits every child, `valid(parts[1])` or
+  `all_valid(parts)` admits every child, but for one read whole as a
+  struct, a tuple or a fixed list (below), `valid(parts[1])` or
   `valid(quote.bid)` that one, and `valid(parts)` none (TIME-4). Where the
   read names its child when the program is compiled, at a constant index
   or a field, one that is not admitted rejects (`payload.unguarded`).
   Elsewhere, `parts[i]`, it is checked when it runs: a child that is not
   valid fails it (`value.unset_read`), or gives an `err` where its place
   takes a `result` (ERR-14). A read of a struct, a tuple or a fixed list
-  whole, `return quote`, requires `all_valid` of it. In the value it reads,
+  whole, `return quote`, requires `all_valid` of it. So does one of a child
+  that is a struct, a tuple or a fixed list: `return rows[0]`, for
+  `rows: list<Quote, 2>`, requires `all_valid(rows[0])`, which
+  `all_valid(rows)`, one level deep, does not give. In the value it reads,
   an optional child (TIME-9) that is not valid is null, and `valid` of that
   child tells it from a published null (TYPE-15). Where such a read is
   seen when the program is compiled and `all_valid` does not admit it, it
@@ -113,8 +117,9 @@ flowchart LR
   `valid` and `all_valid` retain distinct child-validity rules. A child's
   guard is a test of `all_valid` of its input, or of `valid` of the child
   as the read names it, `valid(parts[1])` for `parts[1]` (TIME-1). The
-  guard of a whole read of a struct, a tuple or a fixed list is a test of
-  `all_valid` of what it reads, `all_valid(quote)` for `quote`; of a
+  guard of a whole read of a struct, a tuple or a fixed list, a child
+  among them, is a test of `all_valid` of what it reads, `all_valid(quote)`
+  for `quote` and `all_valid(rows[0])` for `rows[0]`; of a
   dictionary or an unsized list, `valid` of it, as of any input. A `when`
   header that has the test alone or as a top-level
   conjunct guards its body, `when all_valid(quote)`.
@@ -185,7 +190,9 @@ flowchart LR
   own (TYPE-9): a list, a tuple, a struct and a dictionary. `valid` of a
   collection is true where any element, field or entry is valid: work is
   possible on a partly populated value. It admits no child's read, and
-  `all_valid` admits every child's and a read of the whole (TIME-1).
+  `all_valid` admits the read of the whole and of every child, but for a
+  child read whole as a struct, a tuple or a fixed list, which needs its
+  own `all_valid` (TIME-1).
   A published empty list or dictionary has no element and is valid.
   `all_valid` is true where every one is, by its own `valid`, one level
   deep, an optional child aside: one whose type is `T?`, or a field that
