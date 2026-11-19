@@ -72,7 +72,7 @@ flowchart LR
   | --- | --- | --- |
   | `f64` | NaN | Agreed |
   | `i64` | Nothing: the read fails | Agreed |
-  | `V?` | Null | Proposed |
+  | `V?` | Null, as an optional child that is not valid is in any whole value (TYPE-15) | Agreed |
   | Any other: `bool`, `str`, `bytes`, a time scalar, a `tenor`, an enum, a struct, a collection | Nothing: the read fails | Proposed |
 - **TIME-2.** Composition describes a typed graph without reading live
   payloads. Evaluation propagates changes in dependency order, at most once
