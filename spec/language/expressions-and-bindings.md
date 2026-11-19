@@ -1,8 +1,7 @@
 # Expressions and bindings
 
 Status: agreed expression/binding baseline. The sparse-field rules of
-structural delta construction, and the spelling of a comparison as UTC,
-are proposed.
+structural delta construction are proposed.
 
 ## Grammar
 
@@ -288,15 +287,14 @@ Deliberate source rejection under EXPR-10: duplicate `zero` configuration or
 an option that no candidate for the operands declares. Runtime observations belong
 to core; executable conformance is planned.
 
-Proposed expression fragment, with zoned datetimes `a`/`b` in scope:
+Accepted expression fragment, with zoned datetimes `a`/`b` in scope:
 
 ```hgl
 a =={utc: true} b
 ```
 
 It compares the two as UTC: they are equal when their instants are, in
-whichever zones (TYPE-2). The option's spelling is proposed; that the
-comparison has the option is agreed.
+whichever zones (TYPE-2).
 
 Accepted value-expression fragments, with admitted f64 helpers `left`, `right`,
 and `tolerance` that record their own invocation names:

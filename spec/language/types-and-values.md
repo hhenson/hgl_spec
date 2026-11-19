@@ -1,9 +1,7 @@
 # Types and values
 
 Status: agreed type foundation, `delta<T>` (TYPE-16) and `tenor` (TYPE-17)
-included. Proposed: TYPE-2's spelling of a comparison as UTC; TYPE-11's
-last sentence, on what the read of a window's value gives; and the storage
-extensions below.
+included. The storage extensions below are proposed.
 
 ## Grammar
 
@@ -64,7 +62,7 @@ rejection (TYPE-12, TYPE-14). TYPE-16 says what a `delta_type` is.
   Two `zoned_datetime` values are equal when both their instants and their
   zone names are: one instant in two zones, or under two aliases of one
   zone, is two values. Compared as UTC, they are equal when their instants
-  are. Proposed: that comparison is written `a =={utc: true} b`, beside the
+  are. That comparison is written `a =={utc: true} b`, beside the
   tolerance options (EXPR-10). A duration added to a zoned datetime, or taken
   from one, moves its instant, not its wall clock. Zone aliases are distinct
   names.
@@ -206,9 +204,9 @@ rejection (TYPE-12, TYPE-14). TYPE-16 says what a `delta_type` is.
   tick count, Min values; of a duration, values whose arrival times, from
   the oldest held to the newest, span at least Min. So a window of a
   duration may hold its minimum and later not, as values leave. A read of a
-  window's value before it is `all_valid` fails. Proposed: that value, read
-  in a hook or given to a lifted helper (FN-12), is a `list<V>` of the
-  values held, oldest first, and the read before `all_valid` fails with
+  window's value before it is `all_valid` fails. That value, read in a hook
+  or given to a lifted helper (FN-12), is a `list<V>` of the values held,
+  oldest first, and the read before `all_valid` fails with
   `value.unset_read`.
 - **TYPE-12.** `ref<T>` designates an endpoint, not an ordinary payload type.
   It is excluded from const values, atomic payloads, keys, and window values.
@@ -394,7 +392,7 @@ forward an hour at 01:00 UTC on 29 March 2026:
 | --- | --- |
 | `@2026-03-28T12:00+00:00[Europe/London] + 1d` | `@2026-03-29T13:00+01:00[Europe/London]`: 86,400 seconds later (LEX-13), across the change |
 | `@2026-09-03T09:30+01:00[Europe/London] == @2026-09-03T08:30+00:00[UTC]` | false: one instant, two zones |
-| `@2026-09-03T09:30+01:00[Europe/London] =={utc: true} @2026-09-03T08:30+00:00[UTC]` | true; the spelling is proposed |
+| `@2026-09-03T09:30+01:00[Europe/London] =={utc: true} @2026-09-03T08:30+00:00[UTC]` | true |
 
 Core owns the operators' observations; conformance is planned.
 

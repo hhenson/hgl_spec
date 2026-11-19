@@ -290,7 +290,7 @@ infrastructure and cannot satisfy a source-rejection expectation.
 | Execution code | Required condition |
 | --- | --- |
 | `value.missing_key` | Strict ordinary dictionary lookup has no member |
-| `value.unset_read` | Executed operation requires an unset ordinary payload, a collection's child that is not valid, or a struct, a tuple or a fixed list read whole that is not all valid, read where that is checked when it runs among them (TIME-1, ERR-14); proposed: a window's value read before it is `all_valid` (TYPE-11) |
+| `value.unset_read` | Executed operation requires an unset ordinary payload, a collection's child that is not valid, or a struct, a tuple or a fixed list read whole that is not all valid, read where that is checked when it runs among them (TIME-1, ERR-14), or a window's value read before it is `all_valid` (TYPE-11) |
 | `value.capability` | Boxed executed operation lacks a required contained capability |
 | `value.byte_range` | Bytes construction receives an octet outside 0–255 |
 | `numeric.division_by_zero` | Explicit `?` propagation in `when` turns a checked-division Err into node failure; see the [core numeric contract](https://github.com/hhenson/hgl_core/blob/main/spec/numeric-operators.md) |
