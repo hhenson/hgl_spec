@@ -230,8 +230,14 @@ rejection (TYPE-12, TYPE-14). TYPE-16 says what a `delta_type` is.
   list can say a position became invalid; and `size_modified`, set only
   when the size moves up or down, to the new size, which tells growth and
   shrinking apart from a position only becoming invalid. A delta written
-  with a smaller `size_modified` and no `removed` shrinks the list; the
-  delta read on a shrink names the tail positions it drops in `removed`. A nullable's delta is an
+  with a smaller `size_modified` and no `removed` shrinks the list. A
+  negative `size_modified` written reduces the list by that count:
+  `size_modified: -1` drops its last position. An `updated` entry written
+  at the position after a `list<V>`'s last, with no `size_modified`,
+  extends the list to hold it; a `list<V, N>` keeps its bounds
+  (`delta.index_bounds`). The delta read gives the new size where it
+  moves, never a negative one, and on a shrink names the tail positions it
+  drops in `removed`. A nullable's delta is an
   optional: it holds what was published, a null among them, so that null
   in a delta's place always means that nothing was published there.
   `delta<i64?>()` is a published null. In a tuple's position or a struct's
@@ -250,7 +256,7 @@ rejection (TYPE-12, TYPE-14). TYPE-16 says what a `delta_type` is.
 | `V?`, V no ordinary value type, as `rolling_window<f64, 5>?` | `delta<V>`: the `?` marks an argument or a field that may be left out (TYPE-14), and is no part of what is published |
 | `atomic<V>` | V: an atomic publishes whole |
 | `rolling_window<V, Max, Min>` | V: the value that arrived |
-| `list<V>`, `list<V, N>` | A type of its own, with the properties `updated`, a `dict<i64, delta<V>>` of each changed position with its delta, `removed`, a `set<i64>` of the positions that lost their value, and `size_modified`, an `i64?`: the new size where the size changed, else null |
+| `list<V>`, `list<V, N>` | A type of its own, with the properties `updated`, a `dict<i64, delta<V>>` of each changed position with its delta, `removed`, a `set<i64>` of the positions that lost their value, and `size_modified`, an `i64?`: the new size where the size changed, else null, and as written a negative count to reduce it by |
 | `tuple<A, B>` | `tuple<delta<A>?, delta<B>?>`: each position's delta, null where it did not change |
 | `set<K>` | A type of its own, with the properties `added` and `removed`, each a `set<K>` |
 | `dict<K, V>` | A type of its own, with the properties `updated`, a `dict<K, delta<V>>` of each key added or changed with its delta, and `removed`, a `set<K>` |
