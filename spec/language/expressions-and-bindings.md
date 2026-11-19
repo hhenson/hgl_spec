@@ -106,7 +106,8 @@ GEN-14 resolves generic construction versus comparison using declaration lookup.
   scalar storage nor feedback. Earlier aliases/consumers keep their original
   connection. Scalar/connection reassignment across categories rejects.
   Persistent runtime history uses state/cache.
-- **EXPR-5.** An expected type contextualizes literals and constructors but
+- **EXPR-5.** An expected type contextualizes literals, constructors, and a
+  collection's child read where that is checked when it runs (ERR-14), but
   cannot erase structural/atomic boundaries or nominal identity. An integer
   literal is an `f64` where one is expected: `let x: f64 = 1`. A value that
   has a type is not converted by its place: an `i64` binding where an `f64`

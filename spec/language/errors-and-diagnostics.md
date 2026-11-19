@@ -1,7 +1,8 @@
 # Errors and diagnostics
 
-Status: agreed result, lookup, capture, and structured-error contracts. Codes
-for proposed features apply only within those proposed profiles.
+Status: agreed result, lookup, child-read (ERR-14), capture, and
+structured-error contracts. Codes for proposed features apply only within
+those proposed profiles.
 
 ## Grammar
 
@@ -74,6 +75,13 @@ postfix suffix. `argument` is that grammar's call argument.
   Guard an inferred immutable nullable local against null before payload use.
   Explicit nullable annotations follow TYPE-14; this lookup contract adds no
   null-return suppression.
+- **ERR-14.** A read of a collection's child that is checked when it runs
+  (TIME-1), `parts[i]`, takes its form from its place (EXPR-5). Where the
+  place expects `result<T, error>`, T the child's type, it gives `ok` of
+  the child's value, or, for a child that is not valid, `err` of an
+  `error` whose code is `value.unset_read`. Elsewhere it gives the T, and
+  a child that is not valid fails the read with `value.unset_read`: in a
+  `when` the node fails, as `?` makes it (ERR-5).
 - **ERR-7.** In composition, `capture(callable, args...)` creates a temporal
   error boundary. It names a callable and gives it the arguments its own call
   takes, positional or named, read, checked, and selected as that call's are
@@ -184,8 +192,9 @@ infrastructure and cannot satisfy a source-rejection expectation.
 | phase | `state.input_read` | State initializer reads a temporal input (TIME-5); the read |
 | phase | `out.lifecycle` | `out` used in `start` or written in `stop`, or a `return` with a value in either (TIME-7); the use |
 | phase | `input.lifecycle` | A temporal input read, or given to an endpoint operation, in `start` (TIME-5); the use |
-| phase | `payload.unguarded` | Payload read under manual admission, in a `when` or in `stop`, that no guard dominates (TIME-4, TIME-5); read |
-| phase | `endpoint.argument` | Endpoint operation given what is no temporal input of its function and not `out`, or `all_valid` given no collection: a list, tuple, struct or dictionary (TIME-9); argument |
+| phase | `payload.unguarded` | Payload read under manual admission, in a `when` or in `stop`, that no guard dominates (TIME-4, TIME-5); or a read of a child at a constant index or a field that nothing admits (TIME-1); read |
+| phase | `endpoint.argument` | Endpoint operation given what is no temporal input of its function, no child of one, and not `out`, or `all_valid` given no collection: a list, tuple, struct or dictionary (TIME-9); argument |
+| phase | `scheduled.lifecycle` | `scheduled()` in `start` or `stop` (TIME-9); the selector |
 | phase | `connection.as_constant` | Temporal connection where composition requires a constant (FN-3), given to a function that declares a `var` parameter, which is not lifted (FN-15), or given to a call on the store a graph injects (FN-9); expression |
 | type | `generic.invalid_application` | Generic type's name before a `<` that opens no arguments (GEN-14); name |
 | type | `pack.default` | Pack parameter has a default (FN-8); `=` |
@@ -278,7 +287,7 @@ infrastructure and cannot satisfy a source-rejection expectation.
 | Execution code | Required condition |
 | --- | --- |
 | `value.missing_key` | Strict ordinary dictionary lookup has no member |
-| `value.unset_read` | Executed operation requires an unset ordinary payload |
+| `value.unset_read` | Executed operation requires an unset ordinary payload, a collection's child that is not valid read where that is checked when it runs among them (TIME-1, ERR-14) |
 | `value.capability` | Boxed executed operation lacks a required contained capability |
 | `value.byte_range` | Bytes construction receives an octet outside 0–255 |
 | `numeric.division_by_zero` | Explicit `?` propagation in `when` turns a checked-division Err into node failure; see the [core numeric contract](https://github.com/hhenson/hgl_core/blob/main/spec/numeric-operators.md) |
@@ -340,6 +349,26 @@ const fn price_or_zero(book: dict<str, i64>, key: str) -> i64 {
 Deliberate rejection: use price as a payload before its presence guard.
 An absent strict lookup instead fails with `value.missing_key`. Conformance planned.
 
+Accepted illustration, complete module, a child read when it runs (ERR-14):
+
+```hgl
+module examples.child_reads
+
+fn at(parts: list<i64, 2>, slot: i64) -> i64 {
+    when { return parts[slot] }
+}
+
+fn checked_at(parts: list<i64, 2>, slot: i64) -> result<i64, error> {
+    when { return parts[slot] }
+}
+```
+
+With position 0 alone published, as 3, and `slot` publishing 0 and then 1,
+`at` publishes 3 and then fails with `value.unset_read`; `checked_at`
+publishes `ok(3)` and then an `err` whose error has that code, and does not
+fail. Deliberate rejection: `return parts[1]` in either, a child at a
+constant index that nothing admits (`payload.unguarded`). Conformance planned.
+
 ## Result forms
 
 | Form | Operand | Gives | Rejects |
@@ -350,6 +379,7 @@ An absent strict lookup instead fails with `value.missing_key`. Conformance plan
 | `binding.value` | A binding proved a success | The T | `result.required_variant` |
 | `binding.error` | A binding proved a failure | The E | `result.required_variant` |
 | `value?` | A `result<T,E>` | The T; a failure leaves the function or fails the node | `result.propagation_type`, `result.propagation_phase` |
+| `parts[i]` where `result<T, error>` is expected | A collection's child read when it runs (ERR-14) | `ok` of its value; `err` coded `value.unset_read` for a child that is not valid | None |
 | `error(message: text, code: code)` | A `str`, and a `str?` | An `error` | `type.mismatch` |
 | `capture(callable, args...)` | A temporal call | `.value` and `.error` connections | `capture.phase`, `capture.output_field` |
 

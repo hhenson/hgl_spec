@@ -1,8 +1,9 @@
 # Temporal model
 
 Status: agreed publication, handler, state/cache, and capability baseline.
-The alarm, the run-wide keyed store, and collection validity with
-`all_valid` (TIME-9) are agreed.
+The alarm, the run-wide keyed store, collection validity with
+`all_valid` (TIME-9), and the read of a collection's child (TIME-1) are
+agreed.
 
 ## Grammar
 
@@ -30,6 +31,17 @@ flowchart LR
   evaluation time, retained data, and publication-delta observations. Silence
   is not a value. An equal publication may still be a new tick. A payload read
   requires admission/readability; metadata may observe an invalid endpoint.
+  A child of a collection (TIME-9), an element, a field or an entry, is an
+  endpoint whether or not it is valid: `parts[1]` is given to `valid` and
+  passed on as a connection while it is invalid. In a hook, a read of a
+  child's value, or of its `delta_value`, requires that child's admission:
+  `all_valid(parts)` admits every child, `valid(parts[1])` or
+  `valid(quote.bid)` that one, and `valid(parts)` none (TIME-4). Where the
+  read names its child when the program is compiled, at a constant index
+  or a field, one that is not admitted rejects (`payload.unguarded`).
+  Elsewhere, `parts[i]`, it is checked when it runs: a child that is not
+  valid fails it (`value.unset_read`), or gives an `err` where its place
+  takes a `result` (ERR-14).
 - **TIME-2.** Composition describes a typed graph without reading live
   payloads. Evaluation propagates changes in dependency order, at most once
   per node per cycle. A node's rank is one more than the greatest rank of
@@ -55,7 +67,9 @@ flowchart LR
   node in a cycle when passive `data` publishes, `when modified(data)`
   matches. `when modified(data) && is_active(data)` additionally requires
   the input to be active. The empty selection `modified([])` subscribes to
-  no input and selects a wake from the node's scheduler or alarm.
+  no input and selects a wake from the node's scheduler or alarm. Where it
+  is a bool, in a body or under a negation or a disjunction, it is true in
+  a cycle where no temporal input was modified.
   A wake by the scheduler or alarm wakes the handlers that subscribe to no
   input and those whose header has `scheduled()` (TIME-9) alone or as a
   top-level conjunct. Such a wake alone runs no other handler: one with no
@@ -83,7 +97,11 @@ flowchart LR
   name, that holds where the read stands: in the branch it holds for, in the
   right operand of the `&&` it guards, and after a branch that returns, the
   paths a null test is followed along (ERR-12). A saved bool proves nothing.
-  `valid` and `all_valid` retain distinct child-validity rules.
+  `valid` and `all_valid` retain distinct child-validity rules. A child's
+  guard is a test of `all_valid` of its input, or of `valid` of the child
+  as the read names it, `valid(parts[1])` for `parts[1]` (TIME-1); a `when`
+  header that has the test alone or as a top-level conjunct guards its
+  body, `when all_valid(quote)`.
 - **TIME-5.** State/cache/inject declarations precede executable hooks. At most
   one start and one stop are admitted. State initializers cannot read current
   temporal inputs. `start` reads no temporal input and gives none to an
@@ -144,14 +162,16 @@ flowchart LR
   A collection is a type whose temporal form has children valid on their
   own (TYPE-9): a list, a tuple, a struct and a dictionary. `valid` of a
   collection is true where any element, field or entry is valid: work is
-  possible on a partly populated value.
+  possible on a partly populated value. It admits no child's read, and
+  `all_valid` admits every child's (TIME-1).
   A published empty list or dictionary has no element and is valid.
   `all_valid` is true where every one is, by its own `valid`, one level
   deep: for a list of lists, each contained list is present and has a
   valid element or is a published empty list. It is true of a valid empty
   collection. `all_valid` takes only a collection; another endpoint is rejected (`endpoint.argument`). A call gives
   an `endpoint<T>` parameter a temporal input of the enclosing node by its
-  name, or `out`, and nothing else; the endpoint is not retained, as a
+  name, a child of one, `parts[1]`, `quote.bid` or `parts[i]`, or `out`,
+  and nothing else; the endpoint is not retained, as a
   capability is not (TIME-8). Every other function takes the payload: a
   `const fn` is given the value, and a temporal `fn` is not called in a
   hook. `is_active(input)`, `activate(input)` and `passivate(input)` operate
@@ -163,7 +183,8 @@ flowchart LR
   (core's capability contract): a wake asked of the scheduler is due in this
   evaluation, whether or not a temporal input has ticked. In a node that
   injects `alarm` it holds where the node is evaluated and no temporal input
-  has ticked. A node that injects neither rejects it (`inject.no_scheduler`).
+  has ticked. A node that injects neither rejects it (`inject.no_scheduler`),
+  and so do `start` and `stop` (`scheduled.lifecycle`).
   `modified` and `valid` are selectors in a `when` header (TIME-3): there
   they are forms of the language, which set subscription and admission.
   None of these names is shadowed (UNIT-12). A value function injects no
@@ -234,13 +255,23 @@ fn spread(quote: Quote) -> f64 {
 fn has_quote(quote: Quote) -> bool {
     when valid([]) { return valid(quote) }
 }
+
+fn ask_or_zero(quote: Quote) -> f64 {
+    when {
+        if valid(quote.ask) { return quote.ask }
+        return 0.0
+    }
+}
 ```
 
 Once the bid alone has published, `valid(quote)` is true and
-`all_valid(quote)` false: `has_quote` publishes true and `spread` stays
-silent. When the ask publishes, `spread` runs. Deliberate rejection:
-`all_valid` given an `f64` input (`endpoint.argument`).
-Conformance planned.
+`all_valid(quote)` false: `has_quote` publishes true, `ask_or_zero`
+publishes 0.0, and `spread` stays silent. When the ask publishes, `spread`
+runs and `ask_or_zero` publishes the ask. Deliberate rejections:
+`all_valid` given an `f64` input (`endpoint.argument`); and
+`when { return quote.ask - quote.bid }`, or `ask_or_zero` without its
+`if`, where the default admission, `valid(quote)`, admits no field
+(`payload.unguarded`). Conformance planned.
 
 Accepted illustration, complete module, a node that publishes when the graph
 starts (TIME-7):
@@ -301,8 +332,9 @@ valid, and publish 0.0.
 
 With `inject alarm` in place of `inject scheduler`, `scheduled()` is false
 at 1s, where `price` has ticked: nothing is published, and no further wake is
-asked for. Deliberate rejection: `when scheduled()` in a node that injects
-neither (`inject.no_scheduler`). Conformance planned.
+asked for. Deliberate rejections: `when scheduled()` in a node that injects
+neither (`inject.no_scheduler`), and `scheduled()` in `start` or `stop`
+(`scheduled.lifecycle`). Conformance planned.
 
 Accepted illustration, complete module, the selectors of a `when` header
 (TIME-3):
@@ -362,14 +394,16 @@ over three cycles, each input keeping its value while it is silent:
 is all that wakes it, and every wake asks for the next: it requires no
 input to be valid, so a wake before `a` has published still does. Once a
 second it publishes the value `a` holds, whether or not `a` has ticked, and
-nothing while `a` is invalid. `null_sink` takes its input and does nothing
-with it: no input wakes it and it has no scheduler, so it is dormant, which
-is what it is for, and it acknowledges the warning. Without the annotation
-it is warned of (`node.no_activation`) and still accepted, as `sampled`
-would be with no `start`. Deliberate rejections: in `while_a_valid`,
-`return a + b`, a read of `b` that neither the header requires nor a guard
-proves (`payload.unguarded`); and `modified([a, b])` and `valid([a, b])`,
-where the inputs are named as arguments. Conformance planned.
+nothing while `a` is invalid. In its body `modified([])` is a bool, true at
+a wake where `a` has not ticked and false at one where it has. `null_sink`
+takes its input and does nothing with it: no input wakes it and it has no
+scheduler, so it is dormant, which is what it is for, and it acknowledges
+the warning. Without the annotation it is warned of (`node.no_activation`)
+and still accepted, as `sampled` would be with no `start`. Deliberate
+rejections: in `while_a_valid`, `return a + b`, a read of `b` that neither
+the header requires nor a guard proves (`payload.unguarded`); and
+`modified([a, b])` and `valid([a, b])`, where the inputs are named as
+arguments. Conformance planned.
 
 ## Alarm and global state
 

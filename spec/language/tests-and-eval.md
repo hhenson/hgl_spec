@@ -76,12 +76,17 @@ a run configuration (RUN-1). `raises` is contextual immediately after assert.
   argument of that call and of no call inside it. A second argument is the
   run's configuration, a `RunConfig` (RUN-1). A trace written
   out is dense, `[7, _, 9]`, or timed, `[0s: 7, 2s: 9]`. Each cell is one
-  cycle's publication: it is read as the `delta<T>` (TYPE-16) of its
-  parameter's type T for an input, and of the target's result type for an
-  expectation. For a scalar that is T itself. For a nullable scalar it is
-  the optional that holds what was published: a cell written as a value is
-  that value, and one written `null` a published null, as `return null` is
-  (TIME-7). `_` is no publication.
+  cycle's publication, written as a `return` is (TIME-7), with T its
+  parameter's type for an input and the target's result type for an
+  expectation: a T, published whole, or a `delta<T>` (TYPE-16), published
+  as that change. A list, a tuple, a struct and a dictionary are each
+  written either way: `Quote(bid: 1.0, ask: 2.0)` or
+  `delta<Quote>(ask: 3.0)`. Where T publishes whole, as a scalar does, the
+  two are one: for a nullable scalar a cell written as a value is that
+  value, and one written `null` a published null, as `return null` is.
+  `_` is no publication. An expectation's cell written as a `delta<T>` is
+  compared with the delta its cycle published, and one written as a T
+  with the value the result holds once its cycle has published.
 - **TST-7.** Timed traces use the sequence-of-pairs syntax in EXPR-9; a
   one-entry trace is still a sequence. Timed entries use duration offsets from
   run start or absolute datetime keys. Keys strictly increase; no `_` occurs
@@ -98,9 +103,10 @@ a run configuration (RUN-1). `raises` is contextual immediately after assert.
   independent retained captures. An empty recording is valid; missing
   recording or failure is never successful emptiness. Test imports/overloads
   cannot replace core's replay or record.
-- **TST-9.** Scalar false/zero/empty values are present publications. Structural
-  input cells follow the admitted delta profile rather than a held snapshot.
-  Validate ordinary arguments and profile admission before graph start. A
+- **TST-9.** Scalar false/zero/empty values are present publications. A
+  structural input cell is published as TST-5 has it: a T whole, which
+  replaces what the input held, and a `delta<T>` as that change. Validate
+  ordinary arguments and profile admission before graph start. A
   constructor failure retains its own code; it is not renamed as a profile error.
 
 - **TST-16.** A trace given to a `const fn` is an ordinary value there, the
@@ -109,12 +115,13 @@ a run configuration (RUN-1). `raises` is contextual immediately after assert.
   time order. A tuple holds the instant of the publication and what the
   target's result published then, a `delta<T>` (TYPE-16), which is T itself
   for a scalar and V for an `atomic<V>`: a `list<tuple<datetime, i64>>` for
-  an `i64` result. Nothing published is no entry, and a published null is
-  the delta that holds one. The trace is an eval's, bound or not. A
-  sequence written where a `const fn` takes an argument is the list it is
-  written as: `ticks([(@2026-01-01T00:00:00Z, 7)])` gives `ticks` one
-  tuple. The parameter is written with that type, and what the function
-  returns is ordinary data.
+  an `i64` result. A T published whole is held as its delta too, as
+  `delta_value` reads it (TIME-9). Nothing published is no entry, and a
+  published null is the delta that holds one. The trace is an eval's,
+  bound or not. A sequence written where a `const fn` takes an argument
+  is the list it is written as: `ticks([(@2026-01-01T00:00:00Z, 7)])`
+  gives `ticks` one tuple. The parameter is written with that type, and
+  what the function returns is ordinary data.
 - **TST-17.** An integration test, `integration_test name { ... }`, is a
   named test that may run in real time: beside `eval` it writes
   `run(call, config)` (RUN-3), whose value is the run's output as an eval's
@@ -163,6 +170,22 @@ test counted {
     assert ticks(eval(pass_through_i64(value: [7, _, 7, 9]))) == 3
 }
 
+struct Quote {
+    bid: f64
+    ask: f64
+}
+
+fn relayed(quote: Quote) -> Quote {
+    when all_valid(quote) { return quote }
+}
+
+test whole_and_delta_cells {
+    assert eval(relayed(quote: [
+        Quote(bid: 1.0, ask: 2.0),
+        delta<Quote>(ask: 3.0),
+    ])) == [Quote(bid: 1.0, ask: 2.0), Quote(bid: 1.0, ask: 3.0)]
+}
+
 fn beats(const every: duration) -> i64 {
     state count: i64 = 0
     while {
@@ -185,7 +208,11 @@ integration_test beats_live {
 The target publishes its own output; a composition identity would not exercise
 compute publication. `ticks` is given the trace as a list with a tuple for
 each of its three publications, and none for the cycle in which nothing was
-published (TST-16). `beats` never stops of itself, so each run of it is
+published (TST-16). In `whole_and_delta_cells` the first input cell
+publishes a quote whole and the second its ask alone; `relayed` publishes
+the whole quote each time, and each expectation cell, written whole, is
+compared with the quote the result holds after its cycle (TST-5).
+`beats` never stops of itself, so each run of it is
 given a length: `bounded` evaluates four seconds of it in simulation, and
 `beats_live` runs it for a second of the host clock, when it is asked for
 (TST-17), and has failed if it is still running after five. Conformance
