@@ -2,7 +2,7 @@
 
 Status: agreed function roles, classification, defaults, lifting, and
 anonymous-function scope. The `ref` mode (FN-16) is agreed, but for its
-sentence that begins "Proposed:", which is proposed.
+sentences that begin "Proposed:", which are proposed.
 
 ## Grammar
 
@@ -229,7 +229,11 @@ Local source/native declaration matching is defined in the native chapter.
   payload is read, so nothing needs admitting (TIME-1), and a child is an
   endpoint whether or not it is valid. A value that names no endpoint
   rejects there (`type.mismatch`). A parameter that is not `ref` may be
-  designated too, and a body may both read and designate it.
+  designated too, and a body may both read and designate it. Proposed:
+  `out = items[idx]` designates as `return items[idx]` does, and is
+  rejected where the `return` would be; otherwise `out` of a `ref` result
+  is as a `ref` parameter is: the endpoint operations take it,
+  `delta_value` aside, and a read of its value rejects.
 
 Accepted declaration fragment, a temporal input with a default (UNIT-8):
 

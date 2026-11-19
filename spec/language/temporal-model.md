@@ -154,8 +154,9 @@ flowchart LR
   `return delta<list<i64>>(updated: [0: 5])`. Where T
   publishes whole, as a scalar does, `delta<T>` is T and the two are one.
   A `return` with no value publishes nothing (FN-7). A result of
-  `atomic<V>` takes a V. A `return` to a `ref` result designates an
-  endpoint (FN-16).
+  `atomic<V>` takes a V. A `ref` result takes no value: a `return` to it
+  names an endpoint, which it designates, and `out` of it is as FN-16
+  gives it.
 - **TIME-8.** The injectables are `out`, `logger`, `clock`, `scheduler`,
   `alarm`, and `global_state`; `inject` names no other. `out` is the node's
   result (TIME-7). `inject` binds each of the others to a local of its

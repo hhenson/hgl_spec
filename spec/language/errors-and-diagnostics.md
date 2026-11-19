@@ -195,7 +195,7 @@ infrastructure and cannot satisfy a source-rejection expectation.
 | phase | `out.lifecycle` | `out` used in `start` or written in `stop`, or a `return` with a value in either (TIME-7); the use |
 | phase | `input.lifecycle` | A temporal input read, or given to an endpoint operation, in `start` (TIME-5); the use |
 | phase | `payload.unguarded` | Payload read under manual admission, in a `when` or in `stop`, that no guard dominates (TIME-4, TIME-5); or a read of a child at a constant index or a field that nothing admits, or of a struct, a tuple or a fixed list whole that its `all_valid` does not admit (TIME-1); read |
-| phase | `ref.read` | Proposed: the value or the `delta_value` of a `ref` parameter, or of a child of one, read (FN-16); the read |
+| phase | `ref.read` | Proposed: the value or the `delta_value` of a `ref` parameter, of a child of one, or of `out` of a `ref` result, read (FN-16); the read |
 | phase | `endpoint.argument` | Endpoint operation given what is no temporal input of its function, no child of one, and not `out`, or `all_valid` given neither a collection (a list, tuple, struct or dictionary) nor a window (TIME-9); argument |
 | type | `schedule.non_positive_duration` | Proposed: a wake asked for with a `duration` that is not more than zero, whose value the compiler sees (TIME-8); the duration |
 | phase | `scheduled.lifecycle` | `scheduled()` in `start` or `stop` (TIME-9); the selector |
