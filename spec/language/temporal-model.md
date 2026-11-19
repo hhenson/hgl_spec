@@ -146,7 +146,8 @@ flowchart LR
   A published empty list or dictionary has no element and is valid.
   `all_valid` is true where every one is, by its own `valid`, one level
   deep: for a list of lists, each contained list is present and has a
-  valid element; it is true of a valid empty one. `all_valid` takes only a list, a struct or a dictionary;
+  valid element or is a published empty list. It is true of a valid empty
+  collection. `all_valid` takes only a list, a struct or a dictionary;
   another endpoint is rejected (`endpoint.argument`). A call gives
   an `endpoint<T>` parameter a temporal input of the enclosing node by its
   name, or `out`, and nothing else; the endpoint is not retained, as a
