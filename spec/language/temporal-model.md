@@ -174,9 +174,9 @@ flowchart LR
   `delta<dict<str, i64>>()` or `delta<list<i64>>()`, ticks only where it
   changes validity. Where a `list<V>`, a dictionary or a set is not valid,
   never published or invalidated, it makes the value valid and empty, and
-  ticks. Where it is valid the delta changes nothing, and is no tick:
-  `modified` is false, no subscriber is woken, and a trace records nothing
-  for it (TST-5). A struct, a tuple and a `list<V, N>` are valid where a
+  ticks. Where it is valid the delta changes nothing, and is no tick: it
+  marks nothing `modified`, wakes no subscriber, and a trace records
+  nothing for it (TST-5). A struct, a tuple and a `list<V, N>` are valid where a
   child is (TIME-9), and such a delta of one, `delta<Quote>()`, sets no
   child: it changes no validity, and is never a tick. Proposed: a delta
   whose every entry is ignored, the removal of a key, a member or a
