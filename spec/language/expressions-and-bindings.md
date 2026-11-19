@@ -109,7 +109,8 @@ GEN-14 resolves generic construction versus comparison using declaration lookup.
 - **EXPR-5.** An expected type contextualizes literals, constructors, and a
   collection's child read where that is checked when it runs (ERR-14), but
   cannot erase structural/atomic boundaries or nominal identity. An integer
-  literal is an `f64` where one is expected: `let x: f64 = 1`. A value that
+  literal is an `f64` where one is expected: `let x: f64 = 1` binds `1.0`
+  (UNIT-13). A value that
   has a type is not converted by its place: an `i64` binding where an `f64`
   is expected rejects, and its conversion is written with core's
   `convert<T>(value)`. A const expression
