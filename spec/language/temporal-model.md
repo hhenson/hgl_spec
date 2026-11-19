@@ -210,8 +210,9 @@ flowchart LR
   the handler selector for a wake by the node's scheduler or alarm. In a
   node that injects `scheduler` it is the scheduler's `is_scheduled_now`
   (core's capability contract): a wake asked of the scheduler is due in this
-  evaluation, whether or not a temporal input has ticked. In a node that
-  injects `alarm` it holds where the node is evaluated and no temporal input
+  evaluation, whether or not a temporal input has ticked. It stays true for
+  the rest of the evaluation after `un_schedule` or `reset` in it. In a node
+  that injects `alarm` it holds where the node is evaluated and no temporal input
   has ticked. A node that injects neither rejects it (`inject.no_scheduler`),
   and so do `start` and `stop` (`scheduled.lifecycle`).
   `modified` and `valid` are selectors in a `when` header (TIME-3): there
