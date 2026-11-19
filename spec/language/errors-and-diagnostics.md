@@ -81,7 +81,9 @@ postfix suffix. `argument` is that grammar's call argument.
   the child's value, or, for a child that is not valid, `err` of an
   `error` whose code is `value.unset_read`. Elsewhere it gives the T, and
   a child that is not valid fails the read with `value.unset_read`: in a
-  `when` the node fails, as `?` makes it (ERR-5).
+  `when` the node fails, as `?` makes it (ERR-5). A read of a struct, a
+  tuple or a fixed list whole that is checked when it runs, `rows[i]`,
+  takes its form the same way, for one that is not all valid (TIME-1).
 - **ERR-7.** In composition, `capture(callable, args...)` creates a temporal
   error boundary. It names a callable and gives it the arguments its own call
   takes, positional or named, read, checked, and selected as that call's are
@@ -192,8 +194,9 @@ infrastructure and cannot satisfy a source-rejection expectation.
 | phase | `state.input_read` | State initializer reads a temporal input (TIME-5); the read |
 | phase | `out.lifecycle` | `out` used in `start` or written in `stop`, or a `return` with a value in either (TIME-7); the use |
 | phase | `input.lifecycle` | A temporal input read, or given to an endpoint operation, in `start` (TIME-5); the use |
-| phase | `payload.unguarded` | Payload read under manual admission, in a `when` or in `stop`, that no guard dominates (TIME-4, TIME-5); or a read of a child at a constant index or a field that nothing admits (TIME-1); read |
-| phase | `endpoint.argument` | Endpoint operation given what is no temporal input of its function, no child of one, and not `out`, or `all_valid` given no collection: a list, tuple, struct or dictionary (TIME-9); argument |
+| phase | `payload.unguarded` | Payload read under manual admission, in a `when` or in `stop`, that no guard dominates (TIME-4, TIME-5); or a read of a child at a constant index or a field that nothing admits, or of a struct, a tuple or a fixed list whole that its `all_valid` does not admit (TIME-1); read |
+| phase | `endpoint.argument` | Endpoint operation given what is no temporal input of its function, no child of one, and not `out`, or `all_valid` given neither a collection (a list, tuple, struct or dictionary) nor a window (TIME-9); argument |
+| type | `schedule.non_positive_duration` | Proposed: a wake asked for with a `duration` that is not more than zero, whose value the compiler sees (TIME-8); the duration |
 | phase | `scheduled.lifecycle` | `scheduled()` in `start` or `stop` (TIME-9); the selector |
 | phase | `connection.as_constant` | Temporal connection where composition requires a constant (FN-3), given to a function that declares a `var` parameter, which is not lifted (FN-15), or given to a call on the store a graph injects (FN-9); expression |
 | type | `generic.invalid_application` | Generic type's name before a `<` that opens no arguments (GEN-14); name |
@@ -287,7 +290,7 @@ infrastructure and cannot satisfy a source-rejection expectation.
 | Execution code | Required condition |
 | --- | --- |
 | `value.missing_key` | Strict ordinary dictionary lookup has no member |
-| `value.unset_read` | Executed operation requires an unset ordinary payload, a collection's child that is not valid read where that is checked when it runs among them (TIME-1, ERR-14) |
+| `value.unset_read` | Executed operation requires an unset ordinary payload, a collection's child that is not valid, or a struct, a tuple or a fixed list read whole that is not all valid, read where that is checked when it runs among them (TIME-1, ERR-14); proposed: a window's value read before it is `all_valid` (TYPE-11) |
 | `value.capability` | Boxed executed operation lacks a required contained capability |
 | `value.byte_range` | Bytes construction receives an octet outside 0–255 |
 | `numeric.division_by_zero` | Explicit `?` propagation in `when` turns a checked-division Err into node failure; see the [core numeric contract](https://github.com/hhenson/hgl_core/blob/main/spec/numeric-operators.md) |
@@ -295,6 +298,7 @@ infrastructure and cannot satisfy a source-rejection expectation.
 | `tenor.mixed_units` | A sum or a difference of a `tenor` of business days and one of months and days; see the core [scalar operator contract](https://github.com/hhenson/hgl_core/blob/main/spec/scalar-operators.md) |
 | `convert.invalid` | A conversion fails under `invalid: .fail`, or explicit `?` propagation in `when` turns a checked conversion's Err into node failure; see the core [scalar operator contract](https://github.com/hhenson/hgl_core/blob/main/spec/scalar-operators.md) |
 | `yield.negative_duration` | Both yield operands succeeded; delay is negative |
+| `schedule.non_positive_duration` | Proposed: a wake asked of the scheduler or the alarm with a `duration` that is not more than zero (TIME-8) |
 | `yield.non_increasing_time` | Resolved target does not exceed the previous target |
 | `eval.input_delta_profile` | Executed eval input violates its admitted publication profile before start |
 | `run.end_and_length` | A run's configuration gives both an `end` and a `length`; refused before the run's graph is built. See the [core execution contract](https://github.com/hhenson/hgl_core/blob/main/spec/execution.md) (CRUN-2) |

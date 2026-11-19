@@ -2,8 +2,9 @@
 
 Status: agreed publication, handler, state/cache, and capability baseline.
 The alarm, the run-wide keyed store, collection validity with
-`all_valid` (TIME-9), and the read of a collection's child (TIME-1) are
-agreed.
+`all_valid` (TIME-9), and the read of a collection's child and of a
+collection whole (TIME-1) are agreed. The sentences of TIME-8 and TIME-9
+that begin "Proposed:" are proposed.
 
 ## Grammar
 
@@ -35,13 +36,26 @@ flowchart LR
   endpoint whether or not it is valid: `parts[1]` is given to `valid` and
   passed on as a connection while it is invalid. In a hook, a read of a
   child's value, or of its `delta_value`, requires that child's admission:
-  `all_valid(parts)` admits every child, `valid(parts[1])` or
+  `all_valid(parts)` admits every child, but for one read whole as a
+  struct, a tuple or a fixed list (below), `valid(parts[1])` or
   `valid(quote.bid)` that one, and `valid(parts)` none (TIME-4). Where the
   read names its child when the program is compiled, at a constant index
   or a field, one that is not admitted rejects (`payload.unguarded`).
   Elsewhere, `parts[i]`, it is checked when it runs: a child that is not
   valid fails it (`value.unset_read`), or gives an `err` where its place
-  takes a `result` (ERR-14).
+  takes a `result` (ERR-14). A read of a struct, a tuple or a fixed list
+  whole, `return quote`, requires `all_valid` of it. So does one of a child
+  that is a struct, a tuple or a fixed list: `return rows[0]`, for
+  `rows: list<Quote, 2>`, requires `all_valid(rows[0])`, which
+  `all_valid(rows)`, one level deep, does not give. In the value it reads,
+  an optional child (TIME-9) that is not valid is null, and `valid` of that
+  child tells it from a published null (TYPE-15). Where such a read is
+  seen when the program is compiled and `all_valid` does not admit it, it
+  rejects (`payload.unguarded`). Elsewhere, `rows[i]` read whole, it is
+  checked when it runs: one that is not all valid fails it
+  (`value.unset_read`), or gives an `err` where its place takes a
+  `result` (ERR-14). A dictionary and an unsized list hold what they hold:
+  a read of one whole requires its `valid` and no more.
 - **TIME-2.** Composition describes a typed graph without reading live
   payloads. Evaluation propagates changes in dependency order, at most once
   per node per cycle. A node's rank is one more than the greatest rank of
@@ -66,10 +80,13 @@ flowchart LR
   Passivating an input removes it as a wake source. If a probe wakes the
   node in a cycle when passive `data` publishes, `when modified(data)`
   matches. `when modified(data) && is_active(data)` additionally requires
-  the input to be active. The empty selection `modified([])` subscribes to
-  no input and selects a wake from the node's scheduler or alarm. Where it
-  is a bool, in a body or under a negation or a disjunction, it is true in
-  a cycle where no temporal input was modified.
+  the input to be active. The empty selection `modified([])` makes every
+  temporal input passive for its handler: it subscribes to none, and
+  selects a wake from the node's scheduler or alarm. In that handler's
+  body `modified([])`, as a bool, is true, at a wake that lands with an
+  input's tick included: what the header selected is taken as nothing
+  modified. Elsewhere, in another body or under a negation or a
+  disjunction, it is true in a cycle where no temporal input was modified.
   A wake by the scheduler or alarm wakes the handlers that subscribe to no
   input and those whose header has `scheduled()` (TIME-9) alone or as a
   top-level conjunct. Such a wake alone runs no other handler: one with no
@@ -99,9 +116,13 @@ flowchart LR
   paths a null test is followed along (ERR-12). A saved bool proves nothing.
   `valid` and `all_valid` retain distinct child-validity rules. A child's
   guard is a test of `all_valid` of its input, or of `valid` of the child
-  as the read names it, `valid(parts[1])` for `parts[1]` (TIME-1); a `when`
-  header that has the test alone or as a top-level conjunct guards its
-  body, `when all_valid(quote)`.
+  as the read names it, `valid(parts[1])` for `parts[1]` (TIME-1). The
+  guard of a whole read of a struct, a tuple or a fixed list, a child
+  among them, is a test of `all_valid` of what it reads, `all_valid(quote)`
+  for `quote` and `all_valid(rows[0])` for `rows[0]`; of a
+  dictionary or an unsized list, `valid` of it, as of any input. A `when`
+  header that has the test alone or as a top-level
+  conjunct guards its body, `when all_valid(quote)`.
 - **TIME-5.** State/cache/inject declarations precede executable hooks. At most
   one start and one stop are admitted. State initializers cannot read current
   temporal inputs. `start` reads no temporal input and gives none to an
@@ -153,7 +174,13 @@ flowchart LR
   are read-only, `clock.evaluation_time`,
   and its operations are functions that take it first,
   `schedule(scheduler, delay)`, with no method-call aliases. A node injects
-  `alarm` or `scheduler`, not both.
+  `alarm` or `scheduler`, not both. A wake asked of either with a
+  `duration` takes one more than zero. A duration that is not rejects where
+  the compiler sees its value, a literal or a constant (UNIT-13), and
+  elsewhere fails the call as the program runs. Proposed: both with the
+  code `schedule.non_positive_duration`. A wake asked for at a `datetime`
+  before the evaluation time is dropped: there is no wake, and no failure.
+  Core's capability contract has the rest of what a wake is.
 - **TIME-9.** `endpoint<T>` is the type of the endpoint of a temporal value
   of T, for a function that takes the endpoint and not its payload
   (TYPE-12). The operations on an endpoint are core's native value functions
@@ -163,12 +190,21 @@ flowchart LR
   own (TYPE-9): a list, a tuple, a struct and a dictionary. `valid` of a
   collection is true where any element, field or entry is valid: work is
   possible on a partly populated value. It admits no child's read, and
-  `all_valid` admits every child's (TIME-1).
+  `all_valid` admits the read of the whole and of every child, but for a
+  child read whole as a struct, a tuple or a fixed list, which needs its
+  own `all_valid` (TIME-1).
   A published empty list or dictionary has no element and is valid.
   `all_valid` is true where every one is, by its own `valid`, one level
-  deep: for a list of lists, each contained list is present and has a
-  valid element or is a published empty list. It is true of a valid empty
-  collection. `all_valid` takes only a collection; another endpoint is rejected (`endpoint.argument`). A call gives
+  deep, an optional child aside: one whose type is `T?`, or a field that
+  TYPE-4 makes optional, is not asked. For a list of lists, each contained
+  list is present and has a valid element or is a published empty list.
+  It is true of a valid empty collection. Proposed: `all_valid` of a
+  collection that is not valid is false; and read as the child under
+  `all_valid`, `order.note`, an optional child that is not valid is null,
+  as it is in the whole value. A window is valid and all valid as TYPE-11
+  has it.
+  `all_valid` takes only a collection or a window; another endpoint is
+  rejected (`endpoint.argument`). A call gives
   an `endpoint<T>` parameter a temporal input of the enclosing node by its
   name, a child of one, `parts[1]`, `quote.bid` or `parts[i]`, or `out`,
   and nothing else; the endpoint is not retained, as a
@@ -181,18 +217,21 @@ flowchart LR
   the handler selector for a wake by the node's scheduler or alarm. In a
   node that injects `scheduler` it is the scheduler's `is_scheduled_now`
   (core's capability contract): a wake asked of the scheduler is due in this
-  evaluation, whether or not a temporal input has ticked. In a node that
-  injects `alarm` it holds where the node is evaluated and no temporal input
+  evaluation, whether or not a temporal input has ticked. It stays true for
+  the rest of the evaluation after `un_schedule` or `reset` in it. In a node
+  that injects `alarm` it holds where the node is evaluated and no temporal input
   has ticked. A node that injects neither rejects it (`inject.no_scheduler`),
   and so do `start` and `stop` (`scheduled.lifecycle`).
   `modified` and `valid` are selectors in a `when` header (TIME-3): there
   they are forms of the language, which set subscription and admission.
   None of these names is shadowed (UNIT-12). A value function injects no
   capability and has no output or schedule of its own (FN-9).
-- **TIME-10.** A reference ticks on changed designation, not every target tick.
-  Ordinary followers observe the selected target; saved routes do not extend
-  an expired child lifetime. Structural child membership, child validity, and
-  child publications are separate observations supplied by core.
+- **TIME-10.** A reference ticks where its designation changes, not at every
+  tick of its target. A designation published again unchanged is no tick,
+  and wakes no subscriber. Ordinary followers observe the selected target;
+  saved routes do not extend an expired child lifetime. Structural child
+  membership, child validity, and child publications are separate
+  observations supplied by core.
 
 Accepted illustration, complete module:
 
@@ -262,6 +301,25 @@ fn ask_or_zero(quote: Quote) -> f64 {
         return 0.0
     }
 }
+
+struct Order {
+    price: f64
+    note: str?
+}
+
+const fn label(order: Order) -> str {
+    let note = order.note
+    if note == null { return "plain" }
+    return note
+}
+
+fn labelled(order: Order) -> str {
+    when all_valid(order) { return label(order) }
+}
+
+fn noted(order: Order) -> bool {
+    when all_valid(order) { return valid(order.note) }
+}
 ```
 
 Once the bid alone has published, `valid(quote)` is true and
@@ -271,7 +329,17 @@ runs and `ask_or_zero` publishes the ask. Deliberate rejections:
 `all_valid` given an `f64` input (`endpoint.argument`); and
 `when { return quote.ask - quote.bid }`, or `ask_or_zero` without its
 `if`, where the default admission, `valid(quote)`, admits no field
-(`payload.unguarded`). Conformance planned.
+(`payload.unguarded`).
+
+Once `price` alone has published, `all_valid(order)` is true, since `note`
+is optional: `labelled` reads the order whole, with `note` null, and
+publishes `"plain"`, and `noted` publishes false. A published null `note`
+leaves the whole value as it was, and `noted` publishes true: `valid` of
+the child tells the null from none. A dictionary or an unsized list would
+need only `valid` to be read whole. Deliberate rejections: `labelled` with
+`when { return label(order) }`, and a function of a `Quote` result with
+`when { return quote }`: whole reads that the default admission, `valid`
+alone, does not admit (`payload.unguarded`). Conformance planned.
 
 Accepted illustration, complete module, a node that publishes when the graph
 starts (TIME-7):
@@ -282,7 +350,7 @@ module examples.first_tick
 fn counted(value: i64) -> i64 {
     state seen: i64 = 0
     inject scheduler
-    start { schedule(scheduler, 0s) }
+    start { schedule(scheduler, 1us) }
     when scheduled() && valid([]) { return seen }
     when modified() {
         seen += 1
@@ -291,11 +359,13 @@ fn counted(value: i64) -> i64 {
 }
 ```
 
-`start` schedules the node and writes nothing. The first evaluation is the
-scheduled one, which publishes 0: the graph is connected by then, and the
-publication is a tick like any other. `valid([])` admits that handler before
-`value` has published; it reads no input, so it needs no guard.
-Conformance planned.
+`start` asks for a wake a microsecond after the graph starts, the least
+delay more than zero (TIME-8), and writes nothing. Where `value` has not
+published by then, that wake is the first evaluation, which publishes 0: the
+graph is connected by then, and the publication is a tick like any other.
+`valid([])` admits that handler before `value` has published; it reads no
+input, so it needs no guard. Deliberate rejection: `schedule(scheduler, 0s)`,
+a delay that is not more than zero (TIME-8). Conformance planned.
 
 Accepted illustration, complete module, a wake that lands with an input's
 tick (TIME-9):
@@ -390,12 +460,14 @@ over three cycles, each input keeping its value while it is silent:
 | `while_a_valid` | `valid(a)` | 1.0, 1.0, 3.0 | Subscription is the default, so `b` wakes it while `a` holds 1.0 |
 | `sum_or_zero` | `valid([])` | 0.0, 11.0, 23.0 | Nothing is required of the inputs, and the body guards each read |
 
-`sampled` subscribes to no input. Its scheduler, which `start` sets going,
-is all that wakes it, and every wake asks for the next: it requires no
-input to be valid, so a wake before `a` has published still does. Once a
-second it publishes the value `a` holds, whether or not `a` has ticked, and
-nothing while `a` is invalid. In its body `modified([])` is a bool, true at
-a wake where `a` has not ticked and false at one where it has. `null_sink`
+`sampled` subscribes to no input: `a` is passive for it. Its scheduler,
+which `start` sets going, is all that wakes it, and every wake asks for the
+next: it requires no input to be valid, so a wake before `a` has published
+still does. Once a second it publishes the value `a` holds, whether or not
+`a` has ticked, and nothing while `a` is invalid. In its body `modified([])`
+is a bool, and true at every wake, one where `a` has ticked included: its
+header selects it. In the body of a handler whose header is `scheduled()`,
+it is false at a wake where `a` has ticked. `null_sink`
 takes its input and does nothing with it: no input wakes it and it has no
 scheduler, so it is dormant, which is what it is for, and it acknowledges
 the warning. Without the annotation it is warned of (`node.no_activation`)
@@ -404,6 +476,40 @@ rejections: in `while_a_valid`, `return a + b`, a read of `b` that neither
 the header requires nor a guard proves (`payload.unguarded`); and
 `modified([a, b])` and `valid([a, b])`, where the inputs are named as
 arguments. Conformance planned.
+
+Accepted illustration, complete module, a reference published again
+(TIME-10), with connections of `f64` given to `ref<f64>` inputs (TYPE-12):
+
+```hgl
+module examples.references
+
+fn pick(flag: bool, low: ref<f64>, high: ref<f64>) -> ref<f64> {
+    when modified(flag) {
+        if flag { return high }
+        return low
+    }
+}
+
+fn designations(target: ref<f64>) -> i64 {
+    state count: i64 = 0
+    when {
+        count += 1
+        return count
+    }
+}
+
+fn changes(flag: bool, bid: f64, ask: f64) -> i64 =>
+    designations(pick(flag, bid, ask))
+```
+
+`changes` gives `pick` the connections `bid` and `ask` where it takes
+references. With `bid` and `ask` each publishing in the first cycle, and
+`flag` publishing true, true, false over three cycles, `pick` returns
+`high`, `high` and `low`. The second return publishes the designation that
+`pick`'s result holds: it is no tick, so `designations` publishes 1,
+nothing, 2. A later tick of `bid` or `ask` does not wake `designations`.
+Deliberate rejection: `pick(flag, "a", ask)`, a `str` where a reference of
+`f64` is taken (`type.mismatch`). Conformance planned.
 
 ## Alarm and global state
 
