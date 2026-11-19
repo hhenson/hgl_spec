@@ -291,6 +291,8 @@ rejection (TYPE-12, TYPE-14). TYPE-16 says what a `delta_type` is.
   names a key a dictionary does not hold is ignored, and is no failure, as
   one that names a member a set does not hold is. So is one that names a
   position of a list that holds no value, never set or already removed.
+  Published, a delta that names no change, `delta<set<i64>>()`, ticks
+  only where it makes the value valid (TIME-7).
 
 | T | `delta<T>` |
 | --- | --- |

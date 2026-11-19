@@ -84,9 +84,13 @@ a run configuration (RUN-1). `raises` is contextual immediately after assert.
   `delta<Quote>(ask: 3.0)`. Where T publishes whole, as a scalar does, the
   two are one: for a nullable scalar a cell written as a value is that
   value, and one written `null` a published null, as `return null` is.
-  `_` is no publication. An expectation's cell written as a `delta<T>` is
-  compared with the delta its cycle published, and one written as a T
-  with the value the result holds once its cycle has published.
+  `_` is no publication. A cell that is a delta naming no change is a
+  tick only where it makes the value valid, as such a `return` is
+  (TIME-7): given to a valid input it wakes no reader, and where the
+  result is valid a cycle that writes only such a delta is `_` in the
+  expectation. An expectation's cell written as a `delta<T>` is compared
+  with the delta its cycle published, and one written as a T with the
+  value the result holds once its cycle has published.
 - **TST-7.** Timed traces use the sequence-of-pairs syntax in EXPR-9; a
   one-entry trace is still a sequence. Timed entries use duration offsets from
   run start or absolute datetime keys. Keys strictly increase; no `_` occurs
