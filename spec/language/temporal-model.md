@@ -3,8 +3,8 @@
 Status: agreed publication, handler, state/cache, and capability baseline.
 The alarm, the run-wide keyed store, collection validity with
 `all_valid` (TIME-9), and the read of a collection's child and of a
-collection whole (TIME-1) are agreed. The sentences of TIME-8 and TIME-9
-that begin "Proposed:" are proposed.
+collection whole (TIME-1) are agreed. The sentences of TIME-8, TIME-9 and
+TIME-10 that begin "Proposed:" are proposed.
 
 ## Grammar
 
@@ -154,7 +154,8 @@ flowchart LR
   `return delta<list<i64>>(updated: [0: 5])`. Where T
   publishes whole, as a scalar does, `delta<T>` is T and the two are one.
   A `return` with no value publishes nothing (FN-7). A result of
-  `atomic<V>` takes a V.
+  `atomic<V>` takes a V. A `return` to a `ref` result designates an
+  endpoint (FN-16).
 - **TIME-8.** The injectables are `out`, `logger`, `clock`, `scheduler`,
   `alarm`, and `global_state`; `inject` names no other. `out` is the node's
   result (TIME-7). `inject` binds each of the others to a local of its
@@ -231,7 +232,11 @@ flowchart LR
   and wakes no subscriber. Ordinary followers observe the selected target;
   saved routes do not extend an expired child lifetime. Structural child
   membership, child validity, and child publications are separate
-  observations supplied by core.
+  observations supplied by core. Proposed: on a `ref` parameter (FN-16),
+  `modified(low)` is true where its designation changed, not where its
+  target published; `valid(low)` is true where it designates something,
+  whatever the target's validity; and `last_modified(low)` is when its
+  designation last changed.
 
 Accepted illustration, complete module:
 
@@ -478,19 +483,20 @@ the header requires nor a guard proves (`payload.unguarded`); and
 arguments. Conformance planned.
 
 Accepted illustration, complete module, a reference published again
-(TIME-10), with connections of `f64` given to `ref<f64>` inputs (TYPE-12):
+(TIME-10), with connections of `f64` given to `ref` parameters of `f64`
+(FN-16):
 
 ```hgl
 module examples.references
 
-fn pick(flag: bool, low: ref<f64>, high: ref<f64>) -> ref<f64> {
+fn pick(flag: bool, ref low: f64, ref high: f64) -> ref f64 {
     when modified(flag) {
         if flag { return high }
         return low
     }
 }
 
-fn designations(target: ref<f64>) -> i64 {
+fn designations(ref target: f64) -> i64 {
     state count: i64 = 0
     when {
         count += 1
@@ -502,14 +508,16 @@ fn changes(flag: bool, bid: f64, ask: f64) -> i64 =>
     designations(pick(flag, bid, ask))
 ```
 
-`changes` gives `pick` the connections `bid` and `ask` where it takes
-references. With `bid` and `ask` each publishing in the first cycle, and
+`changes` gives `pick` the connections `bid` and `ask`, of `f64`, which
+its `ref` parameters designate. With `bid` and `ask` each publishing in the
+first cycle, and
 `flag` publishing true, true, false over three cycles, `pick` returns
 `high`, `high` and `low`. The second return publishes the designation that
 `pick`'s result holds: it is no tick, so `designations` publishes 1,
 nothing, 2. A later tick of `bid` or `ask` does not wake `designations`.
-Deliberate rejection: `pick(flag, "a", ask)`, a `str` where a reference of
-`f64` is taken (`type.mismatch`). Conformance planned.
+Deliberate rejections: `pick(flag, "a", ask)`, a `str` where an `f64` is
+taken (`type.mismatch`); and `return low + 1.0` in `pick`, a read of a
+`ref` parameter's value (FN-16). Conformance planned.
 
 ## Alarm and global state
 

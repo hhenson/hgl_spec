@@ -8,7 +8,7 @@ included. The storage extensions below are proposed.
 ```ebnf
 type = type_base, [ "?" ] ;
 type_base = scalar_type | named_type | tuple_type | list_type | set_type
-     | dict_type | rolling_window_type | ref_type | "signal" | endpoint_type
+     | dict_type | rolling_window_type | "signal" | endpoint_type
      | "atomic", "<", value_type, ">" | result_type | "error" | delta_type ;
 value_type = value_type_base, [ "?" ] ;
 value_type_base = scalar_type | named_type | value_tuple_type | value_list_type
@@ -27,7 +27,6 @@ dict_type = "dict", "<", value_type, ",", type, ">" ;
 value_dict_type = "dict", "<", value_type, ",", value_type, ">" ;
 rolling_window_type = "rolling_window", "<", value_type, ",", const_expression,
                       [ ",", const_expression ], ">" ;
-ref_type = "ref", "<", type, ">" ;
 endpoint_type = "endpoint", "<", type, ">" ;
 result_type = "result", "<", value_type, ",", value_type, ">" ;
 delta_type = "delta", "<", type, ">" ;
@@ -152,8 +151,8 @@ rejection (TYPE-12, TYPE-14). TYPE-16 says what a `delta_type` is.
   T is an admitted ordinary value type. It may annotate parameters, results,
   bindings, and admitted container element/value positions. A set's element
   and a dictionary's key are never null and take no `?`. Where T is no
-  ordinary value type, as `rolling_window<f64, 5>`, `atomic<Quote>`,
-  `ref<f64>`, and `signal` are not, `T?` is admitted only as the whole type
+  ordinary value type, as `rolling_window<f64, 5>`, `atomic<Quote>`, and
+  `signal` are not, `T?` is admitted only as the whole type
   of a function's temporal parameter, whose argument may be omitted (UNIT-8), or
   of a struct field, which is then optional (TYPE-4); `signal` is no field
   with `?` or without (TYPE-12). It is no result type, local's annotation,
@@ -210,13 +209,18 @@ rejection (TYPE-12, TYPE-14). TYPE-16 says what a `delta_type` is.
   or given to a lifted helper (FN-12), is a `list<V>` of the values held,
   oldest first, and the read before `all_valid` fails with
   `value.unset_read`.
-- **TYPE-12.** `ref<T>` designates an endpoint, not an ordinary payload type.
-  It is excluded from const values, atomic payloads, keys, and window values.
-  An ordinary value type is written with no `rolling_window`, `ref`,
-  `atomic`, or `signal` at any depth: `set<list<ref<f64>>>` rejects. A
-  dictionary's value and the argument of `ref` or `delta` are any type.
-  A connection of T is given to a `ref<T>` input as a reference is: the
-  input designates that connection's endpoint (GEN-11).
+- **TYPE-12.** `ref` is no type. It is a mode, written before a temporal
+  parameter of a node and before the node's result, and the type is the T
+  that follows it (FN-16). A type holds no reference: `ref<T>` is not
+  written, so a reference is no element of a collection, field of a struct,
+  key, window value, atomic payload, const value, or target of another
+  reference, and `list<ref<f64>>` and `ref<ref<f64>>` are syntax errors.
+  `ref xs: list<f64, 3>` designates the list, and `xs[i]` is an endpoint.
+  A connection of T is given to a `ref` parameter of T, which designates
+  that connection's endpoint.
+  An ordinary value type is written with no `rolling_window`, `atomic`, or
+  `signal` at any depth: `set<list<rolling_window<f64, 5>>>` rejects. A
+  dictionary's value and the argument of `delta` are any type.
   `signal` is a complete temporal input constraint with no readable payload:
   the whole type of a function's temporal parameter, or of its positional
   pack, `ticks: ...signal`. It is not a result, nested shape, field, const
@@ -295,7 +299,7 @@ rejection (TYPE-12, TYPE-14). TYPE-16 says what a `delta_type` is.
 | `set<K>` | A type of its own, with the properties `added` and `removed`, each a `set<K>` |
 | `dict<K, V>` | A type of its own, with the properties `updated`, a `dict<K, delta<V>>` of each key added or changed with its delta, and `removed`, a `set<K>` |
 | A struct | A type of its own, with a property for each field `name: F`, of the same name and of type `delta<F>?`: null where the field did not change |
-| `ref<V>`, `signal` | None: `delta.unsupported_shape` |
+| `signal` | None: `delta.unsupported_shape` |
 
 Accepted illustration, complete module:
 
@@ -492,8 +496,8 @@ Accepted type fragments in an ordinary value parameter or result position:
 These list forms are distinct: a null element is not a null list. Deliberate
 source type rejections: supplying null to an f64 parameter; `set<str?>` and
 `dict<str?, f64>`, whose keys take no `?`. The suffix admits only ordinary
-value types; applying it to `ref<T>` or `signal` rejects under TYPE-12/14
-rather than creating nullable endpoint handles.
+value types; applying it to `signal` there rejects under TYPE-12/14
+rather than creating a nullable endpoint handle.
 
 ## Proposed ordinary storage extensions
 

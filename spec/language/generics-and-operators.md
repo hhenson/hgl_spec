@@ -188,16 +188,15 @@ expression; group a constant expression that uses them as operand data.
   in it fits. `schemas(pack)` is a runtime-only
   borrowed schema view, not a storable value/result or general reflection
   facility.
-- **GEN-11.** Argument inference removes reference boundaries recursively from
-  an otherwise unbound generic; such an input observes values. An explicit
-  ref pattern binds its underlying type, from a reference or from a
-  connection of that type (TYPE-12): `ref<T>` given a connection of `f64`
-  binds T to `f64`. A stated resolution preserves its
-  reference boundaries. A requested output binds a whole output variable as
-  requested; nested structural variables follow ordinary reference removal.
-  A structural projection resolves no generic and preserves a declared ref.
-- **GEN-12.** Compare structural specificity component by component; reference
-  qualification adds no priority, and a repeated variable counts once. Scalar
+- **GEN-11.** No type holds a reference (TYPE-12), so argument inference
+  removes none: a generic binds from the type of the connection it is
+  given, at a `ref` parameter as at any other (FN-16). `ref low: T` given a
+  connection of `f64` binds T to `f64`, and so does `value: T` given a
+  `ref` result of `f64`, whose target that input observes (TIME-10). A
+  requested output binds a whole output variable as requested. A
+  structural projection resolves no generic.
+- **GEN-12.** Compare structural specificity component by component; a `ref`
+  mark adds no priority (FN-16), and a repeated variable counts once. Scalar
   configuration separates only otherwise equally specific candidates. A prior
   binding constrains every later occurrence in declared parameter order.
 - **GEN-13.** A generic parameter denotes a type, type pack, or compile-time
