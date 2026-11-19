@@ -4,8 +4,7 @@ Status: agreed publication, handler, state/cache, and capability baseline.
 The alarm, the run-wide keyed store, collection validity with
 `all_valid` (TIME-9), and the read of a collection's child and of a
 collection whole (TIME-1) are agreed. The sentences of TIME-8, TIME-9 and
-TIME-10 that begin "Proposed:", and the rows of TIME-1's table marked
-proposed, are proposed.
+TIME-10 that begin "Proposed:" are proposed.
 
 ## Grammar
 
@@ -68,12 +67,11 @@ flowchart LR
   `updated: [3: 5]` on a `list<i64>` that holds `[1, 2]` leaves one whose
   whole read fails.
 
-  | Element type | A position that holds no value reads as | Status |
-  | --- | --- | --- |
-  | `f64` | NaN | Agreed |
-  | `i64` | Nothing: the read fails | Agreed |
-  | `V?` | Null, as an optional child that is not valid is in any whole value (TYPE-15) | Agreed |
-  | Any other: `bool`, `str`, `bytes`, a time scalar, a `tenor`, an enum, a struct, a collection | Nothing: the read fails | Proposed |
+  | Element type | A position that holds no value reads as |
+  | --- | --- |
+  | `f64` | NaN |
+  | `V?` | Null, as an optional child that is not valid is in any whole value (TYPE-15) |
+  | Any other: `i64`, `bool`, `str`, `bytes`, a time scalar, a `tenor`, an enum, a struct, a collection | Nothing: the read fails |
 - **TIME-2.** Composition describes a typed graph without reading live
   payloads. Evaluation propagates changes in dependency order, at most once
   per node per cycle. A node's rank is one more than the greatest rank of
