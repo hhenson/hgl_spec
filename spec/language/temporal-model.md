@@ -277,7 +277,15 @@ flowchart LR
   they are forms of the language, which set subscription and admission.
   None of these names is shadowed (UNIT-12). A value function injects no
   capability and has no output or schedule of its own (FN-9).
-- **TIME-10.** A reference ticks where its designation changes, not at every
+- **TIME-10.** A reference is a temporal value whose payload is a
+  designation: the endpoint it points at. The rules of a temporal value
+  hold of a `ref` parameter and of a `ref` result (FN-16) as of any other,
+  and what this rule and FN-16 say otherwise is all that is their own. Two
+  conversions are a reference's own: a connection given to a `ref`
+  parameter becomes the designation of that connection's endpoint, and a
+  `ref` result given to an ordinary reader binds the reader to the
+  endpoint designated, which it then observes in place of the reference.
+  A reference ticks where its designation changes, not at every
   tick of its target. A designation published again unchanged is no tick,
   and wakes no subscriber. Ordinary followers observe the selected target;
   saved routes do not extend an expired child lifetime. Structural child
