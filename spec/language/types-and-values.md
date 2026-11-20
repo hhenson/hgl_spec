@@ -217,13 +217,13 @@ rejection (TYPE-12, TYPE-14). TYPE-16 says what a `delta_type` is.
   (TIME-7). A window's delta that is published, as a replay publishes a
   recorded one, appends its `added`, and its `removed` removes nothing:
   what leaves a window is the window's own doing, by count or by age.
-  Proposed: `added` and `removed` are each a `V?`, null where absent: one
+  `added` and `removed` are each a `V?`, null where absent: one
   value each, since a window takes at most one value a cycle and so loses
-  at most one in a cycle. Proposed: in a window of a nullable V,
+  at most one in a cycle. In a window of a nullable V,
   `rolling_window<f64?, 5>`, where a null arrives and leaves as a value
   does, each is instead the optional a nullable's delta is, a
   `delta<f64?>?`: null where absent, and `delta<f64?>()` for a null that
-  arrived or left. Proposed: a published window delta with no `added`
+  arrived or left. A published window delta with no `added`
   names no change (TIME-7).
   `valid` of a window is true once it holds a value, fewer than its
   minimum included. Proposed: one emptied by exits stays valid.
@@ -342,7 +342,7 @@ rejection (TYPE-12, TYPE-14). TYPE-16 says what a `delta_type` is.
 | `V?`, V an ordinary value type | A type of its own, an optional, with the property `value`, a `delta<V>?`: null for a published null (TYPE-15) |
 | `V?`, V no ordinary value type, as `rolling_window<f64, 5>?` | `delta<V>`: the `?` marks an argument or a field that may be left out (TYPE-14), and is no part of what is published |
 | `atomic<V>` | V: an atomic publishes whole |
-| `rolling_window<V, Max, Min>` | A type of its own, with the properties `added`, the value that arrived in the cycle, and `removed`, the value that left in it, either absent (TYPE-11). Proposed: each a `V?`, null where absent |
+| `rolling_window<V, Max, Min>` | A type of its own, with the properties `added`, the value that arrived in the cycle, and `removed`, the value that left in it, each a `V?`, null where absent (TYPE-11) |
 | `list<V>`, `list<V, N>` | A type of its own, with the properties `updated`, a `dict<i64, delta<V>>` of each changed position with its delta, `removed`, a `set<i64>` of the positions that lost their value, and `size_modified`, an `i64?`: the new size where the size changed, else null, and as written a negative count to reduce it by |
 | `tuple<A, B>` | `tuple<delta<A>?, delta<B>?>`: each position's delta, null where it did not change |
 | `set<K>` | A type of its own, with the properties `added` and `removed`, each a `set<K>` |
