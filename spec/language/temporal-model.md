@@ -31,7 +31,8 @@ flowchart LR
 - **TIME-1.** A temporal endpoint has validity, modification at the current
   evaluation time, retained data, and publication-delta observations. Silence
   is not a value. An equal publication may still be a new tick; a delta
-  that names no change, where the value is valid, is none (TIME-7). A
+  that names no change, or a collection given whole that changes nothing,
+  where the value is valid, is none (TIME-7). A
   payload read requires
   admission/readability; metadata may observe an invalid endpoint.
   A child of a collection (TIME-9), an element, a field or an entry, is an
@@ -194,9 +195,14 @@ flowchart LR
   entry is ignored, the removal of a key, a member or a position that is
   not held (TYPE-16), names no change too, and ticks only where it makes
   the value valid: `delta<set<i64>>(removed: [9])` on a valid set that
-  does not hold 9 is no tick. A value published whole, the same again or
-  empty, is no delta, and ticks as any publication does: `return []` to a
-  valid empty list ticks.
+  does not hold 9 is no tick. A collection published whole is published
+  as its change from what the result holds. Each entry of a dictionary and
+  each position of a list that it gives is published, the same value again
+  included, as an equal scalar is (TIME-1); a key, a member or a position
+  that it leaves out is removed. Where that leaves nothing to publish, a
+  set given the members it holds, or an empty list or dictionary given to
+  a valid empty one, the value is unchanged, and it is no tick. Where the
+  value is not valid, it makes it valid, and ticks.
   A `return` with no value publishes nothing (FN-7). A result of
   `atomic<V>` takes a V. A `ref` result takes no value: a `return` to it
   names an endpoint, which it designates, and `out` of it is as FN-16
@@ -479,14 +485,14 @@ fn watched(step: i64) -> bool => woken(publish_members(step))
 | --- | --- | --- | --- | --- | --- |
 | 1 | 0 | `delta<set<i64>>()`, where it is not valid | Valid and empty | Yes: it is made valid | true |
 | 2 | 0 | `delta<set<i64>>()`, where it is valid | Empty | No: nothing changes | `_` |
-| 3 | 1 | `[]`, a whole value | Empty | Yes, as any publication | true |
+| 3 | 1 | `[]`, a whole value, where it is valid and empty | Empty | No: nothing changes | `_` |
 | 4 | 2 | `delta<set<i64>>(added: [1])` | `[1]` | Yes | true |
 | 5 | 0 | `delta<set<i64>>()`, where it is valid | `[1]` | No | `_` |
 | 6 | 3 | An invalidation, which wakes `woken` (TIME-3) | Not valid | No | false |
 | 7 | 0 | `delta<set<i64>>()`, where it is not valid | Valid and empty | Yes | true |
 
 So `eval(watched(step: [0, 0, 1, 2, 0, 3, 0]))` is
-`[true, _, true, true, _, false, true]`. A `list<i64>` written
+`[true, _, _, true, _, false, true]`. A `list<i64>` written
 `delta<list<i64>>()`, and a `dict<str, i64>` written
 `delta<dict<str, i64>>()`, tick alike. The `Quote` above written
 `delta<Quote>()` sets no field: one that is not valid stays so, and
