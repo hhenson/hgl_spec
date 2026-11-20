@@ -1,8 +1,10 @@
 # Tests and eval
 
-Status: the eval rules, TST-5 to TST-9, what a `const fn` is given for
-a trace, TST-16, and integration tests, TST-17, are agreed. The error
-expectation contracts retain their status below.
+Status: a test's value code (TST-3), the eval rules, TST-5 to TST-9,
+what a `const fn` is given for a trace, TST-16, and integration tests,
+TST-17, are agreed, but for the sentences that begin "Proposed:" in
+TST-3 and in its example, which are proposed. The error expectation
+contracts retain their status below.
 
 ## Grammar
 
@@ -39,8 +41,17 @@ a run configuration (RUN-1). `raises` is contextual immediately after assert.
   their types, helpers, tests, and test-only lifts. A test-only helper or
   type takes no name of a production declaration or import (UNIT-12).
   Duplicate test names or roles reject.
-- **TST-3.** A test is a composition-phase block with assertions. It cannot
-  itself declare state/cache, inject, lifecycle hooks, when, yield, or return.
+- **TST-3.** A test is a block with assertions. Outside the argument of an
+  `eval` or a `run`, which is composition (TST-5, TST-8), its statements
+  are value code, as an application's are (UNIT-14): each is evaluated
+  once, in the order written. They call `const fn`s only: a call of any
+  other function there, a node, a graph or a source, rejects, so no
+  connection is bound in a test. An operator applied there is resolved by
+  GEN-5, and the candidate it selects must be a value candidate, an
+  `impl const fn`: one that is temporal rejects the same way. Nothing there
+  is lifted (FN-6). Proposed: those rejections have the code `call.role`.
+  A test cannot itself declare state/cache, inject, lifecycle hooks, when,
+  yield, or return.
   Eval traces are test-local values. An eval of a target that has a result
   is a trace of that result's type, and source writes no type for it. A
   trace is bound with `let`, compared with `==` or `!=` against a trace
@@ -237,6 +248,29 @@ stored in a field (`trace.escape`); `ticks([7, 9])`, a list of `i64`
 where a list of tuples is taken (`type.mismatch`); and `@timeout(5s)` before
 a `test` that is no integration test, and `@timeout(5)`, whose argument is no
 duration (`syntax.expected_token`).
+
+Deliberate rejection, complete module, value code in a test (TST-3):
+
+```hgl
+module examples.test_value_code
+
+fn pass(value: i64) -> i64 => value
+
+const fn twice(value: i64) -> i64 => value * 2
+
+test t {
+    let a = pass(1)
+    let b = twice(a)
+}
+```
+
+`pass` is a graph. In `t`, outside an `eval`, `pass(1)` is a call of a
+graph in value code, and rejects; `twice(a)` would be an ordinary call,
+never lifted. `assert twice(2) == 4` and
+`assert eval(pass(value: [1])) == [1]` are admitted there, and so is
+`1 + 2`. `1 +{invalid: .identity} 2`, whose one candidate that takes the
+option is temporal (core's OPS-9), rejects the same way. Proposed: both
+reject with `call.role`.
 
 ## Execution-error expectations
 

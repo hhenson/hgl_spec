@@ -285,7 +285,12 @@ rejection (TYPE-12, TYPE-14). TYPE-16 says what a `delta_type` is.
   `delta<dict<i64, i64>>(updated: [7: 10], removed: [9])`,
   `delta<Quote>(bid: 1.0)`, `delta<i64?>(value: 7)`. A property left out is
   empty, or null for a struct's field, a nullable's `value`, and a list's
-  `size_modified`. A tuple's delta is an ordinary tuple, and is written as
+  `size_modified`. A delta that is another type the language has, a
+  scalar's, a tuple's, a window's, has no constructor: `delta<T>(...)` for
+  such a T rejects (`delta.argument_name`), where it names a property and
+  in the empty form alike, and the value is written as its type writes it,
+  `3` or a tuple, and for a window of a nullable V as that nullable's
+  delta is, `delta<f64?>(value: 3.0)`. A tuple's delta is an ordinary tuple, and is written as
   one is. A list's and a dictionary's delta name their changes `updated`,
   and not `modified`, which is the endpoint operation. A list's delta, for
   `list<V>` and `list<V, N>` alike, has `updated`, each changed position
@@ -399,7 +404,11 @@ rejections:
 `delta<signal>` (`delta.unsupported_shape`); `change.added = []`, a property
 of a delta assigned (`binding.immutable`);
 `delta<set<str>>(added: ["a"], removed: ["a"])`, a malformed delta
-(`delta.overlap`). Conformance is planned.
+(`delta.overlap`); and `delta<i64>(added: 3)`,
+`delta<rolling_window<i64, 2>>(gone: 3)` and
+`delta<rolling_window<i64, 2>>()`, the constructor form of a delta that is
+no type of its own, written `3` (`delta.argument_name`). Conformance is
+planned.
 
 Accepted illustration, complete module, a window of a duration (TYPE-11):
 

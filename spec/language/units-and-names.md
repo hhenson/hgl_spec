@@ -1,7 +1,8 @@
 # Units and names
 
 Status: agreed module, application, visibility, default-binding, lookup, and
-constant rules.
+constant rules. The sentence of UNIT-14 that begins "Proposed:" is
+proposed.
 
 ## Grammar
 
@@ -154,10 +155,17 @@ admits one as a member name.
   global_state`, and then calls of `put` on it. Each is evaluated once, in
   the order written, before the run's graph is built, and its value is read
   as a constant's is (UNIT-13), with no parameter in scope. Any other
-  statement there rejects (`application.statement`). A module
-  holds none of these. An application's path is no module's and no other
-  application's. Its declarations are private: an application exports
-  nothing, and no `use` names one.
+  statement there rejects (`application.statement`). A module holds none
+  of these. Those statements, and the arguments of the run statement's
+  call and its configuration, are value code; the call itself, of the
+  entry, is composition (RUN-1). Value code calls `const fn`s only: a call
+  of any other function there, a node, a graph or a source, rejects. An
+  operator applied there is resolved by GEN-5, and the candidate it
+  selects must be a value candidate, an `impl const fn`: one that is
+  temporal rejects the same way. Nothing there is lifted (FN-6). Proposed:
+  those rejections have the code `call.role`. An application's path is no
+  module's and no other application's. Its declarations are private: an application
+  exports nothing, and no `use` names one.
 
 Accepted illustration, complete module:
 

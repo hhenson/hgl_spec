@@ -78,9 +78,12 @@ Local source/native declaration matching is defined in the native chapter.
   itself. Mixed incompatible phase work is rejected.
   A composition body calls any function: a value function called there is
   evaluated during wiring, or lifted when an argument is temporal (FN-6). A
-  runtime body calls only value functions, and so does a value function.
-  Any body calls an operator; in a runtime body or a value function the
-  call selects a value candidate (GEN-5).
+  runtime body calls only value functions, as a value function does, and
+  as value code does, a test's outside an `eval` or a `run` and an
+  application's statements (TST-3, UNIT-14). Any body calls an operator;
+  in a runtime body or a value function the call selects a value
+  candidate, and in value code the candidate selected must be one
+  (GEN-5).
 - **FN-4.** A temporal/value pair may share a name. Composition and eval choose
   the temporal definition if one exists; runtime/value evaluation chooses the
   value definition. A bad selected signature is an error, not fallback to the
@@ -99,6 +102,8 @@ Local source/native declaration matching is defined in the native chapter.
   publishes its result, including an equal result. An outputless helper lifts
   to a sink. All-scalar calls execute
   directly and invent no source timing. Ordinary validity is not `all_valid`.
+  In value code, a test's outside an `eval` or a `run` and an
+  application's statements, nothing is lifted (TST-3, UNIT-14).
 - **FN-7.** A composition return selects a connection; a runtime return
   publishes and exits the function's current evaluation, including any later
   `when` handlers. Completing a runtime handler without a write produces no
@@ -427,6 +432,7 @@ planned.
 | Composition | A typed connection | Describe graph work or lift a value helper |
 | Runtime hook | A readable admitted payload plus endpoint metadata | Execute value helpers in the current node |
 | Value function | Ordinary invocation data | Execute value helpers |
+| Value code: a test outside an `eval` or a `run`, an application's statements (TST-3, UNIT-14) | None: no connection is bound there | Execute value helpers; a temporal call rejects |
 
 Accepted eval illustration, complete module:
 
