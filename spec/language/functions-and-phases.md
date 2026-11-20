@@ -2,7 +2,7 @@
 
 Status: agreed function roles, classification, defaults, lifting, and
 anonymous-function scope. The `ref` mode (FN-16) is agreed, but for its
-sentence that begins "Proposed:", which is proposed.
+sentences that begin "Proposed:", which are proposed.
 
 ## Grammar
 
@@ -220,17 +220,20 @@ Local source/native declaration matching is defined in the native chapter.
   rejects: an operator gives the parameters every candidate takes, and a
   candidate that is a node marks its own. A `signal` parameter is not
   marked either, and a mark on one rejects: a signal has no payload to
-  designate (TYPE-12). The mark takes no part in
+  designate (TYPE-12). Nor does `ref` stand on a window: a `ref`
+  parameter or a `ref` result whose type is a `rolling_window` rejects,
+  `ref prices: rolling_window<f64, 5>`. The mark takes no part in
   selecting a candidate (GEN-5, GEN-12). A `ref` parameter and its
   children, `xs[i]` and `quote.bid`, are endpoints, not values: the
   endpoint operations take them (TIME-9), `delta_value` aside, and a
   `return` to a `ref` result designates them. A read of the value or of
   the `delta_value` of one rejects when the program is compiled.
   That read rejects with the code `ref.read`, and a mark on what is no
-  node, or on a `signal` parameter, with `ref.position`. Proposed:
-  `removed_value` (TYPE-11) is set aside as `delta_value` is, for a `ref`
-  parameter, a child of one, and `out` of a `ref` result: a read of it
-  there rejects with `ref.read`.
+  node, or on a `signal` parameter, with `ref.position`. Proposed: a mark
+  on a window rejects with `ref.position` too. Proposed: `removed_value`
+  (TYPE-11) of a window that is a child of a `ref` parameter or of `out`
+  of a `ref` result, a field of a struct given by `ref`, is set aside as
+  `delta_value` is: a read of it there rejects with `ref.read`.
   A `return` to a `ref` result is given an expression that names an
   endpoint: a temporal input of the node, `ref` or not, or a child of one,
   `items[idx]`. Returning a whole `ref` parameter samples its current
