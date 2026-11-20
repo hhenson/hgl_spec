@@ -3,8 +3,8 @@
 Status: agreed publication, handler, state/cache, and capability baseline.
 The alarm, the run-wide keyed store, collection validity with
 `all_valid` (TIME-9), and the read of a collection's child and of a
-collection whole (TIME-1) are agreed. The sentences of TIME-9 that begin
-"Proposed:" are proposed.
+collection whole (TIME-1) are agreed. The sentences of TIME-7 and TIME-9
+that begin "Proposed:" are proposed.
 
 ## Grammar
 
@@ -191,7 +191,10 @@ flowchart LR
   marks nothing `modified`, wakes no subscriber, and a trace records
   nothing for it (TST-5). A struct, a tuple and a `list<V, N>` are valid where a
   child is (TIME-9), and such a delta of one, `delta<Quote>()`, sets no
-  child: it changes no validity, and is never a tick. A delta whose every
+  child: it changes no validity, and is never a tick. Proposed: a
+  window's delta with no `added`, `delta<rolling_window<i64, 3>>()` or
+  `delta<rolling_window<i64, 3>>(removed: 1)`, adds no value, changes no
+  validity, and by itself is never a tick (TYPE-11). A delta whose every
   entry is ignored, the removal of a key, a member or a position that is
   not held (TYPE-16), names no change too, and ticks only where it makes
   the value valid: `delta<set<i64>>(removed: [9])` on a valid set that
@@ -205,9 +208,10 @@ flowchart LR
   `list<V>`, a dictionary or a set is not valid, an empty one given whole
   makes it valid, and ticks, as a delta that names no change does.
   A `return` with no value publishes nothing (FN-7). A result of
-  `atomic<V>` takes a V. A `ref` result takes no value: a `return` to it
-  names an endpoint, which it designates, and `out` of it is as FN-16
-  gives it.
+  `atomic<V>` takes a V. A result of `rolling_window<V, Max, Min>` takes a
+  V, which arrives, or a delta of the window (TYPE-11). A `ref` result
+  takes no value: a `return` to it names an endpoint, which it
+  designates, and `out` of it is as FN-16 gives it.
 - **TIME-8.** The injectables are `out`, `logger`, `clock`, `scheduler`,
   `alarm`, and `global_state`; `inject` names no other. `out` is the node's
   result (TIME-7). `inject` binds each of the others to a local of its
