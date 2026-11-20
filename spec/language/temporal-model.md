@@ -3,8 +3,8 @@
 Status: agreed publication, handler, state/cache, and capability baseline.
 The alarm, the run-wide keyed store, collection validity with
 `all_valid` (TIME-9), and the read of a collection's child and of a
-collection whole (TIME-1) are agreed. The sentences of TIME-9 and
-TIME-10 that begin "Proposed:" are proposed.
+collection whole (TIME-1) are agreed. The sentences of TIME-9 that begin
+"Proposed:" are proposed.
 
 ## Grammar
 
@@ -307,12 +307,13 @@ flowchart LR
   (FN-16) observe the reference, not the endpoint: `valid` of a `ref`
   parameter is whether a reference is present, whatever the endpoint it
   designates holds, and nothing of that endpoint is seen through it.
+  Where a `ref` parameter is active, as `when modified(low)` makes it
+  (TIME-3), the node is woken where the parameter is given a designation;
+  a handler that returns the parameter there has its readers follow each
+  change of what the parameter designates (FN-16).
   Saved routes do not extend an expired child lifetime. Structural child
   membership, child validity, and child publications are separate
-  observations supplied by core. Proposed: a handler that subscribes to a `ref`
-  parameter (TIME-3) is woken where the parameter is given a designation;
-  one that returns the parameter there has its readers follow each change
-  of what the parameter designates (FN-16).
+  observations supplied by core.
 
 Accepted illustration, complete module:
 
