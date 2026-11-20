@@ -96,7 +96,8 @@ a run configuration (RUN-1). `raises` is contextual immediately after assert.
   run start or absolute datetime keys. Keys strictly increase; no `_` occurs
   in timed traces. Within one eval all inputs and expectation use the same
   dense/timed style. Sparse expectations enumerate exactly the actual output
-  ticks and times.
+  ticks and times that the recording holds (TST-16): a tick of a window of
+  a duration in which a value only leaves it has no delta, and no entry.
 - **TST-8.** Eval is a run (RUN-4) of an entry made for it: core's replay for
   each temporal input, then the selected target, whose result is the entry's.
   The run is a simulation (RUN-3) under the eval's configuration: with none
