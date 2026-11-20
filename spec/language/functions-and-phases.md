@@ -232,7 +232,9 @@ Local source/native declaration matching is defined in the native chapter.
   endpoint: a temporal input of the node, `ref` or not, or a child of one,
   `items[idx]`. The result designates the logical endpoint that path
   names: its readers follow what that endpoint is bound to, a later
-  re-binding upstream included, and the node is not woken for it. No
+  re-binding upstream included. The node needs no handler for that: the
+  result's designation changes with the re-binding (TIME-10), and the
+  node's handlers are selected as their headers say. No
   payload is read, so nothing needs admitting (TIME-1), and a child is an
   endpoint whether or not it is valid. A value that names no endpoint
   rejects there (`type.mismatch`). A parameter that is not `ref` may be
@@ -368,7 +370,8 @@ then 2: while `idx` is 1, a tick of `items[1]` reaches `follow` and one of
 `items[0]` does not; after the change to 2, `follow` is silent until
 `items[2]` first publishes, and then publishes it. `route` is woken for none
 of these ticks. Where what `items[1]` is bound to is re-bound upstream,
-`follow` observes the new target, and `route` is not woken. With
+`follow` observes the new target: the result's designation changes with
+it, and `when modified(idx)` is not selected. With
 `ref items: list<T, 3>`, `route` is accepted as well, and a read of `items`
 in its body then rejects. Deliberate source rejections: `ref idx: i64` on
 `routed`, a graph (FN-16); for
