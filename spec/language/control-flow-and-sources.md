@@ -107,7 +107,8 @@ CTRL-9 places the opening brace of an `if`, `for`, `switch`, `when`, or
   last gave it, or null.
 - **CTRL-12.** In a value function, `for item in items` runs its body for
   each element of a list, in index order, or of a set, and
-  `for key, value in entries` for each key and value of a dictionary. One
+  `for key, value in entries` for each key and value of a dictionary. A
+  set and a dictionary promise no order. One
   name over a dictionary, two over a list or a set, and any other type after
   `in` reject. `while condition { ... }` repeats its body while the
   condition holds; the form with no condition is a source's (SOURCE-4) and
