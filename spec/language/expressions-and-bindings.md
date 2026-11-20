@@ -97,9 +97,10 @@ GEN-14 resolves generic construction versus comparison using declaration lookup.
   of a list's element type, under an `i64` index; of a dictionary's value
   type, under a key of its key type; or of a tuple's position, under a
   constant index. A key the dictionary
-  has not is added. An index outside a list fails where it is evaluated. A
-  set has no place to assign. A compound assignment reads the place first:
-  `total.count += 1`.
+  has not is added. An index outside a list, below zero or at or past its
+  size, fails where it is evaluated, with code `value.index_out_of_range`.
+  A set has no place to assign. A compound assignment reads the place
+  first: `total.count += 1`.
 - **EXPR-4.** Ordinary values and temporal connections remain distinct. A graph
   binding denotes a connection without reading a payload. Reassigning a graph
   var changes the described connection; it creates neither mutable per-tick
@@ -131,8 +132,9 @@ GEN-14 resolves generic construction versus comparison using declaration lookup.
   `ref quote: atomic<Quote>`, reads its payload and rejects (FN-16).
   Brackets read an element of a
   list or a tuple by an `i64` index, and the value a dictionary has for a
-  key. A tuple's index is a constant within its length: it selects the
-  element's type.
+  key. An index outside an ordinary list fails the read with code
+  `value.index_out_of_range`, as it fails an assignment (EXPR-3). A tuple's
+  index is a constant within its length: it selects the element's type.
 - **EXPR-8.** Ordinary tuples may contain runtime payload expressions. Harness
   `_` and timed cells exist only in test traces; outside them a sequence is
   ordinary data and a placeholder is not a value. Tuple syntax does not
@@ -256,7 +258,9 @@ dictionary has not. In `shifted`, a graph, `point.x = price` makes `point`
 a new connection, `first` with its `x` from `price` (EXPR-15); `first` is
 the connection it was. Deliberate source rejections: `origin.x = by`, a field of
 a parameter (`binding.immutable`); `point.x = "a"`, a `str` for an `f64`
-field (`type.mismatch`). Conformance is planned.
+field (`type.mismatch`). With `var row = [1, 2]`, `row[2] = 0` and a read
+of `row[2]` each fail as they run, with `value.index_out_of_range`: the
+list's positions are 0 and 1. Conformance is planned.
 
 Accepted syntax fragments, with suitable ordinary expressions `a`, `b`, `c`,
 and `d`; use-site admission is checked separately:
