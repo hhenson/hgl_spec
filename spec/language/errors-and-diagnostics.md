@@ -91,10 +91,12 @@ postfix suffix. `argument` is that grammar's call argument.
   being its `delta<T>`: where the place expects `result<delta<T>, error>`
   it gives `ok` of the delta, or `err` coded `value.unset_read` where the
   endpoint has no delta in the cycle; elsewhere it gives the delta, and
-  the read fails with that code where there is none. Only a window of a
+  the read fails with that code where there is none. An endpoint that has
+  not ticked in the cycle has none. Of those that tick, only a window of a
   duration has a tick with no delta, one in which a value only leaves it
-  (TYPE-11): for every other endpoint the `result` form is `ok`, so generic
-  code may read the delta of a T it does not know in that form.
+  (TYPE-11): for every other endpoint the `result` form is `ok` where it
+  is modified, so generic code may read the delta of a T it does not know
+  in that form.
   `removed_value` of a window is read only where its place expects
   `result<V, error>`, V the window's value type: it gives `ok` of the
   value that left the window in the cycle, or that `err` where none left
