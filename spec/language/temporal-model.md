@@ -3,8 +3,8 @@
 Status: agreed publication, handler, state/cache, and capability baseline.
 The alarm, the run-wide keyed store, collection validity with
 `all_valid` (TIME-9), and the read of a collection's child and of a
-collection whole (TIME-1) are agreed. The sentences of TIME-7 and TIME-9
-that begin "Proposed:" are proposed.
+collection whole (TIME-1) are agreed. The sentences of TIME-9 that begin
+"Proposed:" are proposed.
 
 ## Grammar
 
@@ -191,7 +191,7 @@ flowchart LR
   marks nothing `modified`, wakes no subscriber, and a trace records
   nothing for it (TST-5). A struct, a tuple and a `list<V, N>` are valid where a
   child is (TIME-9), and such a delta of one, `delta<Quote>()`, sets no
-  child: it changes no validity, and is never a tick. Proposed: a
+  child: it changes no validity, and is never a tick. A
   window's delta with no `added`, `delta<rolling_window<i64, 3>>()` or
   `delta<rolling_window<i64, 3>>(removed: 1)`, adds no value, changes no
   validity, and by itself is never a tick (TYPE-11). A delta whose every
