@@ -285,16 +285,35 @@ flowchart LR
   parameter becomes the designation of that connection's endpoint, and a
   `ref` result given to an ordinary reader binds the reader to the
   endpoint designated, which it then observes in place of the reference.
-  A reference ticks where its designation changes, not at every
-  tick of its target. A designation published again unchanged is no tick,
-  and wakes no subscriber. Ordinary followers observe the selected target;
-  saved routes do not extend an expired child lifetime. Structural child
+  The language fixes what the use of a reference produces, the ticks that
+  reach a reader and what wakes a node, and not how a reference is
+  carried between them.
+  A reader of a `ref` result is an ordinary input given that result, one
+  that is no `ref` parameter. It observes the endpoint designated as if
+  wired to it, and ticks where that endpoint publishes. Where the result
+  comes to designate another endpoint, the reader observes that one from
+  that cycle: it ticks there
+  with the value that endpoint holds, whether or not the endpoint
+  publishes in that cycle; where the endpoint holds none, the reader is
+  silent until the endpoint publishes; and a publication of the endpoint
+  left behind no longer reaches it. Where the result is given the
+  designation it holds, that gives the reader no tick: it goes on
+  observing the endpoint, a publication of it in that cycle included.
+  In a node, a `ref` parameter is passive to what it designates: a
+  publication of that endpoint does not wake the node and satisfies no
+  test of the parameter, and the endpoint operations given the parameter
+  (FN-16) observe the reference, not the endpoint: `valid` of a `ref`
+  parameter is whether a reference is present, whatever the endpoint it
+  designates holds, and nothing of that endpoint is seen through it.
+  Saved routes do not extend an expired child lifetime. Structural child
   membership, child validity, and child publications are separate
-  observations supplied by core. Proposed: on a `ref` parameter (FN-16),
-  `modified(low)` is true where its designation changed, not where its
-  target published; `valid(low)` is true where it designates something,
-  whatever the target's validity; and `last_modified(low)` is when its
-  designation last changed.
+  observations supplied by core. Proposed: validity is among what a
+  reader observes of the endpoint, so a reader, `valid(value)` in a node
+  that takes the result as `value: f64`, is not valid while the endpoint
+  designated holds no value. Proposed: a handler that subscribes to a `ref`
+  parameter (TIME-3) is woken where the parameter is given a designation;
+  one that returns the parameter there has its readers follow each change
+  of what the parameter designates (FN-16).
 
 Accepted illustration, complete module:
 
@@ -590,9 +609,9 @@ either has published and guards neither (`payload.unguarded`); and
 `modified([a, b])` and `valid([a, b])`, where the inputs are named as
 arguments. Conformance planned.
 
-Accepted illustration, complete module, a reference published again
-(TIME-10), with connections of `f64` given to `ref` parameters of `f64`
-(FN-16):
+Accepted illustration, complete module, an ordinary reader of a `ref`
+result (TIME-10), with connections of `f64` given to `ref` parameters of
+`f64` (FN-16):
 
 ```hgl
 module examples.references
@@ -604,25 +623,23 @@ fn pick(flag: bool, ref low: f64, ref high: f64) -> ref f64 {
     }
 }
 
-fn designations(ref target: f64) -> i64 {
-    state count: i64 = 0
-    when {
-        count += 1
-        return count
-    }
+fn follow(value: f64) -> f64 {
+    when { return value }
 }
 
-fn changes(flag: bool, bid: f64, ask: f64) -> i64 =>
-    designations(pick(flag, bid, ask))
+fn picked(flag: bool, bid: f64, ask: f64) -> f64 =>
+    follow(pick(flag, bid, ask))
 ```
 
-`changes` gives `pick` the connections `bid` and `ask`, of `f64`, which
-its `ref` parameters designate. With `bid` and `ask` each publishing in the
-first cycle, and
-`flag` publishing true, true, false over three cycles, `pick` returns
-`high`, `high` and `low`. The second return publishes the designation that
-`pick`'s result holds: it is no tick, so `designations` publishes 1,
-nothing, 2. A later tick of `bid` or `ask` does not wake `designations`.
+`picked` gives `pick` the connections `bid` and `ask`, of `f64`, which
+its `ref` parameters designate, and `follow` reads the result as an `f64`.
+With `bid` publishing 1.0 and `ask` 2.0 in the first cycle, `flag`
+publishing true, true, false over three cycles, and `bid` publishing 4.0
+in the fourth, `follow` publishes 2.0, nothing, 1.0, 4.0. The second
+return gives the result the designation it holds, and `follow` observes
+nothing. The third designates `bid`, which does not publish in that cycle:
+`follow` ticks with the 1.0 that `bid` holds. A later tick of `ask` does
+not reach `follow`, and no tick of `bid` or `ask` wakes `pick`.
 Deliberate rejections: `pick(flag, "a", ask)`, a `str` where an `f64` is
 taken (`type.mismatch`); and `return low + 1.0` in `pick`, a read of a
 `ref` parameter's value (FN-16). Conformance planned.
