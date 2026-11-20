@@ -115,11 +115,12 @@ a run configuration (RUN-1). `raises` is contextual immediately after assert.
 
 - **TST-16.** A trace given to a `const fn` is an ordinary value there, the
   output of the eval's run (RUN-1): for a result type T a
-  `list<tuple<datetime, delta<T>>>`, one tuple for each publication, in
-  time order. A tuple holds the instant of the publication and what the
-  target's result published then, a `delta<T>` (TYPE-16), which is T itself
-  for a scalar and V for an `atomic<V>`: a `list<tuple<datetime, i64>>` for
-  an `i64` result. A T published whole is held as its delta too, as
+  `list<tuple<datetime, delta<T>>>`, one tuple for each publication, and
+  for each exit of a window (TYPE-11), in time order. A tuple holds the
+  instant of the publication and what the target's result published
+  then, a `delta<T>` (TYPE-16), which is T itself for a scalar and V for
+  an `atomic<V>`: a `list<tuple<datetime, i64>>` for an `i64` result. A T
+  published whole is held as its delta too, as
   `delta_value` reads it (TIME-9). Nothing published is no entry, and a
   published null is the delta that holds one. The trace is an eval's,
   bound or not. A sequence written where a `const fn` takes an argument

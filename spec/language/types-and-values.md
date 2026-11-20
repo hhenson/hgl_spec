@@ -203,10 +203,28 @@ rejection (TYPE-12, TYPE-14). TYPE-16 says what a `delta_type` is.
   readers and satisfies `modified` as a publication does (TIME-3). A
   window takes at most one value a cycle, so each value leaves in a cycle
   of its own, and an exit and an arrival in one cycle are one tick. When
-  the last value leaves, the window is empty. Proposed: where a value
-  leaves and none arrives, `delta_value` of the window, which is the value
-  that arrived (TYPE-16), has no value, and its read fails with
-  `value.unset_read`.
+  the last value leaves, the window is empty.
+  A window's delta (TYPE-16) has `added`, the value that arrived in the
+  cycle, and `removed`, the value that left in it; either may be absent.
+  An arrival alone has `added`, an exit alone `removed`, and an arrival
+  and an exit in one cycle both. An exit alone occurs only in a window of
+  a duration: in one of a tick count a value leaves only in a cycle in
+  which another arrives, so its `removed` always comes with an `added`.
+  `delta_value` of a window is read at each tick of it, an exit alone
+  included, before the window is `all_valid` as after. `removed` is
+  informational: it says what left, so that a tick in which a value only
+  leaves can be read. A node publishes a V to a window, an arrival
+  (TIME-7). A window's delta that is published, as a replay publishes a
+  recorded one, appends its `added`, and its `removed` removes nothing:
+  what leaves a window is the window's own doing, by count or by age.
+  Proposed: `added` and `removed` are each a `V?`, null where absent: one
+  value each, since a window takes at most one value a cycle and so loses
+  at most one in a cycle. Proposed: in a window of a nullable V,
+  `rolling_window<f64?, 5>`, where a null arrives and leaves as a value
+  does, each is instead the optional a nullable's delta is, a
+  `delta<f64?>?`: null where absent, and `delta<f64?>()` for a null that
+  arrived or left. Proposed: a published window delta with no `added`
+  names no change (TIME-7).
   `valid` of a window is true once it holds a value, fewer than its
   minimum included. Proposed: one emptied by exits stays valid.
   `all_valid` is true where it holds at least its minimum (TIME-9): of a
@@ -250,9 +268,10 @@ rejection (TYPE-12, TYPE-14). TYPE-16 says what a `delta_type` is.
   of T publishes in one cycle. The table gives it for each T. For most T it
   is another type the language has: `delta<f64>` is `f64`, and
   `delta<tuple<f64, i64>>` is `tuple<f64?, i64?>`, a tuple as any other. A
-  nullable's, a list's, a set's, a dictionary's, and a struct's delta is a
-  type of its own, which keeps T whole in its identity: `delta<dict<str, f64>>` and
-  `delta<dict<str, i64>>` are two types. Such a delta is no T: a held
+  nullable's, a list's, a set's, a dictionary's, a struct's, and a
+  window's delta is a type of its own, which keeps T whole in its
+  identity: `delta<dict<str, f64>>` and `delta<dict<str, i64>>` are two
+  types. Such a delta is no T: a held
   complete value is not a delta, and neither converts to the other. It is
   atomic: it has properties, none is assigned, and as a temporal value it
   publishes whole, so its own delta is itself. `delta<T>` is written
@@ -264,9 +283,11 @@ rejection (TYPE-12, TYPE-14). TYPE-16 says what a `delta_type` is.
   `delta<set<i64>>(added: [1, 2], removed: [3])`,
   `delta<list<i64>>(updated: [0: 4], removed: [1])`,
   `delta<dict<i64, i64>>(updated: [7: 10], removed: [9])`,
-  `delta<Quote>(bid: 1.0)`, `delta<i64?>(value: 7)`. A property left out is
+  `delta<Quote>(bid: 1.0)`, `delta<i64?>(value: 7)`,
+  `delta<rolling_window<i64, 3>>(added: 5)`. A property left out is
   empty, or null for a struct's field, a nullable's `value`, and a list's
-  `size_modified`. A tuple's delta is an ordinary tuple, and is written as
+  `size_modified`; a window's `added` or `removed` left out is absent
+  (TYPE-11). A tuple's delta is an ordinary tuple, and is written as
   one is. A list's and a dictionary's delta name their changes `updated`,
   and not `modified`, which is the endpoint operation. A list's delta, for
   `list<V>` and `list<V, N>` alike, has `updated`, each changed position
@@ -300,7 +321,10 @@ rejection (TYPE-12, TYPE-14). TYPE-16 says what a `delta_type` is.
   `delta<V?>` is expected, as a T is where a `T?` is (TYPE-14).
   A delta that names one member, key or position both as added or updated
   and as removed is malformed. A constant one is rejected
-  (`delta.overlap`). A run
+  (`delta.overlap`). A window's delta holds values, not members, and is
+  not malformed where they are equal:
+  `delta<rolling_window<i64, 2>>(added: 3, removed: 3)` is a 3 that
+  arrives as an earlier 3 leaves. A run
   makes no check, and what it does with one is undefined. Proposed: two
   keys, or two members, that a delta names are one where its collection
   takes them as one, and not by their sameness as constants (UNIT-13).
@@ -318,7 +342,7 @@ rejection (TYPE-12, TYPE-14). TYPE-16 says what a `delta_type` is.
 | `V?`, V an ordinary value type | A type of its own, an optional, with the property `value`, a `delta<V>?`: null for a published null (TYPE-15) |
 | `V?`, V no ordinary value type, as `rolling_window<f64, 5>?` | `delta<V>`: the `?` marks an argument or a field that may be left out (TYPE-14), and is no part of what is published |
 | `atomic<V>` | V: an atomic publishes whole |
-| `rolling_window<V, Max, Min>` | V: the value that arrived |
+| `rolling_window<V, Max, Min>` | A type of its own, with the properties `added`, the value that arrived in the cycle, and `removed`, the value that left in it, either absent (TYPE-11). Proposed: each a `V?`, null where absent |
 | `list<V>`, `list<V, N>` | A type of its own, with the properties `updated`, a `dict<i64, delta<V>>` of each changed position with its delta, `removed`, a `set<i64>` of the positions that lost their value, and `size_modified`, an `i64?`: the new size where the size changed, else null, and as written a negative count to reduce it by |
 | `tuple<A, B>` | `tuple<delta<A>?, delta<B>?>`: each position's delta, null where it did not change |
 | `set<K>` | A type of its own, with the properties `added` and `removed`, each a `set<K>` |
@@ -415,15 +439,20 @@ The window ticks at each arrival, and at each exit, one smallest step
 | 9s | 5.0 | | 5.0 | `[true, false]` |
 | 12s + 1us | | 5.0 | | `[true, false]`, as at 7s + 1us |
 
-At 3s the window holds 1.0, of age 3s, and nothing ticks. With
-`rolling_window<f64, 3, 2>` in place of the duration, the window is all
-valid from 1s, ticks only at an arrival, and the arrival of 4.0 drops
-1.0. A handler that reads the value of `prices` where it is not all valid,
-at 0s, 1s, 3s + 1us, and from 5s + 1us, fails; one whose result is a
+At 3s the window holds 1.0, of age 3s, and nothing ticks. At each tick
+`delta_value(prices)` has what the Arrives column holds as its `added` and
+what the Leaves column holds as its `removed`, where the window is not all
+valid as where it is: `delta<rolling_window<f64, 3s, 2s>>(added: 1.0)` at
+0s, and `delta<rolling_window<f64, 3s, 2s>>(removed: 2.0)` at 4s + 1us,
+where nothing arrives. With `rolling_window<f64, 3, 2>` in place of the
+duration, the window is all valid from 1s, ticks only at an arrival, and
+the arrival of 4.0 drops 1.0: its delta there has `added: 4.0` and
+`removed: 1.0`. A handler that reads the value of `prices` where it is
+not all valid, at 0s, 1s, 3s + 1us, and from 5s + 1us, fails; one whose
+result is a
 `result<list<f64>, error>`, `when { return prices }`, publishes there an
 `err` coded `value.unset_read` instead, and does not fail.
-`delta_value(prices)` is 4.0 at 4s. Proposed: its read at 4s + 1us, where
-nothing arrives, fails with `value.unset_read`. Conformance is planned.
+Conformance is planned.
 
 Accepted expression fragments, zoned datetimes (TYPE-2); London's clocks go
 forward an hour at 01:00 UTC on 29 March 2026:
