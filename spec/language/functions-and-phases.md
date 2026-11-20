@@ -154,9 +154,11 @@ Local source/native declaration matching is defined in the native chapter.
   whose value contract admits null does not require a valid input: bind null
   when it is invalid. Every other input must satisfy ordinary `valid(input)`.
   A valid value, including a valid null, is supplied as published. A struct,
-  a tuple or a fixed list is supplied only where it is `all_valid` as well,
-  whatever its default or null contract (FN-12): one that is valid and not
-  all valid binds no fallback, and the helper is not invoked. Fallback
+  a tuple, a fixed list or a window is supplied only where it is
+  `all_valid` as well, whatever its default or null contract (FN-12): one
+  that is valid and not all valid binds no fallback, and the helper is not
+  invoked. The default stands for an argument left out, not for one not
+  ready. Fallback
   changes admission/binding, not activation, and invents no input tick.
 - **FN-12.** Aggregate lifting passes the current ordinary aggregate value to
   one helper invocation, not separate elementwise invocations. The value is
@@ -167,8 +169,9 @@ Local source/native declaration matching is defined in the native chapter.
   element type has no value for it, the invocation fails
   (`value.unset_read`). A struct, a tuple and a fixed-size list need
   `all_valid`, and an optional child that is not valid is passed as null.
-  A window is passed only where it is `all_valid`: its value is not read
-  before (TYPE-11). Unchanged
+  A window is passed only where it is `all_valid`, whatever the
+  parameter's default (FN-11): its value is not read before (TYPE-11).
+  Unchanged
   inputs supply retained values; they need not publish together.
 - **FN-13.** Each invocation observes a stable ordinary argument value or an
   admitted read-only view. Retained results must remain independent of later
@@ -216,14 +219,16 @@ Local source/native declaration matching is defined in the native chapter.
   parameter, and a `ref` result is a connection of T to whoever reads it.
   A value function, a graph, and an operator mark none, and a mark there
   rejects: an operator gives the parameters every candidate takes, and a
-  candidate that is a node marks its own. The mark takes no part in
+  candidate that is a node marks its own. A `signal` parameter is not
+  marked either, and a mark on one rejects: a signal has no payload to
+  designate (TYPE-12). The mark takes no part in
   selecting a candidate (GEN-5, GEN-12). A `ref` parameter and its
   children, `xs[i]` and `quote.bid`, are endpoints, not values: the
   endpoint operations take them (TIME-9), `delta_value` aside, and a
   `return` to a `ref` result designates them. A read of the value or of
   the `delta_value` of one rejects when the program is compiled.
   Proposed: that read rejects with the code `ref.read`, and a mark on what
-  is no node with `ref.position`.
+  is no node, or on a `signal` parameter, with `ref.position`.
   A `return` to a `ref` result is given an expression that names an
   endpoint: a temporal input of the node, `ref` or not, or a child of one,
   `items[idx]`. The result designates the logical endpoint that path
@@ -232,7 +237,10 @@ Local source/native declaration matching is defined in the native chapter.
   payload is read, so nothing needs admitting (TIME-1), and a child is an
   endpoint whether or not it is valid. A value that names no endpoint
   rejects there (`type.mismatch`). A parameter that is not `ref` may be
-  designated too, and a body may both read and designate it. Proposed:
+  designated too, and a body may both read and designate it. A `ref`
+  result designates one endpoint whole: an assignment to a part of its
+  `out`, `out.bid = x` or `out[0] = x`, rejects. Proposed: that assignment
+  rejects with the code `binding.immutable`. Proposed:
   `out = items[idx]` designates as `return items[idx]` does, and is
   rejected where the `return` would be; otherwise `out` of a `ref` result
   is as a `ref` parameter is: the endpoint operations take it,
@@ -364,10 +372,14 @@ of these ticks. Where what `items[1]` is bound to is re-bound upstream,
 `follow` observes the new target, and `route` is not woken. With
 `ref items: list<T, 3>`, `route` is accepted as well, and a read of `items`
 in its body then rejects. Deliberate source rejections: `ref idx: i64` on
-`routed`, a graph (FN-16); and, for
+`routed`, a graph (FN-16); for
 `fn first(items: list<f64, 3>) -> ref f64`, the body
 `when all_valid(items) { return items[0] * 2.0 }`, a value where the `ref`
-result takes an endpoint (`type.mismatch`). Conformance is planned.
+result takes an endpoint (`type.mismatch`); for
+`fn firsts(items: list<f64, 3>) -> ref list<f64, 3>` with `inject out`,
+the body `when all_valid(items) { out[0] = items[0] }`, a part of `out`
+assigned; and `ref tick: signal` on a node's parameter, a signal, which
+has no payload to designate (FN-16). Conformance is planned.
 
 Accepted declaration fragments showing modifier and ordinary-name positions:
 

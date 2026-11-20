@@ -42,7 +42,12 @@ CTRL-9 places the opening brace of an `if`, `for`, `switch`, `when`, or
   the old child and starts the selected child fresh. Repeated equal selector
   values do not recreate it. Producers composed outside the conditional keep
   their own lifetime. Selecting between pre-existing outputs is a different
-  operation from controlling child execution.
+  operation from controlling child execution. A branch started while the
+  program runs is the child a temporal `if` or `switch` selects, or one a
+  composition loop makes for a member (CTRL-7). An input of a node in it,
+  bound to an endpoint that is already valid, counts as modified in the
+  cycle the branch starts, published in that cycle or not (TIME-3): the
+  branch's nodes run once with the values held.
 - **CTRL-3.** A consumed temporal if without else supplies a typed never-ticking
   branch, not a default scalar. An outputless if has no synthetic result; an
   omitted false branch performs no conditional work.
@@ -64,7 +69,8 @@ CTRL-9 places the opening brace of an `if`, `for`, `switch`, `when`, or
 - **CTRL-7.** A composition loop over fixed structure receives child connections;
   a loop over ordinary wiring-time data receives values. Dynamic independent
   dictionary/list bodies create one child per member key/index. Update keeps
-  the child; removal stops it; reinsertion creates fresh state. Captured
+  the child; removal stops it; reinsertion creates fresh state. A child
+  created while the program runs starts as CTRL-2 says. Captured
   temporal connections are bound whole and add no membership.
 - **CTRL-8.** During node evaluation, traversal uses current values/child views
   with hook-scoped borrowed lifetime. Lists preserve index order; sets promise
@@ -230,6 +236,33 @@ then `if open { size = 4 }`, an ordinary value chosen at runtime; in
 `each_price`, an assignment in the body to a `var` declared before the
 loop, and a `return`; and `while open { ... }`, a connection as the
 condition of a `while`. Conformance planned.
+
+Accepted illustration, complete module, a branch that starts while the
+program runs (CTRL-2):
+
+```hgl
+module examples.branch_start
+
+fn counted(value: i64) -> i64 {
+    state count: i64 = 0
+    when {
+        count += 1
+        return count
+    }
+}
+
+fn counted_while(open: bool, value: i64) -> i64 {
+    if open { counted(value) }
+}
+```
+
+`value` publishes 10 in the first cycle and nothing after, and `open`
+publishes false, true, false, true. Each true starts the branch fresh:
+`value`, valid since the first cycle, counts as modified in that cycle, and
+`counted` runs once with 10 and publishes 1. While `open` is false the
+result never ticks (CTRL-3). So
+`eval(counted_while(open: [false, true, false, true], value: [10, _, _, _]))`
+is `[_, 1, _, 1]`. Conformance planned.
 
 Accepted declaration fragments, value functions (CTRL-10, CTRL-11, FN-7):
 
