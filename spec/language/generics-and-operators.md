@@ -111,7 +111,10 @@ expression; group a constant expression that uses them as operand data.
   unconstrained ones. No match rejects; tied most-specific candidates are
   ambiguous. Library membership and registration order grant no priority.
   A call in a value function or a runtime body selects among the value
-  candidates. A call in composition selects among all of them; a value
+  candidates. A call in a test's or an application's value code (TST-3,
+  UNIT-14) selects among all of them, a value candidate outranking a
+  temporal one of the same parameter types, and a temporal candidate it
+  selects rejects. A call in composition selects among all of them; a value
   candidate it selects for temporal arguments is lifted (FN-6). There, a
   temporal candidate outranks a value candidate of the same parameter
   types, as composition chooses the temporal definition of a pair (FN-4).
@@ -156,7 +159,8 @@ expression; group a constant expression that uses them as operand data.
   `add()` would. A
   value candidate and a temporal candidate with the same parameter types
   stay resolvable: a call in composition selects the temporal one (GEN-5),
-  and a call in a value function or a runtime body the value one.
+  and a call in a value function, a runtime body or value code the value
+  one.
 - **GEN-7.** A generic body is checked under its stated requirements; choosing
   a specialization does not authorize unrelated operations or reify a type/size
   parameter as an ordinary numeric runtime value. It is judged once, where it
