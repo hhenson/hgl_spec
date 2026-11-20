@@ -1,8 +1,9 @@
 # Control flow and sources
 
 Status: agreed conditionals, switch design, and phase-dependent independent
-iteration. Generator syntax and the shape of a source's body are agreed; the
-timing of a `yield` and the sentence of CTRL-6 that begins "Proposed:" are
+iteration. Generator syntax and the shape of a source's body are agreed, as
+is the sentence of SOURCE-3 that begins "Agreed:"; the rest of the timing
+of a `yield`, and the sentence of CTRL-6 that begins "Proposed:", are
 proposed.
 
 ## Grammar
@@ -333,7 +334,7 @@ statement of its block (LEX-5).
 ## Generators
 
 SOURCE-1 is agreed. SOURCE-2 to SOURCE-4, the timing of a `yield`, are
-proposed.
+proposed, but for the sentence of SOURCE-3 that begins "Agreed:".
 
 - **SOURCE-1.** A temporal `fn` whose body has a `yield` is a source: a node
   that produces its output and has no temporal parameters. It injects
@@ -356,9 +357,13 @@ proposed.
   current evaluation time; a datetime is absolute. Negative duration fails.
   Resolve duration addition with checked arithmetic.
 - **SOURCE-3.** Targets strictly increase across the invocation, including
-  skipped past targets. The first has no predecessor. A past absolute target
-  is skipped; a current target publishes now; a future target retains its
-  payload and suspends. On wake it publishes and resumes after yield.
+  skipped past targets. The first has no predecessor. Agreed: a past
+  absolute target is skipped, nothing is published for it and the body
+  goes on to its next `yield`, so that a source replaying recorded values
+  over a run that starts part way through them gives those from the run's
+  start on; a current target publishes now; a future target retains its
+  payload and suspends, and on wake it publishes and resumes after the
+  `yield`.
 - **SOURCE-4.** A bare return or body completion finishes the source. Locals
   survive suspension but are reconstructible, not recorded state. After restore
   the body restarts. A valued return and yield inside a value expression reject.
