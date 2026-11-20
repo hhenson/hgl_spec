@@ -3,8 +3,8 @@
 Status: agreed publication, handler, state/cache, and capability baseline.
 The alarm, the run-wide keyed store, collection validity with
 `all_valid` (TIME-9), and the read of a collection's child and of a
-collection whole (TIME-1) are agreed. The sentences of TIME-9 that begin
-"Proposed:" are proposed.
+collection whole (TIME-1) are agreed. The sentence of TIME-9 that begins
+"Proposed:" is proposed.
 
 ## Grammar
 
@@ -260,10 +260,10 @@ flowchart LR
   deep, an optional child aside: one whose type is `T?`, or a field that
   TYPE-4 makes optional, is not asked. For a list of lists, each contained
   list is present and has a valid element or is a published empty list.
-  It is true of a valid empty collection. Proposed: `all_valid` of a
-  collection that is not valid is false; and read as the child under
-  `all_valid`, `order.note`, an optional child that is not valid is null,
-  as it is in the whole value. A window is valid and all valid as TYPE-11
+  It is true of a valid empty collection. `all_valid` of a collection that
+  is not valid is false. Proposed: read as the child under `all_valid`,
+  `order.note`, an optional child that is not valid is null, as it is in
+  the whole value. A window is valid and all valid as TYPE-11
   has it.
   `all_valid` takes only a collection or a window; another endpoint is
   rejected (`endpoint.argument`). A call gives

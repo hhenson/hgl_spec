@@ -3,8 +3,7 @@
 Status: agreed conditionals, switch design, and phase-dependent independent
 iteration. Generator syntax and the shape of a source's body are agreed, as
 is the sentence of SOURCE-3 that begins "Agreed:"; the rest of the timing
-of a `yield`, and the sentence of CTRL-6 that begins "Proposed:", are
-proposed.
+of a `yield` is proposed.
 
 ## Grammar
 
@@ -62,7 +61,7 @@ CTRL-9 places the opening brace of an `if`, `for`, `switch`, `when`, or
   Definite assignment ignores paths that have already returned.
 - **CTRL-6.** Switch labels are typed source constants (UNIT-13), compared by
   resolved value. Duplicate values reject, including differently spelled
-  equal enum members, and `case 1:` beside `case 0x1:`. Proposed: two
+  equal enum members, and `case 1:` beside `case 0x1:`. Two
   labels are duplicates where `==` of the selector's type holds for them,
   and not by their sameness as constants. There is no fallthrough. An
   unmatched selector uses default or fails.

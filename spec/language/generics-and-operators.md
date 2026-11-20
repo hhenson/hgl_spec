@@ -1,7 +1,6 @@
 # Generics and operators
 
-Status: agreed generic, pack, and nominal-operator baseline. The sentences
-of GEN-3 and GEN-13 that begin "Proposed:" are proposed. Detailed core
+Status: agreed generic, pack, and nominal-operator baseline. Detailed core
 operation domains belong to core and retain their own decision status.
 
 ## Grammar
@@ -86,7 +85,7 @@ expression; group a constant expression that uses them as operand data.
   of types, `requires T in {i64, f64}`, authorizes in the body (GEN-7) an
   operation that each listed type has a candidate for, `a < b` there, and
   each instance selects its own candidate (GEN-5). An operation that a
-  listed type lacks rejects at the declaration. Proposed: a membership of a
+  listed type lacks rejects at the declaration. A membership of a
   generic value parameter, `requires M in {.fast, .slow}`, authorizes in
   the body a call that gives M as an option (GEN-6) where each listed value
   has a candidate that admits it, and each instance selects its own. A
@@ -240,8 +239,8 @@ expression; group a constant expression that uses them as operand data.
   calls for, at any depth. Where the instances of one declaration never
   end when the program is compiled, the program rejects, whatever a run of
   it would do: an implementation has a bound on the instances of one
-  declaration, and rejects the program where they pass it. Proposed: the
-  code `generic.instance_limit`, at the call that makes the first of them.
+  declaration, and rejects the program where they pass it, with the code
+  `generic.instance_limit`, at the call that makes the first of them.
 - **GEN-14.** Retain `<...>` for generic arguments. In a type position, or
   directly following (LEX-27) a name resolved to a generic type, function,
   or operator in an expression, `<` opens generic arguments rather than a
@@ -379,7 +378,7 @@ const fn climbed() -> i64 => climb<0>(3)
 `climb<N>` calls for `climb<N + 1>` whatever `x` is, so the call
 `climb<0>(3)` makes `climb<0>`, `climb<1>`, `climb<2>` and on without end
 when the program is compiled, and the program rejects, though a run of it
-would return 3 once `x` reached zero. Proposed: the code
+would return 3 once `x` reached zero. It rejects with the code
 `generic.instance_limit`, at that call, which makes the first of them.
 
 Accepted value-function fragments for a symbol as its call, with `n` an
@@ -539,7 +538,7 @@ candidate is written the same way. Deliberate rejections:
 compile-time constant (`generic.argument_constant`); and under GEN-3
 `requires rhs == 0.0` on either candidate, which reads a temporal input.
 
-Proposed illustration, declaration fragment, with the candidates of
+Accepted declaration fragment, with the candidates of
 `ratio` above, an option passed on through a generic value parameter
 (GEN-3, GEN-7):
 
