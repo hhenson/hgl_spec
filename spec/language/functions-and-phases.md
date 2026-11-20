@@ -1,7 +1,8 @@
 # Functions and phases
 
 Status: agreed function roles, classification, defaults, lifting, and
-anonymous-function scope. The `ref` mode (FN-16) is agreed.
+anonymous-function scope. The `ref` mode (FN-16) is agreed, but for its
+sentence that begins "Proposed:", which is proposed.
 
 ## Grammar
 
@@ -226,7 +227,10 @@ Local source/native declaration matching is defined in the native chapter.
   `return` to a `ref` result designates them. A read of the value or of
   the `delta_value` of one rejects when the program is compiled.
   That read rejects with the code `ref.read`, and a mark on what is no
-  node, or on a `signal` parameter, with `ref.position`.
+  node, or on a `signal` parameter, with `ref.position`. Proposed:
+  `removed_value` (TYPE-11) is set aside as `delta_value` is, for a `ref`
+  parameter, a child of one, and `out` of a `ref` result: a read of it
+  there rejects with `ref.read`.
   A `return` to a `ref` result is given an expression that names an
   endpoint: a temporal input of the node, `ref` or not, or a child of one,
   `items[idx]`. Returning a whole `ref` parameter samples its current
