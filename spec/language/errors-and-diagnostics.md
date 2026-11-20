@@ -199,7 +199,7 @@ infrastructure and cannot satisfy a source-rejection expectation.
 | phase | `out.lifecycle` | `out` used in `start` or written in `stop`, or a `return` with a value in either (TIME-7); the use |
 | phase | `input.lifecycle` | A temporal input read, or given to an endpoint operation, in `start` (TIME-5); the use |
 | phase | `payload.unguarded` | Payload read under manual admission, in a `when` or in `stop`, that no guard dominates (TIME-4, TIME-5); or a read of a child at a constant index or a field that nothing admits, or of a struct, a tuple or a fixed list whole that its `all_valid` does not admit (TIME-1); read |
-| phase | `ref.read` | Proposed: the value or the `delta_value` of a `ref` parameter, of a child of one, or of `out` of a `ref` result, read (FN-16); the read |
+| phase | `ref.read` | The value or the `delta_value` of a `ref` parameter, of a child of one, or of `out` of a `ref` result, read (FN-16); the read |
 | phase | `endpoint.argument` | Endpoint operation given what is no temporal input of its function, no child of one, and not `out`, or `all_valid` given neither a collection (a list, tuple, struct or dictionary) nor a window (TIME-9); argument |
 | type | `schedule.duration_bounds` | A wake asked for with a `duration` that is not more than zero, other than a zero in `start`, whose value the compiler sees (TIME-8); the duration |
 | phase | `scheduled.lifecycle` | `scheduled()` in `start` or `stop` (TIME-9); the selector |
@@ -221,7 +221,7 @@ infrastructure and cannot satisfy a source-rejection expectation.
 | type | `generic.kind_unresolved` | No field or constraint says what a struct's generic parameter is (GEN-13); parameter name |
 | type | `generic.argument_kind` | Generic argument is a value where the parameter is a type, or a type where it is a value (GEN-14); argument |
 | type | `generic.unresolved` | Call leaves a generic parameter of its callee unresolved (GEN-2, GEN-8); callee name |
-| type | `generic.instance_limit` | Proposed: instances of one generic declaration past the implementation's bound, as instances that never end when the program is compiled are (GEN-13); the call that makes the first of them |
+| type | `generic.instance_limit` | Instances of one generic declaration past the implementation's bound, as instances that never end when the program is compiled are (GEN-13); the call that makes the first of them |
 | type | `generic.argument_constant` | Call gives a generic value parameter of its callee no compile-time constant (GEN-8); argument |
 | constraint | `requires.unmet` | Call of a function, or application of a struct, whose `requires` does not hold with its generic arguments (GEN-3, GEN-16); the call or the application |
 | type | `struct.parent` | Parent is not an abstract struct (TYPE-3); parent |
@@ -241,7 +241,7 @@ infrastructure and cannot satisfy a source-rejection expectation.
 | type | `sequence.context_type` | Sequence whose entries give no type, where none is expected (EXPR-9); the sequence |
 | type | `enum.context_type` | `.member` where no enum type is expected (TYPE-7); the member |
 | name | `binding.unassigned` | `var` read on a path that gives it no value (EXPR-3); the read |
-| name | `binding.immutable` | Assignment to an immutable binding: a `let`, a parameter, an iteration binding, or a field or element of one (EXPR-3), or to a property of a native type (NATIVE-6) or of a delta (TYPE-16); or one given to a `var` parameter (FN-15). Proposed: also an assignment to a part of `out` of a `ref` result, `out.bid = x` (FN-16); target |
+| name | `binding.immutable` | Assignment to an immutable binding: a `let`, a parameter, an iteration binding, or a field or element of one (EXPR-3), or to a property of a native type (NATIVE-6) or of a delta (TYPE-16); or one given to a `var` parameter (FN-15). Also an assignment to a part of `out` of a `ref` result, `out.bid = x` (FN-16); target |
 | type | `binding.category` | Assignment of a connection to a `var` that holds an ordinary value, or the reverse; assignment in a branch of a temporal `if` or `switch` to a `var` declared before it that holds an ordinary value (EXPR-4, CTRL-14); the value |
 | type | `argument.order` | Argument with no name after a named one (EXPR-2); the argument |
 | type | `argument.unexpected` | Positional argument that no parameter is left to take (EXPR-2), one given to a struct's constructor (TYPE-5), or a second given to an enum's (TYPE-7); the argument |
@@ -251,7 +251,7 @@ infrastructure and cannot satisfy a source-rejection expectation.
 | type | `argument.constant` | In a hook or a value function, a `const` parameter given what is no constant expression (FN-1); argument |
 | type | `argument.place` | `var` parameter given what is no place: a literal, what a call gives, or any other expression that nothing assigns (FN-15); argument |
 | function-kind | `parameter.var` | `var` parameter of a temporal function, a temporal candidate, or an operator, or one whose type is a capability's or `endpoint<T>` (FN-15); `var` |
-| function-kind | `ref.position` | Proposed: `ref` on a parameter or the result of what is no node, a value function, a graph or an operator, or on a `signal` parameter (FN-16, TYPE-12); `ref` |
+| function-kind | `ref.position` | `ref` on a parameter or the result of what is no node, a value function, a graph or an operator, or on a `signal` parameter (FN-16, TYPE-12); `ref` |
 | function-kind | `call.role` | Temporal function called from a value function or a runtime hook (FN-3); callee name |
 | type | `return.missing` | Value function that declares a result can reach its end with no value (FN-7), or a graph that returns a value in a branch of a temporal `if` or `switch` can (CTRL-14); function name |
 | type | `switch.duplicate_label` | Switch label has the value of an earlier label (CTRL-6); later label |

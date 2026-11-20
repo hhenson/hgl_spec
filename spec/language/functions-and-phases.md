@@ -1,8 +1,7 @@
 # Functions and phases
 
 Status: agreed function roles, classification, defaults, lifting, and
-anonymous-function scope. The `ref` mode (FN-16) is agreed, but for its
-sentences that begin "Proposed:", which are proposed.
+anonymous-function scope. The `ref` mode (FN-16) is agreed.
 
 ## Grammar
 
@@ -226,8 +225,8 @@ Local source/native declaration matching is defined in the native chapter.
   endpoint operations take them (TIME-9), `delta_value` aside, and a
   `return` to a `ref` result designates them. A read of the value or of
   the `delta_value` of one rejects when the program is compiled.
-  Proposed: that read rejects with the code `ref.read`, and a mark on what
-  is no node, or on a `signal` parameter, with `ref.position`.
+  That read rejects with the code `ref.read`, and a mark on what is no
+  node, or on a `signal` parameter, with `ref.position`.
   A `return` to a `ref` result is given an expression that names an
   endpoint: a temporal input of the node, `ref` or not, or a child of one,
   `items[idx]`. Returning a whole `ref` parameter samples its current
@@ -242,8 +241,8 @@ Local source/native declaration matching is defined in the native chapter.
   rejects there (`type.mismatch`). A parameter that is not `ref` may be
   designated too, and a body may both read and designate it. A `ref`
   result designates one endpoint whole: an assignment to a part of its
-  `out`, `out.bid = x` or `out[0] = x`, rejects. Proposed: that assignment
-  rejects with the code `binding.immutable`. Proposed:
+  `out`, `out.bid = x` or `out[0] = x`, rejects. That assignment rejects
+  with the code `binding.immutable`.
   `out = items[idx]` designates as `return items[idx]` does, and is
   rejected where the `return` would be; otherwise `out` of a `ref` result
   is as a `ref` parameter is: the endpoint operations take it,

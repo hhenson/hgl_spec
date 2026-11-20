@@ -1,8 +1,7 @@
 # Types and values
 
 Status: agreed type foundation, `delta<T>` (TYPE-16) and `tenor` (TYPE-17)
-included. The sentences of TYPE-11 and TYPE-16 that begin "Proposed:",
-and the storage extensions below, are proposed.
+included. The storage extensions below are proposed.
 
 ## Grammar
 
@@ -226,7 +225,7 @@ rejection (TYPE-12, TYPE-14). TYPE-16 says what a `delta_type` is.
   arrived or left. A published window delta with no `added`
   names no change (TIME-7).
   `valid` of a window is true once it holds a value, fewer than its
-  minimum included. Proposed: one emptied by exits stays valid.
+  minimum included. One emptied by exits stays valid.
   `all_valid` is true where it holds at least its minimum (TIME-9): of a
   tick count, Min values; of a duration, values whose arrival times, from
   the oldest held to the newest, span at least Min. A minimum of `0s` is
@@ -325,7 +324,7 @@ rejection (TYPE-12, TYPE-14). TYPE-16 says what a `delta_type` is.
   not malformed where they are equal:
   `delta<rolling_window<i64, 2>>(added: 3, removed: 3)` is a 3 that
   arrives as an earlier 3 leaves. A run
-  makes no check, and what it does with one is undefined. Proposed: two
+  makes no check, and what it does with one is undefined. Two
   keys, or two members, that a delta names are one where its collection
   takes them as one, and not by their sameness as constants (UNIT-13).
   A `removed` that
@@ -435,7 +434,7 @@ The window ticks at each arrival, and at each exit, one smallest step
 | 4s | 4.0 | | 2.0, 3.0, 4.0 | `[true, true]`: 2.0, of age 3s, is held |
 | 4s + 1us | | 2.0 | 3.0, 4.0 | `[true, true]` |
 | 5s + 1us | | 3.0 | 4.0 | `[true, false]` |
-| 7s + 1us | | 4.0 | | `[true, false]`: empty; as proposed, valid |
+| 7s + 1us | | 4.0 | | `[true, false]`: empty, and valid |
 | 9s | 5.0 | | 5.0 | `[true, false]` |
 | 12s + 1us | | 5.0 | | `[true, false]`, as at 7s + 1us |
 
