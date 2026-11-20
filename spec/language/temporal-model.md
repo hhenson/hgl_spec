@@ -3,8 +3,8 @@
 Status: agreed publication, handler, state/cache, and capability baseline.
 The alarm, the run-wide keyed store, collection validity with
 `all_valid` (TIME-9), and the read of a collection's child and of a
-collection whole (TIME-1) are agreed. The sentences of TIME-9 that begin
-"Proposed:" are proposed.
+collection whole (TIME-1) are agreed. The sentences of TIME-9 and
+TIME-10 that begin "Proposed:" are proposed.
 
 ## Grammar
 
@@ -294,19 +294,22 @@ flowchart LR
   endpoint, the reader observes that one from that cycle: it ticks there
   with the value that endpoint holds, whether or not the endpoint
   publishes in that cycle; where the endpoint holds none, the reader is
-  not valid, and is silent until the endpoint publishes; and a publication
-  of the endpoint left behind no longer reaches it. Where the result is
-  given the designation it holds, the reader observes nothing.
+  silent until the endpoint publishes; and a publication of the endpoint
+  left behind no longer reaches it. Where the result is given the
+  designation it holds, that gives the reader no tick: it goes on
+  observing the endpoint, a publication of it in that cycle included.
   In a node, a `ref` parameter is passive to what it designates: a
   publication of that endpoint does not wake the node and satisfies no
   test of the parameter, and the endpoint operations given the parameter
-  (FN-16) observe the reference, not the endpoint. A handler that
-  subscribes to a `ref` parameter (TIME-3) is woken where the parameter is
-  given a designation; one that returns the parameter there has its
-  readers follow each change of what the parameter designates (FN-16).
+  (FN-16) observe the reference, not the endpoint.
   Saved routes do not extend an expired child lifetime. Structural child
   membership, child validity, and child publications are separate
-  observations supplied by core.
+  observations supplied by core. Proposed: a reader whose `ref` result
+  designates an endpoint that holds no value is not valid until that
+  endpoint publishes. Proposed: a handler that subscribes to a `ref`
+  parameter (TIME-3) is woken where the parameter is given a designation;
+  one that returns the parameter there has its readers follow each change
+  of what the parameter designates (FN-16).
 
 Accepted illustration, complete module:
 
