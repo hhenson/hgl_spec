@@ -260,7 +260,7 @@ infrastructure and cannot satisfy a source-rejection expectation.
 | type | `struct.abstract` | Abstract struct constructed (TYPE-3); name |
 | type | `call.not_callable` | Call of a native type's name, which no call constructs (NATIVE-6); name |
 | name | `member.unknown` | Struct has no field, or enum no member, of the name, or of the constant number or name an enum is constructed from (EXPR-7, TYPE-7); name or constant |
-| operator | `operator.no_candidate` | Call of an operator, by symbol or by name, that no candidate admits (GEN-5); operator |
+| operator | `operator.no_candidate` | Call of an operator, by symbol or by name, that no candidate admits (GEN-5), or, in a generic body, that its requirements make no candidate known to take (GEN-7); operator |
 | operator | `operator.ambiguous` | Call of an operator that two most-specific candidates admit equally (GEN-5); operator |
 | type | `default.order` | Parameter that may not be omitted follows one that may (UNIT-8); the later parameter |
 | type | `tuple.index` | Tuple's index is no constant, or is outside the tuple (EXPR-7); index |

@@ -1,8 +1,8 @@
 # Generics and operators
 
-Status: agreed generic, pack, and nominal-operator baseline. The sentence
-of GEN-13 that begins "Proposed:" is proposed. Detailed core operation
-domains belong to core and retain their own decision status.
+Status: agreed generic, pack, and nominal-operator baseline. The sentences
+of GEN-3 and GEN-13 that begin "Proposed:" are proposed. Detailed core
+operation domains belong to core and retain their own decision status.
 
 ## Grammar
 
@@ -82,7 +82,15 @@ expression; group a constant expression that uses them as operand data.
 - **GEN-3.** `requires` may use type/category membership, equalities, the
   membership of a constant in a set of constants, field/pack reflection, and
   named operator requirements. It cannot inspect temporal values or call
-  arbitrary language functions. A positive conjunctive equality
+  arbitrary language functions. A membership of a type parameter in a set
+  of types, `requires T in {i64, f64}`, authorizes in the body (GEN-7) an
+  operation that each listed type has a candidate for, `a < b` there, and
+  each instance selects its own candidate (GEN-5). An operation that a
+  listed type lacks rejects at the declaration. Proposed: a membership of a
+  generic value parameter, `requires M in {.fast, .slow}`, authorizes in
+  the body a call that gives M as an option (GEN-6) where each listed value
+  has a candidate that admits it, and each instance selects its own. A
+  positive conjunctive equality
   may bind one unresolved generic from known data; under negation/disjunction
   it only tests already-resolved data. Solve bindings to a fixed point; reject
   unresolved/conflicting dependencies. A call of a function whose `requires`
@@ -152,7 +160,15 @@ expression; group a constant expression that uses them as operand data.
   and a call in a value function or a runtime body the value one.
 - **GEN-7.** A generic body is checked under its stated requirements; choosing
   a specialization does not authorize unrelated operations or reify a type/size
-  parameter as an ordinary numeric runtime value.
+  parameter as an ordinary numeric runtime value. It is judged once, where it
+  is declared, by what its `requires` states, and never again for the
+  generic arguments a call of it gives. A call of an operator in it is
+  admitted where those requirements make a candidate known to take it, and
+  the declaration rejects where they do not (`operator.no_candidate`). They
+  make one known where a candidate takes every generic argument they
+  admit, where a named operator requirement states the call (GEN-16), and,
+  under a membership, where each listed type has one (GEN-3). Each instance
+  then selects its own candidate (GEN-5).
 - **GEN-8.** `instantiate` requests candidates, not calls or exports. `_` there
   retains a generic parameter. A call may supply its generic arguments as a
   generic constructor does, `count<i64>(3)`. It may supply the first of them
@@ -472,6 +488,33 @@ select and a requirement is not tested against: the requirement does not
 hold, no candidate of `pass` admits the call, and it rejects
 (`operator.no_candidate`). Conformance planned.
 
+Accepted declaration fragments, generic bodies judged where they are
+declared (GEN-3, GEN-7):
+
+```hgl
+const fn less<T>(a: T, b: T) -> bool requires T in {i64, f64} => a < b
+
+operator kind_of<V>(value: V) -> i64
+
+impl const fn kind_of(value: i64) -> i64 => 1
+
+impl const fn kind_of<T>(value: T) -> i64 requires !(T == i64) => 2
+
+const fn wrap<U>(value: U) -> i64 requires kind_of(U) -> i64 => kind_of(value)
+```
+
+`<` has a candidate for two `i64` and one for two `f64`, so `less`
+compares under its membership, and the instances that `less(1, 2)` and
+`less(1.5, 2.0)` make each select their own. The requirement of `wrap`
+states its call: `wrap(7)` is 1, its instance selecting the first
+candidate of `kind_of`, and `wrap(true)` is 2, selecting the second.
+Deliberate rejections, each at its declaration, whatever
+its calls give (`operator.no_candidate`): `less` with no `requires`, as no
+candidate of `<` takes every `T`; `less` with `requires T in {i64, Point}`,
+for a `struct Point { x: f64 }` that `<` has no candidate for; and `wrap`
+with no `requires`, as the two candidates of `kind_of` between them take
+every `U` and neither takes every one. Conformance planned.
+
 Accepted declaration fragment, candidates for the values of an option that
 selects among them (GEN-6):
 
@@ -495,6 +538,21 @@ candidate is written the same way. Deliberate rejections:
 `ratio(a, b, zero: policy)` for a parameter `policy`, which is no
 compile-time constant (`generic.argument_constant`); and under GEN-3
 `requires rhs == 0.0` on either candidate, which reads a temporal input.
+
+Proposed illustration, declaration fragment, with the candidates of
+`ratio` above, an option passed on through a generic value parameter
+(GEN-3, GEN-7):
+
+```hgl
+fn ratio_in<const z: Zero>(lhs: f64, rhs: f64) -> f64
+    requires z in {.ieee, .nan} => ratio(lhs, rhs, zero: z)
+```
+
+The first candidate admits each listed value, and the instance that
+`ratio_in(a, b, z: .nan)` makes selects it. Deliberate rejections, at the
+declaration (`operator.no_candidate`): the same with no `requires`, as no
+candidate admits every `z`; and with `requires z in {.ieee, .error}`, as
+the candidate for `.error` gives no `f64`.
 
 Accepted declaration fragment, an option that does not select and that one
 candidate declares (GEN-6):
