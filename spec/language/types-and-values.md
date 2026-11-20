@@ -1,8 +1,7 @@
 # Types and values
 
 Status: agreed type foundation, `delta<T>` (TYPE-16) and `tenor` (TYPE-17)
-included. The sentence of TYPE-11 that begins "Proposed:", and the
-storage extensions below, are proposed.
+included. The storage extensions below are proposed.
 
 ## Grammar
 
@@ -211,8 +210,8 @@ rejection (TYPE-12, TYPE-14). TYPE-16 says what a `delta_type` is.
   null that arrives is told from no change where the delta is a struct's
   field, a tuple's position or a dictionary's entry: `delta_value` of it
   gives `delta<f64?>(value: 1.0)` for 1.0 and `delta<f64?>()` for a null.
-  Proposed: `removed_value` of it gives the V itself, null included, as it
-  is never part of a delta. In a cycle in which a
+  `removed_value` of it gives the V itself, null included, as it is never
+  part of a delta. In a cycle in which a
   value only leaves a window of a duration, the window ticks and has no
   delta: `delta_value` of it there gives an `err` where its place takes a
   `result` (ERR-14). That is the only tick of any temporal value with no
