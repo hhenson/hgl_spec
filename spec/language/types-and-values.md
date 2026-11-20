@@ -1,7 +1,8 @@
 # Types and values
 
 Status: agreed type foundation, `delta<T>` (TYPE-16) and `tenor` (TYPE-17)
-included. The storage extensions below are proposed.
+included. The sentences of TYPE-11 and TYPE-16 that begin "Proposed:",
+and the storage extensions below, are proposed.
 
 ## Grammar
 
@@ -204,7 +205,14 @@ rejection (TYPE-12, TYPE-14). TYPE-16 says what a `delta_type` is.
   of its own, and an exit and an arrival in one cycle are one tick. When
   the last value leaves, the window is empty.
   A window's delta (TYPE-16) is the value that arrived in the cycle, and
-  is read before the window is `all_valid` as after. In a cycle in which a
+  is read before the window is `all_valid` as after. Proposed: that of a
+  window of a nullable V, `rolling_window<f64?, 3>`, is the nullable's own
+  delta, `delta<f64?>`, which holds what arrived, a null among them, so
+  that a null that arrives is told from no change where the delta is a
+  struct's field, a tuple's position or a dictionary's entry:
+  `delta_value` of it gives `delta<f64?>(value: 1.0)` for 1.0 and
+  `delta<f64?>()` for a null, and `removed_value` gives the V itself, null
+  included, as it is never part of a delta. In a cycle in which a
   value only leaves a window of a duration, the window ticks and has no
   delta: `delta_value` of it there gives an `err` where its place takes a
   `result` (ERR-14). That is the only tick of any temporal value with no
@@ -330,7 +338,7 @@ rejection (TYPE-12, TYPE-14). TYPE-16 says what a `delta_type` is.
 | `V?`, V an ordinary value type | A type of its own, an optional, with the property `value`, a `delta<V>?`: null for a published null (TYPE-15) |
 | `V?`, V no ordinary value type, as `rolling_window<f64, 5>?` | `delta<V>`: the `?` marks an argument or a field that may be left out (TYPE-14), and is no part of what is published |
 | `atomic<V>` | V: an atomic publishes whole |
-| `rolling_window<V, Max, Min>` | V: the value that arrived |
+| `rolling_window<V, Max, Min>` | V: the value that arrived. Proposed: for a nullable V, `delta<V>`, the optional of the row for `V?`, so that a null that arrives is told from no change (TYPE-11) |
 | `list<V>`, `list<V, N>` | A type of its own, with the properties `updated`, a `dict<i64, delta<V>>` of each changed position with its delta, `removed`, a `set<i64>` of the positions that lost their value, and `size_modified`, an `i64?`: the new size where the size changed, else null, and as written a negative count to reduce it by |
 | `tuple<A, B>` | `tuple<delta<A>?, delta<B>?>`: each position's delta, null where it did not change |
 | `set<K>` | A type of its own, with the properties `added` and `removed`, each a `set<K>` |
