@@ -3,8 +3,8 @@
 Status: agreed publication, handler, state/cache, and capability baseline.
 The alarm, the run-wide keyed store, collection validity with
 `all_valid` (TIME-9), and the read of a collection's child and of a
-collection whole (TIME-1) are agreed. The sentences of TIME-7, TIME-8,
-TIME-9 and TIME-10 that begin "Proposed:" are proposed.
+collection whole (TIME-1) are agreed. The sentences of TIME-9 and
+TIME-10 that begin "Proposed:" are proposed.
 
 ## Grammar
 
@@ -93,7 +93,9 @@ flowchart LR
   An explicit `modified()` also subscribes to every temporal input and
   requires at least one of them to have published this cycle.
   `modified(a, b)` subscribes to the named inputs and requires a publication
-  on at least one of them. Invalidation of an active or passive input never
+  on at least one of them. An input that counts as modified as its branch
+  starts (CTRL-2) wakes its node and satisfies these tests as a publication
+  on it does. Invalidation of an active or passive input never
   satisfies a modification test for that input.
   Passivating an input removes it as a wake source. If a probe wakes the
   node in a cycle when passive `data` publishes, `when modified(data)`
@@ -104,7 +106,8 @@ flowchart LR
   body `modified([])`, as a bool, is true, at a wake that lands with an
   input's tick included: what the header selected is taken as nothing
   modified. Elsewhere, in another body or under a negation or a
-  disjunction, it is true in a cycle where no temporal input was modified.
+  disjunction, it is true in a cycle where no temporal input was modified,
+  and so false where one counts as modified as its branch starts.
   A wake by the scheduler or alarm wakes the handlers that subscribe to no
   input and those whose header has `scheduled()` (TIME-9) alone or as a
   top-level conjunct. Such a wake alone runs no other handler: one with no
@@ -128,19 +131,26 @@ flowchart LR
 - **TIME-4.** Aggregate subscriptions cover every handler. Node-wide validity
   includes only requirements common to executable handlers; other guards stay
   per-handler. A payload read under manual admission must be dominated by a
-  successful guard. A guard is a test of `valid(input)`, on the input by its
+  successful guard. A guard is a test of `valid(input)` or of
+  `modified(input)`, on the input by its
   name, that holds where the read stands: in the branch it holds for, in the
   right operand of the `&&` it guards, and after a branch that returns, the
-  paths a null test is followed along (ERR-12). A saved bool proves nothing.
+  paths a null test is followed along (ERR-12). An input is not modified
+  without being valid, so `modified` of it guards what `valid` of it does;
+  `modified(a, b)`, which holds where either is, guards neither. A saved
+  bool proves nothing.
   `valid` and `all_valid` retain distinct child-validity rules. A child's
-  guard is a test of `all_valid` of its input, or of `valid` of the child
-  as the read names it, `valid(parts[1])` for `parts[1]` (TIME-1). The
+  guard is a test of `all_valid` of its input, or of `valid` or `modified`
+  of the child as the read names it, `valid(parts[1])` for `parts[1]`
+  (TIME-1). The
   guard of a whole read of a struct, a tuple or a fixed list, a child
   among them, is a test of `all_valid` of what it reads, `all_valid(quote)`
   for `quote` and `all_valid(rows[0])` for `rows[0]`; of a
-  dictionary or an unsized list, `valid` of it, as of any input. A `when`
+  dictionary or an unsized list, `valid` or `modified` of it, as of any
+  input. A `when`
   header that has the test alone or as a top-level
-  conjunct guards its body, `when all_valid(quote)`.
+  conjunct guards its body, `when all_valid(quote)` and
+  `when modified(a) && valid([])`.
 - **TIME-5.** State/cache/inject declarations precede executable hooks. At most
   one start and one stop are admitted. State initializers cannot read current
   temporal inputs. `start` reads no temporal input and gives none to an
@@ -179,13 +189,13 @@ flowchart LR
   marks nothing `modified`, wakes no subscriber, and a trace records
   nothing for it (TST-5). A struct, a tuple and a `list<V, N>` are valid where a
   child is (TIME-9), and such a delta of one, `delta<Quote>()`, sets no
-  child: it changes no validity, and is never a tick. Proposed: a delta
-  whose every entry is ignored, the removal of a key, a member or a
-  position that is not held (TYPE-16), names no change, so
-  `delta<set<i64>>(removed: [9])` on a valid set that does not hold 9 is
-  no tick. A value published whole, the same again or empty, is no delta,
-  and ticks as any publication does: `return []` to a valid empty list
-  ticks.
+  child: it changes no validity, and is never a tick. A delta whose every
+  entry is ignored, the removal of a key, a member or a position that is
+  not held (TYPE-16), names no change too, and ticks only where it makes
+  the value valid: `delta<set<i64>>(removed: [9])` on a valid set that
+  does not hold 9 is no tick. A value published whole, the same again or
+  empty, is no delta, and ticks as any publication does: `return []` to a
+  valid empty list ticks.
   A `return` with no value publishes nothing (FN-7). A result of
   `atomic<V>` takes a V. A `ref` result takes no value: a `return` to it
   names an endpoint, which it designates, and `out` of it is as FN-16
@@ -215,9 +225,9 @@ flowchart LR
   in `start`, which takes zero too: `schedule(scheduler, 0s)` there asks
   for a wake at the start, the node's first evaluation. A duration that is
   not admitted, a negative one in `start` included, rejects where the compiler
-  sees its value, a literal or a constant (UNIT-13), and elsewhere fails
-  the call as the program runs. Proposed: both with the code
-  `schedule.non_positive_duration`. A wake asked for at a `datetime`
+  sees its value, a literal or a constant (UNIT-13), with
+  `schedule.duration_bounds`, and elsewhere fails the call as the program
+  runs, with `schedule.non_positive_duration`. A wake asked for at a `datetime`
   before the evaluation time is dropped: there is no wake, and no failure.
   Core's capability contract has the rest of what a wake is.
 - **TIME-9.** `endpoint<T>` is the type of the endpoint of a temporal value
@@ -409,7 +419,7 @@ one, which publishes 0: the graph is connected by then, and the publication
 is a tick like any other. `valid([])` admits that handler before `value` has
 published; it reads no input, so it needs no guard. Deliberate rejection:
 `schedule(scheduler, 0s)` in a `when`, where a delay is more than zero
-(TIME-8). Conformance planned.
+(TIME-8, `schedule.duration_bounds`). Conformance planned.
 
 Accepted illustration, complete module, a delta that names no change
 (TIME-7):
@@ -515,6 +525,10 @@ fn while_a_valid(a: f64, b: f64) -> f64 {
     when valid(a) { return a }
 }
 
+fn latest_a(a: f64, b: f64) -> f64 {
+    when modified(a) && valid([]) { return a }
+}
+
 fn sum_or_zero(a: f64, b: f64) -> f64 {
     when valid([]) {
         if valid(a) && valid(b) { return a + b }
@@ -545,6 +559,7 @@ over three cycles, each input keeping its value while it is silent:
 | `default_sum`, `explicit_sum` | None; `modified(a, b) && valid(a, b)` | Nothing, 11.0, 23.0 | Both inputs are valid from the second cycle, and at least one publishes in each cycle |
 | `on_a` | `modified(a)` | Nothing, nothing, 23.0 | `b` cannot wake it; validity is the default, both inputs |
 | `while_a_valid` | `valid(a)` | 1.0, 1.0, 3.0 | Subscription is the default, so `b` wakes it while `a` holds 1.0 |
+| `latest_a` | `modified(a) && valid([])` | 1.0, nothing, 3.0 | `b` cannot wake it and nothing is required valid; `modified(a)` guards the read of `a` (TIME-4) |
 | `sum_or_zero` | `valid([])` | 0.0, 11.0, 23.0 | Nothing is required of the inputs, and the body guards each read |
 
 `sampled` subscribes to no input: `a` is passive for it. Its scheduler,
@@ -560,7 +575,9 @@ scheduler, so it is dormant, which is what it is for, and it acknowledges
 the warning. Without the annotation it is warned of (`node.no_activation`)
 and still accepted, as `sampled` would be with no `start`. Deliberate
 rejections: in `while_a_valid`, `return a + b`, a read of `b` that neither
-the header requires nor a guard proves (`payload.unguarded`); and
+the header requires nor a guard proves (`payload.unguarded`); in
+`latest_a`, `modified(a, b)` in place of `modified(a)`, which holds where
+either has published and guards neither (`payload.unguarded`); and
 `modified([a, b])` and `valid([a, b])`, where the inputs are named as
 arguments. Conformance planned.
 

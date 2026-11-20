@@ -1,7 +1,8 @@
 # Generics and operators
 
-Status: agreed generic, pack, and nominal-operator baseline. Detailed core
-operation domains belong to core and retain their own decision status.
+Status: agreed generic, pack, and nominal-operator baseline. The sentence
+of GEN-13 that begins "Proposed:" is proposed. Detailed core operation
+domains belong to core and retain their own decision status.
 
 ## Grammar
 
@@ -218,7 +219,13 @@ expression; group a constant expression that uses them as operand data.
   canonical and each value one constant (UNIT-13), make one type, or one
   instance of a generic function; arguments that differ make another. For
   `struct Scaled<const k: f64>`, `Scaled<1>` and `Scaled<1.0>` are one
-  type, and `Scaled<-0.0>` is not `Scaled<0.0>`.
+  type, and `Scaled<-0.0>` is not `Scaled<0.0>`. A call makes the
+  instance its generic arguments name, and that instance the ones its body
+  calls for, at any depth. Where the instances of one declaration never
+  end when the program is compiled, the program rejects, whatever a run of
+  it would do: an implementation has a bound on the instances of one
+  declaration, and rejects the program where they pass it. Proposed: the
+  code `generic.instance_limit`, at the call that makes the first of them.
 - **GEN-14.** Retain `<...>` for generic arguments. In a type position, or
   directly following (LEX-27) a name resolved to a generic type, function,
   or operator in an expression, `<` opens generic arguments rather than a
@@ -340,6 +347,24 @@ const fn reciprocal<const k: f64>() -> f64 => 1.0 / k
 infinity, whichever is called first. With `requires k == 0.0` added,
 `reciprocal` admits both of those calls (GEN-3). Deliberate rejection: a
 `Scaled<-0.0>` where a `Scaled<0.0>` is expected (`type.mismatch`).
+
+Deliberate rejection, declaration fragments, a generic whose instances
+never end (GEN-13):
+
+```hgl
+const fn climb<const N: i64>(x: i64) -> i64 {
+    if x <= 0 { return N }
+    return climb<N + 1>(x - 1)
+}
+
+const fn climbed() -> i64 => climb<0>(3)
+```
+
+`climb<N>` calls for `climb<N + 1>` whatever `x` is, so the call
+`climb<0>(3)` makes `climb<0>`, `climb<1>`, `climb<2>` and on without end
+when the program is compiled, and the program rejects, though a run of it
+would return 3 once `x` reached zero. Proposed: the code
+`generic.instance_limit`, at that call, which makes the first of them.
 
 Accepted value-function fragments for a symbol as its call, with `n` an
 `i64`, `xs` a `list<f64>`, and structs `Round` and `Square` that inherit

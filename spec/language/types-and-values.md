@@ -206,11 +206,13 @@ rejection (TYPE-12, TYPE-14). TYPE-16 says what a `delta_type` is.
   tick count, Min values; of a duration, values whose arrival times, from
   the oldest held to the newest, span at least Min, a minimum of `0s` being
   read as Max. So a window of a duration may hold its minimum and later
-  not, as values leave. A read of a
-  window's value before it is `all_valid` fails. That value, read in a hook
-  or given to a lifted helper (FN-12), is a `list<V>` of the values held,
-  oldest first, and the read before `all_valid` fails with
-  `value.unset_read`.
+  not, as values leave. A window's value, read in a hook or given to a
+  lifted helper (FN-12), is a `list<V>` of the values held, oldest first.
+  A read of it before the window is `all_valid` fails with
+  `value.unset_read`, or gives an `err` of an `error` with that code where
+  its place takes a `result<list<V>, error>`, as a child's read checked
+  when it runs does (ERR-14). A lifted helper is given it only once the
+  window is `all_valid`, whatever the parameter's default (FN-11, FN-12).
 - **TYPE-12.** `ref` is no type. It is a mode, written before a temporal
   parameter of a node and before the node's result, and the type is the T
   that follows it (FN-16). A type holds no reference: `ref<T>` is not
@@ -227,7 +229,8 @@ rejection (TYPE-12, TYPE-14). TYPE-16 says what a `delta_type` is.
   the whole type of a function's temporal parameter, or of its positional
   pack, `ticks: ...signal`. It is not a result, nested shape, field, const
   value, local's annotation, or anonymous function's parameter. A `signal`
-  input takes no default but `null`.
+  input takes no default but `null`, and is not marked `ref` (FN-16): it has
+  no payload to designate.
   `endpoint<T>` is the endpoint of a temporal value of T, for a function
   that takes the endpoint and not its payload (TIME-9). It is the whole type
   of a parameter of a native value function, and of nothing else.
@@ -296,8 +299,9 @@ rejection (TYPE-12, TYPE-14). TYPE-16 says what a `delta_type` is.
   names a key a dictionary does not hold is ignored, and is no failure, as
   one that names a member a set does not hold is. So is one that names a
   position of a list that holds no value, never set or already removed.
-  Published, a delta that names no change, `delta<set<i64>>()`, ticks
-  only where it makes the value valid (TIME-7).
+  Published, a delta that names no change, `delta<set<i64>>()` or one
+  whose every entry is so ignored, ticks only where it makes the value
+  valid (TIME-7).
 
 | T | `delta<T>` |
 | --- | --- |
@@ -401,7 +405,9 @@ drop it, and nothing ticks. From 4s to 9s it holds values older than 3s
 in the same way. With `rolling_window<f64, 3, 2>` in place of the
 duration, the window is all valid from 1s, and the arrival of 4.0 drops
 1.0. A handler that reads the value of `prices` where it is not all valid,
-at 0s, 1s or 9s, fails. Conformance is planned.
+at 0s, 1s or 9s, fails; one whose result is a `result<list<f64>, error>`,
+`when { return prices }`, publishes there an `err` coded
+`value.unset_read` instead, and does not fail. Conformance is planned.
 
 Accepted expression fragments, zoned datetimes (TYPE-2); London's clocks go
 forward an hour at 01:00 UTC on 29 March 2026:
