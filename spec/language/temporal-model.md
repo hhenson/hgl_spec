@@ -3,8 +3,8 @@
 Status: agreed publication, handler, state/cache, and capability baseline.
 The alarm, the run-wide keyed store, collection validity with
 `all_valid` (TIME-9), and the read of a collection's child and of a
-collection whole (TIME-1) are agreed. The sentences of TIME-7 and TIME-9
-that begin "Proposed:" are proposed.
+collection whole (TIME-1) are agreed. The sentence of TIME-9 that begins
+"Proposed:" is proposed.
 
 ## Grammar
 
@@ -207,8 +207,8 @@ flowchart LR
   A `return` with no value publishes nothing (FN-7). A result of
   `atomic<V>` takes a V. A result of `rolling_window<V, Max, Min>` takes a
   V, which arrives, and nothing else (TYPE-11): for a nullable V, `return
-  null` is a null that arrives. Proposed: one of a nullable V takes its
-  delta as well, `delta<f64?>(value: 1.0)` or `delta<f64?>()`, as the
+  null` is a null that arrives. One of a nullable V takes its delta as
+  well, `delta<f64?>(value: 1.0)` or `delta<f64?>()`, as the
   arrival it holds, which is how a replay publishes a recorded one. A
   `ref` result takes no value: a `return` to it names an endpoint, which
   it designates, and `out` of it is as FN-16 gives it.
