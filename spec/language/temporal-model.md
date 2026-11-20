@@ -94,7 +94,8 @@ flowchart LR
   requires at least one of them to have published this cycle.
   `modified(a, b)` subscribes to the named inputs and requires a publication
   on at least one of them. An input that counts as modified as its branch
-  starts (CTRL-2) wakes its node and satisfies these tests as a publication
+  starts (CTRL-2), and a window of a duration that a value leaves
+  (TYPE-11), each wake the node and satisfy these tests as a publication
   on it does. Invalidation of an active or passive input never
   satisfies a modification test for that input.
   Passivating an input removes it as a wake source. If a probe wakes the
