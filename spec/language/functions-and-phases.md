@@ -230,9 +230,13 @@ Local source/native declaration matching is defined in the native chapter.
   is no node, or on a `signal` parameter, with `ref.position`.
   A `return` to a `ref` result is given an expression that names an
   endpoint: a temporal input of the node, `ref` or not, or a child of one,
-  `items[idx]`. The result designates the logical endpoint that path
-  names: its readers follow what that endpoint is bound to, a later
-  re-binding upstream included, and the node is not woken for it. No
+  `items[idx]`. Returning a whole `ref` parameter samples its current
+  designation when the `return` executes. Readers follow that target's
+  publications. If the input later designates another target, the result
+  keeps the sampled designation until the node writes its result again.
+  Returning an ordinary input or a child path designates the logical
+  endpoint named by the path. Readers follow a later rebinding of that
+  endpoint without waking the node for it. No
   payload is read, so nothing needs admitting (TIME-1), and a child is an
   endpoint whether or not it is valid. A value that names no endpoint
   rejects there (`type.mismatch`). A parameter that is not `ref` may be
