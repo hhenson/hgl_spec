@@ -290,12 +290,14 @@ flowchart LR
   carried between them.
   A reader of a `ref` result is an ordinary input given that result, one
   that is no `ref` parameter. It observes the endpoint designated as if
-  wired to it, and ticks where that endpoint publishes. Where the result
+  wired to it: it is valid where that endpoint is, and ticks where that
+  endpoint publishes. Where the result
   comes to designate another endpoint, the reader observes that one from
   that cycle: it ticks there
   with the value that endpoint holds, whether or not the endpoint
   publishes in that cycle; where the endpoint holds none, the reader is
-  silent until the endpoint publishes; and a publication of the endpoint
+  not valid, and is silent, until the endpoint publishes, as the endpoint
+  itself is not valid until then; and a publication of the endpoint
   left behind no longer reaches it. Where the result is given the
   designation it holds, that gives the reader no tick: it goes on
   observing the endpoint, a publication of it in that cycle included.
@@ -307,10 +309,7 @@ flowchart LR
   designates holds, and nothing of that endpoint is seen through it.
   Saved routes do not extend an expired child lifetime. Structural child
   membership, child validity, and child publications are separate
-  observations supplied by core. Proposed: validity is among what a
-  reader observes of the endpoint, so a reader, `valid(value)` in a node
-  that takes the result as `value: f64`, is not valid while the endpoint
-  designated holds no value. Proposed: a handler that subscribes to a `ref`
+  observations supplied by core. Proposed: a handler that subscribes to a `ref`
   parameter (TIME-3) is woken where the parameter is given a designation;
   one that returns the parameter there has its readers follow each change
   of what the parameter designates (FN-16).
