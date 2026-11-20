@@ -288,10 +288,11 @@ flowchart LR
   The language fixes what the use of a reference produces, the ticks that
   reach a reader and what wakes a node, and not how a reference is
   carried between them.
-  An ordinary reader of a `ref` result observes the endpoint designated as
-  if wired to it: it is valid where that endpoint is, and ticks where that
-  endpoint publishes. Where the result comes to designate another
-  endpoint, the reader observes that one from that cycle: it ticks there
+  A reader of a `ref` result is an ordinary input given that result, one
+  that is no `ref` parameter. It observes the endpoint designated as if
+  wired to it, and ticks where that endpoint publishes. Where the result
+  comes to designate another endpoint, the reader observes that one from
+  that cycle: it ticks there
   with the value that endpoint holds, whether or not the endpoint
   publishes in that cycle; where the endpoint holds none, the reader is
   silent until the endpoint publishes; and a publication of the endpoint
@@ -301,12 +302,15 @@ flowchart LR
   In a node, a `ref` parameter is passive to what it designates: a
   publication of that endpoint does not wake the node and satisfies no
   test of the parameter, and the endpoint operations given the parameter
-  (FN-16) observe the reference, not the endpoint.
+  (FN-16) observe the reference, not the endpoint: `valid` of a `ref`
+  parameter is whether a reference is present, whatever the endpoint it
+  designates holds, and nothing of that endpoint is seen through it.
   Saved routes do not extend an expired child lifetime. Structural child
   membership, child validity, and child publications are separate
-  observations supplied by core. Proposed: a reader whose `ref` result
-  designates an endpoint that holds no value is not valid until that
-  endpoint publishes. Proposed: a handler that subscribes to a `ref`
+  observations supplied by core. Proposed: validity is among what a
+  reader observes of the endpoint, so a reader, `valid(value)` in a node
+  that takes the result as `value: f64`, is not valid while the endpoint
+  designated holds no value. Proposed: a handler that subscribes to a `ref`
   parameter (TIME-3) is woken where the parameter is given a designation;
   one that returns the parameter there has its readers follow each change
   of what the parameter designates (FN-16).
