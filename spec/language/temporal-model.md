@@ -201,8 +201,9 @@ flowchart LR
   included, as an equal scalar is (TIME-1); a key, a member or a position
   that it leaves out is removed. Where that leaves nothing to publish, a
   set given the members it holds, or an empty list or dictionary given to
-  a valid empty one, the value is unchanged, and it is no tick. Where the
-  value is not valid, it makes it valid, and ticks.
+  a valid empty one, the value is unchanged, and it is no tick. Where a
+  `list<V>`, a dictionary or a set is not valid, an empty one given whole
+  makes it valid, and ticks, as a delta that names no change does.
   A `return` with no value publishes nothing (FN-7). A result of
   `atomic<V>` takes a V. A `ref` result takes no value: a `return` to it
   names an endpoint, which it designates, and `out` of it is as FN-16
