@@ -96,7 +96,8 @@ a run configuration (RUN-1). `raises` is contextual immediately after assert.
   run start or absolute datetime keys. Keys strictly increase; no `_` occurs
   in timed traces. Within one eval all inputs and expectation use the same
   dense/timed style. Sparse expectations enumerate exactly the actual output
-  ticks and times.
+  ticks and times that the recording holds (TST-16): a tick of a window of
+  a duration in which a value only leaves it has no delta, and no entry.
 - **TST-8.** Eval is a run (RUN-4) of an entry made for it: core's replay for
   each temporal input, then the selected target, whose result is the entry's.
   The run is a simulation (RUN-3) under the eval's configuration: with none
@@ -115,14 +116,16 @@ a run configuration (RUN-1). `raises` is contextual immediately after assert.
 
 - **TST-16.** A trace given to a `const fn` is an ordinary value there, the
   output of the eval's run (RUN-1): for a result type T a
-  `list<tuple<datetime, delta<T>>>`, one tuple for each publication, and
-  for each exit of a window (TYPE-11), in time order. A tuple holds the
-  instant of the publication and what the target's result published
-  then, a `delta<T>` (TYPE-16), which is T itself for a scalar and V for
-  an `atomic<V>`: a `list<tuple<datetime, i64>>` for an `i64` result. A T
-  published whole is held as its delta too, as
+  `list<tuple<datetime, delta<T>>>`, one tuple for each publication, in
+  time order. A tuple holds the instant of the publication and what the
+  target's result published then, a `delta<T>` (TYPE-16), which is T itself
+  for a scalar and V for an `atomic<V>`: a `list<tuple<datetime, i64>>` for
+  an `i64` result. A T published whole is held as its delta too, as
   `delta_value` reads it (TIME-9). Nothing published is no entry, and a
-  published null is the delta that holds one. The trace is an eval's,
+  published null is the delta that holds one. Nor is a tick of a window
+  of a duration in which a value only leaves it, which has no delta
+  (TYPE-11): the trace holds the window's arrivals, and a dense one has
+  `_` there. The trace is an eval's,
   bound or not. A sequence written where a `const fn` takes an argument
   is the list it is written as: `ticks([(@2026-01-01T00:00:00Z, 7)])`
   gives `ticks` one tuple. The parameter is written with that type, and

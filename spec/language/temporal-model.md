@@ -3,8 +3,8 @@
 Status: agreed publication, handler, state/cache, and capability baseline.
 The alarm, the run-wide keyed store, collection validity with
 `all_valid` (TIME-9), and the read of a collection's child and of a
-collection whole (TIME-1) are agreed. The sentence of TIME-9 that begins
-"Proposed:" is proposed.
+collection whole (TIME-1) are agreed. The sentences of TIME-7 and TIME-9
+that begin "Proposed:" are proposed.
 
 ## Grammar
 
@@ -191,10 +191,7 @@ flowchart LR
   marks nothing `modified`, wakes no subscriber, and a trace records
   nothing for it (TST-5). A struct, a tuple and a `list<V, N>` are valid where a
   child is (TIME-9), and such a delta of one, `delta<Quote>()`, sets no
-  child: it changes no validity, and is never a tick. A
-  window's delta with no `added`, `delta<rolling_window<i64, 3>>()` or
-  `delta<rolling_window<i64, 3>>(removed: 1)`, adds no value, changes no
-  validity, and by itself is never a tick (TYPE-11). A delta whose every
+  child: it changes no validity, and is never a tick. A delta whose every
   entry is ignored, the removal of a key, a member or a position that is
   not held (TYPE-16), names no change too, and ticks only where it makes
   the value valid: `delta<set<i64>>(removed: [9])` on a valid set that
@@ -209,9 +206,12 @@ flowchart LR
   makes it valid, and ticks, as a delta that names no change does.
   A `return` with no value publishes nothing (FN-7). A result of
   `atomic<V>` takes a V. A result of `rolling_window<V, Max, Min>` takes a
-  V, which arrives, or a delta of the window (TYPE-11). A `ref` result
-  takes no value: a `return` to it names an endpoint, which it
-  designates, and `out` of it is as FN-16 gives it.
+  V, which arrives, and nothing else (TYPE-11): for a nullable V, `return
+  null` is a null that arrives. Proposed: one of a nullable V takes its
+  delta as well, `delta<f64?>(value: 1.0)` or `delta<f64?>()`, as the
+  arrival it holds, which is how a replay publishes a recorded one. A
+  `ref` result takes no value: a `return` to it names an endpoint, which
+  it designates, and `out` of it is as FN-16 gives it.
 - **TIME-8.** The injectables are `out`, `logger`, `clock`, `scheduler`,
   `alarm`, and `global_state`; `inject` names no other. `out` is the node's
   result (TIME-7). `inject` binds each of the others to a local of its
@@ -246,7 +246,9 @@ flowchart LR
   of T, for a function that takes the endpoint and not its payload
   (TYPE-12). The operations on an endpoint are core's native value functions
   with such a parameter: `valid`, `all_valid`, `modified`, `delta_value`,
-  `last_modified`, `invalidate`, `is_active`, `activate`, and `passivate`.
+  `removed_value`, `last_modified`, `invalidate`, `is_active`, `activate`,
+  and `passivate`. `removed_value` takes a window (TYPE-11), and nothing
+  else.
   A collection is a type whose temporal form has children valid on their
   own (TYPE-9): a list, a tuple, a struct and a dictionary. `valid` of a
   collection is true where any element, field or entry is valid: work is
