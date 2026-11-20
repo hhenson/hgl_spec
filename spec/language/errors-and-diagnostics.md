@@ -87,7 +87,18 @@ postfix suffix. `argument` is that grammar's call argument.
   so does a read of an unsized list whole with a position that holds no
   value, where its element type has no value for that (TIME-1), and a read
   of a window's value before it is `all_valid`, T being the `list<V>` it
-  reads as (TYPE-11).
+  reads as (TYPE-11). So does `delta_value` of any endpoint (TIME-9), T
+  being its `delta<T>`: where the place expects `result<delta<T>, error>`
+  it gives `ok` of the delta, or `err` coded `value.unset_read` where the
+  endpoint has no delta in the cycle; elsewhere it gives the delta, and
+  the read fails with that code where there is none. Only a window of a
+  duration has a tick with no delta, one in which a value only leaves it
+  (TYPE-11): for every other endpoint the `result` form is `ok`, so generic
+  code may read the delta of a T it does not know in that form.
+  `removed_value` of a window is read only where its place expects
+  `result<V, error>`, V the window's value type: it gives `ok` of the
+  value that left the window in the cycle, or that `err` where none left
+  (TYPE-11).
 - **ERR-7.** In composition, `capture(callable, args...)` creates a temporal
   error boundary. It names a callable and gives it the arguments its own call
   takes, positional or named, read, checked, and selected as that call's are
@@ -198,7 +209,7 @@ infrastructure and cannot satisfy a source-rejection expectation.
 | phase | `state.input_read` | State initializer reads a temporal input (TIME-5); the read |
 | phase | `out.lifecycle` | `out` used in `start` or written in `stop`, or a `return` with a value in either (TIME-7); the use |
 | phase | `input.lifecycle` | A temporal input read, or given to an endpoint operation, in `start` (TIME-5); the use |
-| phase | `payload.unguarded` | Payload read under manual admission, in a `when` or in `stop`, that no guard dominates (TIME-4, TIME-5); or a read of a child at a constant index or a field that nothing admits, or of a struct, a tuple or a fixed list whole that its `all_valid` does not admit (TIME-1); read |
+| phase | `payload.unguarded` | Payload read under manual admission, in a `when` or in `stop`, that no guard dominates (TIME-4, TIME-5); or a read of a child at a constant index or a field that nothing admits, or of a struct, a tuple or a fixed list whole that its `all_valid` does not admit (TIME-1); or a read of the delta of a window of a duration, or of `removed_value` of any window, whose place is not a `result` (TYPE-11); read |
 | phase | `ref.read` | The value or the `delta_value` of a `ref` parameter, of a child of one, or of `out` of a `ref` result, read (FN-16); the read |
 | phase | `endpoint.argument` | Endpoint operation given what is no temporal input of its function, no child of one, and not `out`, or `all_valid` given neither a collection (a list, tuple, struct or dictionary) nor a window (TIME-9); argument |
 | type | `schedule.duration_bounds` | A wake asked for with a `duration` that is not more than zero, other than a zero in `start`, whose value the compiler sees (TIME-8); the duration |
@@ -298,7 +309,7 @@ infrastructure and cannot satisfy a source-rejection expectation.
 | --- | --- |
 | `value.missing_key` | Strict ordinary dictionary lookup has no member |
 | `value.index_out_of_range` | An index outside a list, below zero or at or past its size, where a read or an assignment evaluates it (EXPR-3, EXPR-7) |
-| `value.unset_read` | Executed operation requires an unset ordinary payload, a collection's child that is not valid, or a struct, a tuple or a fixed list read whole that is not all valid, read where that is checked when it runs among them (TIME-1, ERR-14), an unsized list read whole with a position that holds no value, where its element type has no value for that (TIME-1), or a window's value read before it is `all_valid` (TYPE-11) |
+| `value.unset_read` | Executed operation requires an unset ordinary payload, a collection's child that is not valid, or a struct, a tuple or a fixed list read whole that is not all valid, read where that is checked when it runs among them (TIME-1, ERR-14), an unsized list read whole with a position that holds no value, where its element type has no value for that (TIME-1), a window's value read before it is `all_valid` (TYPE-11), or a `delta_value` read whose place is no `result` where its endpoint has no delta in the cycle (ERR-14) |
 | `value.capability` | Boxed executed operation lacks a required contained capability |
 | `value.byte_range` | Bytes construction receives an octet outside 0–255 |
 | `numeric.division_by_zero` | Explicit `?` propagation in `when` turns a checked-division Err into node failure; see the [core numeric contract](https://github.com/hhenson/hgl_core/blob/main/spec/numeric-operators.md) |
@@ -392,6 +403,8 @@ constant index that nothing admits (`payload.unguarded`). Conformance planned.
 | `binding.error` | A binding proved a failure | The E | `result.required_variant` |
 | `value?` | A `result<T,E>` | The T; a failure leaves the function or fails the node | `result.propagation_type`, `result.propagation_phase` |
 | `parts[i]` where `result<T, error>` is expected | A collection's child read when it runs (ERR-14) | `ok` of its value; `err` coded `value.unset_read` for a child that is not valid | None |
+| `delta_value(x)` where `result<delta<T>, error>` is expected | An endpoint (ERR-14) | `ok` of the delta; `err` coded `value.unset_read` where the endpoint has no delta in the cycle | None |
+| `removed_value(x)` | A window, where `result<V, error>` is expected (ERR-14) | `ok` of the value that left; `err` coded `value.unset_read` where none left | `payload.unguarded` elsewhere |
 | `error(message: text, code: code)` | A `str`, and a `str?` | An `error` | `type.mismatch` |
 | `capture(callable, args...)` | A temporal call | `.value` and `.error` connections | `capture.phase`, `capture.output_field` |
 
