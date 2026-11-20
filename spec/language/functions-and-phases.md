@@ -156,9 +156,8 @@ Local source/native declaration matching is defined in the native chapter.
   A valid value, including a valid null, is supplied as published. A struct,
   a tuple, a fixed list or a window is supplied only where it is
   `all_valid` as well, whatever its default or null contract (FN-12): one
-  that is valid and not all valid binds no fallback, and the helper is not
-  invoked. The default stands for an argument left out, not for one not
-  ready. Fallback
+  that is valid and not all valid binds no fallback, its default included,
+  and the helper is not invoked. Fallback
   changes admission/binding, not activation, and invents no input tick.
 - **FN-12.** Aggregate lifting passes the current ordinary aggregate value to
   one helper invocation, not separate elementwise invocations. The value is
