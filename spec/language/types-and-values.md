@@ -1,8 +1,8 @@
 # Types and values
 
 Status: agreed type foundation, `delta<T>` (TYPE-16) and `tenor` (TYPE-17)
-included. The sentence of TYPE-16 that begins "Proposed:" and the storage
-extensions below are proposed.
+included. The sentences of TYPE-11 and TYPE-16 that begin "Proposed:",
+and the storage extensions below, are proposed.
 
 ## Grammar
 
@@ -196,18 +196,27 @@ rejection (TYPE-12, TYPE-14). TYPE-16 says what a `delta_type` is.
   maximum. Size/kind are part of identity; window publications obey core's
   contract. A window holds the values that arrived at it, oldest first. One
   of a tick count holds the last Max: an arrival beyond them drops the
-  oldest. In one of a duration, a value is still held when its age is Max,
-  and one older than Max leaves when the next value arrives, and not
-  before: an arrival at t drops every value that arrived before t - Max.
-  Nothing ticks for an exit, so no reader is woken for one, and between
-  arrivals the window may hold values older than Max. `valid` of a window
-  is true once it holds a value, fewer than its minimum included.
+  oldest, and nothing else leaves it. In one of a duration, a value is held
+  while its age is at most Max: one that arrived at t is held at t + Max
+  and leaves one smallest step later (RUN-3), whether or not a value
+  arrives then. The window ticks for that exit: it wakes the window's
+  readers and satisfies `modified` as a publication does (TIME-3). A
+  window takes at most one value a cycle, so each value leaves in a cycle
+  of its own, and an exit and an arrival in one cycle are one tick. When
+  the last value leaves, the window is empty. Proposed: where a value
+  leaves and none arrives, `delta_value` of the window, which is the value
+  that arrived (TYPE-16), has no value, and its read fails with
+  `value.unset_read`.
+  `valid` of a window is true once it holds a value, fewer than its
+  minimum included. Proposed: one emptied by exits stays valid.
   `all_valid` is true where it holds at least its minimum (TIME-9): of a
   tick count, Min values; of a duration, values whose arrival times, from
-  the oldest held to the newest, span at least Min, a minimum of `0s` being
-  read as Max. So a window of a duration may hold its minimum and later
-  not, as values leave. A window's value, read in a hook or given to a
-  lifted helper (FN-12), is a `list<V>` of the values held, oldest first.
+  the oldest held to the newest, span at least Min. A minimum of `0s` is
+  held by the first value, and an empty window is not all valid, whatever
+  its minimum. So a window of a duration becomes all valid only at an
+  arrival, and may stop being all valid at an exit. A window's value, read
+  in a hook or given to a lifted helper (FN-12), is a `list<V>` of the
+  values held, oldest first.
   A read of it before the window is `all_valid` fails with
   `value.unset_read`, or gives an `err` of an `error` with that code where
   its place takes a `result<list<V>, error>`, as a child's read checked
@@ -390,24 +399,31 @@ fn observed(price: f64) -> list<bool, 2> => readiness(collect(price))
 ```
 
 `price` publishes 1.0 at 0s, 2.0 at 1s, 3.0 at 2s, 4.0 at 4s and 5.0 at 9s.
-The window ticks only at an arrival, which is when `readiness` is woken:
+The window ticks at each arrival, and at each exit, one smallest step
+(1us) after a value's age is 3s; `readiness` is woken at each:
 
 | Evaluation | Arrives | Leaves | Held | `observed` publishes |
 | --- | --- | --- | --- | --- |
 | 0s | 1.0 | | 1.0 | `[true, false]` |
 | 1s | 2.0 | | 1.0, 2.0 | `[true, false]`: the two span 1s |
 | 2s | 3.0 | | 1.0, 2.0, 3.0 | `[true, true]`: they span 2s |
-| 4s | 4.0 | 1.0 | 2.0, 3.0, 4.0 | `[true, true]`: 2.0, of age 3s, is held |
-| 9s | 5.0 | 2.0, 3.0, 4.0 | 5.0 | `[true, false]` |
+| 3s + 1us | | 1.0 | 2.0, 3.0 | `[true, false]`: the two span 1s |
+| 4s | 4.0 | | 2.0, 3.0, 4.0 | `[true, true]`: 2.0, of age 3s, is held |
+| 4s + 1us | | 2.0 | 3.0, 4.0 | `[true, true]` |
+| 5s + 1us | | 3.0 | 4.0 | `[true, false]` |
+| 7s + 1us | | 4.0 | | `[true, false]`: empty; as proposed, valid |
+| 9s | 5.0 | | 5.0 | `[true, false]` |
+| 12s + 1us | | 5.0 | | `[true, false]`, as at 7s + 1us |
 
-At 3.5s the window still holds 1.0, older than 3s: nothing has arrived to
-drop it, and nothing ticks. From 4s to 9s it holds values older than 3s
-in the same way. With `rolling_window<f64, 3, 2>` in place of the
-duration, the window is all valid from 1s, and the arrival of 4.0 drops
+At 3s the window holds 1.0, of age 3s, and nothing ticks. With
+`rolling_window<f64, 3, 2>` in place of the duration, the window is all
+valid from 1s, ticks only at an arrival, and the arrival of 4.0 drops
 1.0. A handler that reads the value of `prices` where it is not all valid,
-at 0s, 1s or 9s, fails; one whose result is a `result<list<f64>, error>`,
-`when { return prices }`, publishes there an `err` coded
-`value.unset_read` instead, and does not fail. Conformance is planned.
+at 0s, 1s, 3s + 1us, and from 5s + 1us, fails; one whose result is a
+`result<list<f64>, error>`, `when { return prices }`, publishes there an
+`err` coded `value.unset_read` instead, and does not fail.
+`delta_value(prices)` is 4.0 at 4s. Proposed: its read at 4s + 1us, where
+nothing arrives, fails with `value.unset_read`. Conformance is planned.
 
 Accepted expression fragments, zoned datetimes (TYPE-2); London's clocks go
 forward an hour at 01:00 UTC on 29 March 2026:
