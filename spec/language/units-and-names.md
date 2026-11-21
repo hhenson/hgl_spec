@@ -155,10 +155,11 @@ admits one as a member name.
   however it is written.
 - **UNIT-14.** An application is one file, headed `application name`, where
   a module's files are headed `module name`. The last name of its path is
-  none that a host takes for a kind of file: `app`, `exe`, `dll`, `so`,
-  `dylib`, `com`, `bat`, or `cmd`, in any case. An application is built as
-  a file of its own name, and a host may refuse to run one that ends so:
-  `application demo.pricing.app` rejects. Proposed: with the code
+  not two or three characters long. An application is built as a file of
+  its own name, and a host takes so short an ending for a kind of file
+  and may refuse to run it: `application demo.pricing.app` and
+  `application demo.pricing.so` reject, and `application
+  demo.pricing.live` is accepted. Proposed: with the code
   `application.name`. It holds what a module holds,
   and one run statement (RUN-1), which follows its declarations. Between its
   declarations and its run statement it may inject `run_config`, giving
