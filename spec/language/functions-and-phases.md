@@ -234,7 +234,10 @@ Local source/native declaration matching is defined in the native chapter.
   parameters (UNIT-12). From the functions and blocks around it, its body
   uses only parameters, generic parameters, `let` locals, and iteration
   bindings. Use of an enclosing `var`, `state`, `cache`, or injected
-  capability rejects.
+  capability rejects. A parameter marked `var` (FN-15) is a `var` here:
+  its use rejects as a `var` local's does, since the place it names may
+  change between where the function is written and where it is called.
+  A `let` of it holds the value it has there, and is what the body uses.
 - **FN-15.** A value function, a `const fn` or a native one, may mark a
   parameter `var`: `const fn bump(var count: i64, by: i64)`. So may a value
   candidate of an operator (GEN-6). Its type is an
