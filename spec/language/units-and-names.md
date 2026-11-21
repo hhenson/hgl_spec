@@ -155,9 +155,8 @@ admits one as a member name.
   however it is written.
 - **UNIT-14.** An application is one file, headed `application name`, where
   a module's files are headed `module name`. The last name of its path is
-  five characters long or more. An application is built as a file of
-  its own name, and a host takes a shorter ending for a kind of file
-  and may refuse to run it: `application demo.pricing.app`,
+  five characters long or more, so that an application's path never
+  reads as a file of some kind: `application demo.pricing.app`,
   `application demo.pricing.so` and `application demo.pricing.live`
   reject, and `application demo.pricing.daily` is accepted. Proposed:
   with the code `application.name`. It holds what a module holds,
