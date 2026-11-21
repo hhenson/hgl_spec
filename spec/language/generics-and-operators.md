@@ -19,7 +19,7 @@ constraint_expression = constraint_or ;
 constraint_or = constraint_and, { "||", constraint_and } ;
 constraint_and = constraint_term, { "&&", constraint_term } ;
 constraint_term = "!", constraint_term | "(", constraint_expression, ")"
-                | constraint_relation | constraint_call
+                | constraint_relation | constraint_call | IDENTIFIER
                 | ( "each" | "any" ), IDENTIFIER, "in", constraint_operand,
                   "{", constraint_expression, "}" ;
 constraint_relation = constraint_operand, ( "==" | "in" | "is" ), constraint_operand ;
@@ -166,7 +166,9 @@ expression; group a constant expression that uses them as operand data.
   none is admitted only when the call gives it. The operator owns the
   defaults of the parameters it declares. A candidate states in `requires`
   the values of a generic value parameter it is for, by comparing it with
-  constants: `requires zero == .error`, `requires zero in {.ieee, .nan}`. A
+  constants: `requires zero == .error`, `requires zero in {.ieee, .nan}`.
+  One of type `bool` is also named alone, as a term of the `requires`
+  that holds where it is true: `requires associative && !ordered`. A
   call admits the candidate only where that holds for the parameter's value
   at the call, a default included. Candidates for different values may
   differ in result type (EXPR-12). A candidate may give any of its inputs a
