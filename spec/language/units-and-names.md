@@ -46,11 +46,11 @@ admits one as a member name.
   public declarations; an alias qualifies a public interface with
   `alias::name` and names nothing alone. A dotted module path creates no
   privileged access to another module.
-- **UNIT-3.** Ordinary functions, types, and constants are private unless
-  exported, a native function and a native type among them (NATIVE-1).
-  Operators are public by definition. A candidate, `impl fn` or
+- **UNIT-3.** Functions, types, constants, and operators are private unless
+  exported, a native function and a native type among them (NATIVE-1). A
+  candidate, `impl fn` or
   `impl const fn`, is attached to its operator and is reached only through
-  it. Exported signatures are closed over reachable types and required
+  it: it takes no `export` of its own, and is seen wherever its operator is. Exported signatures are closed over reachable types and required
   defining metadata; private dependencies do not become source-importable.
   Import cycles are rejected, a module that imports itself included.
 - **UNIT-4.** Types have module-qualified nominal identity where specified.
