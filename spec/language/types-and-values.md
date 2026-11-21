@@ -572,7 +572,9 @@ Accepted type fragments in an ordinary value parameter or result position:
 | `list<f64>?` | A list of non-nullable floats, or null for the whole list |
 
 These list forms are distinct: a null element is not a null list. Deliberate
-source type rejections: supplying null to an f64 parameter; `set<str?>` and
+source type rejections: `null` written as the argument of an f64 parameter,
+though an `f64?` argument is read there and fails for a null (ERR-12);
+`set<str?>` and
 `dict<str?, f64>`, whose keys take no `?`. The suffix admits only ordinary
 value types; applying it to `signal` there rejects under TYPE-12/14
 rather than creating a nullable endpoint handle.

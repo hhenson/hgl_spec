@@ -59,7 +59,8 @@ postfix suffix. `argument` is that grammar's call argument.
   Equality excludes provenance. On first
   graph failure, attach original node identity, phase, and evaluation time;
   propagation/capture preserve them. A node's display name is not a stable
-  code. Nullable code/context observations require presence checking.
+  code. A nullable code or context read where a value is expected is read
+  as ERR-12 says.
 - **ERR-5.** Postfix `?` evaluates once. Success yields T. In a value function
   returning `result<U,E>`, failure returns the same E as Err. In when, only
   `result<T,error>` may propagate to node failure. No success output is written;
@@ -74,8 +75,9 @@ postfix suffix. `argument` is that grammar's call argument.
   another type rejects (`result.propagation_type`). Proposed: a
   `result<T,error>` propagates in a lifecycle hook too, and in value code
   evaluated where a graph is built or among a test's or an application's
-  statements, as a failure of that phase (RUN-4); there only `?` on a
-  connection rejects. `?` binds as a call
+  statements, as a failure of that phase (RUN-4), and a null read there
+  (ERR-12) fails that phase so too; there only `?` on a connection
+  rejects. `?` binds as a call
   suffix does and stands on its operand's line: `a()? + b` propagates before
   the addition. It does not unwrap null (ERR-12).
   Returning Err as result data does not fail the node.
@@ -119,7 +121,12 @@ postfix suffix. `argument` is that grammar's call argument.
   value that left the window in the cycle, or that `err` where none left
   (TYPE-11).
 - **ERR-15.** A function that can fail declares `result<T, error>` as its
-  result. A call of one takes its form from its place (EXPR-5). Where the
+  result. A call of one takes its form from its place (EXPR-5), and so
+  does a call of an operator, by its name or by its symbol, whose selected
+  candidate gives `result<T, error>`. A place that expects T or `T?` is
+  met by such a candidate as by one that gives T (GEN-5), so it selects
+  no policy: the configuration does (EXPR-12), and the place chooses the
+  form of the result. Where the
   place expects `result<T, error>` the call gives the result. Where it
   expects T, the call gives a success's value, and a failure is raised as
   `?` raises it, where `?` may stand (ERR-5): a place that expects T is
@@ -127,8 +134,11 @@ postfix suffix. `argument` is that grammar's call argument.
   success's value, or null for a failure, whose error is not kept. An
   operand of an operator expects the T, as the operator's candidates take
   one: `checked(value) + 1` adds to the value or raises. Compared with
-  `null` it expects the `T?`: `checked(value) == null` tests for a
-  failure. What a member or an index is read from, a condition, and what a
+  `null`, where T is not nullable, it expects the `T?`:
+  `checked(value) == null` tests for a failure. Where T is nullable that
+  place expects T, and takes the T form: the comparison is of a success's
+  value, and a failure is raised. What a member or an index is read from,
+  a condition, and what a
   `for` iterates each expect the T too. Where nothing gives the place a
   type, a `let` with none written, the call gives the `T?`:
   `let price = checked(value)` binds an `i64?`. Read where an `i64` is
@@ -177,6 +187,8 @@ postfix suffix. `argument` is that grammar's call argument.
   comparison outcome are ordinary data, not execution errors or silence. Core
   specifies each policy's error outcome; the policy must not silently convert
   ordinary data into an exception or an error into a successful empty output.
+  A policy whose outcome is a `result<T, error>` gives that result whole;
+  the form its call takes is its place's (ERR-15).
 - **ERR-13.** `ok`, `err`, `is_ok`, `is_err`, and `capture` are contextual
   names (LEX-10): as the callee of a call each is the form this chapter
   defines, whatever else is in scope. No declaration, import alias,
@@ -299,7 +311,7 @@ infrastructure and cannot satisfy a source-rejection expectation.
 | type | `enum.duplicate_value` | Two members of an enum share a number (TYPE-7); later member |
 | type | `enum.overflow` | Unnumbered member follows the largest `i64` (TYPE-7); member |
 | type | `enum.duplicate_member` | Two members of an enum share a name (TYPE-7); later name |
-| type | `type.mismatch` | Value's type is not the type its place expects: an annotation, a `var`, a result, an operand, an element, an argument (EXPR-5); `null` where the type has no `?` (TYPE-14); a `return` that does not fit its function (FN-7), a value among them where a `ref` result takes an endpoint (FN-16); a list of another length than the size expected (TYPE-10); value |
+| type | `type.mismatch` | Value's type is not the type its place expects, nor a `T?` the place reads (ERR-12) or a call whose form it takes (ERR-15): an annotation, a `var`, a result, an operand, an element, an argument (EXPR-5); `null` written where the type has no `?` (TYPE-14); a `return` that does not fit its function (FN-7), a value among them where a `ref` result takes an endpoint (FN-16); a list of another length than the size expected (TYPE-10); value |
 | type | `null.context_type` | `null` where nothing gives it a type (TYPE-14); the literal |
 | type | `sequence.context_type` | Sequence whose entries give no type, where none is expected (EXPR-9); the sequence |
 | type | `enum.context_type` | `.member` where no enum type is expected (TYPE-7); the member |
@@ -341,7 +353,7 @@ infrastructure and cannot satisfy a source-rejection expectation.
 | type | `result.context_type` | Missing complete outcome context; constructor |
 | type | `result.required_variant` | Unguarded tag payload; property |
 | type | `result.propagation_type` | Incompatible propagated result/error; `?` |
-| phase | `result.propagation_phase` | Forbidden propagation context; `?` |
+| phase | `result.propagation_phase` | Forbidden propagation context: `?`, the T form of a call that can fail (ERR-15), or a `T?` read where a T is expected (ERR-12), where no failure may be raised (ERR-5); the `?`, the call, or the read |
 | phase | `capture.phase` | Non-temporal capture/context; call |
 | type | `capture.output_field` | Value requested from outputless capture; property |
 | type | `value.constant_capability` | Required constant lacks contained capability; operation |
@@ -358,16 +370,16 @@ infrastructure and cannot satisfy a source-rejection expectation.
 
 | Execution code | Required condition |
 | --- | --- |
-| `value.missing_key` | Strict ordinary dictionary lookup has no member |
+| `value.missing_key` | Strict ordinary dictionary lookup has no member; also the code of the failure that `get` of an absent key gives (ERR-6) |
 | `value.null` | Proposed: a `T?` that holds null is read where a T is expected (ERR-12) |
 | `value.index_out_of_range` | An index outside a list, below zero or at or past its size, where a read or an assignment evaluates it (EXPR-3, EXPR-7) |
 | `value.unset_read` | Executed operation requires an unset ordinary payload, a collection's child that is not valid, or a struct, a tuple or a fixed list read whole that is not all valid, read where that is checked when it runs among them (TIME-1, ERR-14), an unsized list read whole with a position that holds no value, where its element type has no value for that (TIME-1), a window's value read before it is `all_valid` (TYPE-11), or a `delta_value` read whose place is no `result` where its endpoint has no delta in the cycle (ERR-14) |
 | `value.capability` | Boxed executed operation lacks a required contained capability |
 | `value.byte_range` | Bytes construction receives an octet outside 0–255 |
-| `numeric.division_by_zero` | Explicit `?` propagation in `when` turns a checked-division Err into node failure; see the [core numeric contract](https://github.com/hhenson/hgl_core/blob/main/spec/numeric-operators.md) |
+| `numeric.division_by_zero` | A checked division's Err is raised, by `?` or by a place that expects its `f64` (ERR-5, ERR-15); see the [core numeric contract](https://github.com/hhenson/hgl_core/blob/main/spec/numeric-operators.md) |
 | `numeric.out_of_range` | A result is outside its type's range: an `i64`, a `duration`, an instant or a count of a `tenor`; or a `str` is repeated a count below zero; see the core [numeric](https://github.com/hhenson/hgl_core/blob/main/spec/numeric-operators.md) and [scalar operator](https://github.com/hhenson/hgl_core/blob/main/spec/scalar-operators.md) contracts |
 | `tenor.mixed_units` | A sum or a difference of a `tenor` of business days and one of months and days; see the core [scalar operator contract](https://github.com/hhenson/hgl_core/blob/main/spec/scalar-operators.md) |
-| `convert.invalid` | A conversion fails under `invalid: .fail`, or explicit `?` propagation in `when` turns a checked conversion's Err into node failure; see the core [scalar operator contract](https://github.com/hhenson/hgl_core/blob/main/spec/scalar-operators.md) |
+| `convert.invalid` | A conversion fails under `invalid: .fail`, or a checked conversion's Err is raised, by `?` or by a place that expects its value (ERR-5, ERR-15); see the core [scalar operator contract](https://github.com/hhenson/hgl_core/blob/main/spec/scalar-operators.md) |
 | `yield.negative_duration` | Both yield operands succeeded; delay is negative |
 | `schedule.non_positive_duration` | A wake asked of the scheduler or the alarm with a `duration` that is not more than zero, other than a zero in `start`, whose value the compiler does not see (TIME-8) |
 | `yield.non_increasing_time` | Resolved target does not exceed the previous target |
@@ -386,8 +398,8 @@ parent, among the set, of its first struct in that order.
 The source and execution catalogs are disjoint. Unlisted failures still fail;
 they cannot satisfy a coded expectation. Delta equality/bounds checks require
 prior typing/formation; provider-backed key checks use the required run context.
-The numeric code applies to explicit propagation, not to IEEE division or an
-unpropagated Err. Other arithmetic codes are defined only when separately agreed.
+The numeric code applies to a raised Err, not to IEEE division or an Err
+kept as data. Other arithmetic codes are defined only when separately agreed.
 
 ## Warning annotation
 
@@ -454,8 +466,8 @@ constant index that nothing admits (`payload.unguarded`). Conformance planned.
 | `is_ok(value)`, `is_err(value)` | A `result<T,E>` | A `bool`; a tag fact for an immutable binding | `type.mismatch` |
 | `binding.value` | A binding proved a success | The T | `result.required_variant` |
 | `binding.error` | A binding proved a failure | The E | `result.required_variant` |
-| `value?` | A `result<T,E>` | The T; a failure leaves a function that gives a result as its failure, fails the node in a `when`, and is an execution failure in any other value function | `result.propagation_type`, `result.propagation_phase` |
-| `call(...)` where `result<T, error>` is expected | A call of a function that gives `result<T, error>` (ERR-15) | The result | None |
+| `value?` | A `result<T,E>` | The T; a failure leaves a function that gives a result as its failure, fails the node in a `when` and the source in its body, and is an execution failure in any other value function | `result.propagation_type`, `result.propagation_phase` |
+| `call(...)` where `result<T, error>` is expected | A call whose function, or whose operator's selected candidate, gives `result<T, error>` (ERR-15) | The result | None |
 | `call(...)` where T is expected, an operand among them | The same | The T; a failure is raised as `?` raises it | `result.propagation_phase` |
 | `call(...)` where `T?` is expected, or a `let` writes no type | The same | The T, or null for a failure | None |
 | `parts[i]` where `result<T, error>` is expected | A collection's child read when it runs (ERR-14) | `ok` of its value; `err` coded `value.unset_read` for a child that is not valid | None |
@@ -543,7 +555,8 @@ operand, `checked(value) + 1` takes the `i64` with no `?`.
 In `recovered` the early return under `is_err(outcome)` proves `outcome` a
 success after it, so `outcome.value` is read; in `diagnostic` the return
 under `is_ok` proves it a failure. `error.message` is a `str`; its `code`
-is a `str?` and is tested against null before use. Deliberate rejections:
+is a `str?`, read as ERR-12 says where a `str` is expected. Deliberate
+rejections:
 `let missing = ok(1)`, with nothing that says the result's type;
 `outcome.value` with no guard, and under `is_err(outcome)`;
 `let outcome = checked(value)` and then `is_err(outcome)`, an `i64?` where
@@ -635,19 +648,27 @@ fn propagated(value: f64) -> f64 {
 `checked_data` publishes an ordinary Err carrying `numeric.division_by_zero`;
 it does not fail the node and cannot satisfy an escaping-error assertion.
 In `propagated`, explicit `?` turns the same error into node failure under
-ERR-5, with no successful output publication. This is the catalogued execution
-code's condition. Core owns the [numeric observations](https://github.com/hhenson/hgl_core/blob/main/spec/numeric-operators.md);
+ERR-5, with no successful output publication. Without the `?` the return is
+the same: its place expects an `f64`, and takes that form of the result
+(ERR-15). This is the catalogued execution code's condition. Core owns the
+[numeric observations](https://github.com/hhenson/hgl_core/blob/main/spec/numeric-operators.md);
 executable conformance is planned.
 
 ## Nullable value refinement
 
-- **ERR-12.** A `T?` given where a T is expected is read as its value: the
-  place tries it, and a null fails the read, an execution failure raised as
-  a failure of a call that can fail is (ERR-15). Proposed: its code is
-  `value.null`. An immutable nullable parameter or local may be tested
-  directly against null: that same binding is a T on paths proving a
-  non-null value, including after a terminating null branch, and its read
-  there does not fail. A `null` written where a T is expected rejects
+- **ERR-12.** A `T?` value given where a T is expected is read as its
+  value: the place tries it, and a null fails the read, an execution
+  failure raised as a failure of a call that can fail is (ERR-15). Where no
+  failure may be raised (ERR-5), the read rejects as that call's T form
+  does (`result.propagation_phase`): an ordinary `bool?` as a condition in
+  composition is one (CTRL-13). Proposed: the failure's code is
+  `value.null`; and a connection of `T?` given where a connection of T is
+  taken, a node's input, a lifted parameter (FN-11), or a condition in
+  composition (CTRL-13), is read so too, the node that reads it failing in
+  a cycle that publishes a null. An immutable nullable parameter or local
+  may be tested directly against null: that same binding is a T on paths
+  proving a non-null value, including after a terminating null branch, and
+  its read there does not fail. A `null` written where a T is expected rejects
   (TYPE-14). A null test establishes value presence, not temporal input
   validity.
 

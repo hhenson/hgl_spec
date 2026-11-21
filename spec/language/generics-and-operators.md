@@ -111,7 +111,10 @@ expression; group a constant expression that uses them as operand data.
   temporal nor value: the candidate a call selects is. No matching operator
   is a declaration error. A plain fn is not a candidate.
 - **GEN-5.** Match candidates against the requested output before inputs, then
-  check their conditions. Select exactly one most-specific admitted candidate.
+  check their conditions. A candidate that gives `result<T, error>` meets a
+  requested T or `T?` as one that gives T does, and its call takes the form
+  the place expects (ERR-15): the place does not choose between them.
+  Select exactly one most-specific admitted candidate.
   Concrete types outrank variables; structurally constrained variables outrank
   unconstrained ones. No match rejects; tied most-specific candidates are
   ambiguous. Library membership and registration order grant no priority.
@@ -559,9 +562,13 @@ native impl fn ratio<const zero: Zero>(lhs: f64, rhs: f64) -> result<f64, error>
 
 For temporal `a` and `b` of `f64`, `ratio(a, b)` takes the default `.ieee`,
 selects the first candidate and is an `f64`, as `ratio(a, b, zero: .nan)`
-is. `ratio(a, b, zero: .error)` selects the second and is a
-`result<f64, error>`, as `ratio(a, b, zero: Zero.error)` is. A value
-candidate is written the same way. Deliberate rejections:
+is. `ratio(a, b, zero: .error)` selects the second, as
+`ratio(a, b, zero: Zero.error)` does, wherever it stands: the place takes
+no part in that selection, and chooses the form of the
+`result<f64, error>` it gives (ERR-15). It is a connection of that result
+where one is expected; of `f64` where an `f64` is, whose node fails on a
+zero divisor; and of `f64?` where that is, which publishes null for one. A
+value candidate is written the same way. Deliberate rejections:
 `ratio(a, b, zero: policy)` for a parameter `policy`, which is no
 compile-time constant (`generic.argument_constant`); and under GEN-3
 `requires rhs == 0.0` on either candidate, which reads a temporal input.
@@ -576,10 +583,14 @@ fn ratio_in<const z: Zero>(lhs: f64, rhs: f64) -> f64
 ```
 
 The first candidate admits each listed value, and the instance that
-`ratio_in(a, b, z: .nan)` makes selects it. Deliberate rejections, at the
-declaration (`operator.no_candidate`): the same with no `requires`, as no
-candidate admits every `z`; and with `requires z in {.ieee, .error}`, as
-the candidate for `.error` gives no `f64`.
+`ratio_in(a, b, z: .nan)` makes selects it. With
+`requires z in {.ieee, .error}` the declaration is accepted too: the
+candidate for `.error` gives a `result<f64, error>`, which meets the
+`f64` the return expects (GEN-5), and the instance that
+`ratio_in(a, b, z: .error)` makes fails its node on a zero divisor
+(ERR-15). Deliberate rejection, at the declaration
+(`operator.no_candidate`): the same with no `requires`, as no candidate
+admits every `z`.
 
 Accepted declaration fragment, an option that does not select and that one
 candidate declares (GEN-6):
