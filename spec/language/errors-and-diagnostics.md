@@ -1,8 +1,8 @@
 # Errors and diagnostics
 
 Status: agreed result, lookup, child-read (ERR-14), fallible-call (ERR-15),
-capture, and structured-error contracts, but for the sentence of ERR-5 that
-begins "Proposed:", which is proposed. Codes for proposed features apply only within
+capture, and structured-error contracts, but for the sentences of ERR-5 and
+ERR-12 that begin "Proposed:", which are proposed. Codes for proposed features apply only within
 those proposed profiles.
 
 ## Grammar
@@ -88,7 +88,8 @@ postfix suffix. `argument` is that grammar's call argument.
   an absent key. A null fallback is no fallback. A non-null fallback gives
   a V: it has exact V type and is evaluated
   even for a present key. A present zero/false/empty value is not absent.
-  Guard an inferred immutable nullable local against null before payload use.
+  An inferred immutable nullable local used as a payload with no guard
+  against null is read where it may be null, and fails there (ERR-12).
   Explicit nullable annotations follow TYPE-14; this lookup contract adds no
   null-return suppression.
 - **ERR-14.** A read of a collection's child that is checked when it runs
@@ -130,8 +131,9 @@ postfix suffix. `argument` is that grammar's call argument.
   failure. What a member or an index is read from, a condition, and what a
   `for` iterates each expect the T too. Where nothing gives the place a
   type, a `let` with none written, the call gives the `T?`:
-  `let price = checked(value)` binds an `i64?`,
-  which reaches no `i64` without its guard (ERR-12). `checked(value)?`
+  `let price = checked(value)` binds an `i64?`. Read where an `i64` is
+  expected it fails for a null as any `T?` does (ERR-12), and the call's
+  own error is not kept. `checked(value)?`
   there is the T form. Where T is itself nullable, a place that expects T
   takes the T form: a null there is a success's value and never a
   failure. A place that expects any other type rejects as a value of
@@ -335,7 +337,6 @@ infrastructure and cannot satisfy a source-rejection expectation.
 | type | `trace.style` | Dense and timed traces in one eval, its expectation included (TST-7); the later trace |
 | type | `trace.key_order` | Constant keys of a timed trace that do not strictly increase (TST-7); the later key |
 | type | `trace.escape` | A trace stored in a field, returned, or given as a temporal argument outside an eval (TST-3); the use |
-| type | `nullable.required_presence` | Unguarded nullable payload; payload use |
 | type | `lookup.default_type` | Non-null fallback is not exact V; fallback |
 | type | `result.context_type` | Missing complete outcome context; constructor |
 | type | `result.required_variant` | Unguarded tag payload; property |
@@ -358,6 +359,7 @@ infrastructure and cannot satisfy a source-rejection expectation.
 | Execution code | Required condition |
 | --- | --- |
 | `value.missing_key` | Strict ordinary dictionary lookup has no member |
+| `value.null` | Proposed: a `T?` that holds null is read where a T is expected (ERR-12) |
 | `value.index_out_of_range` | An index outside a list, below zero or at or past its size, where a read or an assignment evaluates it (EXPR-3, EXPR-7) |
 | `value.unset_read` | Executed operation requires an unset ordinary payload, a collection's child that is not valid, or a struct, a tuple or a fixed list read whole that is not all valid, read where that is checked when it runs among them (TIME-1, ERR-14), an unsized list read whole with a position that holds no value, where its element type has no value for that (TIME-1), a window's value read before it is `all_valid` (TYPE-11), or a `delta_value` read whose place is no `result` where its endpoint has no delta in the cycle (ERR-14) |
 | `value.capability` | Boxed executed operation lacks a required contained capability |
@@ -419,7 +421,8 @@ const fn price_or_zero(book: dict<str, i64>, key: str) -> i64 {
 }
 ```
 
-Deliberate rejection: use price as a payload before its presence guard.
+Used as a payload before its presence guard, `price` is read where it may be
+null, and that read fails for a key the book has not (ERR-12).
 An absent strict lookup instead fails with `value.missing_key`. Conformance planned.
 
 Accepted illustration, complete module, a child read when it runs (ERR-14):
@@ -638,22 +641,28 @@ executable conformance is planned.
 
 ## Nullable value refinement
 
-- **ERR-12.** An immutable nullable parameter or local may be tested directly
-  against null. Refine that same binding to T on paths proving a non-null T?
-  value, including after a terminating null branch. Using it where T is
-  required without that proof rejects with `nullable.required_presence`.
-  A null test establishes value presence, not temporal input validity.
+- **ERR-12.** A `T?` given where a T is expected is read as its value: the
+  place tries it, and a null fails the read, an execution failure raised as
+  a failure of a call that can fail is (ERR-15). Proposed: its code is
+  `value.null`. An immutable nullable parameter or local may be tested
+  directly against null: that same binding is a T on paths proving a
+  non-null value, including after a terminating null branch, and its read
+  there does not fail. A `null` written where a T is expected rejects
+  (TYPE-14). A null test establishes value presence, not temporal input
+  validity.
 
 The accepted `value_or_zero` example in [types and values](types-and-values.md)
-uses this refinement. Deliberate source rejection:
+uses this refinement. Accepted fragment, a read that may fail:
 
 ```hgl
 const fn unchecked(value: f64?) -> f64 => value
 ```
 
-The unguarded return requires f64 but still has f64?. Expression `value?` does
-not unwrap a nullable value: ERR-5 restricts postfix propagation to result
-values. Executable source conformance is planned.
+The return expects an `f64` and is given an `f64?`: it reads the value, and
+fails where `value` is null. Expression `value?` does not unwrap a nullable
+value: ERR-5 restricts postfix propagation to result values, and
+`const fn nothing() -> f64 => null` rejects, a `null` written where an `f64`
+is expected. Executable source conformance is planned.
 
 ## Core boundary
 
