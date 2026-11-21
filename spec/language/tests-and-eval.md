@@ -114,8 +114,11 @@ assert.
   a duration in which a value only leaves it has no delta, and no entry.
 - **TST-8.** Eval is a run (RUN-4) of an entry made for it: core's replay for
   each temporal input, then the selected target, whose result is the entry's.
-  The run is a simulation (RUN-3) under the eval's configuration: with none
-  written, from the earliest start until nothing is scheduled. Its output is
+  The run is a simulation (RUN-3) under its configuration (RUN-6): the
+  eval's own entries and, in an integration test that injects
+  `run_config`, the injected configuration's for the fields the eval does
+  not name. With no start given it runs from the earliest start, and with
+  no end until nothing is scheduled. Its output is
   the eval's value. An outputless target has no
   recording or comparable result. Its eval stands as a statement and has no
   value: binding or comparing it rejects. Each invocation is a fresh run with
