@@ -193,10 +193,13 @@ expression; group a constant expression that uses them as operand data.
   `const fn f<...Ts>(items: ...Ts) -> i64`, `f<i64>(1, true)` makes `Ts`
   the one type `i64`, so its pack takes one argument and the second
   rejects (`pack.cardinality`, GEN-10). A call that writes none leaves the
-  pack to its arguments: `f(1, true)` makes it `i64, bool`. Proposed: a
-  pack takes every type written from its position on, so a generic
-  parameter after a pack is never written for and is resolved from the
-  arguments.
+  pack to its arguments: `f(1, true)` makes it `i64, bool`. A declaration
+  has one positional pack and one named pack at most (FN-8), as `*args`
+  and `**kwargs` are. The types a call writes are the positional pack's;
+  a named pack's types are never written, and come with its named
+  arguments: with `const fn g<...Ts, ...Fields>(items: ...Ts, named:
+  ...{Fields}) -> i64`, `g<i64, bool>(1, true, label: "a")` writes `Ts`
+  and resolves `Fields` as `label: str`.
   A call may give a generic value parameter of its callee by name, among
   its named arguments or in a symbol's configuration (EXPR-10):
   `div_(a, b, zero: .error)`. A name binds the callee's generic value
