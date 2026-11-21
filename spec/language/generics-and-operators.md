@@ -623,7 +623,10 @@ module examples.rooms
 
 use examples.shapes::{area}
 
-struct Room { width: f64, depth: f64 }
+struct Room {
+    width: f64
+    depth: f64
+}
 
 impl const fn area(room: Room) -> f64 => room.width * room.depth
 ```
