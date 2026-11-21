@@ -415,7 +415,8 @@ statement of its block (LEX-5).
 ## Generators
 
 SOURCE-1 is agreed. SOURCE-2 to SOURCE-4, the timing of a `yield`, are
-proposed, but for the sentence of SOURCE-3 that begins "Agreed:".
+proposed, but for the sentences of SOURCE-2 and SOURCE-3 that begin
+"Agreed:".
 
 - **SOURCE-1.** A temporal `fn` whose body has a `yield` is a source: a node
   that produces its output and has no temporal parameters. It injects
@@ -438,7 +439,12 @@ proposed, but for the sentence of SOURCE-3 that begins "Agreed:".
 - **SOURCE-2.** The first evaluation begins the body. Yield evaluates its time
   once, then payload once, before target validation. A duration is relative to
   current evaluation time; a datetime is absolute. Negative duration fails.
-  Resolve duration addition with checked arithmetic.
+  Resolve duration addition with checked arithmetic. Agreed: a time whose
+  type is a generic parameter is accepted where the declaration's
+  `requires` leaves that parameter no type but `duration` or `datetime`,
+  `requires T == duration` or `requires T in {duration, datetime}`: the
+  body is judged under what it requires (GEN-7), and each instance has
+  one of the two.
 - **SOURCE-3.** Targets strictly increase across the invocation, including
   skipped past targets. The first has no predecessor. Agreed: a past
   absolute target is skipped, nothing is published for it and the body
