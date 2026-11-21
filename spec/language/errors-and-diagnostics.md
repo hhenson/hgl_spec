@@ -298,7 +298,7 @@ infrastructure and cannot satisfy a source-rejection expectation.
 | type | `signal.position` | `signal` other than as the whole type of a function's temporal parameter (TYPE-12); `signal` |
 | type | `endpoint.position` | `endpoint<T>` other than as the whole type of a native value function's parameter (TYPE-12); `endpoint` |
 | type | `nullable.key` | Set element or dictionary key has a `?` (TYPE-14); the nullable type |
-| type | `key.unstable` | Proposed: set element or dictionary key is an `f64`, or a type that holds one (TYPE-1); the type |
+| type | `key.unstable` | Set element or dictionary key is an `f64`, or a type that holds one (TYPE-1); the type |
 | type | `generic.argument_count` | Generic type given the wrong number of arguments, or arguments given to a type or generic parameter that takes none (GEN-2, GEN-10, GEN-13); name |
 | type | `list.size` | List size is not a nonnegative count (TYPE-10); size |
 | type | `generic.kind_conflict` | Generic parameter used as a type and as a value (GEN-13); later use |
@@ -323,7 +323,8 @@ infrastructure and cannot satisfy a source-rejection expectation.
 | type | `type.mismatch` | Value's type is not the type its place expects, nor a `T?` the place reads (ERR-12) or a result whose form it takes (ERR-5, ERR-15): an annotation, a `var`, a result, an operand, an element, an argument (EXPR-5); `null` written where the type has no `?` (TYPE-14); a `return` that does not fit its function (FN-7), a value among them where a `ref` result takes an endpoint (FN-16); a list of another length than the size expected (TYPE-10); value |
 | type | `null.context_type` | `null` where nothing gives it a type (TYPE-14); the literal |
 | type | `sequence.context_type` | Sequence whose entries give no type, where none is expected (EXPR-9); the sequence |
-| type | `dict.duplicate_key` | Proposed: two keys of a dictionary written as pairs are the same constant (EXPR-9); the later key |
+| type | `dict.duplicate_key` | Two keys of a dictionary written as pairs are the same constant (EXPR-9); the later key |
+| type | `set.duplicate_member` | Proposed: two entries of a set written out are the same constant (EXPR-9); the later entry |
 | type | `enum.context_type` | `.member` where no enum type is expected (TYPE-7); the member |
 | name | `binding.unassigned` | `var` read on a path that gives it no value (EXPR-3); the read |
 | name | `binding.immutable` | Assignment to an immutable binding: a `let`, a parameter, an iteration binding, or a field or element of one (EXPR-3), or to a property of a native type (NATIVE-6) or of a delta (TYPE-16); or one given to a `var` parameter (FN-15). Also an assignment to a part of `out` of a `ref` result, `out.bid = x` (FN-16); target |
@@ -380,6 +381,7 @@ infrastructure and cannot satisfy a source-rejection expectation.
 | Execution code | Required condition |
 | --- | --- |
 | `value.missing_key` | Strict ordinary dictionary lookup has no member; also the code of the failure that `get` of an absent key gives (ERR-6) |
+| `key.unstable` | An `any` that holds an `f64`, or a value of a type that holds one, is given to a set or as a dictionary's key (TYPE-1) |
 | `value.null` | A `T?` that holds null is read where a T is expected, a connection's by the node that reads it among them (ERR-12) |
 | `value.index_out_of_range` | An index outside a list, below zero or at or past its size, where a read or an assignment evaluates it (EXPR-3, EXPR-7) |
 | `value.unset_read` | Executed operation requires an unset ordinary payload, a collection's child that is not valid, or a struct, a tuple or a fixed list read whole that is not all valid, read where that is checked when it runs among them (TIME-1, ERR-14), an unsized list read whole with a position that holds no value, where its element type has no value for that (TIME-1), a window's value read before it is `all_valid` (TYPE-11), or a `delta_value` read whose place is no `result` where its endpoint has no delta in the cycle (ERR-14) |
@@ -408,9 +410,11 @@ that order, of its first module by path. `struct.inheritance_cycle` is
 reported once for each set of structs that inherit from one another: at the
 parent, among the set, of its first struct in that order.
 
-The source and execution catalogs are disjoint, but for `store.key_type`: a
-source rejection where the two uses are in one program, and an execution
-failure where they are not. Unlisted failures still fail;
+The source and execution catalogs are disjoint, but for two codes.
+`store.key_type` is a source rejection where the two uses are in one
+program, and an execution failure where they are not. `key.unstable` is a
+source rejection where the type is written, and an execution failure for
+what an `any` holds. Unlisted failures still fail;
 they cannot satisfy a coded expectation. Delta equality/bounds checks require
 prior typing/formation; provider-backed key checks use the required run context.
 The numeric code applies to a raised Err, not to IEEE division or an Err

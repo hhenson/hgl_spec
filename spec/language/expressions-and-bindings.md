@@ -159,9 +159,13 @@ GEN-14 resolves generic construction versus comparison using declaration lookup.
   and `[1, null]` a `list<i64?>`. Entries of two types reject, and so do
   entries that give no type: `[]`, `[null]`. Of pairs that make a
   dictionary, two whose keys are the same constant (UNIT-13) reject:
-  `["a": 1, "a": 2]`. Where the compiler does not see that two keys are
-  one, the value written last for a key is the one held: `[k: 1, "a": 2]`,
-  for a parameter `k` that is `"a"`, holds 2 under `"a"`.
+  `["a": 1, "a": 2]` (`dict.duplicate_key`). Where the compiler does not
+  see that two keys are one, the value written last for a key is the one
+  held: `[k: 1, "a": 2]`, for a parameter `k` that is `"a"`, holds 2 under
+  `"a"`. Of entries that make a set, two that are the same constant reject
+  too, as what a slip of the hand writes: `[1, 2, 1]`. Proposed: with the
+  code `set.duplicate_member`. Where the compiler does not see that two
+  are one, the set holds the member once.
 - **EXPR-10.** A symbol operator may carry named configuration immediately
   after its token: `a /{zero: .ieee} b`. The brace is the next token; spaces
   may stand between. Bind these arguments to the same core identity as the
