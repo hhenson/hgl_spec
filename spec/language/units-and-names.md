@@ -69,7 +69,9 @@ admits one as a member name.
 - **UNIT-7.** Resolve defaults in the declaration's enclosing binding closure
   with its generic environment, excluding the callable's formal arguments and
   the struct's instance fields. Earlier const arguments are also excluded. A
-  default that names one of them rejects. Imported defaults retain their
+  default that names one of them rejects, but for a law predicate, which
+  names a parameter that takes a function and reads what that function
+  declares (GEN-18). Imported defaults retain their
   defining closure, including private references.
 - **UNIT-8.** Defaults remain required-constant/cold expressions checked against
   the expected type. Any parameter but a pack and a `var` parameter (FN-15)
@@ -86,7 +88,8 @@ admits one as a member name.
   a configuration parameter (FN-18) is given by its name alone, so those
   stand in any order, and before the parentheses whatever the parameters
   there are. A default cannot use caller
-  bindings or invent numeric generic values.
+  bindings or invent numeric generic values, but for a law predicate of a
+  function the call gives (GEN-18).
 - **UNIT-9.** Compare inherited defaults by bound expression and canonical type
   after substitution, before folding. Declaration identity matters; source
   location, alias spelling, and how a literal is written do not (UNIT-13):

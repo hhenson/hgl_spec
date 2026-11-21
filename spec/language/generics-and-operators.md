@@ -2,7 +2,8 @@
 
 Status: agreed generic, pack, and nominal-operator baseline. Detailed core
 operation domains belong to core and retain their own decision status.
-GEN-17, a function's parameters read as a named pack, is agreed.
+GEN-17, a function's parameters read as a named pack, is agreed, and so
+are the `any` of GEN-10 and the law predicates of GEN-18.
 
 ## Grammar
 
@@ -18,8 +19,8 @@ constraint_expression = constraint_or ;
 constraint_or = constraint_and, { "||", constraint_and } ;
 constraint_and = constraint_term, { "&&", constraint_term } ;
 constraint_term = "!", constraint_term | "(", constraint_expression, ")"
-                | constraint_relation | constraint_call
-                | "each", IDENTIFIER, "in", constraint_operand,
+                | constraint_relation | constraint_call | IDENTIFIER
+                | ( "each" | "any" ), IDENTIFIER, "in", constraint_operand,
                   "{", constraint_expression, "}" ;
 constraint_relation = constraint_operand, ( "==" | "in" | "is" ), constraint_operand ;
 constraint_operand = type | additive_expr | constraint_set ;
@@ -97,7 +98,8 @@ expression; group a constant expression that uses them as operand data.
   the body a call that gives M as an option (GEN-6) where each listed value
   has a candidate that admits it, and each instance selects its own. A
   positive conjunctive equality
-  may bind one unresolved generic from known data; under negation/disjunction
+  may bind one unresolved generic from known data, and so may a positive
+  conjunctive `any` (GEN-10); under negation/disjunction
   it only tests already-resolved data. Solve bindings to a fixed point; reject
   unresolved/conflicting dependencies. A call of a function whose `requires`
   does not hold with the generic arguments the call resolves is rejected,
@@ -164,7 +166,9 @@ expression; group a constant expression that uses them as operand data.
   none is admitted only when the call gives it. The operator owns the
   defaults of the parameters it declares. A candidate states in `requires`
   the values of a generic value parameter it is for, by comparing it with
-  constants: `requires zero == .error`, `requires zero in {.ieee, .nan}`. A
+  constants: `requires zero == .error`, `requires zero in {.ieee, .nan}`.
+  One of type `bool` is also named alone, as a term of the `requires`
+  that holds where it is true: `requires associative && !ordered`. A
   call admits the candidate only where that holds for the parameter's value
   at the call, a default included. Candidates for different values may
   differ in result type (EXPR-12). A candidate may give any of its inputs a
@@ -227,6 +231,17 @@ expression; group a constant expression that uses them as operand data.
   proofs authorizing reassociation across overflow or floating-point effects.
 - **GEN-10.** Pack views preserve positional order or supplied named keys.
   `each T in types(Ts)` checks every selected type; an empty conjunction is true.
+  `any T in types(Ts)` holds where its body holds for at least one, and
+  over none it does not hold. Where an `any` stands as a positive conjunct
+  and its body is an equality that names an unresolved generic, the first
+  element, in the pack's order, for which the equality can hold binds that
+  generic (GEN-3), and what follows is checked against the binding:
+  `any name in names(As) { As[name] == dict<K, Ps[name]> }` holds where at
+  least one argument is a dictionary of its parameter's type, and K is the
+  key type of the first such. Where the generic is resolved already, by
+  what the call writes, its place, or an argument before (GEN-2), the
+  `any` tests with it and binds nothing. After `any`, a name and `in`
+  make the quantifier; `any` is otherwise the scalar type of that name.
   A cardinality follows the pack it bounds, on a pack parameter or a generic
   pack parameter: `{n}`, `{n:*}`, and `{n:m}` mean exact, minimum, and
   inclusive bounded arity, with m at least n. A call that gives a pack a
@@ -311,8 +326,20 @@ expression; group a constant expression that uses them as operand data.
   `requires` (GEN-3), `each name in names(As) { As[name] == Ps[name] }`,
   and in a body where a `for` is unrolled (CTRL-15), `for name in
   names(Ps)`. A name the pack has not rejects (`pack.name`). Nothing of a
-  function but its parameters' names and types and its result type is
-  read, and nothing is read while the program runs.
+  function is read but its parameters' names and types, its result type,
+  and the laws it declares (GEN-18), and nothing is read while the program
+  runs.
+- **GEN-18.** `associative(f)` and `commutative(f)`, of a parameter that
+  takes a function (FN-17), are constraint predicates (GEN-16). Each holds
+  where the function given is an operator whose property clauses declare
+  that law for the type its operands have in the function type (GEN-9),
+  and does not hold for any other function, an anonymous one included.
+  One may be the default of a generic value parameter of type `bool`,
+  `<const associative: bool = associative(f)>`: a call that does not give
+  the parameter takes what the predicate says of the function it gives,
+  and one that gives it, `fold{associative: true}(...)`, takes what it
+  gives. It is the one default that reads an argument (UNIT-8), which it
+  can because the function is known where the call is compiled.
 
 Syntax binds these core identities independently of local same-named functions.
 A symbol is the call of its identity: its operands are read as that call's
@@ -604,6 +631,46 @@ each_key(handled, orders)`: it stands only in the result and under the
 nothing (GEN-3), so a call that gives it neither way rejects
 (`generic.unresolved`). `each_key<str>{key: "id"}(tracked, orders)`
 leaves out the parameter `id` of `tracked` instead (EXPR-10).
+
+Accepted declaration fragments, `any` (GEN-10) and a law predicate
+(GEN-18):
+
+```hgl
+operator keyed<K, R, ...Ps, ...As>(
+    f: fn(...{Ps}) -> R,
+    args: ...{As for f},
+) -> dict<K, R>
+    requires any name in names(As) { As[name] == dict<K, Ps[name]> }
+          && each name in names(As) { As[name] in {Ps[name], dict<K, Ps[name]>} }
+
+operator fold<V, const associative: bool = associative(f)>(
+    f: fn(V, V) -> V,
+    items: list<V>,
+) -> V
+
+impl const fn fold<V, const associative: bool = associative(f)>(
+    f: const fn(V, V) -> V,
+    items: list<V>,
+) -> V requires associative { return items[0] }
+```
+
+Given `fn scaled(price: f64, factor: f64) -> f64`, `prices` a connection
+of `dict<str, f64>` and `two` one of `f64`, `keyed(scaled, prices, two)`
+holds its `any` at `price`, the first argument that is a dictionary of
+its parameter's type, which binds K as `str`: the call writes no type.
+The `each` then admits `two`, whole. Deliberate rejections:
+`keyed(scaled, one, two)` with both an `f64`, where the `any` holds for
+no argument (`requires.unmet`); and `keyed(scaled, prices, by_id)` with
+`by_id` a connection of `dict<i64, f64>`, which the `each` rejects, K
+being `str` from `prices` (`requires.unmet`).
+
+With `operator plus<T>(a: T, b: T) -> T properties<i64> { associative }`
+and a candidate of it over `i64`, `fold(plus, xs)` takes `associative`
+as true from `plus`'s declaration, and the candidate's `requires` holds.
+`fold(fn(a, b) => a - b, xs)` takes it as false, an anonymous function
+declaring no law, and has no candidate (`operator.no_candidate`).
+`fold{associative: true}(fn(a, b) => a + b, xs)` gives it, and is
+accepted: the caller answers for the law.
 
 Accepted declaration fragment, a configuration parameter beside a pack
 declared for a function (FN-18):
