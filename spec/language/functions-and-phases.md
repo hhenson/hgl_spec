@@ -4,15 +4,20 @@ Status: agreed function roles, classification, defaults, lifting, and
 anonymous-function scope. The `ref` mode (FN-16) is agreed. The sentence
 of FN-9 that begins "Proposed:" is proposed. FN-17, a parameter that takes
 a function, and the pack of FN-8 declared `for` one are agreed, but for
-the sentence of FN-17 that begins "Proposed:".
+the sentence of FN-17 that begins "Proposed:". FN-18, configuration
+parameters, is proposed.
 
 ## Grammar
 
 ```ebnf
 function_decl = { warning_annotation, NL },
                 [ "export" | "impl" ], [ "const" ], "fn",
-                callable_name, [ generic_parameters ], function_signature,
+                callable_name, [ generic_parameters ],
+                [ configuration_parameters ], function_signature,
                 [ requires_clause ], function_body ;
+configuration_parameters = "{", configuration_parameter,
+                           { ",", configuration_parameter }, [ "," ], "}" ;
+configuration_parameter = IDENTIFIER, ":", type, [ "=", const_expression ] ;
 function_signature = "(", [ parameters ], ")", [ "->", [ "ref" ], type ] ;
 parameters = parameter, { ",", parameter }, [ "," ] ;
 parameter = [ "ref" ], IDENTIFIER, ":", type, [ "=", const_expression ]
@@ -341,6 +346,69 @@ Local source/native declaration matching is defined in the native chapter.
   called as the function it was given, `f(a, b)`, and is given on to
   another parameter that takes a function; it is not read, stored, or
   returned.
+- **FN-18.** Proposed. A declaration may declare configuration parameters,
+  in braces between its name and its parameters, where a call writes its
+  configuration (EXPR-10):
+  `const fn rounded{places: i64 = 2}(value: f64) -> f64`. A configuration
+  parameter is given only in a call's configuration, by its name,
+  `rounded{places: 3}(x)`. No positional argument reaches it, and a named
+  argument in the parentheses does not name it (`argument.unknown`). It
+  is otherwise a parameter as any other: an ordinary value in a value
+  function, a connection in a temporal one, read in the body by its name.
+  One with a default is left out of a call, with its braces where no
+  other is given; one with none is given at every call
+  (`argument.missing`). It is a plain parameter: none is `const`, `ref`,
+  `var`, a pack, or one that takes a function, and its name is no other
+  parameter's and no generic parameter's of the declaration. Where a
+  declaration has a pack declared for a function (FN-8), every argument
+  in the parentheses after that function is the function's own, so what
+  the declaration itself takes by name is a configuration parameter or a
+  generic value parameter (GEN-6), and no name of the function's can
+  collide with one of the declaration's. A function that declares a
+  configuration parameter with no default does not fit a function type
+  (FN-17), which gives it none.
+
+Proposed illustration, complete module, configuration parameters (FN-18):
+
+```hgl
+module examples.configuration_parameters
+
+const fn rounded{places: i64 = 2}(value: f64) -> f64 {
+    var scale = 1.0
+    for step in [1, 2, 3, 4, 5, 6] {
+        if step <= places { scale = scale * 10.0 }
+    }
+    return convert<f64>(convert<i64>(value * scale)) / scale
+}
+
+const fn two_places() -> f64 => rounded(3.14159)
+
+const fn three_places() -> f64 => rounded{places: 3}(3.14159)
+
+fn sampled{every: duration}(value: f64) -> f64 {
+    inject scheduler
+    state last: f64 = 0.0
+    start { schedule(scheduler, every) }
+    when modified(value) { last = value }
+    when scheduled() && valid([]) {
+        schedule(scheduler, every)
+        return last
+    }
+}
+
+fn slow(price: f64) -> f64 => sampled{every: 1s}(price)
+```
+
+`two_places()` is 3.14, `places` taking its default, and
+`three_places()` is 3.141. `sampled` has a configuration parameter with
+no default, so every call gives it: `slow` samples `price` each second.
+Deliberate rejections: `rounded(3.14159, 3)`, a second positional
+argument that no parameter is left to take (`argument.unexpected`);
+`rounded(3.14159, places: 3)`, a named argument that names no parameter
+of the parentheses (`argument.unknown`); `sampled(price)`, which gives
+`every` nothing (`argument.missing`); and
+`const fn twice{places: i64}(places: i64) -> i64`, whose configuration
+parameter takes the name of a parameter. Conformance planned.
 
 Accepted declaration fragment, a temporal input with a default (UNIT-8):
 
