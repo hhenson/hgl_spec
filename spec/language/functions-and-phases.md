@@ -20,8 +20,9 @@ parameter = [ "ref" ], IDENTIFIER, ":", type, [ "=", const_expression ]
           | [ "const" ], IDENTIFIER, ":", pack, [ "=", const_expression ]
           | IDENTIFIER, ":", function_type ;
 pack = "...", type, [ cardinality ]
-     | "...", "{", type, [ "for", IDENTIFIER, [ "without", IDENTIFIER ] ], "}",
+     | "...", "{", type, [ "for", IDENTIFIER, [ "without", without_names ] ], "}",
        [ cardinality ] ;
+without_names = IDENTIFIER, { ",", IDENTIFIER } ;
 function_type = [ "const" ], "fn", "(", [ function_type_parameters ], ")",
                 [ "->", [ "ref" ], type ] ;
 function_type_parameters = function_type_parameter,
@@ -146,11 +147,13 @@ Local source/native declaration matching is defined in the native chapter.
   given an argument, the type of that argument, which need not be the
   parameter's own: the declaration's `requires` says what it may be
   (GEN-17). A parameter that has a default and is given no argument is
-  not in `As`. `without` names one parameter the matching leaves out,
-  which the declaration gives the function itself:
-  `args: ...{As for f without key}`, where `key` is a generic value
-  parameter of the declaration, a constant `str`; where `f` has no
-  parameter of that name, nothing is left out.
+  not in `As`. `without` names the parameters the matching leaves out,
+  which the declaration gives the function itself: one,
+  `args: ...{As for f without key}`, or several, `without key, index`.
+  Each name after it is a generic value parameter of the declaration: a
+  constant `str`, which is one parameter's name, or a constant
+  `set<str>`, which is the names of as many as it holds. A name `f` has
+  no parameter for leaves nothing out.
 - **FN-9.** Capabilities belong to nodes: a node declares each with `inject`
   and uses it in its hooks, and a source in its body (SOURCE-1). An
   application injects `global_state`, which it uses only to set the run's

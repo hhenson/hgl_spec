@@ -518,6 +518,26 @@ connection of `dict<str, Order>`, `each_key(handled, orders)` matches
 admits with K as `str`. `each_key{key: "id"}(tracked, orders)` leaves out
 the parameter `id` of `tracked` instead (EXPR-10).
 
+`without` takes several names, or a set of them:
+
+```hgl
+operator each_slot<R, ...Ps, ...As, const key: str = "key", const index: str = "index">(
+    f: fn(...{Ps}) -> R,
+    args: ...{As for f without key, index},
+) -> list<R>
+
+operator each_given<R, ...Ps, ...As, const given: set<str> = ["key", "index"]>(
+    f: fn(...{Ps}) -> R,
+    args: ...{As for f without given},
+) -> list<R>
+```
+
+Both leave out the parameters named `key` and `index` where the function
+has them. Given `fn placed(index: i64, key: str, order: Order) -> f64`,
+`each_slot(placed, orders)` and `each_given(placed, orders)` match
+`orders` to `order`. `each_given{given: ["key"]}(placed, slots, orders)`
+leaves out `key` alone, and so matches `slots` to `index`.
+
 Accepted declaration fragment, a value candidate and a temporal candidate of
 one operator (GEN-4, GEN-5):
 
