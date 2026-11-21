@@ -177,8 +177,8 @@ temporal input, which is no entry (`run.entry`); `RunConfig(length: 3s)`,
 a call of a capability's type, which no call constructs
 (`call.not_callable`); `inject run_config{until: 3s}`, an entry that names
 no field (`argument.unknown`); `eval{length: 3s} heartbeat()` as an
-application's run statement (`run.configuration`); `inject clock{}`
-(`inject.configuration`); `inject run_config` in `heartbeat`
+application's run statement (`run.configuration`); `inject clock{step: 1s}`
+in `heartbeat` (`inject.configuration`); `inject run_config` there
 (`inject.position`); an application with no run
 statement, or a second one (`application.run_count`); a run statement in a
 module, or one that a declaration follows (`run.position`); `export fn` in an application
