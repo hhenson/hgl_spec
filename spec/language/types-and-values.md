@@ -229,10 +229,12 @@ rejection (TYPE-12, TYPE-14). TYPE-16 says what a `delta_type` is.
   part of a delta. In a cycle in which a
   value only leaves a window of a duration, the window ticks and has no
   delta: `delta_value` of it there gives an `err` where its place takes a
-  `result` (ERR-14). That is the only tick of any temporal value with no
+  `result`, and null where its place takes a `delta<T>?` (ERR-14). That is
+  the only tick of any temporal value with no
   delta. A read of the delta of a window of a
-  duration whose place is not a `result` rejects (`payload.unguarded`): an
-  arrival may be missing at its tick. One of a window of a tick count is
+  duration whose place is neither rejects (`payload.unguarded`): an
+  arrival may be missing at its tick, and a place for the delta alone has
+  nothing to hold then. One of a window of a tick count is
   not rejected: it ticks only at an arrival. Core's `removed_value` of a
   window is the value that left it in the cycle: in one of a tick count,
   the oldest an arrival pushes out; in one of a duration, the one that

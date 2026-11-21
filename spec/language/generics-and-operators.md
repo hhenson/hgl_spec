@@ -336,7 +336,8 @@ expression; group a constant expression that uses them as operand data.
   program is compiled. An entry's key is its name, a constant `str`, or,
   for an entry that has no name, its position, a constant `i64`: the
   entries a function's own positional pack takes are at the positions
-  `0`, `1`, and on, each of that pack's element type. `arg_keys(Ps)` is
+  `0`, `1`, and on, each of that pack's element type, and those its own
+  named pack takes are under the names the call gives them (FN-8). `arg_keys(Ps)` is
   the keys, in order, and `Ps[arg]` the type under one of them, a type
   wherever one is written there (`pack_member`), `dict<K, Ps[arg]>` among
   them. Both are read in a `requires` (GEN-3),
