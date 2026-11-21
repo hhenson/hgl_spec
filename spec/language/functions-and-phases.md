@@ -310,7 +310,9 @@ Local source/native declaration matching is defined in the native chapter.
   types, in order, and its result type. A generic parameter of the
   function type binds from the function given, as it binds from any
   argument's type (GEN-2). A generic function is given with its generic
-  arguments, `scale<f64>`, or bare, `scale`: given bare, it takes them
+  arguments, `scale<f64>`, a name with its generic arguments and no call
+  (`function_reference`), which is written only as such an argument, or
+  bare, `scale`: given bare, it takes them
   from the function type, where that type's parameter and result types,
   as the call's other arguments have resolved them, decide every one.
   Where they do not, nothing is guessed: the call rejects

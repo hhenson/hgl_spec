@@ -300,7 +300,8 @@ expression; group a constant expression that uses them as operand data.
   the parameters of the function given, each under its own name with its
   type, in the order declared. A named pack is read by its names where the
   program is compiled: `names(Ps)` is its names, constant strings in
-  order, and `Ps[name]` the type under one of them. Both are read in a
+  order, and `Ps[name]` the type under one of them, a type wherever one
+  is written there (`pack_member`), `dict<K, Ps[name]>` among them. Both are read in a
   `requires` (GEN-3), `each name in names(As) { As[name] == Ps[name] }`,
   and in a body where a `for` is unrolled (CTRL-15), `for name in
   names(Ps)`. A name the pack has not rejects (`pack.name`). Nothing of a
@@ -562,11 +563,16 @@ nothing, as `scaled(quote)` does not (`argument.missing`);
 
 `each_key` leaves the parameter its `key` names out of the matching.
 Given `fn handled(key: str, order: Order) -> f64` and `orders` a
-connection of `dict<str, Order>`, `each_key(handled, orders)` matches
-`orders` to `order`, the first parameter the matching has: `As` is
-`order: dict<str, Order>`, which the second alternative of the `requires`
-admits with K as `str`. `each_key{key: "id"}(tracked, orders)` leaves out
-the parameter `id` of `tracked` instead (EXPR-10).
+connection of `dict<str, Order>`, `each_key<str>(handled, orders)`
+matches `orders` to `order`, the first parameter the matching has: `As`
+is `order: dict<str, Order>`, which the second alternative of the
+`requires` admits, K being the `str` the call writes. K is written, or
+given by the call's place, `let prices: dict<str, f64> =
+each_key(handled, orders)`: it stands only in the result and under the
+`||` of the `requires`, which tests what is resolved and resolves
+nothing (GEN-3), so a call that gives it neither way rejects
+(`generic.unresolved`). `each_key<str>{key: "id"}(tracked, orders)`
+leaves out the parameter `id` of `tracked` instead (EXPR-10).
 
 `without` takes several names, or a set of them:
 
