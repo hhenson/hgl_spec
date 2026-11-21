@@ -187,9 +187,12 @@ CTRL-9 places the opening brace of an `if`, `for`, `switch`, `when`, or
   connection of the field's type over a connection, and an ordinary value
   over an ordinary struct. The fields are taken in the order the struct
   has them: those of its parents first, in the order of the parents, then
-  its own as declared. A connection of an `atomic<S>` is looped over as an
-  ordinary `S` is: it is read whole (TYPE-9), and each `value` is computed
-  from that payload. Over a connection of a tuple a `for` rejects,
+  its own as declared. A connection of an `atomic<S>` is looped over by
+  the fields of `S` too: the names come from the type, no payload being
+  read where the graph is built (FN-3), and each `value` is the connection
+  that the atomic projection of that field gives (EXPR-7), computed from
+  the whole payload as it publishes. Over a connection of a tuple a `for`
+  rejects,
   and so it does over one of `list<T>`, `set<T>`, or `dict<K, V>`, whose
   members change while the program runs (CTRL-7). Proposed: these reject
   with the code `for.sequence`. The
