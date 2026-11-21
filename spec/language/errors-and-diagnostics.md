@@ -126,8 +126,9 @@ ERR-15), and no operator raises one.
   reads as (TYPE-11). So does `delta_value` of any endpoint (TIME-9), T
   being its `delta<T>`: where the place expects `result<delta<T>, error>`
   it gives `ok` of the delta, or `err` coded `value.unset_read` where the
-  endpoint has no delta in the cycle; elsewhere it gives the delta, and
-  the read fails with that code where there is none. An endpoint that has
+  endpoint has no delta in the cycle; where it expects `delta<T>?` it
+  gives the delta, or null where there is none; elsewhere it gives the
+  delta, and the read fails with that code where there is none. An endpoint that has
   not ticked in the cycle has none. Of those that tick, only a window of a
   duration has a tick with no delta, one in which a value only leaves it
   (TYPE-11): for every other endpoint the `result` form is `ok` where it
