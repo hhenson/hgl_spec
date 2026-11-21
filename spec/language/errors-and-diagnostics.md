@@ -292,7 +292,7 @@ infrastructure and cannot satisfy a source-rejection expectation.
 | phase | `node.duplicate_hook` | Second `start` or second `stop` (TIME-5); later hook |
 | phase | `node.statement` | Statement of a node's body that is no declaration and no hook, in a node that is no source (FN-2); the statement |
 | phase | `scheduled.outside_node` | Proposed: `scheduled()` in a value function, a graph or a test, which has no schedule of its own (FN-9, TIME-9); the selector |
-| phase | `source.return_value` | Proposed: a source's `return` has a value (SOURCE-4); the value |
+| phase | `source.return_value` | A source's `return` has a value, under SOURCE-4, which is a proposed rule: the rejection is proposed with it, and so is this code; the value |
 | phase | `source.statement` | In a source with a declaration or a hook: a statement outside its one block, a second block, a hook out of order, or a `yield` in a hook. In any source: a `var`, or an `inject` of `out`, `scheduler`, or `alarm` (SOURCE-1); the statement |
 | phase | `source.when` | `when` in a source (SOURCE-1); `when` |
 | phase | `source.input` | Temporal parameter of a source (SOURCE-1); the parameter |
@@ -400,7 +400,7 @@ infrastructure and cannot satisfy a source-rejection expectation.
 | type | `delta.index_bounds` | Negative/out-of-fixed-range index, or an `updated` index at or past the size a `size_modified` of the same delta gives (TYPE-16); index |
 | type | `delta.overlap` | Known overlapping addition/removal; later entry |
 | phase | `test.statement_phase` | Node/lifecycle/return statement in test; keyword |
-| phase | `yield.in_value` | Proposed: a `yield` inside a block or an `if` whose value is used (SOURCE-4); the `yield` |
+| phase | `yield.in_value` | A `yield` inside a block or an `if` whose value is used, under SOURCE-4, which is a proposed rule: the rejection is proposed with it, and so is this code; the `yield` |
 
 | Execution code | Required condition |
 | --- | --- |
