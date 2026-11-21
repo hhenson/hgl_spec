@@ -239,7 +239,7 @@ expression; group a constant expression that uses them as operand data.
   key type of the first such. Where the generic is resolved already, by
   what the call writes, its place, or an argument before (GEN-2), the
   `any` tests with it and binds nothing. After `any`, a name and `in`
-  make the quantifier; `any` is otherwise the type (LEX-8).
+  make the quantifier; `any` is otherwise the scalar type of that name.
   A cardinality follows the pack it bounds, on a pack parameter or a generic
   pack parameter: `{n}`, `{n:*}`, and `{n:m}` mean exact, minimum, and
   inclusive bounded arity, with m at least n. A call that gives a pack a
