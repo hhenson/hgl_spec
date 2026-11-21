@@ -210,9 +210,9 @@ CTRL-9 places the opening brace of an `if`, `for`, `switch`, `when`, or
   expression, of such a name, generic value parameters and literals,
   composes the branch it selects, and that branch alone is checked: in
   `if arg == key { i } else { args[arg] }`, the pass in which `arg` is
-  `key` has the type of `i` and does not read `args`. The same holds of a
-  generic function's body for a condition of its generic value
-  parameters alone, in each instance. A condition that is no constant
+  `key` has the type of `i` and does not read `args`. Outside such a
+  pass an `if` checks both its branches, whatever its condition: a
+  generic body is judged once (GEN-7). A condition that is no constant
   expression checks both branches, as any `if` does.
 
 Accepted illustrations, statement fragments with `ready` a bool, `items` a

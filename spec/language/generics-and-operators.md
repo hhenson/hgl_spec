@@ -3,7 +3,8 @@
 Status: agreed generic, pack, and nominal-operator baseline. Detailed core
 operation domains belong to core and retain their own decision status.
 GEN-17, a function's parameters read as a named pack, is agreed, and so
-are the `any` of GEN-10 and the law predicates of GEN-18.
+are the `any` of GEN-10 and the law predicates of GEN-18. The sentence of
+GEN-7 that begins "Proposed:" is proposed, with those that follow it.
 
 ## Grammar
 
@@ -195,7 +196,13 @@ expression; group a constant expression that uses them as operand data.
   make one known where a candidate takes every generic argument they
   admit, where a named operator requirement states the call (GEN-16), and,
   under a membership, where each listed type has one (GEN-3). Each instance
-  then selects its own candidate (GEN-5).
+  then selects its own candidate (GEN-5). Proposed: a loop unrolled over
+  the keys of a pack among the declaration's generic parameters (GEN-17)
+  has its passes only where the pack is known, in an instance. What a
+  pass composes is checked there, the branch a constant `if` selects
+  (CTRL-16) and the pack given to a call (FN-19) with it, and one that
+  does not check rejects the call that made the instance. An operator
+  called in a pass is still one the requirements make known.
 - **GEN-8.** `instantiate` requests candidates, not calls or exports. `_` there
   retains a generic parameter. A call may supply its generic arguments as a
   generic constructor does, `count<i64>(3)`. It may supply the first of them
