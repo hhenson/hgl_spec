@@ -17,16 +17,18 @@ test_context = "test", "{", [ NL ],
 test_item = function_decl | struct_decl | enum_decl | test_decl ;
 assert_statement = "assert", ( expression | raises_assertion ) ;
 raises_assertion = "raises", "(", expression, ")", block ;
-eval_expression = "eval", "(", expression, [ ",", expression ], [ "," ], ")" ;
+eval_expression = "eval", [ operator_configuration ], run_target ;
 expect_error = "#", gap, "expect-error", "(", gap, error_category, gap, ",",
                gap, STRING_LITERAL, gap, ")", gap ;
 gap = { ? U+0020 or U+0009 ? } ;
 error_category = ? a source category of the diagnostic catalog ? ;
 ```
 
-Target checking restricts eval's first expression to a call of a function;
-grammar alone admits no arbitrary expression. The second, where written, is
-a run configuration (RUN-1). `raises` is contextual immediately after assert.
+`run_target` is in [program execution](program-execution.md), and
+`operator_configuration` in [expressions](expressions-and-bindings.md). The
+target is a call of a function (TST-5), and the configuration, where one
+is written, the run's (RUN-6). `raises` is contextual immediately after
+assert.
 `expect_error` gives the characters of one line comment, not a token sequence.
 
 ## Test scope and assertions
@@ -41,8 +43,8 @@ a run configuration (RUN-1). `raises` is contextual immediately after assert.
   their types, helpers, tests, and test-only lifts. A test-only helper or
   type takes no name of a production declaration or import (UNIT-12).
   Duplicate test names or roles reject.
-- **TST-3.** A test is a block with assertions. Outside the argument of an
-  `eval` or a `run`, which is composition (TST-5, TST-8), its statements
+- **TST-3.** A test is a block with assertions. Outside the call an `eval`
+  or a `run` takes, which is composition (TST-5, TST-8), its statements
   are value code, as an application's are (UNIT-14): each is evaluated
   once, in the order written. They call `const fn`s only: a call of any
   other function there, a node, a graph or a source, rejects, so no
@@ -51,7 +53,8 @@ a run configuration (RUN-1). `raises` is contextual immediately after assert.
   `impl const fn`: one that is temporal rejects the same way. Nothing there
   is lifted (FN-6). Proposed: those rejections have the code `call.role`.
   A test cannot itself declare state/cache, inject, lifecycle hooks, when,
-  yield, or return.
+  yield, or return; an integration test injects `run_config`, and no other
+  capability (TST-17).
   Eval traces are test-local values. An eval of a target that has a result
   is a trace of that result's type, and source writes no type for it. A
   trace is bound with `let`, compared with `==` or `!=` against a trace
@@ -77,15 +80,15 @@ a run configuration (RUN-1). `raises` is contextual immediately after assert.
 ## Eval contract
 
 - **TST-5.** Eval takes a call of a module function, written as any call is:
-  `eval(target(value: [7, _, 9]))`. The call binds its arguments by the
+  `eval target(value: [7, _, 9])`. The call binds its arguments by the
   function's public positional/named rules, and its generic arguments as
   any call does. Temporal/value role selection follows FN-4; a
   selected value helper uses ordinary lifting. An operator is no target: a
   function wraps it, and that function's parameters give the traces their
   types. Const parameters receive configuration; temporal
   parameters receive contextually typed publication traces. A trace is an
-  argument of that call and of no call inside it. A second argument is the
-  run's configuration, a `RunConfig` (RUN-1). A trace written
+  argument of that call and of no call inside it. The eval's configuration,
+  `eval{length: 4s} target(...)`, is the run's (RUN-6). A trace written
   out is dense, `[7, _, 9]`, or timed, `[0s: 7, 2s: 9]`. Each cell is one
   cycle's publication, written as a `return` is (TIME-7), with T its
   parameter's type for an input and the target's result type for an
@@ -111,8 +114,11 @@ a run configuration (RUN-1). `raises` is contextual immediately after assert.
   a duration in which a value only leaves it has no delta, and no entry.
 - **TST-8.** Eval is a run (RUN-4) of an entry made for it: core's replay for
   each temporal input, then the selected target, whose result is the entry's.
-  The run is a simulation (RUN-3) under the eval's configuration: with none
-  written, from the earliest start until nothing is scheduled. Its output is
+  The run is a simulation (RUN-3) under its configuration (RUN-6): the
+  eval's own entries and, in an integration test that injects
+  `run_config`, the injected configuration's for the fields the eval does
+  not name. With no start given it runs from the earliest start, and with
+  no end until nothing is scheduled. Its output is
   the eval's value. An outputless target has no
   recording or comparable result. Its eval stands as a statement and has no
   value: binding or comparing it rejects. Each invocation is a fresh run with
@@ -143,11 +149,14 @@ a run configuration (RUN-1). `raises` is contextual immediately after assert.
   what the function returns is ordinary data.
 - **TST-17.** An integration test, `integration_test name { ... }`, is a
   named test that may run in real time: beside `eval` it writes
-  `run(call, config)` (RUN-3), whose value is the run's output as an eval's
+  `run call` (RUN-3), whose value is the run's output as an eval's
   is. It is for what a simulation cannot reach: the host clock, adaptors,
-  and outside events. In a test's block `run` as the callee of a call is
-  that form, whatever else is in scope (LEX-10); in a test that is no
-  integration test it rejects. An integration test is run only when it is
+  and outside events. `run` in a test that is no integration test rejects
+  (`run.position`). An integration test may inject `run_config`, before
+  its other statements: what runs the test supplies the configuration of
+  its runs, and the braces give defaults, as an application's do (RUN-6).
+  Its value code may read `run_config` then, and no other capability.
+  An integration test is run only when it is
   asked for; a run of a module's tests leaves it out. It is time-bound: it
   runs within a time limit by the host clock, the duration `@timeout(5s)`
   gives on the line before it, or one minute where none is written. One
@@ -167,16 +176,16 @@ fn pass_through_i64(value: i64) -> i64 {
 }
 
 test repeated_ticks {
-    assert eval(pass_through_i64(value: [7, _, 7, 9])) == [7, _, 7, 9]
-    assert eval(pass_through_i64(value: [_, _, _])) == []
-    assert eval(pass_through_i64(value: [_, 7, _, _])) == [_, 7]
-    assert eval(pass_through_i64(value: [])) == []
+    assert eval pass_through_i64(value: [7, _, 7, 9]) == [7, _, 7, 9]
+    assert eval pass_through_i64(value: [_, _, _]) == []
+    assert eval pass_through_i64(value: [_, 7, _, _]) == [_, 7]
+    assert eval pass_through_i64(value: []) == []
 }
 
 test bound_and_timed {
-    let seen = eval(pass_through_i64(value: [7, _, 7, 9]))
+    let seen = eval pass_through_i64(value: [7, _, 7, 9])
     assert seen == [7, _, 7, 9]
-    assert eval(pass_through_i64(value: [0s: 7, 2s: 9])) == [0s: 7, 2s: 9]
+    assert eval pass_through_i64(value: [0s: 7, 2s: 9]) == [0s: 7, 2s: 9]
 }
 
 const fn ticks(seen: list<tuple<datetime, i64>>) -> i64 {
@@ -186,7 +195,7 @@ const fn ticks(seen: list<tuple<datetime, i64>>) -> i64 {
 }
 
 test counted {
-    assert ticks(eval(pass_through_i64(value: [7, _, 7, 9]))) == 3
+    assert ticks(eval pass_through_i64(value: [7, _, 7, 9])) == 3
 }
 
 struct Quote {
@@ -199,10 +208,10 @@ fn relayed(quote: Quote) -> Quote {
 }
 
 test whole_and_delta_cells {
-    assert eval(relayed(quote: [
+    assert eval relayed(quote: [
         Quote(bid: 1.0, ask: 2.0),
         delta<Quote>(ask: 3.0),
-    ])) == [Quote(bid: 1.0, ask: 2.0), Quote(bid: 1.0, ask: 3.0)]
+    ]) == [Quote(bid: 1.0, ask: 2.0), Quote(bid: 1.0, ask: 3.0)]
 }
 
 fn beats(const every: duration) -> i64 {
@@ -214,12 +223,12 @@ fn beats(const every: duration) -> i64 {
 }
 
 test bounded {
-    assert ticks(eval(beats(every: 1s), RunConfig(length: 4s))) == 3
+    assert ticks(eval{length: 4s} beats(every: 1s)) == 3
 }
 
 @timeout(5s)
 integration_test beats_live {
-    let seen = run(beats(every: 10ms), RunConfig(length: 1s))
+    let seen = run{length: 1s} beats(every: 10ms)
     assert ticks(seen) > 0
 }
 ```
@@ -237,11 +246,12 @@ given a length: `bounded` evaluates four seconds of it in simulation, and
 (TST-17), and has failed if it is still running after five. Conformance
 source is planned, not supplied by this example.
 
-Deliberate source rejections: `eval(7)`, `eval(pass_through_i64)`, and
-`eval(add_(lhs: [7], rhs: [9]))`, whose first argument is no call of a
-function (`eval.target`); `let seen = eval(sink(value: [7]))` with
+Deliberate source rejections: `eval add_(lhs: [7], rhs: [9])`, whose
+call is of an operator and of no function (`eval.target`); `eval 7` and
+`eval pass_through_i64`, where no call follows the word
+(`syntax.expected_token`); `let seen = eval sink(value: [7])` with
 an outputless `sink` (`eval.no_result`); `[0s: 7, 2s: _]` and a `_` outside
-a trace (`trace.placeholder`); `eval(pass_through_i64(value: [7, 9])) ==
+a trace (`trace.placeholder`); `eval pass_through_i64(value: [7, 9]) ==
 [0s: 7]`, a dense input with a timed expectation (`trace.style`);
 `[2s: 7, 1s: 9]` (`trace.key_order`); `Kept(values: seen)`, a trace
 stored in a field (`trace.escape`); `ticks([7, 9])`, a list of `i64`
@@ -267,7 +277,7 @@ test t {
 `pass` is a graph. In `t`, outside an `eval`, `pass(1)` is a call of a
 graph in value code, and rejects; `twice(a)` would be an ordinary call,
 never lifted. `assert twice(2) == 4` and
-`assert eval(pass(value: [1])) == [1]` are admitted there, and so is
+`assert eval pass(value: [1]) == [1]` are admitted there, and so is
 `1 + 2`. `1 +{invalid: .identity} 2`, whose one candidate that takes the
 option is temporal (core's OPS-9), rejects the same way. Proposed: both
 reject with `call.role`.

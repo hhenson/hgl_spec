@@ -131,8 +131,9 @@ Local source/native declaration matching is defined in the native chapter.
   reflection follow the generic chapter.
 - **FN-9.** Capabilities belong to nodes: a node declares each with `inject`
   and uses it in its hooks, and a source in its body (SOURCE-1). An
-  application injects `global_state` and no other, and uses it only to set
-  the run's store before its run statement (UNIT-14). A graph injects
+  application injects `global_state`, which it uses only to set the run's
+  store before its run statement (UNIT-14), and `run_config` (RUN-6), and
+  no other. A graph injects
   `global_state` and no other, and uses it where the graph is built: each
   call on it is evaluated once then, in the order written, before any node
   of that graph starts, and is given no connection
@@ -443,7 +444,7 @@ const fn scale(value: f64, factor: f64 = 2.0) -> f64 => value * factor
 fn doubled(value: f64) -> f64 => scale(value)
 
 test lifted_helper {
-    assert eval(doubled(value: [1.0, _, 3.0])) == [2.0, _, 6.0]
+    assert eval doubled(value: [1.0, _, 3.0]) == [2.0, _, 6.0]
 }
 ```
 

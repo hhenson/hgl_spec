@@ -262,7 +262,7 @@ publishes false, true, false, true. Each true starts the branch fresh:
 `value`, valid since the first cycle, counts as modified in that cycle, and
 `counted` runs once with 10 and publishes 1. While `open` is false the
 result never ticks (CTRL-3). So
-`eval(counted_while(open: [false, true, false, true], value: [10, _, _, _]))`
+`eval counted_while(open: [false, true, false, true], value: [10, _, _, _])`
 is `[_, 1, _, 1]`. Conformance planned.
 
 Accepted declaration fragments, value functions (CTRL-10, CTRL-11, FN-7):
