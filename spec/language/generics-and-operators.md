@@ -3,7 +3,8 @@
 Status: agreed generic, pack, and nominal-operator baseline. Detailed core
 operation domains belong to core and retain their own decision status.
 GEN-17, a function's parameters read as a named pack, is agreed, and so
-are the `any` of GEN-10 and the law predicates of GEN-18.
+are the `any` of GEN-10 and the law predicates of GEN-18. The sentence of
+GEN-7 that begins "Proposed:" is proposed, with those that follow it.
 
 ## Grammar
 
@@ -195,7 +196,13 @@ expression; group a constant expression that uses them as operand data.
   make one known where a candidate takes every generic argument they
   admit, where a named operator requirement states the call (GEN-16), and,
   under a membership, where each listed type has one (GEN-3). Each instance
-  then selects its own candidate (GEN-5).
+  then selects its own candidate (GEN-5). Proposed: a loop unrolled over
+  the keys of a pack among the declaration's generic parameters (GEN-17)
+  has its passes only where the pack is known, in an instance. What a
+  pass composes is checked there, the branch a constant `if` selects
+  (CTRL-16) and the pack given to a call (FN-19) with it, and one that
+  does not check rejects the call that made the instance. An operator
+  called in a pass is still one the requirements make known.
 - **GEN-8.** `instantiate` requests candidates, not calls or exports. `_` there
   retains a generic parameter. A call may supply its generic arguments as a
   generic constructor does, `count<i64>(3)`. It may supply the first of them
@@ -239,7 +246,7 @@ expression; group a constant expression that uses them as operand data.
   and its body is an equality that names an unresolved generic, the first
   element, in the pack's order, for which the equality can hold binds that
   generic (GEN-3), and what follows is checked against the binding:
-  `any name in names(As) { As[name] == dict<K, Ps[name]> }` holds where at
+  `any arg in arg_keys(As) { As[arg] == dict<K, Ps[arg]> }` holds where at
   least one argument is a dictionary of its parameter's type, and K is the
   key type of the first such. Where the generic is resolved already, by
   what the call writes, its place, or an argument before (GEN-2), the
@@ -322,13 +329,22 @@ expression; group a constant expression that uses them as operand data.
 - **GEN-17.** In a function type (FN-17) a named pack stands for
   the parameters the fixed ones leave: `f: fn(...{Ps}) -> R` binds `Ps` to
   the parameters of the function given, each under its own name with its
-  type, in the order declared. A named pack is read by its names where the
-  program is compiled: `names(Ps)` is its names, constant strings in
-  order, and `Ps[name]` the type under one of them, a type wherever one
-  is written there (`pack_member`), `dict<K, Ps[name]>` among them. Both are read in a
-  `requires` (GEN-3), `each name in names(As) { As[name] == Ps[name] }`,
-  and in a body where a `for` is unrolled (CTRL-15), `for name in
-  names(Ps)`. A name the pack has not rejects (`pack.name`). Nothing of a
+  type, in the order declared. A pack is read by its keys where the
+  program is compiled. An entry's key is its name, a constant `str`, or,
+  for an entry that has no name, its position, a constant `i64`: the
+  entries a function's own positional pack takes are at the positions
+  `0`, `1`, and on, each of that pack's element type. `arg_keys(Ps)` is
+  the keys, in order, and `Ps[arg]` the type under one of them, a type
+  wherever one is written there (`pack_member`), `dict<K, Ps[arg]>` among
+  them. Both are read in a `requires` (GEN-3),
+  `each arg in arg_keys(As) { As[arg] == Ps[arg] }`, and in a body where a
+  `for` is unrolled (CTRL-15), `for arg in arg_keys(Ps)`. A key is
+  compared with a constant `str` or `i64` by `==` and `!=`, and one of the
+  other kind is not equal to it. `arg in arg_keys(As)` is whether the pack
+  has that key, a constant where the program is compiled: it is written
+  as a condition, at the tier of a comparison, and its left is a name
+  that is a key. A key the pack has not rejects
+  (`pack.name`). Nothing of a
   function is read but its parameters' names and types, its result type,
   and the laws it declares (GEN-18), and nothing is read while the program
   runs.
@@ -631,14 +647,14 @@ pack (GEN-17) and a pack declared for the function (FN-8):
 
 ```hgl
 operator call_through<R, ...Ps, ...As>(f: fn(...{Ps}) -> R, args: ...{As for f}) -> R
-    requires each name in names(As) { As[name] == Ps[name] }
+    requires each arg in arg_keys(As) { As[arg] == Ps[arg] }
 
 operator each_key<K, R, ...Ps, ...As, const key: str = "key">(
     f: fn(...{Ps}) -> R,
     args: ...{As for f without key},
 ) -> dict<K, R>
-    requires each name in names(As) {
-        As[name] == Ps[name] || As[name] == dict<K, Ps[name]>
+    requires each arg in arg_keys(As) {
+        As[arg] == Ps[arg] || As[arg] == dict<K, Ps[arg]>
     }
 ```
 
@@ -675,8 +691,8 @@ operator keyed<K, R, ...Ps, ...As>(
     f: fn(...{Ps}) -> R,
     args: ...{As for f},
 ) -> dict<K, R>
-    requires any name in names(As) { As[name] == dict<K, Ps[name]> }
-          && each name in names(As) { As[name] in {Ps[name], dict<K, Ps[name]>} }
+    requires any arg in arg_keys(As) { As[arg] == dict<K, Ps[arg]> }
+          && each arg in arg_keys(As) { As[arg] in {Ps[arg], dict<K, Ps[arg]>} }
 
 operator fold<V, const associative: bool = associative(f)>(
     f: fn(V, V) -> V,
@@ -718,8 +734,8 @@ operator each_wanted<K, R, ...Ps, ...As, const key: str = "key">{
     f: fn(...{Ps}) -> R,
     args: ...{As for f without key},
 ) -> dict<K, R>
-    requires each name in names(As) {
-        As[name] == Ps[name] || As[name] == dict<K, Ps[name]>
+    requires each arg in arg_keys(As) {
+        As[arg] == Ps[arg] || As[arg] == dict<K, Ps[arg]>
     }
 ```
 

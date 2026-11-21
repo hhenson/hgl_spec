@@ -1,7 +1,8 @@
 # Expressions and bindings
 
 Status: agreed expression/binding baseline. The sparse-field rules of
-structural delta construction are proposed.
+structural delta construction are proposed. EXPR-16, a range, and EXPR-17,
+a list made by a loop, are agreed.
 
 ## Grammar
 
@@ -13,7 +14,8 @@ equality_expr = comparison_expr,
                 { ( "==" | "!=" ), [ operator_configuration ], comparison_expr } ;
 comparison_expr = additive_expr,
                   { ( "<" | "<=" | ">" | ">=" | "<=>" ),
-                    [ operator_configuration ], additive_expr } ;
+                    [ operator_configuration ], additive_expr }
+                | IDENTIFIER, "in", "arg_keys", "(", IDENTIFIER, ")" ;
 additive_expr = multiplicative_expr,
                 { ( "+" | "-" ), [ operator_configuration ], multiplicative_expr } ;
 multiplicative_expr = unary_expr,
@@ -29,13 +31,17 @@ index_suffix = "[", expression, "]" ;
 member_suffix = ".", member_name ;
 primary_expr = literal | IDENTIFIER | qualified_name | implied_member
              | "(", expression, ")" | tuple_literal | sequence_literal
-             | typed_constructor | delta_constructor | type_call
+             | typed_constructor | delta_constructor | type_call | pack_loop
              | function_reference | function_expr | if_expression
              | eval_expression | run_expression | block ;
 arguments = argument, { ",", argument }, [ "," ] ;
-argument = [ member_name, ":" ], expression ;
+argument = [ member_name, ":" ], expression | "...", expression ;
 tuple_literal = "(", expression, ",", [ expression, { ",", expression }, [ "," ] ], ")" ;
-sequence_literal = "[", [ sequence_entries ], "]" ;
+sequence_literal = "[", [ sequence_entries | loop_entries ], "]" ;
+loop_entries = "for", IDENTIFIER, "in", iterable, ":", expression ;
+pack_loop = "{", "for", IDENTIFIER, "in", iterable, ":", expression, "}" ;
+iterable = range | expression ;
+range = additive_expr, "..<", additive_expr ;
 sequence_entries = sequence_values | sequence_pairs ;
 sequence_values = sequence_item, { ",", sequence_item }, [ "," ] ;
 sequence_pairs = sequence_pair, { ",", sequence_pair }, [ "," ] ;
@@ -231,6 +237,26 @@ GEN-14 resolves generic construction versus comparison using declaration lookup.
   changed in place: what read `point` before the assignment keeps the
   connection it had. The place, the type of its value, and a compound
   assignment are as EXPR-3 has them.
+- **EXPR-16.** `a..<b` is a range: the `i64` values from `a` up
+  to and not including `b`, in order, and none where `b` is not more than
+  `a`. It is written as what a `for` iterates, in a statement and in a
+  loop form (EXPR-17, FN-19), and is no value of its own: nothing binds
+  one, and no parameter takes one: a list of its values is made by a
+  loop, `[for i in 0..<n: i]` (EXPR-17). Its bounds are `i64`. In value code
+  they are evaluated once, before the first pass. In composition they are
+  ordinary values, fixed when the graph is built, and the loop is
+  unrolled (CTRL-15).
+- **EXPR-17.** A list is made by a loop:
+  `[for i in 0..<n: i * i]` has one entry for each pass, in order, the
+  value of the expression after the `:` with the loop's name bound. In
+  value code it is a `list<T>`, T the expression's type, or, where its
+  place expects a `list<T, N>` and the number of passes is the constant N,
+  that fixed-size list (EXPR-5). In composition
+  the loop is unrolled, each entry is a connection, and the result is a
+  connection of `list<T, N>`, where N is the number of passes: its
+  iterable is a range whose bounds are constants, or a connection of a
+  fixed-size list. What it iterates is what a `for` statement iterates in
+  that phase (CTRL-12, CTRL-15).
 
 Accepted illustration, complete module:
 

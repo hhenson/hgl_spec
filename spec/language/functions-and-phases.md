@@ -5,7 +5,7 @@ anonymous-function scope. The `ref` mode (FN-16) is agreed. The sentence
 of FN-9 that begins "Proposed:" is proposed. FN-17, a parameter that takes
 a function, and the pack of FN-8 declared `for` one are agreed, but for
 the sentence of FN-17 that begins "Proposed:". FN-18, configuration
-parameters, is agreed.
+parameters, is agreed, and so is FN-19, a pack as a value.
 
 ## Grammar
 
@@ -158,8 +158,14 @@ Local source/native declaration matching is defined in the native chapter.
   function (FN-17), `args: ...{As for f}`. It takes the arguments a call
   of `f` takes, positional or named, matched to `f`'s parameters as that
   call's are (EXPR-2, FN-4). The matching settles which parameter each
-  argument is for, and nothing of its type. `As` holds, under the name of
-  each parameter given an argument, the type of that argument, which
+  argument is for, and nothing of its type. An argument takes the name
+  of its parameter as its key (GEN-17), whether the call gave it by
+  position or by name; one that `f`'s own positional pack takes has no
+  name, and its key is its position in that pack. `Ps` has an entry at
+  each such position, of that pack's element type: as many as the call
+  gives the pack, and none where it gives none. A function's own pack
+  has no entry in `Ps` otherwise. `As` holds, under each
+  key, the type of that argument, which
   need not be the parameter's own: the declaration's `requires` says
   what it may be (GEN-17). A parameter that has a default and is given no argument is
   not in `As`. `without` names the parameters the matching leaves out,
@@ -376,6 +382,25 @@ Local source/native declaration matching is defined in the native chapter.
   collide with one of the declaration's. A function that declares a
   configuration parameter with no default does not fit a function type
   (FN-17), which gives it none.
+- **FN-19.** A pack is a value where the program is
+  compiled. `args[arg]`, with `arg` a constant key, a name or a position
+  (GEN-17), is the entry under that key, of the type `As[arg]`; a key the
+  pack has not rejects (`pack.name`). A pack is made by a loop over keys:
+  `{for arg in arg_keys(Ps): expr}` has an entry under each key, the value
+  of the expression in that pass, with that pass's type. Where the
+  expression is an `if` on a constant (CTRL-16), or a chain of them by
+  `else if`, a pass in which every condition is false and the last `if`
+  has no `else` gives no entry: the pack has none under that key. Every
+  condition of such a chain is a constant. A pack is given
+  to a call with `...`, `f(...given)`, among whatever other arguments the
+  call writes. Its entries are bound after those arguments: each under a
+  name to the parameter of that name, and those under positions, in
+  order, to the parameters nothing has yet given, from the first, the
+  callee's positional pack taking what remains. So an entry keeps the
+  parameter the matching of FN-8 gave it. The call is then checked as any other (EXPR-2): an entry that
+  names no parameter, a parameter given twice, and one left with nothing
+  reject as they do there. A pack is bound with `let` and given to a
+  call; nothing else holds one, and none is a connection's value.
 
 Accepted illustration, complete module, configuration parameters (FN-18):
 
@@ -419,6 +444,87 @@ of the parentheses (`argument.unknown`); `sampled(price)`, which gives
 `every` nothing (`argument.missing`); and
 `const fn twice{places: i64}(places: i64) -> i64`, whose configuration
 parameter takes the name of a parameter. Conformance planned.
+
+Accepted illustration, complete module, ranges, loop forms and packs
+(EXPR-16, EXPR-17, FN-19, CTRL-16):
+
+```hgl
+module examples.pack_forms
+
+const fn squares(n: i64) -> list<i64> => [for i in 0..<n: i * i]
+
+const fn below(n: i64) -> i64 {
+    var sum = 0
+    for i in 0..<n { sum += i }
+    return sum
+}
+
+fn doubled(prices: list<f64, 3>) -> list<f64, 3> => [for i in 0..<3: prices[i] * 2.0]
+
+fn scaled(price: f64, factor: f64) -> f64 => price * factor
+
+fn passed_on<R, ...Ps, ...As>(f: fn(...{Ps}) -> R, args: ...{As for f}) -> R
+    requires each arg in arg_keys(As) { As[arg] == Ps[arg] }
+{
+    let given = {for arg in arg_keys(Ps): args[arg]}
+    return f(...given)
+}
+
+fn tagged<R, ...Ps, ...As, const key: str = "key">(
+    f: fn(...{Ps}) -> R,
+    args: ...{As for f without key},
+) -> R {
+    let given = {for arg in arg_keys(Ps):
+        if arg == key { "fixed" } else if arg in arg_keys(As) { args[arg] }}
+    return f(...given)
+}
+
+fn weighted(price: f64, weight: f64 = 1.0) -> f64 => price * weight
+
+fn labelled(key: str, price: f64) -> str => key
+
+fn total(scale: f64, values: ...f64) -> f64 {
+    when {
+        var sum = 0.0
+        for value in values { sum += value }
+        return sum * scale
+    }
+}
+
+fn one(price: f64, factor: f64) -> f64 => passed_on(scaled, price, factor)
+
+fn two(price: f64) -> str => tagged(labelled, price)
+
+fn four(price: f64) -> f64 => tagged(weighted, price)
+
+fn three(a: f64, b: f64) -> f64 => passed_on(total, 2.0, a, b)
+```
+
+`squares(4)` is `[0, 1, 4, 9]` and `below(4)` is 6: the range has 0 to
+3, and `squares(0)` is the empty list (EXPR-16, EXPR-17). `doubled` is
+unrolled where the graph is built, three multiplications whose
+connections are the entries of a `list<f64, 3>`. In `passed_on`, `given`
+has an entry for each parameter of `f`, and `f(...given)` gives each as
+the named argument of its name, so `one` composes `scaled(price: price,
+factor: factor)` (FN-19). In `tagged`, the pass for `key` takes the
+first branch alone, a `str`, and reads no `args["key"]`, which the pack
+has not; the pass for `price` takes the second (CTRL-16), so `two`
+composes `labelled(key: "fixed", price: price)`. In `four`, `weight`
+is a parameter of `weighted` that the call leaves out, so the pack `args`
+has no such key: its pass takes no branch and gives no entry, and
+`weighted` takes its own default. In `three`, `2.0` is
+matched to `scale` and takes that name as its key, though the call gave
+it by position, and `a` and `b`, which `total`'s own pack takes, have
+the keys 0 and 1: `arg_keys(Ps)` is `"scale"`, 0, 1. `f(...given)`
+binds `scale` by its name, and then the entries at 0 and 1 to what is
+left, `total`'s pack, so `three` composes `total(2.0, a, b)`.
+Deliberate rejections:
+`let r = 0..<3`, a range bound as a value (EXPR-16); in a graph,
+`[for i in 0..<n: prices[i]]` with `n` a parameter that is no constant,
+whose number of entries is not known where the graph is built
+(EXPR-17); `f(...given, price: other)` in `passed_on`, which gives
+`price` twice (`argument.duplicate`); and `args["rate"]` there, a name
+the pack has not (`pack.name`). Conformance planned.
 
 Accepted declaration fragment, a temporal input with a default (UNIT-8):
 
