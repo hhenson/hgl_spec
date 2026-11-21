@@ -682,7 +682,8 @@ graph is built it holds what the run's application put there (UNIT-14), and
 nothing else. A graph that injects it puts values there as it is built
 (FN-9), before any node of that graph starts. Nothing outside the program
 puts a value in it. All uses of a key bind
-the same exact ordinary type. Binding alone does not initialize a value. Get
+the same exact ordinary type: a use of another type in one program rejects
+(`store.key_type`). Binding alone does not initialize a value. Get
 of an absent entry fails; a write preserves the type. Writable borrows are
 hook-scoped; retained results own independent values. Storage access adds no
 activation dependency or temporal endpoint type, and so no rank (TIME-2): a

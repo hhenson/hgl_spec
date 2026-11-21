@@ -203,6 +203,7 @@ infrastructure and cannot satisfy a source-rejection expectation.
 | injectable | `inject.configuration` | Proposed: a configuration in braces on an `inject` of a capability that is not `run_config` (RUN-6); the brace |
 | injectable | `inject.no_scheduler` | `scheduled()` in a node that injects neither `scheduler` nor `alarm` (TIME-9); the selector |
 | injectable | `store.reserved_key` | A key of the global store that is the run's own, `"run.output"` (TIME-8); the key |
+| injectable | `store.key_type` | A key of the global store used with two types in one program: a `put` or a `get` of another type than an earlier use of the key has (TIME-8, core's CAP-6); the later use |
 | phase | `node.nested` | `state`, `cache`, `inject`, `start`, `when`, or `stop` inside a block of a temporal function (TIME-3, TIME-5); keyword |
 | phase | `node.in_value_function` | `state`, `cache`, `inject`, `start`, `when`, or `stop` in a `const fn` (FN-1, FN-9); keyword |
 | phase | `node.declaration_order` | `state`, `cache`, or `inject` after a `start`, `when`, or `stop` (TIME-5); the declaration |
