@@ -1,9 +1,10 @@
 # Errors and diagnostics
 
 Status: agreed result, lookup, child-read (ERR-14), fallible-call (ERR-15),
-capture, and structured-error contracts, but for the sentences of ERR-5,
-ERR-12 and ERR-15 that begin "Proposed:", which are proposed. Codes for
-proposed features apply only within those proposed profiles.
+nullable-read (ERR-12), capture, and structured-error contracts. A catalog
+row whose condition begins "Proposed:" is a proposed code for an agreed
+rejection. Codes for proposed features apply only within those proposed
+profiles.
 
 ## Grammar
 
@@ -71,17 +72,14 @@ ERR-15), and no operator raises one.
   failure is an execution failure (ERR-1), as an index outside a list is
   (EXPR-7): the function need not declare that it can fail. In a source's
   body only a `result<T,error>` raises, and its failure fails the source,
-  as it fails a node in a `when`. Any other result given where its T is
+  as it fails a node in a `when`. In a lifecycle hook, in value code
+  evaluated where a graph is built (ERR-15), and among a test's or an
+  application's statements, only a `result<T,error>` raises, as a failure
+  of that phase (RUN-4), and a null read there (ERR-12) fails that phase
+  so too. Any other result given where its T is
   expected rejects (`result.propagation_type`): in a function that gives a
   `result<U,E>`, one of another E, and elsewhere one whose E is not
-  `error`. No success output is written; completed effects stand. No
-  failure is raised elsewhere: in a lifecycle hook, and in composition for
-  a value evaluated where the graph is built (ERR-15), a result given where
-  its T is expected rejects (`result.propagation_phase`). Proposed: a
-  `result<T,error>` raises in a lifecycle hook too, and in value code
-  evaluated where a graph is built or among a test's or an application's
-  statements, as a failure of that phase (RUN-4), and a null read there
-  (ERR-12) fails that phase so too.
+  `error`. No success output is written; completed effects stand.
   Returning Err as result data does not fail the node.
 - **ERR-6.** Brackets on an ordinary or atomic dictionary are a strict
   point-in-time read: absence fails (`value.missing_key`). `get(dictionary,
@@ -103,9 +101,10 @@ ERR-15), and no operator raises one.
   `error` whose code is `value.unset_read`. Elsewhere it gives the T, and
   a child that is not valid fails the read with `value.unset_read`: in a
   `when` the node fails, as a raised failure makes it (ERR-5). A read of a
-  struct, a tuple or a fixed list whole that is checked when it runs, `rows[i]`,
-  takes its form the same way, for one that is not all valid (TIME-1), and
-  so does a read of an unsized list whole with a position that holds no
+  struct, a tuple or a fixed list whole that is checked when it runs,
+  `rows[i]`, takes its form the same way, for one that is not all valid
+  (TIME-1), though a field or a position of it is valid, and so does a
+  read of an unsized list whole with a position that holds no
   value, where its element type has no value for that (TIME-1), and a read
   of a window's value before it is `all_valid`, T being the `list<V>` it
   reads as (TYPE-11). So does `delta_value` of any endpoint (TIME-9), T
@@ -137,8 +136,8 @@ ERR-15), and no operator raises one.
   raising is admitted (ERR-5). Where it expects `T?`, it gives a success's
   value, or null for a failure, whose error is not kept.
   An operand of an operator expects the T where the operator's candidates
-  take one: `checked(value) + 1` adds to the value or raises. Proposed:
-  where a candidate takes the result itself, as `==` and `!=` of two
+  take one: `checked(value) + 1` adds to the value or raises. Where a
+  candidate takes the result itself, as `==` and `!=` of two
   results do (ERR-2), that candidate is selected and the operands are
   given whole: `left == right`, of two `result<i64, error>`, compares tag
   then payload, and raises nothing. Compared
@@ -163,9 +162,9 @@ ERR-15), and no operator raises one.
   as a failure raised in a `when` does, within whatever `capture` bounds
   it (ERR-7); and of `T?`, where a failure publishes null. A call that is
   evaluated where the graph is built and gives no connection (FN-6, FN-9)
-  takes its form as value code does. Proposed: a connection of `result<T, error>` that a
-  binding holds, given where a connection of T or of `T?` is taken, takes
-  that form as a call's does, in the node that reads it.
+  takes its form as value code does. A connection of `result<T, error>`
+  that a binding holds, given where a connection of T or of `T?` is taken,
+  takes that form as a call's does, in the node that reads it.
 - **ERR-7.** In composition, `capture(callable, args...)` creates a temporal
   error boundary. It names a callable and gives it the arguments its own call
   takes, positional or named, read, checked, and selected as that call's are
@@ -281,7 +280,7 @@ infrastructure and cannot satisfy a source-rejection expectation.
 | phase | `source.input` | Temporal parameter of a source (SOURCE-1); the parameter |
 | phase | `state.input_read` | State initializer reads a temporal input (TIME-5); the read |
 | phase | `out.lifecycle` | `out` used in `start` or written in `stop`, or a `return` with a value in either (TIME-7); the use |
-| phase | `input.lifecycle` | A temporal input read, or given to an endpoint operation, in `start` (TIME-5); the use |
+| phase | `input.lifecycle` | A temporal input read, or given to an endpoint operation, in `start`, or given to `activate` or `passivate` in `stop` (TIME-5); the use |
 | phase | `payload.unguarded` | Payload read under manual admission, in a `when` or in `stop`, that no guard dominates (TIME-4, TIME-5); or a read of a child at a constant index or a field that nothing admits, or of a struct, a tuple or a fixed list whole that its `all_valid` does not admit (TIME-1); or a read of the delta of a window of a duration, or of `removed_value` of any window, whose place is not a `result` (TYPE-11); read |
 | phase | `ref.read` | The value or the `delta_value` of a `ref` parameter, of a child of one, or of `out` of a `ref` result, read (FN-16), or the `removed_value` of a window that is a child of one; the read |
 | phase | `endpoint.argument` | Endpoint operation given what is no temporal input of its function, no child of one, and not `out`, or `all_valid` given neither a collection (a list, tuple, struct or dictionary) nor a window (TIME-9); argument |
@@ -299,6 +298,7 @@ infrastructure and cannot satisfy a source-rejection expectation.
 | type | `signal.position` | `signal` other than as the whole type of a function's temporal parameter (TYPE-12); `signal` |
 | type | `endpoint.position` | `endpoint<T>` other than as the whole type of a native value function's parameter (TYPE-12); `endpoint` |
 | type | `nullable.key` | Set element or dictionary key has a `?` (TYPE-14); the nullable type |
+| type | `key.unstable` | Proposed: set element or dictionary key is an `f64`, or a type that holds one (TYPE-1); the type |
 | type | `generic.argument_count` | Generic type given the wrong number of arguments, or arguments given to a type or generic parameter that takes none (GEN-2, GEN-10, GEN-13); name |
 | type | `list.size` | List size is not a nonnegative count (TYPE-10); size |
 | type | `generic.kind_conflict` | Generic parameter used as a type and as a value (GEN-13); later use |
@@ -323,6 +323,7 @@ infrastructure and cannot satisfy a source-rejection expectation.
 | type | `type.mismatch` | Value's type is not the type its place expects, nor a `T?` the place reads (ERR-12) or a result whose form it takes (ERR-5, ERR-15): an annotation, a `var`, a result, an operand, an element, an argument (EXPR-5); `null` written where the type has no `?` (TYPE-14); a `return` that does not fit its function (FN-7), a value among them where a `ref` result takes an endpoint (FN-16); a list of another length than the size expected (TYPE-10); value |
 | type | `null.context_type` | `null` where nothing gives it a type (TYPE-14); the literal |
 | type | `sequence.context_type` | Sequence whose entries give no type, where none is expected (EXPR-9); the sequence |
+| type | `dict.duplicate_key` | Proposed: two keys of a dictionary written as pairs are the same constant (EXPR-9); the later key |
 | type | `enum.context_type` | `.member` where no enum type is expected (TYPE-7); the member |
 | name | `binding.unassigned` | `var` read on a path that gives it no value (EXPR-3); the read |
 | name | `binding.immutable` | Assignment to an immutable binding: a `let`, a parameter, an iteration binding, or a field or element of one (EXPR-3), or to a property of a native type (NATIVE-6) or of a delta (TYPE-16); or one given to a `var` parameter (FN-15). Also an assignment to a part of `out` of a `ref` result, `out.bid = x` (FN-16); target |
@@ -336,7 +337,7 @@ infrastructure and cannot satisfy a source-rejection expectation.
 | type | `argument.place` | `var` parameter given what is no place: a literal, what a call gives, or any other expression that nothing assigns (FN-15); argument |
 | function-kind | `parameter.var` | `var` parameter of a temporal function, a temporal candidate, or an operator, or one whose type is a capability's or `endpoint<T>` (FN-15); `var` |
 | function-kind | `ref.position` | `ref` on a parameter or the result of what is no node, a value function, a graph or an operator, or on a `signal` parameter (FN-16, TYPE-12), or on a parameter or a result whose type is a `rolling_window` (FN-16); `ref` |
-| function-kind | `call.role` | Temporal function called from a value function or a runtime hook (FN-3). Proposed: also a temporal function called, or an operator whose selected candidate is temporal applied, in a test's or an application's value code (TST-3, UNIT-14); callee name |
+| function-kind | `call.role` | Temporal function called from a value function or a runtime hook (FN-3); in a test's or an application's value code, a temporal function called, or an operator applied whose selected candidate is temporal (TST-3, UNIT-14); callee name |
 | type | `return.missing` | Value function that declares a result can reach its end with no value (FN-7), or a graph that returns a value in a branch of a temporal `if` or `switch` can (CTRL-14); function name |
 | type | `switch.duplicate_label` | Switch label has the value of an earlier label (CTRL-6); later label |
 | phase | `while.condition` | `while` with no condition in a value function or a graph (CTRL-12, CTRL-15); `while` |
@@ -362,7 +363,6 @@ infrastructure and cannot satisfy a source-rejection expectation.
 | type | `result.context_type` | Missing complete outcome context; constructor |
 | type | `result.required_variant` | Unguarded tag payload; property |
 | type | `result.propagation_type` | A result given where its T is expected whose E may not be raised there: in a function that gives a `result<U, E>`, another E; elsewhere, an E that is not `error` (ERR-5); the result |
-| phase | `result.propagation_phase` | A result given where its T is expected (ERR-15), or a `T?` read where a T is expected (ERR-12), where no failure is raised (ERR-5); the result or the read |
 | phase | `capture.phase` | Non-temporal capture/context; call |
 | type | `capture.output_field` | Value requested from outputless capture; property |
 | type | `value.constant_capability` | Required constant lacks contained capability; operation |
@@ -380,11 +380,14 @@ infrastructure and cannot satisfy a source-rejection expectation.
 | Execution code | Required condition |
 | --- | --- |
 | `value.missing_key` | Strict ordinary dictionary lookup has no member; also the code of the failure that `get` of an absent key gives (ERR-6) |
-| `value.null` | Proposed: a `T?` that holds null is read where a T is expected (ERR-12) |
+| `value.null` | A `T?` that holds null is read where a T is expected, a connection's by the node that reads it among them (ERR-12) |
 | `value.index_out_of_range` | An index outside a list, below zero or at or past its size, where a read or an assignment evaluates it (EXPR-3, EXPR-7) |
 | `value.unset_read` | Executed operation requires an unset ordinary payload, a collection's child that is not valid, or a struct, a tuple or a fixed list read whole that is not all valid, read where that is checked when it runs among them (TIME-1, ERR-14), an unsized list read whole with a position that holds no value, where its element type has no value for that (TIME-1), a window's value read before it is `all_valid` (TYPE-11), or a `delta_value` read whose place is no `result` where its endpoint has no delta in the cycle (ERR-14) |
 | `value.capability` | Boxed executed operation lacks a required contained capability |
 | `value.byte_range` | Bytes construction receives an octet outside 0–255 |
+| `enum.no_member` | An enum is constructed, where it is evaluated, from an `i64` or a `str` that is no member's number or name (TYPE-7) |
+| `switch.unmatched` | A `switch` with no `default` is given a selector that matches none of its labels, in composition as elsewhere (CTRL-6) |
+| `store.key_type` | A `put` or a `get` of a key of the global store of another type than an earlier use of the key, where the two uses are not in one program (TIME-8, core's CAP-6) |
 | `numeric.division_by_zero` | A checked division's Err is raised, given where its `f64` is expected (ERR-5, ERR-15); see the [core numeric contract](https://github.com/hhenson/hgl_core/blob/main/spec/numeric-operators.md) |
 | `numeric.out_of_range` | A result is outside its type's range: an `i64`, a `duration`, an instant or a count of a `tenor`; or a `str` is repeated a count below zero; see the core [numeric](https://github.com/hhenson/hgl_core/blob/main/spec/numeric-operators.md) and [scalar operator](https://github.com/hhenson/hgl_core/blob/main/spec/scalar-operators.md) contracts |
 | `tenor.mixed_units` | A sum or a difference of a `tenor` of business days and one of months and days; see the core [scalar operator contract](https://github.com/hhenson/hgl_core/blob/main/spec/scalar-operators.md) |
@@ -394,6 +397,7 @@ infrastructure and cannot satisfy a source-rejection expectation.
 | `yield.non_increasing_time` | Resolved target does not exceed the previous target |
 | `eval.input_delta_profile` | Executed eval input violates its admitted publication profile before start |
 | `run.end_and_length` | A run's configuration gives both an `end` and a `length`; refused before the run's graph is built. See the [core execution contract](https://github.com/hhenson/hgl_core/blob/main/spec/execution.md) (CRUN-2) |
+| `run.bounds` | A run's start or end is outside the instants a run may have: a start before the earliest start, or an end after the latest end. See the [core execution contract](https://github.com/hhenson/hgl_core/blob/main/spec/execution.md) (CRUN-3) |
 
 Where a primary location is the later of two, order a module's files with its
 unnamed file first and its parts by part name, and each file by source order.
@@ -404,7 +408,9 @@ that order, of its first module by path. `struct.inheritance_cycle` is
 reported once for each set of structs that inherit from one another: at the
 parent, among the set, of its first struct in that order.
 
-The source and execution catalogs are disjoint. Unlisted failures still fail;
+The source and execution catalogs are disjoint, but for `store.key_type`: a
+source rejection where the two uses are in one program, and an execution
+failure where they are not. Unlisted failures still fail;
 they cannot satisfy a coded expectation. Delta equality/bounds checks require
 prior typing/formation; provider-backed key checks use the required run context.
 The numeric code applies to a raised Err, not to IEEE division or an Err
@@ -478,7 +484,7 @@ constant index that nothing admits (`payload.unguarded`). Conformance planned.
 | `binding.value` | A binding proved a success | The T | `result.required_variant` |
 | `binding.error` | A binding proved a failure | The E | `result.required_variant` |
 | `outcome` where `result<T, error>` or `result<T, error>?` is expected, or bound by a `let` that writes no type | A `result<T, error>`: what a call gives whose function, or whose operator's selected candidate, gives one, or what a binding holds (ERR-15) | The result itself | None |
-| `outcome` where T is expected, an operand among them | The same, or in a function that gives a `result<U, E>` a `result<T, E>` (ERR-5) | The T; a failure is raised: it leaves a function that gives a result as its failure, fails the node in a `when` and the source in its body, and is an execution failure in any other value function | `result.propagation_type`, `result.propagation_phase` |
+| `outcome` where T is expected, an operand among them | The same, or in a function that gives a `result<U, E>` a `result<T, E>` (ERR-5) | The T; a failure is raised: it leaves a function that gives a result as its failure, fails the node in a `when` and the source in its body, fails the phase of a lifecycle hook, of a graph's building, and of a test's or an application's statements, and is an execution failure in any other value function | `result.propagation_type` |
 | `outcome` where `T?` is expected, compared with `null` among them where T is not nullable | The same | The T, or null for a failure | None |
 | `parts[i]` where `result<T, error>` is expected | A collection's child read when it runs (ERR-14) | `ok` of its value; `err` coded `value.unset_read` for a child that is not valid | None |
 | `delta_value(x)` where `result<delta<T>, error>` is expected | An endpoint (ERR-14) | `ok` of the delta; `err` coded `value.unset_read` where the endpoint has no delta in the cycle | None |
@@ -537,6 +543,8 @@ fn is_failure(value: result<i64, error>) -> bool => is_err(value)
 fn lifted_required(value: i64) -> i64 => checked(value)
 
 fn lifted_or_null(value: i64) -> i64? => checked(value)
+
+fn wired(const value: i64) -> i64 => checked(value)
 ```
 
 | Evaluation | Outcome |
@@ -555,12 +563,14 @@ fn lifted_or_null(value: i64) -> i64? => checked(value)
 | `is_failure` over a success, a failure, a failure | `false`, `true`, `true`: `is_err` lifted over the connection |
 | `lifted_required` over the publications 7, -1 | Publishes 7; then its node fails with that error, as `required` does |
 | `lifted_or_null` over the publications 7, -1 | Publishes 7, then null |
+| `wired(value: 7)`, `wired(value: -1)` | A graph that publishes 7 once, when it starts; and a failure of the graph's building with that error: the call is evaluated as the graph is built (ERR-5) |
 
 Each call of `checked` takes its form from its place (ERR-15): the result
 in `recovered` and `or_zero`, whose `let`s write no type, and where
 `diagnostic` and `tagged` take one; the `i64` in `doubled`, whose `let`
 writes that type and whose failure is then its own, in `trusted`, in
-`required` and in `lifted_required`; and the `i64?` in `or_null` and
+`required`, in `lifted_required`, and in `wired`, a graph whose call of
+`checked` gives no connection; and the `i64?` in `or_null` and
 `lifted_or_null`. `required` and `tagged` differ only in what their
 results expect. As an operand, `checked(value) + 1` takes the `i64`. A
 result that a binding holds takes its form the same way: in `or_zero`,
@@ -575,11 +585,8 @@ rejections:
 `let missing = ok(1)`, with nothing that says the result's type;
 `outcome.value` with no guard, and under `is_err(outcome)`; a
 `result<i64, str>` given where an `i64` is expected, in a `when` and in a
-`const fn` that returns an `i64` (`result.propagation_type`);
-`fn wired(const v: i64) -> i64 => checked(v)`, a graph, where the call is
-evaluated as the graph is built and given where an `i64` is expected
-(`result.propagation_phase`); and a function named `ok`.
-Conformance planned.
+`const fn` that returns an `i64` (`result.propagation_type`); and a
+function named `ok`. Conformance planned.
 
 Accepted illustration, complete module:
 
@@ -672,15 +679,12 @@ executable conformance is planned.
 ## Nullable value refinement
 
 - **ERR-12.** A `T?` value given where a T is expected is read as its
-  value: the place tries it, and a null fails the read, an execution
-  failure raised as a result's failure is (ERR-5). Where no failure is
-  raised (ERR-5), the read rejects as a result given there does
-  (`result.propagation_phase`): an ordinary `bool?` as a condition in
-  composition is one (CTRL-13). Proposed: the failure's code is
-  `value.null`; and a connection of `T?` given where a connection of T is
-  taken, a node's input, a lifted parameter (FN-11), or a condition in
-  composition (CTRL-13), is read so too, the node that reads it failing in
-  a cycle that publishes a null. An immutable nullable parameter or local
+  value: the place tries it, and a null fails the read with the code
+  `value.null`, an execution failure raised as a result's failure is
+  (ERR-5). A connection of `T?` given where a connection of T is taken, a
+  node's input, a lifted parameter (FN-11), or a condition in composition
+  (CTRL-13), is read so too, the node that reads it failing in a cycle
+  that publishes a null. An immutable nullable parameter or local
   may be tested directly against null: that same binding is a T on paths
   proving a non-null value, including after a terminating null branch, and
   its read there does not fail. A `null` written where a T is expected
@@ -688,14 +692,21 @@ executable conformance is planned.
   validity.
 
 The accepted `value_or_zero` example in [types and values](types-and-values.md)
-uses this refinement. Accepted fragment, a read that may fail:
+uses this refinement. Accepted fragments, reads that may fail:
 
 ```hgl
 const fn unchecked(value: f64?) -> f64 => value
+
+const fn halved(value: f64) -> f64 => value / 2.0
+
+fn relayed(value: f64?) -> f64 => halved(value)
 ```
 
-The return expects an `f64` and is given an `f64?`: it reads the value, and
-fails where `value` is null. Deliberate rejection:
+The return of `unchecked` expects an `f64` and is given an `f64?`: it
+reads the value, and fails with `value.null` where `value` is null.
+`relayed` gives a connection of `f64?` to the lifted parameter of `halved`,
+an `f64`: over the publications 3.0 and null it publishes 1.5, and then
+its node fails with `value.null`. Deliberate rejection:
 `const fn nothing() -> f64 => null`, a `null` written where an `f64` is
 expected. Executable source conformance is planned.
 

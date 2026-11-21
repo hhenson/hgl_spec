@@ -158,7 +158,9 @@ Local source/native declaration matching is defined in the native chapter.
   input: bind the default when that input is invalid. Otherwise, an argument
   whose value contract admits null does not require a valid input: bind null
   when it is invalid. Every other input must satisfy ordinary `valid(input)`.
-  A valid value, including a valid null, is supplied as published. A struct,
+  A valid value, including a valid null, is supplied as published. A
+  connection of `T?` given to a parameter of T is read as ERR-12 says: the
+  lifted node fails in a cycle in which it publishes a null. A struct,
   a tuple, a fixed list or a window is supplied only where it is
   `all_valid` as well, whatever its default or null contract (FN-12): one
   that is valid and not all valid binds no fallback, its default included,
@@ -193,8 +195,11 @@ Local source/native declaration matching is defined in the native chapter.
   which no place holds (`parameter.var`). A call gives a `var` parameter a
   place, as the left of an assignment is (EXPR-3): a `var`, a `state`, or a
   `cache`, or a place inside one, that holds an ordinary value of the
-  parameter's type. It is always given: it has no default, and is not left out
-  where its type is written `T?` (UNIT-8). What is read-only rejects, a `let`,
+  parameter's type. An entry of a dictionary, `counts[key]`, is a place
+  for a key the dictionary has; for one it has not, the call fails with
+  `value.missing_key`. The parameter is always given: it has no default,
+  and is not left out where its type is written `T?` (UNIT-8). What is
+  read-only rejects, a `let`,
   a parameter that is not `var`, a constant, or an iteration binding
   (`binding.immutable`); so does what is no place, a literal or what a call
   gives (`argument.place`). The call assigns the place. In the function the
@@ -242,7 +247,10 @@ Local source/native declaration matching is defined in the native chapter.
   A `return` to a `ref` result is given an expression that names an
   endpoint: a temporal input of the node, `ref` or not, or a child of one,
   `items[idx]`. Returning a whole `ref` parameter samples its current
-  designation when the `return` executes. Readers follow that target's
+  designation when the `return` executes; one that holds no reference
+  gives the result the empty designation, which designates nothing, and a
+  reader of the result is then not valid until a later designation
+  (TIME-10). Readers follow that target's
   publications. If the input later designates another target, the result
   keeps the sampled designation until the node writes its result again.
   Returning an ordinary input or a child path designates the logical
@@ -348,7 +356,10 @@ it was. For `var rows: list<i64> = []`, `fill(rows, 0)` fails at its second
 had added stays. `push` is an operator whose candidates each take a place: the
 operator's declaration marks none, `push(entries, 3)` resolves by the types
 of its arguments to the candidate for a list, and that candidate's mark makes
-`entries` a place. Deliberate source rejections: `bump(1, 2)`, whose first
+`entries` a place. For `var counts: dict<str, i64> = ["a": 1]`,
+`bump(counts["a"], 2)` leaves `counts["a"]` 3, and `bump(counts["b"], 2)`
+fails with `value.missing_key`, where `counts["b"] = 2` adds the key
+(EXPR-3). Deliberate source rejections: `bump(1, 2)`, whose first
 argument is no place (`argument.place`); `push([1], 2)`, the same once the
 candidate is selected; `bump(fixed, 2)` for `let fixed = 0`
 (`binding.immutable`); `fn ticking(var value: i64) -> i64`, a temporal

@@ -46,11 +46,13 @@ CTRL-9 places the opening brace of an `if`, `for`, `switch`, `when`, or
   program runs is the child a temporal `if` or `switch` selects, or one a
   composition loop makes for a member (CTRL-7). An input of a node in it,
   bound to an endpoint that is already valid, counts as modified in the
-  cycle the branch starts, published in that cycle or not (TIME-3): the
+  cycle the branch starts, published in that cycle or not (TIME-3), and
+  its `last_modified` (core's END-6) is that cycle's evaluation time: the
   branch's nodes run once with the values held.
 - **CTRL-3.** A consumed temporal if without else supplies a typed never-ticking
-  branch, not a default scalar. An outputless if has no synthetic result; an
-  omitted false branch performs no conditional work.
+  branch, not a default scalar. It holds no value, so while it is selected
+  the `if`'s value is not valid (CTRL-13). An outputless if has no
+  synthetic result; an omitted false branch performs no conditional work.
 - **CTRL-4.** Escaping assignments require a prior enclosing declaration. Every
   path reaching a use supplies a binding or forwards its incoming binding.
   A branch block's locals do not escape. Multiple results preserve their
@@ -64,7 +66,8 @@ CTRL-9 places the opening brace of an `if`, `for`, `switch`, `when`, or
   equal enum members, and `case 1:` beside `case 0x1:`. Two
   labels are duplicates where `==` of the selector's type holds for them,
   and not by their sameness as constants. There is no fallthrough. An
-  unmatched selector uses default or fails.
+  unmatched selector uses `default`, and with none fails with the code
+  `switch.unmatched`, in composition as in a value function or a hook.
   Enum coverage can establish exhaustiveness; partial coverage is admitted.
 - **CTRL-7.** A composition loop over fixed structure receives child connections;
   a loop over ordinary wiring-time data receives values. Dynamic independent
@@ -121,12 +124,18 @@ CTRL-9 places the opening brace of an `if`, `for`, `switch`, `when`, or
   literal, an enum member, a constant (UNIT-13), or a generic value
   parameter. A `switch` is a statement and has no value.
 - **CTRL-13.** In composition the condition of an `if` is a `bool`, an
-  ordinary value or a connection (CTRL-1): a `bool?` or any other type
-  rejects. An `if` whose value is used has the one type its branches' values
-  have, and two types reject (CTRL-10). It is a connection when its condition
-  is one or either branch's value is, and an ordinary value in a branch is
-  then wired as a constant (FN-3). With no `else`, under a temporal condition
-  it is a connection of `T` that never ticks while the condition is false
+  ordinary value or a connection (CTRL-1). A `bool?` there is read as
+  ERR-12 says: an ordinary one where the graph is built, a null failing
+  that phase (ERR-5), and a connection of one by the node that reads it,
+  which fails in a cycle that publishes a null. Any other type rejects. An `if`
+  whose value is used has the one type its branches' values have, and two
+  types reject (CTRL-10). It is a connection when its condition is one or
+  either branch's value is, and an ordinary value in a branch is then
+  wired as a constant (FN-3). Under a temporal condition that connection
+  follows the selected branch's result: after a change of branch it is not
+  valid where that branch's result holds no value, until the branch
+  publishes. With no `else`, under a temporal condition it is a connection
+  of `T` that never ticks, and is not valid, while the condition is false
   (CTRL-3): `T`, not `T?`. Under a wiring-time condition a branch that is an
   ordinary value makes it a `T?`, as in a value function, and a branch that
   is a connection makes it a connection of `T` that never ticks where the
@@ -144,12 +153,16 @@ CTRL-9 places the opening brace of an `if`, `for`, `switch`, `when`, or
   it. A `return value` in a branch of a temporal `if` makes the graph's
   result that value while the branch is selected and the continuation's
   otherwise (CTRL-5): the continuation returns a value too, and one that can
-  reach its end with none rejects.
+  reach its end with none rejects. Such a `var` and such a result each
+  follow the binding selected as the `if`'s value follows its branch's
+  result (CTRL-13).
 - **CTRL-15.** In composition a `switch` over an ordinary value composes the
   one case selected, and over a connection each case is a child graph
   selected at runtime. The selector is a `bool`, `i64`, `str`, or enum value
   and each label a constant (CTRL-12); a case's assignments and returns
-  follow CTRL-14. `for item in items` over an ordinary list, set, or
+  follow CTRL-14, and over a connection what they give follows the case
+  selected as a temporal `if`'s value follows its branch (CTRL-13).
+  `for item in items` over an ordinary list, set, or
   dictionary composes its body once for each element, with ordinary values
   bound, and may carry a `var` from one pass to the next. Over a connection
   of `list<T, N>` it composes its body `N` times, `item` a connection of
@@ -229,7 +242,10 @@ fn each_price(prices: dict<str, f64>) {
 
 `sized` composes one branch while the graph is built: `wide` is a `const`
 parameter. `gated` selects at runtime: its result is a connection of `f64`
-that never ticks while `open` is false. In `adjusted`, `chosen` is one
+that never ticks, and is not valid, while `open` is false, though `price`
+holds a value (CTRL-13). With `open: bool?` it is accepted too, and the
+node that reads `open` fails in a cycle in which it publishes a null
+(ERR-12). In `adjusted`, `chosen` is one
 connection after the `if`: the scaled price while `rising` holds, and the
 price otherwise. `chained` is unrolled while the graph is built, one
 multiplication for each factor, and carries `running` from pass to pass.
@@ -264,8 +280,10 @@ fn counted_while(open: bool, value: i64) -> i64 {
 `value` publishes 10 in the first cycle and nothing after, and `open`
 publishes false, true, false, true. Each true starts the branch fresh:
 `value`, valid since the first cycle, counts as modified in that cycle, and
-`counted` runs once with 10 and publishes 1. While `open` is false the
-result never ticks (CTRL-3). So
+`counted` runs once with 10 and publishes 1; `last_modified(value)` read
+there is that cycle's time. While `open` is false the result never
+ticks and is not valid: the 1 published before is not held (CTRL-3,
+CTRL-13). So
 `eval counted_while(open: [false, true, false, true], value: [10, _, _, _])`
 is `[_, 1, _, 1]`. Conformance planned.
 

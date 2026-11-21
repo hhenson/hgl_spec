@@ -43,7 +43,8 @@ enum_member = member_name, [ "=", const_expression ] ;
 
 Semantic field rules distinguish a typed introduction from an inherited-default
 override. The productions admit `?` on a set's element and a dictionary's key,
-which TYPE-14 rejects. Where a production gives `value_type`, any `type` is
+which TYPE-14 rejects, and a type that holds an `f64` there, which TYPE-1
+rejects. Where a production gives `value_type`, any `type` is
 admitted as syntax, and one that is no ordinary value type is a type
 rejection (TYPE-12, TYPE-14). TYPE-16 says what a `delta_type` is.
 
@@ -52,6 +53,13 @@ rejection (TYPE-12, TYPE-14). TYPE-16 says what a `delta_type` is.
 - **TYPE-1.** Ordinary values have canonical types. `bool`, signed 64-bit `i64`,
   binary64 `f64`, Unicode `str`, and octet-sequence `bytes` retain distinct
   identities. Key/equality/order operations require the type's capabilities.
+  An `f64` is no set element and no dictionary key, and nor is a type that
+  holds one at any depth: a `T?`, a tuple, a list, a set or a dictionary
+  with an element, a position, a key or a value of such a type, or a
+  struct with a field of such a type, the fields it has from its parents
+  included, a generic one with its arguments in place. `set<f64>`,
+  `dict<tuple<str, f64>, i64>` and `set<Quote>`, for a `Quote` with an
+  `f64` field, reject.
   Bytes admit values 0 through 255; length and ordering use unsigned octets.
 - **TYPE-2.** Temporal scalar domains are: Gregorian `date` (years 1–9999),
   microsecond `time`, UTC-instant `datetime`, elapsed `duration`, local
@@ -141,7 +149,8 @@ rejection (TYPE-12, TYPE-14). TYPE-16 says what a `delta_type` is.
   `Side(1)` is the member whose number is 1, and `Side("buy")` the member of
   that exact name. Construction is checked: a constant that is no member's
   number or name rejects, and a value that is none fails where it is
-  evaluated. String conversion returns the member name. Numeric conversion
+  evaluated, with the code `enum.no_member`. String conversion returns
+  the member name. Numeric conversion
   is explicit.
 - **TYPE-8.** `any` owns a boxed value with its exact contained type; boxing
   adds no numeric conversion. Equality across contained types is false.
@@ -161,7 +170,9 @@ rejection (TYPE-12, TYPE-14). TYPE-16 says what a `delta_type` is.
   independent of a callable's temporal/value role and of fixed configuration.
   A T is a value where a `T?` is expected. `null` has the nullable type its
   place expects, and rejects where nothing gives it one: `let x = null`.
-  It does not make null an admitted value of unqualified T. Payload use follows
+  It does not make null an admitted value of unqualified T. A `T?` given
+  where a T is expected, a value or a connection, is read, and a null
+  fails the read (ERR-12). Payload use follows
   [nullable refinement](errors-and-diagnostics.md#nullable-value-refinement).
 - **TYPE-15.** The suffix applies to the complete preceding type: `list<f64?>`
   has nullable elements; `list<f64>?` is a nullable list value. A present null
@@ -544,6 +555,8 @@ names them the same way. In `opposite`, the parameter, the result, and the
 other operand each give `.buy` and `.sell` the type `Side`; in a `switch` on
 a `Side`, `case .buy:` takes it from the selector. `Side(1)` constructs the
 member numbered 1, `sell`, and `Side("buy")` the member named `buy`.
+`Side(n)` for a parameter `n` that is 2 fails as it is evaluated
+(`enum.no_member`).
 Deliberate source rejections: `let side = .buy`, where nothing gives a type;
 `Side(2)` and `Side("BUY")`, constants that are no member's number or name;
 and `Side(1.5)`, which is neither an `i64` nor a `str`. Conformance is
@@ -574,8 +587,10 @@ Accepted type fragments in an ordinary value parameter or result position:
 These list forms are distinct: a null element is not a null list. Deliberate
 source type rejections: `null` written as the argument of an f64 parameter,
 though an `f64?` argument is read there and fails for a null (ERR-12);
-`set<str?>` and
-`dict<str?, f64>`, whose keys take no `?`. The suffix admits only ordinary
+`set<str?>` and `dict<str?, f64>`, whose keys take no `?`; and
+`set<f64>` and `dict<f64, str>`, whose member and key are `f64`s
+(TYPE-1), where `dict<str, f64>`, an `f64` only in its values, is
+admitted. The suffix admits only ordinary
 value types; applying it to `signal` there rejects under TYPE-12/14
 rather than creating a nullable endpoint handle.
 
