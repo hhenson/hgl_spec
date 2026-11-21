@@ -183,9 +183,9 @@ GEN-14 resolves generic construction versus comparison using declaration lookup.
   operands declares. Intrinsic harness and constraint forms retain their own
   rules.
   A call of a named operator carries the same configuration after its
-  name, before its arguments: `map{join: .outer}(scaled, prices, factors)`.
-  It binds as a symbol's does, and the arguments in the parentheses are
-  then the call's others. In the header of an `if`, `for`, `switch`,
+  name, before its arguments: `ratio{zero: .error}(a, b)` is
+  `ratio(a, b, zero: .error)`. It binds as a symbol's does, and the
+  arguments in the parentheses are then the call's others. In the header of an `if`, `for`, `switch`,
   `when`, or `while` such a call stands in parentheses, since the first
   `{` there opens the body (CTRL-9).
 - **EXPR-11.** `<=>` is full comparison at the comparison precedence tier.
