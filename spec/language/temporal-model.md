@@ -188,9 +188,13 @@ flowchart LR
   publishes whole, as a scalar does, `delta<T>` is T and the two are one.
   A delta that names no change, `delta<set<i64>>()`,
   `delta<dict<str, i64>>()` or `delta<list<i64>>()`, ticks only where it
-  changes validity. Where a `list<V>`, a dictionary or a set is not valid,
-  never published or invalidated, it makes the value valid and empty, and
-  ticks. Where it is valid the delta changes nothing, and is no tick: it
+  changes validity. For a never-published or wholly invalidated `list<V>`,
+  dictionary or set, it publishes a valid empty value. A growing list whose
+  last valid position loses its value keeps its size. While it still has
+  positions, a delta that names no change leaves it invalid and wakes no
+  subscriber. Writing `size_modified: 0` or publishing `[]` whole then
+  truncates it and publishes a valid empty list. Where the collection is
+  already valid the delta that names no change is no tick: it
   marks nothing `modified`, wakes no subscriber, and a trace records
   nothing for it (TST-5). A struct, a tuple and a `list<V, N>` are valid where a
   child is (TIME-9), and such a delta of one, `delta<Quote>()`, sets no
@@ -206,7 +210,7 @@ flowchart LR
   set given the members it holds, or an empty list or dictionary given to
   a valid empty one, the value is unchanged, and it is no tick. Where a
   `list<V>`, a dictionary or a set is not valid, an empty one given whole
-  makes it valid, and ticks, as a delta that names no change does.
+  makes it valid and ticks.
   A `return` with no value publishes nothing (FN-7). A result of
   `atomic<V>` takes a V. A result of `rolling_window<V, Max, Min>` takes a
   V, which arrives, and nothing else (TYPE-11): for a nullable V, `return
@@ -507,7 +511,11 @@ fn watched(step: i64) -> bool => woken(publish_members(step))
 So `eval watched(step: [0, 0, 1, 2, 0, 3, 0])` is
 `[true, _, _, true, _, false, true]`. A `list<i64>` written
 `delta<list<i64>>()`, and a `dict<str, i64>` written
-`delta<dict<str, i64>>()`, tick alike. The `Quote` above written
+`delta<dict<str, i64>>()`, tick alike after whole invalidation. A list
+published as `[10, 20]` and then given `removed: [0, 1]` still has two
+positions. A subsequent empty delta is silent. Publishing `[]` then drops
+both positions and wakes a subscriber with a valid empty list.
+The `Quote` above written
 `delta<Quote>()` sets no field: one that is not valid stays so, and
 nothing ticks. Conformance planned.
 
