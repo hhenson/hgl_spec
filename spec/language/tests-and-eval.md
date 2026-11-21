@@ -152,6 +152,7 @@ assert.
   (`run.position`). An integration test may inject `run_config`, before
   its other statements: what runs the test supplies the configuration of
   its runs, and the braces give defaults, as an application's do (RUN-6).
+  Its value code may read `run_config` then, and no other capability.
   An integration test is run only when it is
   asked for; a run of a module's tests leaves it out. It is time-bound: it
   runs within a time limit by the host clock, the duration `@timeout(5s)`

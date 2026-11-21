@@ -75,7 +75,9 @@ test's block and nowhere else (TST-17).
   the same way, among the statements before its run statement (UNIT-14).
   A field neither gives is left out. `run_config` reads the configuration
   as supplied, what starts the application over those defaults, and not
-  as the run resolves it: a start left out is null there. An application
+  as the run resolves it: a start left out is null there. It is read in the
+  statements that follow its `inject`, where no other capability is
+  (UNIT-14, TST-17). An application
   injects `run_config`, and so does an integration test (TST-17), whose
   runs' configuration what runs the test supplies. A test that is no
   integration test does not, and neither does a function: one that needs a

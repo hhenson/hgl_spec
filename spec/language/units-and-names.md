@@ -155,7 +155,9 @@ admits one as a member name.
   the run's configuration its defaults (RUN-6), and set the run's store:
   `inject global_state`, and then calls of `put` on it. Each is evaluated
   once, in the order written, before the run's graph is built, and its
-  value is read as a constant's is (UNIT-13), with no parameter in scope.
+  value is read as a constant's is (UNIT-13), with no parameter in scope,
+  but that a value given to `put` may read `run_config` where the
+  application has injected it before that statement (RUN-6).
   Any other statement there rejects (`application.statement`). A module
   holds none of these. Those statements, the defaults among them, and the
   arguments of the run statement's call are value code; the call itself,
