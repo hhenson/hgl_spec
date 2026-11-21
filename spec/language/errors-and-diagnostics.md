@@ -155,7 +155,10 @@ ERR-15), and no operator raises one.
   `i64`, `outcome == null` as its `i64?`, and `is_err(outcome)` as itself;
   `let price: i64 = checked(value)` binds the `i64`. Where T is itself
   nullable, a place that expects T takes the T form: a null there is a
-  success's value and never a failure. A place that expects any other type
+  success's value and never a failure. Where T is a nullable `U?`, a
+  place that expects the U takes the T form and then reads it (ERR-12):
+  a failure's own error is raised, and a success that holds null fails
+  the read with `value.null`. A place that expects any other type
   rejects as a value of another type does (`type.mismatch`). In
   composition a call that gives a connection, of a temporal function or
   one that is lifted (FN-6), takes its form as the connection's: of
@@ -550,6 +553,8 @@ const fn or_zero(value: i64) -> i64 {
 
 const fn trusted(value: i64) -> i64 => checked(value)
 
+const fn present(outcome: result<i64?, error>) -> i64 => outcome
+
 const fn diagnostic(outcome: result<i64, error>) -> str {
     if is_ok(outcome) { return "ok" }
     return outcome.error.message
@@ -582,6 +587,7 @@ fn wired(const value: i64) -> i64 => checked(value)
 | `or_null(7)`, `or_null(-1)` | 7, and null: the failure's error is not kept |
 | `or_zero(7)`, `or_zero(-1)` | 7, and 0: `price` holds the result, whose `i64?` form is null for the failure |
 | `trusted(7)`, `trusted(-1)` | 7, and an execution failure with that error: `trusted` declares no result |
+| `present` given a success holding 7, one holding null, and a failure | 7; an execution failure coded `value.null`, the read of the null; and an execution failure with the failure's own error |
 | `diagnostic(checked(-1))` | "negative price" |
 | `required` over the publications 7, -1 | Publishes 7; then the node fails with that error and publishes nothing |
 | `tagged` over the publications 7, -1, -1 | Three ticks: a success, a failure, and the equal failure again. The node does not fail |
