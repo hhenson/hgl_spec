@@ -3,7 +3,7 @@
 Status: agreed function roles, classification, defaults, lifting, and
 anonymous-function scope. The `ref` mode (FN-16) is agreed. The sentence
 of FN-9 that begins "Proposed:" is proposed. FN-17, a parameter that takes
-a function, and the pack of FN-8 declared `for` one are proposed.
+a function, and the pack of FN-8 declared `for` one are agreed.
 
 ## Grammar
 
@@ -143,7 +143,7 @@ Local source/native declaration matching is defined in the native chapter.
   kind rejects (`pack.duplicate`), since nothing would say which of the
   two an argument is for. Cardinality and
   reflection follow the generic chapter.
-  Proposed: a named pack may be declared for a parameter that takes a
+  A named pack may be declared for a parameter that takes a
   function (FN-17), `args: ...{As for f}`. It takes the arguments a call
   of `f` takes, positional or named, matched to `f`'s parameters as that
   call's are (EXPR-2, FN-4). The matching settles which parameter each
@@ -297,7 +297,7 @@ Local source/native declaration matching is defined in the native chapter.
   rejected where the `return` would be; otherwise `out` of a `ref` result
   is as a `ref` parameter is: the endpoint operations take it,
   `delta_value` aside, and a read of its value rejects.
-- **FN-17.** Proposed. A parameter may take a function. Its type is written
+- **FN-17.** A parameter may take a function. Its type is written
   as a declaration's signature is: `f: fn(f64, f64) -> f64` takes a function
   of two `f64` that gives an `f64`, one composed where a graph is built,
   and `f: const fn(f64) -> f64` a value function. The argument is one of
@@ -499,7 +499,7 @@ a name already in scope (UNIT-12); a body reading a `var` local of the
 enclosing function uses a binding FN-14 excludes. Executable conformance is
 planned.
 
-Proposed illustration, complete module, parameters that take a function
+Accepted illustration, complete module, parameters that take a function
 (FN-17):
 
 ```hgl

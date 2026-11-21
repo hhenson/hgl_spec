@@ -298,8 +298,8 @@ infrastructure and cannot satisfy a source-rejection expectation.
 | type | `pack.const` | Pack parameter is const (FN-8); `const` |
 | type | `pack.order` | Fixed parameter follows a pack (FN-8); parameter name |
 | type | `pack.undeclared` | `...{Name}` names no type pack of its declaration (FN-8); name in the braces |
-| type | `function.argument` | Proposed: an argument for a parameter that takes a function names no function known where the call is compiled (FN-17); the argument |
-| type | `pack.name` | Proposed: `Ps[name]` for a name the pack has not (GEN-17); the name |
+| type | `function.argument` | An argument for a parameter that takes a function names no function known where the call is compiled (FN-17); the argument |
+| type | `pack.name` | `Ps[name]` for a name the pack has not (GEN-17); the name |
 | type | `pack.duplicate` | A second positional pack, or a second named pack, in one declaration (FN-8); the second pack's parameter |
 | type | `pack.cardinality` | Cardinality's upper bound is below its lower (GEN-10); upper bound. A call that gives a pack a number of arguments its cardinality does not admit; the first argument beyond the upper bound, or the call's closing parenthesis where too few are given |
 | type | `type.not_a_type` | Name in a type position is no type: a function, operator, local, generic value parameter, or a type pack where one type is needed (UNIT-10, GEN-2, GEN-13); name |

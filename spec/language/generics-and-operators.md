@@ -2,7 +2,7 @@
 
 Status: agreed generic, pack, and nominal-operator baseline. Detailed core
 operation domains belong to core and retain their own decision status.
-GEN-17, a function's parameters read as a named pack, is proposed.
+GEN-17, a function's parameters read as a named pack, is agreed.
 
 ## Grammar
 
@@ -295,7 +295,7 @@ expression; group a constant expression that uses them as operand data.
   is what a node or a value function it calls may require. A candidate that
   marks a parameter `var` (FN-15) answers no requirement: a requirement
   supplies types, and no place.
-- **GEN-17.** Proposed. In a function type (FN-17) a named pack stands for
+- **GEN-17.** In a function type (FN-17) a named pack stands for
   the parameters the fixed ones leave: `f: fn(...{Ps}) -> R` binds `Ps` to
   the parameters of the function given, each under its own name with its
   type, in the order declared. A named pack is read by its names where the
@@ -532,7 +532,7 @@ positional pack, reported at `b`: `either(1)` could give its argument to
 either. `const fn both<...Fields>(items: ...i64, named: ...{Fields}) -> i64`,
 one pack of each kind, is accepted.
 
-Proposed declaration fragments, a function's parameters read as a named
+Accepted declaration fragments, a function's parameters read as a named
 pack (GEN-17) and a pack declared for the function (FN-8):
 
 ```hgl
