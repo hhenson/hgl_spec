@@ -23,7 +23,7 @@ unary_expr = ( "-" | "!" ), [ operator_configuration ], unary_expr | postfix_exp
 operator_configuration = "{", configuration_argument,
                          { ",", configuration_argument }, [ "," ], "}" ;
 configuration_argument = member_name, ":", expression ;
-postfix_expr = primary_expr, { call_suffix | index_suffix | member_suffix | "?" } ;
+postfix_expr = primary_expr, { call_suffix | index_suffix | member_suffix } ;
 call_suffix = "(", [ arguments ], ")" ;
 index_suffix = "[", expression, "]" ;
 member_suffix = ".", member_name ;
@@ -109,14 +109,16 @@ GEN-14 resolves generic construction versus comparison using declaration lookup.
   Persistent runtime history uses state/cache.
 - **EXPR-5.** An expected type contextualizes literals, constructors, a
   collection's child read where that is checked when it runs (ERR-14), and
-  a call of a function that can fail (ERR-15), but
+  a `result<T, error>` (ERR-15), but
   cannot erase structural/atomic boundaries or nominal identity. An integer
   literal is an `f64` where one is expected: `let x: f64 = 1` binds `1.0`
   (UNIT-13). A value that
   has a type is not converted by its place: an `i64` binding where an `f64`
   is expected rejects, and its conversion is written with core's
-  `convert<T>(value)`. A `T?` where a T is expected is read, not
-  converted (ERR-12). A const expression
+  `convert<T>(value)`. Two are the exception, read by the place and not
+  converted: a `result<T, error>`, a call's or a binding's, takes its
+  form from the place (ERR-15), and a `T?` where a T is expected is read
+  (ERR-12). A const expression
   uses the same syntax with required-constant semantic restrictions; it
   cannot inspect temporal values.
 - **EXPR-6.** In value/runtime contexts, Boolean connectives short-circuit left

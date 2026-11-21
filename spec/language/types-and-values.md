@@ -168,9 +168,9 @@ rejection (TYPE-12, TYPE-14). TYPE-16 says what a `delta_type` is.
   is ordinary data, distinct from an invalid temporal input or silence. In a
   collection read whole, an optional child that is not valid is null as well
   (TIME-1); `valid` of the child tells the two apart.
-  Nullable/default lifted argument binding follows FN-11. A type-position `?`
-  declares nullability; expression-position `?` retains ERR-5's result
-  propagation meaning. Field requiredness/defaults still follow TYPE-4.
+  Nullable/default lifted argument binding follows FN-11. `?` is written
+  only in a type, where it declares nullability; no expression takes it.
+  Field requiredness/defaults still follow TYPE-4.
 
 ## Agreed temporal shapes
 
