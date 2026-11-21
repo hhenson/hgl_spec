@@ -23,7 +23,7 @@ unary_expr = ( "-" | "!" ), [ operator_configuration ], unary_expr | postfix_exp
 operator_configuration = "{", configuration_argument,
                          { ",", configuration_argument }, [ "," ], "}" ;
 configuration_argument = member_name, ":", expression ;
-postfix_expr = primary_expr, { call_suffix | index_suffix | member_suffix | "?" } ;
+postfix_expr = primary_expr, { call_suffix | index_suffix | member_suffix } ;
 call_suffix = "(", [ arguments ], ")" ;
 index_suffix = "[", expression, "]" ;
 member_suffix = ".", member_name ;
@@ -107,19 +107,26 @@ GEN-14 resolves generic construction versus comparison using declaration lookup.
   scalar storage nor feedback. Earlier aliases/consumers keep their original
   connection. Scalar/connection reassignment across categories rejects.
   Persistent runtime history uses state/cache.
-- **EXPR-5.** An expected type contextualizes literals, constructors, and a
-  collection's child read where that is checked when it runs (ERR-14), but
+- **EXPR-5.** An expected type contextualizes literals, constructors, a
+  collection's child read where that is checked when it runs (ERR-14), and
+  a result (ERR-5, ERR-15), but
   cannot erase structural/atomic boundaries or nominal identity. An integer
   literal is an `f64` where one is expected: `let x: f64 = 1` binds `1.0`
   (UNIT-13). A value that
   has a type is not converted by its place: an `i64` binding where an `f64`
   is expected rejects, and its conversion is written with core's
-  `convert<T>(value)`. A const expression
+  `convert<T>(value)`. Two are the exception, read by the place and not
+  converted: a `result<T, error>`, a call's or a binding's, takes its
+  form from the place (ERR-15), as a `result<T, E>` of another E does
+  where its T is expected in a function that gives a `result<U, E>`
+  (ERR-5); and a `T?` where a T is expected is read (ERR-12). A const
+  expression
   uses the same syntax with required-constant semantic restrictions; it
   cannot inspect temporal values.
 - **EXPR-6.** In value/runtime contexts, Boolean connectives short-circuit left
   to right. The operands of `&&`, `||`, and `!` are bools.
-  A valid/presence/tag guard must precede the protected payload read.
+  A valid or tag guard must precede the protected payload read; a nullable
+  one is read as ERR-12 says.
   Composition forms describe dependencies and select core identities; they do
   not read current payloads or inherit scalar execution order as topology.
 - **EXPR-7.** Structural projection selects a child connection. Atomic
@@ -181,7 +188,9 @@ GEN-14 resolves generic construction versus comparison using declaration lookup.
   values of the option each is for (GEN-6), and the value at the call
   selects among them. Such an option is a generic value parameter of its
   candidates, so the value a call gives it is a compile-time constant
-  (GEN-8). Ordinary type and phase checks apply.
+  (GEN-8). The type the call's place expects selects no policy: the place
+  takes the form of the result the selected candidate gives (ERR-15).
+  Ordinary type and phase checks apply.
 - **EXPR-13.** Evaluate a configured binary expression in written order:
   left operand, configuration entries in their written order, then right
   operand, each once. Unary configuration precedes its operand. Preserve
@@ -327,17 +336,17 @@ Accepted value-function fragments for EXPR-12; `error` is a member of the
 const fn ieee_ratio(a: f64, b: f64) -> f64 => a / b
 const fn checked_ratio(a: f64, b: f64) -> result<f64, error> =>
     a /{zero: .error} b
-```
-
-The return annotations check the distinct selected result types. Deliberate
-source type rejection, without handling the selected result value:
-
-```hgl
 const fn unchecked_ratio(a: f64, b: f64) -> f64 =>
     a /{zero: .error} b
 ```
 
-No expected output type silently changes the policy.
+The configuration selects the candidate, and with it the result type; the
+return's place then takes that result's form (ERR-15). `checked_ratio`
+gives the result, an `err` for a zero divisor. `unchecked_ratio` gives the
+`f64`, and a zero divisor raises that error: an execution failure with
+`numeric.division_by_zero`, as `unchecked_ratio` declares no result. No
+expected output type silently changes the policy: the place chooses only
+the form of the selected candidate's result.
 
 Deliberate source rejection under EXPR-12, a bounded expression in a value
 function where `a`/`b` are f64 and `selected_zero` is a runtime policy value
@@ -350,7 +359,7 @@ a /{zero: selected_zero} b
 The selector cannot determine the source result type during checking: it is
 no compile-time constant (`generic.argument_constant`).
 Executable conformance is planned. The [error examples](errors-and-diagnostics.md#checked-division-propagation)
-distinguish returning Err data from explicitly propagating node failure.
+distinguish returning Err data from raising it as node failure.
 
 ## Structural delta construction
 

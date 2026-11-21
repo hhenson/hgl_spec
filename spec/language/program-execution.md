@@ -165,7 +165,8 @@ The store holds `"limit"` when the graph is built, so `counted` reads 3 from
 its first evaluation and the run's output is 1, 2 and 3, a second apart.
 `"opened"` holds the start the run is given: the application's default,
 or the one what starts it supplies (RUN-6).
-With no `put` the first `get` fails the source: the key is absent.
+With no `put` the first `get` fails the source: the key is absent, and the
+comparison takes the value (ERR-15).
 Deliberate rejections in the application: `inject clock`;
 `has(global_state, "limit")`, a call that is no `put`; a `put` after the run
 statement; and the two store statements in a module

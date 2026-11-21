@@ -87,13 +87,16 @@ CTRL-9 places the opening brace of an `if`, `for`, `switch`, `when`, or
   parenthesized.
 - **CTRL-10.** A block whose last statement is an expression has that
   expression's value and type; any other block has none. In a value function
-  the condition of an `if` or a `while` is a `bool`: a `bool?`, a number, or
-  any other type rejects. An `if` whose value is used has the one type its two
+  the condition of an `if` or a `while` is a `bool`: a `bool?` there is
+  read, and a null fails the read (ERR-12); a number, or any other type,
+  rejects. An `if` whose value is used has the one type its two
   branches' values have, as the entries of a sequence have one (EXPR-9): a
-  null branch makes it `T?`, and two types reject. With no `else` it is as
-  if its `else` were null: its value is a `T?`, which a place that expects a
-  `T?` takes and one that expects a `T` rejects. Where the place expects a
-  type, each branch's value is checked against it. A branch that returns
+  null branch makes it `T?`, and two types reject. With no `else` its value
+  is a `T?`, null where the condition does not hold, which a place that
+  expects a `T?` takes and one that expects a `T` reads, failing for that
+  null (ERR-12). Where the place expects a type, each branch's value is
+  checked against it: a `null` written as a branch where a T is expected
+  rejects (TYPE-14). A branch that returns
   from the function gives the `if` no value and takes no part in its type
   (CTRL-5): `if c { return 1 } else { 2 }` is an `i64`.
 - **CTRL-11.** In a value function, a `var` declared with no value is
@@ -110,8 +113,9 @@ CTRL-9 places the opening brace of an `if`, `for`, `switch`, `when`, or
   `for key, value in entries` for each key and value of a dictionary. A
   set and a dictionary promise no order. One
   name over a dictionary, two over a list or a set, and any other type after
-  `in` reject. `while condition { ... }` repeats its body while the
-  condition holds; the form with no condition is a source's (SOURCE-4) and
+  `in` reject; a nullable list, set, or dictionary there is read, and a
+  null fails the read (ERR-12). `while condition { ... }` repeats its body
+  while the condition holds; the form with no condition is a source's (SOURCE-4) and
   rejects there. A `switch` there selects on a `bool`, `i64`, `str`, or enum
   value. Each label is a constant of the selector's type (CTRL-6): a
   literal, an enum member, a constant (UNIT-13), or a generic value
@@ -318,8 +322,12 @@ const fn side_of(rising: bool) -> Side {
 
 `larger` returns the value of its `if`, an `i64`. `positive` returns `a` or
 null: an `if` with no `else` is a `T?`. `found` is null until it is given a
-value, so `kept` may return it. Deliberate rejections:
-`let n: i64 = if a > 0 { a }`, a `T?` where an `i64` is expected;
+value, so `kept` may return it. `let n: i64 = if a > 0 { a }` reads the
+`T?` where an `i64` is expected, and fails where `a` is not above zero;
+`if flag { 1 } else { 2 }` with `flag` a `bool?` fails where it is null
+(ERR-12). Deliberate rejections:
+`let n: i64 = if a > 0 { a } else { null }`, a `null` written where an
+`i64` is expected;
 `if a { 1 } else { 2 }` with `a` an `i64`, a condition that is no bool;
 `const fn f(a: i64) -> i64 { if a > 0 { return a } }`, which can reach its
 end with no value; reading a `var total: i64` after an `if` with no

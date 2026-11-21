@@ -168,9 +168,9 @@ rejection (TYPE-12, TYPE-14). TYPE-16 says what a `delta_type` is.
   is ordinary data, distinct from an invalid temporal input or silence. In a
   collection read whole, an optional child that is not valid is null as well
   (TIME-1); `valid` of the child tells the two apart.
-  Nullable/default lifted argument binding follows FN-11. A type-position `?`
-  declares nullability; expression-position `?` retains ERR-5's result
-  propagation meaning. Field requiredness/defaults still follow TYPE-4.
+  Nullable/default lifted argument binding follows FN-11. `?` is written
+  only in a type, where it declares nullability; no expression takes it.
+  Field requiredness/defaults still follow TYPE-4.
 
 ## Agreed temporal shapes
 
@@ -572,7 +572,9 @@ Accepted type fragments in an ordinary value parameter or result position:
 | `list<f64>?` | A list of non-nullable floats, or null for the whole list |
 
 These list forms are distinct: a null element is not a null list. Deliberate
-source type rejections: supplying null to an f64 parameter; `set<str?>` and
+source type rejections: `null` written as the argument of an f64 parameter,
+though an `f64?` argument is read there and fails for a null (ERR-12);
+`set<str?>` and
 `dict<str?, f64>`, whose keys take no `?`. The suffix admits only ordinary
 value types; applying it to `signal` there rejects under TYPE-12/14
 rather than creating a nullable endpoint handle.
