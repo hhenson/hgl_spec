@@ -109,7 +109,7 @@ GEN-14 resolves generic construction versus comparison using declaration lookup.
   Persistent runtime history uses state/cache.
 - **EXPR-5.** An expected type contextualizes literals, constructors, a
   collection's child read where that is checked when it runs (ERR-14), and
-  a `result<T, error>` (ERR-15), but
+  a result (ERR-5, ERR-15), but
   cannot erase structural/atomic boundaries or nominal identity. An integer
   literal is an `f64` where one is expected: `let x: f64 = 1` binds `1.0`
   (UNIT-13). A value that
@@ -117,8 +117,10 @@ GEN-14 resolves generic construction versus comparison using declaration lookup.
   is expected rejects, and its conversion is written with core's
   `convert<T>(value)`. Two are the exception, read by the place and not
   converted: a `result<T, error>`, a call's or a binding's, takes its
-  form from the place (ERR-15), and a `T?` where a T is expected is read
-  (ERR-12). A const expression
+  form from the place (ERR-15), as a `result<T, E>` of another E does
+  where its T is expected in a function that gives a `result<U, E>`
+  (ERR-5); and a `T?` where a T is expected is read (ERR-12). A const
+  expression
   uses the same syntax with required-constant semantic restrictions; it
   cannot inspect temporal values.
 - **EXPR-6.** In value/runtime contexts, Boolean connectives short-circuit left
