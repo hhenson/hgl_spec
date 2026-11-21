@@ -141,6 +141,11 @@ expression; group a constant expression that uses them as operand data.
   literals they take as an `f64`, the one that takes every one of them as
   an `f64` is selected.
 - **GEN-6.** An operator declares the parameters every candidate takes.
+  Where the operator declares a pack, a candidate declares a pack there
+  too: one that declares a fixed parameter in a pack's place rejects where
+  it is declared. Proposed: with the code `impl.pack`. A candidate for one
+  argument alone writes the pack with that cardinality,
+  `values: ...i64{1}`.
   A candidate's shape honors them and the operator's generic relationships,
   and it may declare further options of its own, each with a default or
   without. An option that selects among candidates is a generic value
@@ -526,6 +531,13 @@ same. `f<i64>(1, true)` rejects at `true`: the pack is `i64` alone, and
 one argument more is given than it takes (`pack.cardinality`).
 `f<i64>(true)` rejects too, the one argument being no `i64`
 (`type.mismatch`).
+
+Deliberate rejection (GEN-6; proposed: `impl.pack`), given
+`operator first_of<T>(values: ...T{1:*}) -> T`:
+`impl const fn first_of(values: i64) -> i64`, a fixed parameter where the
+operator declares a pack, reported at `values`.
+`impl const fn first_of(values: ...i64{1}) -> i64`, a pack of one, is
+accepted.
 
 Deliberate rejection (FN-8, `pack.duplicate`):
 `const fn either(a: ...i64{0:1}, b: ...i64{0:1}) -> i64`, a second
