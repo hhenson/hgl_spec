@@ -141,8 +141,8 @@ Local source/native declaration matching is defined in the native chapter.
   and its value is dropped; only `return value` rejects there. A `const fn`
   that declares a result ends every path in `return value` or in its body's
   value: one that can reach its end with no value rejects. Anonymous
-  functions obtain their parameter/result context from their accepting form,
-  which a parameter of a function type is (FN-17);
+  functions obtain their parameter/result context, and their kind, from
+  their accepting form, which a parameter of a function type is (FN-17);
   inference does not create a general callable value type.
 - **FN-8.** Packs capture, in order, the arguments the fixed parameters leave.
   `...T` captures the positional ones: all of type T, or each of its own type
@@ -321,7 +321,11 @@ Local source/native declaration matching is defined in the native chapter.
   three: the name of a declared function; the name of an operator, whose candidate the
   function type's parameter types select (GEN-5); or an anonymous function,
   which takes its parameter and result types from the function type
-  (FN-7). A value function given where `fn(...)` is expected is lifted
+  (FN-7), and its kind: its text says none. Given where `fn(...)` is
+  expected its body is composed where the graph is built, as a graph's
+  is, and may call a temporal function; given where `const fn(...)` is
+  expected its body is value code, and such a call rejects there
+  (`call.role`). A value function given where `fn(...)` is expected is lifted
   there (FN-6); a temporal function given where `const fn(...)` is
   expected rejects. The function given has the function type's parameter
   types, in order, and its result type. Proposed: a parameter the
@@ -736,6 +740,8 @@ fn twice(f: fn(f64) -> f64, value: f64) -> f64 => f(f(value))
 fn calmer(price: f64) -> f64 => twice(smoothed, price)
 
 fn doubled(price: f64) -> f64 => twice(scale<f64>, price)
+
+fn steadier(price: f64) -> f64 => twice(fn(p) => smoothed(p) * 0.5, price)
 ```
 
 `apply` takes a value function of one `i64`: `three()` is 3, `four()` is
@@ -745,9 +751,14 @@ anonymous function taking `x` as an `i64` from the parameter's type.
 `i64` for its T. `seven()` is 7.0: `3.5` makes V an `f64`, and so T.
 `twice` takes a function composed in a graph: `calmer` composes two nodes
 of `smoothed`, each with its own state, and `doubled` lifts the value
-function `scale<f64>` twice (FN-6). Deliberate rejections:
+function `scale<f64>` twice (FN-6). In `steadier` the anonymous function
+is given where `fn(f64) -> f64` is expected, so its body is composed as a
+graph's is: each of the two calls of it composes a node of `smoothed`
+and the halving of what that publishes. Deliberate rejections:
 `apply(smoothed, 2)`, a temporal function where a value function is
-expected; `anything(scale)`, where the function type takes any signature
+expected; `apply_to(fn(x) => smoothed(x), 1.5)`, an anonymous function
+given where a value function is expected, whose body is value code and
+calls a temporal function (`call.role`); `anything(scale)`, where the function type takes any signature
 and so decides nothing of `scale`'s T (`generic.unresolved`), and
 `anything(scale<i64>)` is accepted; `apply(fn(x) => "a", 2)`, whose result is no `i64`; and, in a
 function with a `let g = add_one`, `apply(g, 2)`, since a binding holds no
