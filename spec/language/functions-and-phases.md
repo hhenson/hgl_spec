@@ -143,10 +143,11 @@ Local source/native declaration matching is defined in the native chapter.
   Proposed: a named pack may be declared for a parameter that takes a
   function (FN-17), `args: ...{As for f}`. It takes the arguments a call
   of `f` takes, positional or named, matched to `f`'s parameters as that
-  call's are (EXPR-2, FN-4). `As` holds, under the name of each parameter
-  given an argument, the type of that argument, which need not be the
-  parameter's own: the declaration's `requires` says what it may be
-  (GEN-17). A parameter that has a default and is given no argument is
+  call's are (EXPR-2, FN-4). The matching settles which parameter each
+  argument is for, and nothing of its type. `As` holds, under the name of
+  each parameter given an argument, the type of that argument, which
+  need not be the parameter's own: the declaration's `requires` says
+  what it may be (GEN-17). A parameter that has a default and is given no argument is
   not in `As`. `without` names the parameters the matching leaves out,
   which the declaration gives the function itself: one,
   `args: ...{As for f without key}`, or several, `without key, index`.
@@ -306,10 +307,13 @@ Local source/native declaration matching is defined in the native chapter.
   expected rejects. The function given has the function type's parameter
   types, in order, and its result type. A generic parameter of the
   function type binds from the function given, as it binds from any
-  argument's type (GEN-2). A parameter's name in a function type,
-  `fn(key: str, value: f64) -> f64`, says what the parameter is for and
-  constrains nothing: a function is given for it whatever its own
-  parameters are named. The function is known where the call is compiled.
+  argument's type (GEN-2). A function type is a template of the
+  signature it takes. Where it writes a parameter's name,
+  `fn(key: str, value: f64) -> f64`, the function given has a parameter
+  of that name at that position; where it writes none, `fn(str, f64) ->
+  f64`, the function's own names are free. A function that does not fit
+  the template rejects as a value of another type does (`type.mismatch`).
+  The function is known where the call is compiled.
   A function type is written only as a parameter's type, and the argument
   is none of a connection, a binding's value, or anything computed while
   the program runs (`function.argument`). In the body the parameter is
@@ -531,7 +535,12 @@ function `scale<f64>` twice (FN-6). Deliberate rejections:
 expected; `apply(scale, 2)`, a generic function given without its
 argument; `apply(fn(x) => "a", 2)`, whose result is no `i64`; and, in a
 function with a `let g = add_one`, `apply(g, 2)`, since a binding holds no
-function (`function.argument`). Conformance planned.
+function (`function.argument`). A function type that writes a name is a
+tighter template: `const fn at_price(f: const fn(price: i64) -> i64, x:
+i64) -> i64 => f(x)` takes a function whose parameter is named `price`,
+so `at_price(add_one, 2)` rejects, `add_one` naming its parameter `x`
+(`type.mismatch`), where `apply(add_one, 2)` is accepted. Conformance
+planned.
 
 | Phase | A temporal argument denotes | Ordinary calls |
 | --- | --- | --- |
