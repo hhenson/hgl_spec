@@ -47,8 +47,9 @@ Local source/native declaration matching is defined in the native chapter.
 
 - **FN-1.** A `const fn` is a value function. It computes ordinary values for
   one invocation: its parameter and result types are ordinary value types.
-  Two kinds of parameter are the exception: one of a capability's type
-  (TIME-8), and, in a native value function, one of `endpoint<T>` (TIME-9).
+  Three kinds of parameter are the exception: one of a capability's type
+  (TIME-8); in a native value function, one of `endpoint<T>` (TIME-9); and
+  one that takes a function (FN-17), which holds no value.
   It is not inherently pure or compile-time-only. Parameter-level `const`
   instead fixes configuration: a `const` parameter takes what is fixed when
   the graph is built. In composition that is any ordinary value. In a hook
@@ -56,6 +57,9 @@ Local source/native declaration matching is defined in the native chapter.
   members, constants (UNIT-13), generic value parameters, and the enclosing
   function's own `const` parameters. A temporal `fn` has temporal non-const
   parameters and a temporal result; an omitted result arrow means outputless.
+  A parameter that takes a function is neither temporal nor `const`, in a
+  temporal function as in a value function: it is no connection and no
+  value, and is fixed where the call is compiled (FN-17).
   An operator is neither: each of its candidates is one or the other (GEN-4).
 - **FN-2.** An ordinary temporal body with no node-only construct describes
   composition: the function is a graph. `state`, `cache`, `start`, `when`,
