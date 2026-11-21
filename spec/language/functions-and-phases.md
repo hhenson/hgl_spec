@@ -163,8 +163,11 @@ Local source/native declaration matching is defined in the native chapter.
   position or by name; one that `f`'s own positional pack takes has no
   name, and its key is its position in that pack. `Ps` has an entry at
   each such position, of that pack's element type: as many as the call
-  gives the pack, and none where it gives none. A function's own pack
-  has no entry in `Ps` otherwise. `As` holds, under each
+  gives the pack, and none where it gives none. One that `f`'s own
+  named pack takes keeps the name the call gives it as its key, and `Ps`
+  has an entry under that name, of the type that pack gives the entry:
+  the argument's own, where the pack is of a type pack. A function's own
+  pack has no entry in `Ps` otherwise. `As` holds, under each
   key, the type of that argument, which
   need not be the parameter's own: the declaration's `requires` says
   what it may be (GEN-17). A parameter that has a default and is given no argument is

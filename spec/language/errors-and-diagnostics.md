@@ -126,8 +126,9 @@ ERR-15), and no operator raises one.
   reads as (TYPE-11). So does `delta_value` of any endpoint (TIME-9), T
   being its `delta<T>`: where the place expects `result<delta<T>, error>`
   it gives `ok` of the delta, or `err` coded `value.unset_read` where the
-  endpoint has no delta in the cycle; elsewhere it gives the delta, and
-  the read fails with that code where there is none. An endpoint that has
+  endpoint has no delta in the cycle; where it expects `delta<T>?` it
+  gives the delta, or null where there is none; elsewhere it gives the
+  delta, and the read fails with that code where there is none. An endpoint that has
   not ticked in the cycle has none. Of those that tick, only a window of a
   duration has a tick with no delta, one in which a value only leaves it
   (TYPE-11): for every other endpoint the `result` form is `ok` where it
@@ -320,7 +321,7 @@ infrastructure and cannot satisfy a source-rejection expectation.
 | phase | `state.input_read` | State initializer reads a temporal input (TIME-5); the read |
 | phase | `out.lifecycle` | `out` used in `start` or written in `stop`, or a `return` with a value in either (TIME-7); the use |
 | phase | `input.lifecycle` | A temporal input read, or given to an endpoint operation, in `start`, or given to `activate` or `passivate` in `stop` (TIME-5); the use |
-| phase | `payload.unguarded` | Payload read under manual admission, in a `when` or in `stop`, that no guard dominates (TIME-4, TIME-5); or a read of a child at a constant index or a field that nothing admits, or of a struct, a tuple or a fixed list whole that its `all_valid` does not admit (TIME-1); or a read of the delta of a window of a duration, or of `removed_value` of any window, whose place is not a `result` (TYPE-11); read |
+| phase | `payload.unguarded` | Payload read under manual admission, in a `when` or in `stop`, that no guard dominates (TIME-4, TIME-5); or a read of a child at a constant index or a field that nothing admits, or of a struct, a tuple or a fixed list whole that its `all_valid` does not admit (TIME-1); or a read of the delta of a window of a duration whose place is neither a `result` nor a `delta<T>?`, or of `removed_value` of any window whose place is not a `result` (TYPE-11); read |
 | phase | `ref.read` | The value or the `delta_value` of a `ref` parameter, of a child of one, or of `out` of a `ref` result, read (FN-16), or the `removed_value` of a window that is a child of one; the read |
 | phase | `endpoint.argument` | Endpoint operation given what is no temporal input of its function, no child of one, and not `out`, or `all_valid` given neither a collection (a list, tuple, struct or dictionary) nor a window (TIME-9); argument |
 | type | `schedule.duration_bounds` | A wake asked for with a `duration` that is not more than zero, other than a zero in `start`, whose value the compiler sees (TIME-8); the duration |
