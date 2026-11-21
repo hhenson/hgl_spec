@@ -9,7 +9,9 @@ included. The storage extensions below are proposed.
 type = type_base, [ "?" ] ;
 type_base = scalar_type | named_type | tuple_type | list_type | set_type
      | dict_type | rolling_window_type | "signal" | endpoint_type
-     | "atomic", "<", value_type, ">" | result_type | "error" | delta_type ;
+     | "atomic", "<", value_type, ">" | result_type | "error" | delta_type
+     | pack_member ;
+pack_member = IDENTIFIER, "[", IDENTIFIER, "]" ;
 value_type = value_type_base, [ "?" ] ;
 value_type_base = scalar_type | named_type | value_tuple_type | value_list_type
            | set_type | value_dict_type | result_type | "error" | delta_type ;
