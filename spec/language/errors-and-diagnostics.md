@@ -318,7 +318,7 @@ infrastructure and cannot satisfy a source-rejection expectation.
 | type | `enum.duplicate_value` | Two members of an enum share a number (TYPE-7); later member |
 | type | `enum.overflow` | Unnumbered member follows the largest `i64` (TYPE-7); member |
 | type | `enum.duplicate_member` | Two members of an enum share a name (TYPE-7); later name |
-| type | `type.mismatch` | Value's type is not the type its place expects, nor a `T?` the place reads (ERR-12) or a result whose form it takes (ERR-15): an annotation, a `var`, a result, an operand, an element, an argument (EXPR-5); `null` written where the type has no `?` (TYPE-14); a `return` that does not fit its function (FN-7), a value among them where a `ref` result takes an endpoint (FN-16); a list of another length than the size expected (TYPE-10); value |
+| type | `type.mismatch` | Value's type is not the type its place expects, nor a `T?` the place reads (ERR-12) or a result whose form it takes (ERR-5, ERR-15): an annotation, a `var`, a result, an operand, an element, an argument (EXPR-5); `null` written where the type has no `?` (TYPE-14); a `return` that does not fit its function (FN-7), a value among them where a `ref` result takes an endpoint (FN-16); a list of another length than the size expected (TYPE-10); value |
 | type | `null.context_type` | `null` where nothing gives it a type (TYPE-14); the literal |
 | type | `sequence.context_type` | Sequence whose entries give no type, where none is expected (EXPR-9); the sequence |
 | type | `enum.context_type` | `.member` where no enum type is expected (TYPE-7); the member |
