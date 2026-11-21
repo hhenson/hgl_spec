@@ -17,7 +17,8 @@ function_decl = { warning_annotation, NL },
                 [ requires_clause ], function_body ;
 configuration_parameters = "{", configuration_parameter,
                            { ",", configuration_parameter }, [ "," ], "}" ;
-configuration_parameter = IDENTIFIER, ":", type, [ "=", const_expression ] ;
+configuration_parameter = [ "const" ], IDENTIFIER, ":", type,
+                          [ "=", const_expression ] ;
 function_signature = "(", [ parameters ], ")", [ "->", [ "ref" ], type ] ;
 parameters = parameter, { ",", parameter }, [ "," ] ;
 parameter = [ "ref" ], IDENTIFIER, ":", type, [ "=", const_expression ]
@@ -354,10 +355,15 @@ Local source/native declaration matching is defined in the native chapter.
   `rounded{places: 3}(x)`. No positional argument reaches it, and a named
   argument in the parentheses does not name it (`argument.unknown`). It
   is otherwise a parameter as any other: an ordinary value in a value
-  function, a connection in a temporal one, read in the body by its name.
+  function, a connection in a temporal one, or, marked `const`, what is
+  fixed when the graph is built (FN-1), and is read in the body by its
+  name. What a call's types, its `requires`, its selection of a
+  candidate, or a pack's `without` read is a generic value parameter
+  (GEN-6), known when the call is compiled; what only the body reads is
+  a configuration parameter. Both are given in the braces.
   One with a default is left out of a call, with its braces where no
   other is given; one with none is given at every call
-  (`argument.missing`). It is a plain parameter: none is `const`, `ref`,
+  (`argument.missing`). None is `ref`,
   `var`, a pack, or one that takes a function, and its name is no other
   parameter's and no generic parameter's of the declaration. Where a
   declaration has a pack declared for a function (FN-8), every argument
@@ -385,7 +391,7 @@ const fn two_places() -> f64 => rounded(3.14159)
 
 const fn three_places() -> f64 => rounded{places: 3}(3.14159)
 
-fn sampled{every: duration}(value: f64) -> f64 {
+fn sampled{const every: duration}(value: f64) -> f64 {
     inject scheduler
     state last: f64 = 0.0
     start { schedule(scheduler, every) }
@@ -400,8 +406,9 @@ fn slow(price: f64) -> f64 => sampled{every: 1s}(price)
 ```
 
 `two_places()` is 3.14, `places` taking its default, and
-`three_places()` is 3.141. `sampled` has a configuration parameter with
-no default, so every call gives it: `slow` samples `price` each second.
+`three_places()` is 3.141. `sampled` has a `const` configuration
+parameter with no default, fixed when the graph is built, so every call
+gives it: `slow` samples `price` each second.
 Deliberate rejections: `rounded(3.14159, 3)`, a second positional
 argument that no parameter is left to take (`argument.unexpected`);
 `rounded(3.14159, places: 3)`, a named argument that names no parameter

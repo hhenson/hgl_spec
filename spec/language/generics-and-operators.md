@@ -610,6 +610,7 @@ declared for a function (FN-18):
 
 ```hgl
 operator each_wanted<K, R, ...Ps, ...As, const key: str = "key">{
+    const strict: bool = true,
     keys: set<K>? = null,
 }(
     f: fn(...{Ps}) -> R,
@@ -622,7 +623,12 @@ operator each_wanted<K, R, ...Ps, ...As, const key: str = "key">{
 
 `each_wanted{keys: wanted}(handled, orders)` gives `keys`, with `wanted`
 a connection of `set<str>`, which also resolves K as `str` (GEN-2): no
-type is written. Everything in the parentheses after `handled` is
+type is written. `key` is a generic value parameter, since the pack's
+`without` reads it when the call is compiled; `strict` is read by the
+operator's implementation alone, so it is a configuration parameter,
+`const` since it is fixed when the graph is built. A call gives all
+three in its braces alike: `each_wanted{key: "id", strict: false, keys:
+wanted}(tracked, orders)`. Everything in the parentheses after `handled` is
 `handled`'s own. Given `fn found(keys: set<str>, order: Order) -> f64`,
 `each_wanted{keys: wanted}(found, orders, keys: allowed)` gives the
 operator its `keys` in the braces and `found` its parameter `keys` in
