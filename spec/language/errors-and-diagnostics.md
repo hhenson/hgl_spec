@@ -292,6 +292,8 @@ infrastructure and cannot satisfy a source-rejection expectation.
 | type | `pack.const` | Pack parameter is const (FN-8); `const` |
 | type | `pack.order` | Fixed parameter follows a pack (FN-8); parameter name |
 | type | `pack.undeclared` | `...{Name}` names no type pack of its declaration (FN-8); name in the braces |
+| type | `function.argument` | Proposed: an argument for a parameter that takes a function names no function known where the call is compiled (FN-17); the argument |
+| type | `pack.name` | Proposed: `Ps[name]` for a name the pack has not (GEN-17); the name |
 | type | `pack.cardinality` | Cardinality's upper bound is below its lower (GEN-10); upper bound |
 | type | `type.not_a_type` | Name in a type position is no type: a function, operator, local, generic value parameter, or a type pack where one type is needed (UNIT-10, GEN-2, GEN-13); name |
 | type | `type.not_ordinary` | `rolling_window`, `atomic` or `signal` where an ordinary value type is required, or under a `?` that is not on the whole type of an input or a field (TYPE-12, TYPE-14, FN-1); offending type |

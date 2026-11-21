@@ -2,7 +2,8 @@
 
 Status: agreed function roles, classification, defaults, lifting, and
 anonymous-function scope. The `ref` mode (FN-16) is agreed. The sentence
-of FN-9 that begins "Proposed:" is proposed.
+of FN-9 that begins "Proposed:" is proposed. FN-17, a parameter that takes
+a function, and the pack of FN-8 declared `for` one are proposed.
 
 ## Grammar
 
@@ -16,9 +17,16 @@ parameters = parameter, { ",", parameter }, [ "," ] ;
 parameter = [ "ref" ], IDENTIFIER, ":", type, [ "=", const_expression ]
           | "const", IDENTIFIER, ":", value_type, [ "=", const_expression ]
           | "var", IDENTIFIER, ":", value_type
-          | [ "const" ], IDENTIFIER, ":", pack, [ "=", const_expression ] ;
+          | [ "const" ], IDENTIFIER, ":", pack, [ "=", const_expression ]
+          | IDENTIFIER, ":", function_type ;
 pack = "...", type, [ cardinality ]
-     | "...", "{", type, "}", [ cardinality ] ;
+     | "...", "{", type, [ "for", IDENTIFIER, [ "without", IDENTIFIER ] ], "}",
+       [ cardinality ] ;
+function_type = [ "const" ], "fn", "(", [ function_type_parameters ], ")",
+                [ "->", [ "ref" ], type ] ;
+function_type_parameters = function_type_parameter,
+                           { ",", function_type_parameter }, [ "," ] ;
+function_type_parameter = [ IDENTIFIER, ":" ], type | pack ;
 function_body = "=>", expression | block ;
 function_expr = "fn", "(", [ lambda_parameters ], ")", [ "->", type ],
                 ( "=>", expression | block ) ;
@@ -121,7 +129,8 @@ Local source/native declaration matching is defined in the native chapter.
   and its value is dropped; only `return value` rejects there. A `const fn`
   that declares a result ends every path in `return value` or in its body's
   value: one that can reach its end with no value rejects. Anonymous
-  functions obtain their parameter/result context from their accepting form;
+  functions obtain their parameter/result context from their accepting form,
+  which a parameter of a function type is (FN-17);
   inference does not create a general callable value type.
 - **FN-8.** Packs capture, in order, the arguments the fixed parameters leave.
   `...T` captures the positional ones: all of type T, or each of its own type
@@ -130,6 +139,18 @@ Local source/native declaration matching is defined in the native chapter.
   parameters of the same declaration, named bare. Packs have no defaults,
   cannot be const, and follow all fixed parameters. Cardinality and
   reflection follow the generic chapter.
+  Proposed: a named pack may be declared for a parameter that takes a
+  function (FN-17), `args: ...{As for f}`. It takes the arguments a call
+  of `f` takes, positional or named, matched to `f`'s parameters as that
+  call's are (EXPR-2, FN-4). `As` holds, under the name of each parameter
+  given an argument, the type of that argument, which need not be the
+  parameter's own: the declaration's `requires` says what it may be
+  (GEN-17). A parameter that has a default and is given no argument is
+  not in `As`. `without` names one parameter the matching leaves out,
+  which the declaration gives the function itself:
+  `args: ...{As for f without key}`, where `key` is a generic value
+  parameter of the declaration, a constant `str`; where `f` has no
+  parameter of that name, nothing is left out.
 - **FN-9.** Capabilities belong to nodes: a node declares each with `inject`
   and uses it in its hooks, and a source in its body (SOURCE-1). An
   application injects `global_state`, which it uses only to set the run's
@@ -269,6 +290,29 @@ Local source/native declaration matching is defined in the native chapter.
   rejected where the `return` would be; otherwise `out` of a `ref` result
   is as a `ref` parameter is: the endpoint operations take it,
   `delta_value` aside, and a read of its value rejects.
+- **FN-17.** Proposed. A parameter may take a function. Its type is written
+  as a declaration's signature is: `f: fn(f64, f64) -> f64` takes a function
+  of two `f64` that gives an `f64`, one composed where a graph is built,
+  and `f: const fn(f64) -> f64` a value function. The argument is one of
+  three: the name of a declared function, with its generic arguments where
+  it has any, `scale<f64>`; the name of an operator, whose candidate the
+  function type's parameter types select (GEN-5); or an anonymous function,
+  which takes its parameter and result types from the function type
+  (FN-7). A value function given where `fn(...)` is expected is lifted
+  there (FN-6); a temporal function given where `const fn(...)` is
+  expected rejects. The function given has the function type's parameter
+  types, in order, and its result type. A generic parameter of the
+  function type binds from the function given, as it binds from any
+  argument's type (GEN-2). A parameter's name in a function type,
+  `fn(key: str, value: f64) -> f64`, says what the parameter is for and
+  constrains nothing: a function is given for it whatever its own
+  parameters are named. The function is known where the call is compiled.
+  A function type is written only as a parameter's type, and the argument
+  is none of a connection, a binding's value, or anything computed while
+  the program runs (`function.argument`). In the body the parameter is
+  called as the function it was given, `f(a, b)`, and is given on to
+  another parameter that takes a function; it is not read, stored, or
+  returned.
 
 Accepted declaration fragment, a temporal input with a default (UNIT-8):
 
@@ -440,6 +484,51 @@ Deliberate source rejections: an anonymous-function parameter named `n` takes
 a name already in scope (UNIT-12); a body reading a `var` local of the
 enclosing function uses a binding FN-14 excludes. Executable conformance is
 planned.
+
+Proposed illustration, complete module, parameters that take a function
+(FN-17):
+
+```hgl
+module examples.function_parameters
+
+const fn apply(f: const fn(i64) -> i64, x: i64) -> i64 => f(x)
+
+const fn add_one(x: i64) -> i64 => x + 1
+
+const fn scale<T>(x: T) -> T requires T in {i64, f64} { return x + x }
+
+const fn three() -> i64 => apply(add_one, 2)
+
+const fn four() -> i64 => apply(scale<i64>, 2)
+
+const fn five() -> i64 => apply(fn(x) => x + 2, 3)
+
+fn smoothed(price: f64) -> f64 {
+    state last: f64 = 0.0
+    when {
+        last = (last + price) / 2.0
+        return last
+    }
+}
+
+fn twice(f: fn(f64) -> f64, value: f64) -> f64 => f(f(value))
+
+fn calmer(price: f64) -> f64 => twice(smoothed, price)
+
+fn doubled(price: f64) -> f64 => twice(scale<f64>, price)
+```
+
+`apply` takes a value function of one `i64`: `three()` is 3, `four()` is
+4, with `scale` given its generic argument, and `five()` is 5, the
+anonymous function taking `x` as an `i64` from the parameter's type.
+`twice` takes a function composed in a graph: `calmer` composes two nodes
+of `smoothed`, each with its own state, and `doubled` lifts the value
+function `scale<f64>` twice (FN-6). Deliberate rejections:
+`apply(smoothed, 2)`, a temporal function where a value function is
+expected; `apply(scale, 2)`, a generic function given without its
+argument; `apply(fn(x) => "a", 2)`, whose result is no `i64`; and, in a
+function with a `let g = add_one`, `apply(g, 2)`, since a binding holds no
+function (`function.argument`). Conformance planned.
 
 | Phase | A temporal argument denotes | Ordinary calls |
 | --- | --- | --- |

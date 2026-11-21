@@ -24,7 +24,7 @@ operator_configuration = "{", configuration_argument,
                          { ",", configuration_argument }, [ "," ], "}" ;
 configuration_argument = member_name, ":", expression ;
 postfix_expr = primary_expr, { call_suffix | index_suffix | member_suffix } ;
-call_suffix = "(", [ arguments ], ")" ;
+call_suffix = [ operator_configuration ], "(", [ arguments ], ")" ;
 index_suffix = "[", expression, "]" ;
 member_suffix = ".", member_name ;
 primary_expr = literal | IDENTIFIER | qualified_name | implied_member
@@ -182,6 +182,12 @@ GEN-14 resolves generic construction versus comparison using declaration lookup.
   options, incompatible types, and an option that no candidate for the
   operands declares. Intrinsic harness and constraint forms retain their own
   rules.
+  A call of a named operator carries the same configuration after its
+  name, before its arguments: `map{join: .outer}(scaled, prices, factors)`.
+  It binds as a symbol's does, and the arguments in the parentheses are
+  then the call's others. In the header of an `if`, `for`, `switch`,
+  `when`, or `while` such a call stands in parentheses, since the first
+  `{` there opens the body (CTRL-9).
 - **EXPR-11.** `<=>` is full comparison at the comparison precedence tier.
   It returns core's `CmpResult`, an ordinary enum, rather than a bool; `==`,
   `!=`, `<`, `<=`, `>`, and `>=` return a bool. The core
