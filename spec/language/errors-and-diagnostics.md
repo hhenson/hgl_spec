@@ -1,7 +1,8 @@
 # Errors and diagnostics
 
-Status: agreed result, lookup, child-read (ERR-14), capture, and
-structured-error contracts. Codes for proposed features apply only within
+Status: agreed result, lookup, child-read (ERR-14), fallible-call (ERR-15),
+capture, and structured-error contracts, but for the sentence of ERR-5 that
+begins "Proposed:", which is proposed. Codes for proposed features apply only within
 those proposed profiles.
 
 ## Grammar
@@ -62,15 +63,25 @@ postfix suffix. `argument` is that grammar's call argument.
 - **ERR-5.** Postfix `?` evaluates once. Success yields T. In a value function
   returning `result<U,E>`, failure returns the same E as Err. In when, only
   `result<T,error>` may propagate to node failure. No success output is written;
-  completed effects stand. Composition, lifecycle, and generator uses reject
+  completed effects stand. In a value function that returns no result, only
+  `result<T,error>` may propagate too, and its failure is an execution
+  failure (ERR-1), as an index outside a list is (EXPR-7): the function
+  need not declare that it can fail. Proposed: so it is in a lifecycle hook
+  and in a source's body, a failure of that phase. Composition, lifecycle,
+  and generator uses otherwise reject
   (`result.propagation_phase`), and an operand or an enclosing result of
   another type rejects (`result.propagation_type`). `?` binds as a call
   suffix does and stands on its operand's line: `a()? + b` propagates before
   the addition. It does not unwrap null (ERR-12).
   Returning Err as result data does not fail the node.
-- **ERR-6.** Ordinary/atomic dictionary brackets and `at` are strict point-in-
-  time reads; absence fails. `get` with no fallback or null fallback yields
-  contextual absence. A non-null fallback has exact V type and is evaluated
+- **ERR-6.** Brackets on an ordinary or atomic dictionary are a strict
+  point-in-time read: absence fails (`value.missing_key`). `get(dictionary,
+  key)` is the read that can fail and says so (ERR-15): its place takes the
+  result, whose failure has that code, or the value, raising it, or a null
+  for an absent key, and with no type written the null. No other function
+  is the strict read. Where V is nullable the result tells a held null from
+  an absent key. A null fallback is no fallback. A non-null fallback gives
+  a V: it has exact V type and is evaluated
   even for a present key. A present zero/false/empty value is not absent.
   Guard an inferred immutable nullable local against null before payload use.
   Explicit nullable annotations follow TYPE-14; this lookup contract adds no
@@ -101,6 +112,26 @@ postfix suffix. `argument` is that grammar's call argument.
   `result<V, error>`, V the window's value type: it gives `ok` of the
   value that left the window in the cycle, or that `err` where none left
   (TYPE-11).
+- **ERR-15.** A function that can fail declares `result<T, error>` as its
+  result. A call of one takes its form from its place (EXPR-5). Where the
+  place expects `result<T, error>` the call gives the result. Where it
+  expects T, the call gives a success's value, and a failure is raised as
+  `?` raises it, where `?` may stand (ERR-5): a place that expects T is
+  `?` written by its type. Where it expects `T?`, the call gives a
+  success's value, or null for a failure, whose error is not kept. Where
+  the place gives no type, a `let` with none written or an operand, the
+  call gives the `T?` too: `let price = checked(value)` binds an `i64?`,
+  which reaches no `i64` without its guard (ERR-12). `checked(value)?`
+  there is the T form. Where T is itself nullable, a place that expects T
+  takes the T form: a null there is a success's value and never a
+  failure. A place that expects any other type rejects as a value of
+  another type does (`type.mismatch`). It is the call that takes a form: a
+  result that a binding holds is converted by no place. In composition
+  the call gives a connection, and the form is the connection's: of
+  `result<T, error>`, which publishes each outcome; of T, where a success
+  publishes its value and a failure fails the call's node in that cycle,
+  as `?` in a `when` does, within whatever `capture` bounds it (ERR-7); and
+  of `T?`, where a failure publishes null.
 - **ERR-7.** In composition, `capture(callable, args...)` creates a temporal
   error boundary. It names a callable and gives it the arguments its own call
   takes, positional or named, read, checked, and selected as that call's are
@@ -407,7 +438,10 @@ constant index that nothing admits (`payload.unguarded`). Conformance planned.
 | `is_ok(value)`, `is_err(value)` | A `result<T,E>` | A `bool`; a tag fact for an immutable binding | `type.mismatch` |
 | `binding.value` | A binding proved a success | The T | `result.required_variant` |
 | `binding.error` | A binding proved a failure | The E | `result.required_variant` |
-| `value?` | A `result<T,E>` | The T; a failure leaves the function or fails the node | `result.propagation_type`, `result.propagation_phase` |
+| `value?` | A `result<T,E>` | The T; a failure leaves a function that gives a result as its failure, fails the node in a `when`, and is an execution failure in any other value function | `result.propagation_type`, `result.propagation_phase` |
+| `call(...)` where `result<T, error>` is expected | A call of a function that gives `result<T, error>` (ERR-15) | The result | None |
+| `call(...)` where T is expected | The same | The T; a failure is raised as `?` raises it | `result.propagation_phase` |
+| `call(...)` where `T?` is expected, or no type | The same | The T, or null for a failure | None |
 | `parts[i]` where `result<T, error>` is expected | A collection's child read when it runs (ERR-14) | `ok` of its value; `err` coded `value.unset_read` for a child that is not valid | None |
 | `delta_value(x)` where `result<delta<T>, error>` is expected | An endpoint (ERR-14) | `ok` of the delta; `err` coded `value.unset_read` where the endpoint has no delta in the cycle | None |
 | `removed_value(x)` | A window, where `result<V, error>` is expected (ERR-14) | `ok` of the value that left; `err` coded `value.unset_read` where none left | `payload.unguarded` elsewhere |
@@ -432,10 +466,20 @@ const fn doubled(value: i64) -> result<i64, error> {
 }
 
 const fn recovered(value: i64) -> i64 {
-    let outcome = checked(value)
+    let outcome: result<i64, error> = checked(value)
     if is_err(outcome) { return 0 }
     return outcome.value
 }
+
+const fn or_null(value: i64) -> i64? => checked(value)
+
+const fn or_zero(value: i64) -> i64 {
+    let price = checked(value)
+    if price == null { return 0 }
+    return price
+}
+
+const fn trusted(value: i64) -> i64 => checked(value)
 
 const fn diagnostic(outcome: result<i64, error>) -> str {
     if is_ok(outcome) { return "ok" }
@@ -451,6 +495,10 @@ fn tagged(value: i64) -> result<i64, error> {
 }
 
 fn is_failure(value: result<i64, error>) -> bool => is_err(value)
+
+fn lifted_required(value: i64) -> i64 => checked(value)
+
+fn lifted_or_null(value: i64) -> i64? => checked(value)
 ```
 
 | Evaluation | Outcome |
@@ -460,19 +508,32 @@ fn is_failure(value: result<i64, error>) -> bool => is_err(value)
 | `doubled(7)` | A success holding 14 |
 | `doubled(-1)` | The failure of `checked(-1)`, unchanged; the multiplication is not reached |
 | `recovered(7)`, `recovered(-1)` | 7, and 0 |
+| `or_null(7)`, `or_null(-1)` | 7, and null: the failure's error is not kept |
+| `or_zero(-1)` | 0: with no type written, `price` is an `i64?` |
+| `trusted(7)`, `trusted(-1)` | 7, and an execution failure with that error: `trusted` declares no result |
 | `diagnostic(checked(-1))` | "negative price" |
 | `required` over the publications 7, -1 | Publishes 7; then the node fails with that error and publishes nothing |
 | `tagged` over the publications 7, -1, -1 | Three ticks: a success, a failure, and the equal failure again. The node does not fail |
 | `is_failure` over a success, a failure, a failure | `false`, `true`, `true`: `is_err` lifted over the connection |
+| `lifted_required` over the publications 7, -1 | Publishes 7; then its node fails with that error, as `required` does |
+| `lifted_or_null` over the publications 7, -1 | Publishes 7, then null |
 
+Each call of `checked` takes its form from its place (ERR-15): the result
+in `recovered`, whose `let` writes that type, and where `diagnostic` and
+`tagged` take one; the `i64` in `trusted`, in `lifted_required` and, with
+`?`, in `doubled` and `required`; and the `i64?` in `or_null`, in
+`lifted_or_null` and in `or_zero`, whose `let` writes no type.
 In `recovered` the early return under `is_err(outcome)` proves `outcome` a
 success after it, so `outcome.value` is read; in `diagnostic` the return
 under `is_ok` proves it a failure. `error.message` is a `str`; its `code`
 is a `str?` and is tested against null before use. Deliberate rejections:
 `let missing = ok(1)`, with nothing that says the result's type;
-`outcome.value` with no guard, and under `is_err(outcome)`; `value?` in a
-`const fn` that returns an `i64`, and in a `when` whose operand is a
-`result<i64, str>`; `value?` in a graph; and a function named `ok`.
+`outcome.value` with no guard, and under `is_err(outcome)`;
+`let outcome = checked(value)` and then `is_err(outcome)`, an `i64?` where
+a result is taken; `let price: i64 = outcome` in `recovered`, a result
+that a binding holds, which no place converts; `value?` whose operand is a
+`result<i64, str>`, in a `when` and in a `const fn` that returns an `i64`;
+`value?` in a graph; and a function named `ok`.
 Conformance planned.
 
 Accepted illustration, complete module:

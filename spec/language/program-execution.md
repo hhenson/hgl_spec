@@ -141,7 +141,7 @@ module examples.limited
 export fn counted(const every: duration = 1s) -> i64 {
     inject global_state
     cache count: i64 = 0
-    while count < get<i64>(global_state, "limit") {
+    while count < get<i64>(global_state, "limit")? {
         count += 1
         yield every: count
     }
@@ -165,7 +165,8 @@ The store holds `"limit"` when the graph is built, so `counted` reads 3 from
 its first evaluation and the run's output is 1, 2 and 3, a second apart.
 `"opened"` holds the start the run is given: the application's default,
 or the one what starts it supplies (RUN-6).
-With no `put` the first `get` fails the source: the key is absent.
+With no `put` the first `get` fails the source: the key is absent, and `?`
+asks for the value (ERR-15; proposed for a source's body, ERR-5).
 Deliberate rejections in the application: `inject clock`;
 `has(global_state, "limit")`, a call that is no `put`; a `put` after the run
 statement; and the two store statements in a module
