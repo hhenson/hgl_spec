@@ -63,14 +63,18 @@ postfix suffix. `argument` is that grammar's call argument.
 - **ERR-5.** Postfix `?` evaluates once. Success yields T. In a value function
   returning `result<U,E>`, failure returns the same E as Err. In when, only
   `result<T,error>` may propagate to node failure. No success output is written;
-  completed effects stand. In a value function that returns no result, only
+  completed effects stand. In a value function whose result is not a
+  `result<U,E>`, one that gives an `i64` or gives nothing, only
   `result<T,error>` may propagate too, and its failure is an execution
   failure (ERR-1), as an index outside a list is (EXPR-7): the function
-  need not declare that it can fail. Proposed: so it is in a lifecycle hook
-  and in a source's body, a failure of that phase. Composition, lifecycle,
-  and generator uses otherwise reject
+  need not declare that it can fail. Composition, lifecycle, and generator
+  uses reject
   (`result.propagation_phase`), and an operand or an enclosing result of
-  another type rejects (`result.propagation_type`). `?` binds as a call
+  another type rejects (`result.propagation_type`). Proposed: a
+  `result<T,error>` propagates in a lifecycle hook, in a source's body, and
+  in value code evaluated where a graph is built or among a test's or an
+  application's statements, as a failure of that phase (RUN-4); there only
+  `?` on a connection rejects. `?` binds as a call
   suffix does and stands on its operand's line: `a()? + b` propagates before
   the addition. It does not unwrap null (ERR-12).
   Returning Err as result data does not fail the node.
@@ -126,12 +130,15 @@ postfix suffix. `argument` is that grammar's call argument.
   takes the T form: a null there is a success's value and never a
   failure. A place that expects any other type rejects as a value of
   another type does (`type.mismatch`). It is the call that takes a form: a
-  result that a binding holds is converted by no place. In composition
-  the call gives a connection, and the form is the connection's: of
+  result that a binding holds is converted by no place. In composition a
+  call that gives a connection, of a temporal function or one that is
+  lifted (FN-6), takes its form as the connection's: of
   `result<T, error>`, which publishes each outcome; of T, where a success
   publishes its value and a failure fails the call's node in that cycle,
   as `?` in a `when` does, within whatever `capture` bounds it (ERR-7); and
-  of `T?`, where a failure publishes null.
+  of `T?`, where a failure publishes null. A call that is evaluated where
+  the graph is built and gives no connection (FN-6, FN-9) takes its form
+  as value code does.
 - **ERR-7.** In composition, `capture(callable, args...)` creates a temporal
   error boundary. It names a callable and gives it the arguments its own call
   takes, positional or named, read, checked, and selected as that call's are
