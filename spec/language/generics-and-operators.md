@@ -331,8 +331,9 @@ expression; group a constant expression that uses them as operand data.
   `for` is unrolled (CTRL-15), `for arg in arg_keys(Ps)`. A key is
   compared with a constant `str` or `i64` by `==` and `!=`, and one of the
   other kind is not equal to it. `arg in arg_keys(As)` is whether the pack
-  has that key, a constant where the program is compiled. A key the pack
-  has not rejects
+  has that key, a constant where the program is compiled: it is written
+  as a condition, at the tier of a comparison, and its left is a name
+  that is a key. A key the pack has not rejects
   (`pack.name`). Nothing of a
   function is read but its parameters' names and types, its result type,
   and the laws it declares (GEN-18), and nothing is read while the program

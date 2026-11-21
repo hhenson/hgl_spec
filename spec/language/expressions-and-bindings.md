@@ -14,7 +14,8 @@ equality_expr = comparison_expr,
                 { ( "==" | "!=" ), [ operator_configuration ], comparison_expr } ;
 comparison_expr = additive_expr,
                   { ( "<" | "<=" | ">" | ">=" | "<=>" ),
-                    [ operator_configuration ], additive_expr } ;
+                    [ operator_configuration ], additive_expr }
+                | IDENTIFIER, "in", "arg_keys", "(", IDENTIFIER, ")" ;
 additive_expr = multiplicative_expr,
                 { ( "+" | "-" ), [ operator_configuration ], multiplicative_expr } ;
 multiplicative_expr = unary_expr,

@@ -200,11 +200,16 @@ CTRL-9 places the opening brace of an `if`, `for`, `switch`, `when`, or
   condition of a `while` is an ordinary `bool`, tested while the graph is
   built: a connection there rejects (FN-3), and the form with no condition
   is a source's (SOURCE-4).
-- **CTRL-16.** Where a loop is unrolled, its name is a constant
-  in each pass (CTRL-15). An `if` there whose condition is a constant
-  expression, of the loop's name, generic value parameters and literals,
+- **CTRL-16.** Where a loop is unrolled over what is known when the
+  program is compiled, the keys of a pack (GEN-17), the names of a
+  struct's fields (CTRL-15), or a range whose bounds are constants
+  (EXPR-16), its name is a constant in each pass. A loop over a
+  connection of a fixed-size list binds a connection, which is none, and
+  an `if` on it is the temporal `if` it ever was (CTRL-13). An `if` whose
+  condition is a constant
+  expression, of such a name, generic value parameters and literals,
   composes the branch it selects, and that branch alone is checked: in
-  `if name == key { i } else { args[name] }`, the pass in which `name` is
+  `if arg == key { i } else { args[arg] }`, the pass in which `arg` is
   `key` has the type of `i` and does not read `args`. The same holds of a
   generic function's body for a condition of its generic value
   parameters alone, in each instance. A condition that is no constant

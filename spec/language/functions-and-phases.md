@@ -161,7 +161,10 @@ Local source/native declaration matching is defined in the native chapter.
   argument is for, and nothing of its type. An argument takes the name
   of its parameter as its key (GEN-17), whether the call gave it by
   position or by name; one that `f`'s own positional pack takes has no
-  name, and its key is its position in that pack. `As` holds, under each
+  name, and its key is its position in that pack. `Ps` has an entry at
+  each such position, of that pack's element type: as many as the call
+  gives the pack, and none where it gives none. A function's own pack
+  has no entry in `Ps` otherwise. `As` holds, under each
   key, the type of that argument, which
   need not be the parameter's own: the declaration's `requires` says
   what it may be (GEN-17). A parameter that has a default and is given no argument is
