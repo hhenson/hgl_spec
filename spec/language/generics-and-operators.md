@@ -115,6 +115,8 @@ expression; group a constant expression that uses them as operand data.
   check their conditions. A candidate that gives `result<T, error>` meets a
   requested T or `T?` as one that gives T does, and its call takes the form
   the place expects (ERR-15): the place does not choose between them.
+  A candidate that gives `T?` meets a requested T the same way, and its
+  result is read there (ERR-12).
   Select exactly one most-specific admitted candidate.
   Concrete types outrank variables; structurally constrained variables outrank
   unconstrained ones. No match rejects; tied most-specific candidates are
@@ -188,6 +190,17 @@ expression; group a constant expression that uses them as operand data.
   `operator convert<T, V>(value: V) -> T`, `convert<f64>(count)` supplies T
   and resolves V from `count`. A struct application supplies all or none
   (GEN-2). A call rejects when it leaves a generic parameter unresolved.
+  The types a call writes for a type pack are the pack, whole: with
+  `const fn f<...Ts>(items: ...Ts) -> i64`, `f<i64>(1, true)` makes `Ts`
+  the one type `i64`, so its pack takes one argument and the second
+  rejects (`pack.cardinality`, GEN-10). A call that writes none leaves the
+  pack to its arguments: `f(1, true)` makes it `i64, bool`. A declaration
+  has one positional pack and one named pack at most (FN-8), as `*args`
+  and `**kwargs` are. The types a call writes are the positional pack's;
+  a named pack's types are never written, and come with its named
+  arguments: with `const fn g<...Ts, ...Fields>(items: ...Ts, named:
+  ...{Fields}) -> i64`, `g<i64, bool>(1, true, label: "a")` writes `Ts`
+  and resolves `Fields` as `label: str`.
   A call may give a generic value parameter of its callee by name, among
   its named arguments or in a symbol's configuration (EXPR-10):
   `div_(a, b, zero: .error)`. A name binds the callee's generic value
@@ -488,6 +501,30 @@ Deliberate rejections at a call (GEN-10, `pack.cardinality`), given
 `const fn pair(items: ...i64{2}) -> i64`: `pair(1)` gives its pack one
 argument where it takes two, reported at the closing parenthesis, and
 `pair(1, 2, 3)` gives it three, reported at `3`. `pair(1, 2)` is accepted.
+
+Accepted declaration fragments, a candidate that gives a nullable where
+its value is expected (GEN-5, ERR-12):
+
+```hgl
+operator maybe<X>(x: X) -> i64?
+
+impl const fn maybe(x: i64) -> i64? => x
+
+const fn required(value: i64) -> i64 => maybe(value)
+```
+
+`maybe(value)` selects the one candidate, which gives an `i64?`; the
+`i64` its place expects is read from it, and a null fails the read with
+`value.null`. The place takes no part in the selection: a candidate that
+gave an `i64` would be no better met by it.
+
+Accepted and rejected calls, the types written for a type pack (GEN-8),
+given `const fn f<...Ts>(items: ...Ts) -> i64`: `f(1, true)` resolves `Ts`
+as `i64, bool` from its arguments, and `f<i64, bool>(1, true)` writes the
+same. `f<i64>(1, true)` rejects at `true`: the pack is `i64` alone, and
+one argument more is given than it takes (`pack.cardinality`).
+`f<i64>(true)` rejects too, the one argument being no `i64`
+(`type.mismatch`).
 
 Deliberate rejection (FN-8, `pack.duplicate`):
 `const fn either(a: ...i64{0:1}, b: ...i64{0:1}) -> i64`, a second
