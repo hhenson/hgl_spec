@@ -173,7 +173,10 @@ ERR-15), and no operator raises one.
   evaluated where the graph is built and gives no connection (FN-6, FN-9)
   takes its form as value code does. A connection of `result<T, error>`
   that a binding holds, given where a connection of T or of `T?` is taken,
-  takes that form as a call's does, in the node that reads it.
+  takes that form as a call's does, in the node that reads it. Where a T
+  is taken, that node fails in the cycle the failure is published, whether
+  or not a handler of it would have read that input: a handler that tests
+  `all_valid` of the input, or selects on another, does not run first.
 - **ERR-7.** In composition, `capture(callable, args...)` creates a temporal
   error boundary. It names a callable and gives it the arguments its own call
   takes, positional or named, read, checked, and selected as that call's are
