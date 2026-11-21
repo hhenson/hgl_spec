@@ -130,7 +130,9 @@ ERR-15), and no operator raises one.
   that expects T or `T?` is met by such a candidate as by one that gives T
   (GEN-5), so it selects no policy: the configuration does (EXPR-12), and
   the place chooses the form of the result. Where the place expects
-  `result<T, error>` the result is given itself. Where it expects T, it
+  `result<T, error>`, or `result<T, error>?`, which takes a result as any
+  nullable type takes its value (TYPE-14), the result is given itself.
+  Where it expects T, it
   gives a success's value, and a failure's own error is raised, where
   raising is admitted (ERR-5). Where it expects `T?`, it gives a success's
   value, or null for a failure, whose error is not kept.
@@ -475,7 +477,7 @@ constant index that nothing admits (`payload.unguarded`). Conformance planned.
 | `is_ok(value)`, `is_err(value)` | A `result<T,E>` | A `bool`; a tag fact for an immutable binding | `type.mismatch` |
 | `binding.value` | A binding proved a success | The T | `result.required_variant` |
 | `binding.error` | A binding proved a failure | The E | `result.required_variant` |
-| `outcome` where `result<T, error>` is expected, or bound by a `let` that writes no type | A `result<T, error>`: what a call gives whose function, or whose operator's selected candidate, gives one, or what a binding holds (ERR-15) | The result itself | None |
+| `outcome` where `result<T, error>` or `result<T, error>?` is expected, or bound by a `let` that writes no type | A `result<T, error>`: what a call gives whose function, or whose operator's selected candidate, gives one, or what a binding holds (ERR-15) | The result itself | None |
 | `outcome` where T is expected, an operand among them | The same, or in a function that gives a `result<U, E>` a `result<T, E>` (ERR-5) | The T; a failure is raised: it leaves a function that gives a result as its failure, fails the node in a `when` and the source in its body, and is an execution failure in any other value function | `result.propagation_type`, `result.propagation_phase` |
 | `outcome` where `T?` is expected, compared with `null` among them where T is not nullable | The same | The T, or null for a failure | None |
 | `parts[i]` where `result<T, error>` is expected | A collection's child read when it runs (ERR-14) | `ok` of its value; `err` coded `value.unset_read` for a child that is not valid | None |
