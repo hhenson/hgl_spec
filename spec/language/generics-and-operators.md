@@ -74,8 +74,8 @@ expression; group a constant expression that uses them as operand data.
   expects, is not widened: `same<Round>(round, shape)` rejects at `shape`.
   A nullable place `U?` says of a result that is a type parameter and
   nothing more only that the parameter is `U` or `U?`. The arguments then
-  decide it, in declared parameter order; where they say nothing of it, it
-  is `U?`, the place's type whole. What the call writes is taken whole:
+  decide it, in declared parameter order; where they say nothing of it, the
+  call writes it (GEN-8). What the call writes is taken whole:
   `same<i64?>(1, 2)` is an `i64?`.
   Partial applications and `_` struct
   arguments are not admitted. A generic value parameter may have a default,
@@ -338,24 +338,22 @@ at the `1`;
 `let names = repeat(3)`, which leaves T unresolved (`generic.unresolved`).
 
 Accepted declaration fragments, nullable places of a result that is a type
-parameter and nothing more (GEN-2), with core's `get<V>` of the
-[global store](https://github.com/hhenson/hgl_core/blob/main/spec/capabilities.md):
+parameter and nothing more (GEN-2):
 
 ```hgl
-const fn first<T>(values: list<T>) -> T => values[0]
-const fn number<T>(values: list<T>) -> T requires T in {i64, f64} => values[0]
+const fn same<T>(a: T, b: T) -> T => a
+const fn larger<T>(a: T, b: T) -> T
+    requires T in {i64, f64} => if a < b { b } else { a }
 
-const fn head(xs: list<i64>) -> i64? => first(xs)
-const fn head_number(xs: list<i64>) -> i64? => number(xs)
-const fn saved(store: GlobalState) -> i64? => get(store, "k")
+const fn kept(a: i64, b: i64) -> i64? => same(a, b)
+const fn best(a: i64, b: i64) -> i64? => larger(a, b)
 ```
 
-In `head`, `xs` decides T, an `i64`, and the result fits the `i64?` place
-(TYPE-14), as it does in `let x: i64? = first(xs)` and as an argument for
-an `i64?` parameter. In `head_number` T is `i64` too, and the membership
-holds (GEN-3). In `saved` nothing but the place says what V is, so it is
-`i64?`, and a stored null reads back as null; `get<i64?>(store, "k")` is
-an `i64?` as written. Conformance planned.
+In `kept` the arguments decide T, an `i64`, and the result fits the `i64?`
+place (TYPE-14), as it does in `let x: i64? = same(a, b)` and as an
+argument for an `i64?` parameter. In `best` T is `i64` too, and the
+membership holds (GEN-3), as it would not of an `i64?`.
+`same<i64?>(a, b)` is an `i64?` as written. Conformance planned.
 
 Accepted declaration fragments, each with a default on a generic value
 parameter (GEN-2):
