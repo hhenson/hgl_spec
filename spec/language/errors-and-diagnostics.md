@@ -134,14 +134,18 @@ ERR-15), and no operator raises one.
   gives a success's value, and a failure's own error is raised, where
   raising is admitted (ERR-5). Where it expects `T?`, it gives a success's
   value, or null for a failure, whose error is not kept.
-  An operand of an operator expects the T, as the operator's candidates
-  take one: `checked(value) + 1` adds to the value or raises. Compared
+  An operand of an operator expects the T where the operator's candidates
+  take one: `checked(value) + 1` adds to the value or raises. Proposed:
+  where a candidate takes the result itself, as `==` and `!=` of two
+  results do (ERR-2), that candidate is selected and the operands are
+  given whole: `left == right`, of two `result<i64, error>`, compares tag
+  then payload, and raises nothing. Compared
   with `null`, where T is not nullable, it expects the `T?`:
   `checked(value) == null` tests for a failure. Where T is nullable that
   place expects T, and takes the T form: the comparison is of a success's
   value, and a failure is raised. What a member or an index is read from,
   a condition, and what a `for` iterates each expect the T too, but for
-  `.value` and `.error` of a result binding, which are the result's own
+  `.value` and `.error` read from a result, which are the result's own
   (ERR-3). Where nothing gives the place a type, a `let` that writes none
   among them, the result is held whole: `let outcome = checked(value)`
   binds the `result<i64, error>`, which `outcome + 1` then takes as its
@@ -156,9 +160,8 @@ ERR-15), and no operator raises one.
   publishes its value and a failure fails the call's node in that cycle,
   as a failure raised in a `when` does, within whatever `capture` bounds
   it (ERR-7); and of `T?`, where a failure publishes null. A call that is
-  evaluated where
-  the graph is built and gives no connection (FN-6, FN-9) takes its form
-  as value code does. Proposed: a connection of `result<T, error>` that a
+  evaluated where the graph is built and gives no connection (FN-6, FN-9)
+  takes its form as value code does. Proposed: a connection of `result<T, error>` that a
   binding holds, given where a connection of T or of `T?` is taken, takes
   that form as a call's does, in the node that reads it.
 - **ERR-7.** In composition, `capture(callable, args...)` creates a temporal
