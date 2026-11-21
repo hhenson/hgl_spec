@@ -301,8 +301,7 @@ Local source/native declaration matching is defined in the native chapter.
   as a declaration's signature is: `f: fn(f64, f64) -> f64` takes a function
   of two `f64` that gives an `f64`, one composed where a graph is built,
   and `f: const fn(f64) -> f64` a value function. The argument is one of
-  three: the name of a declared function, with its generic arguments where
-  it has any, `scale<f64>`; the name of an operator, whose candidate the
+  three: the name of a declared function; the name of an operator, whose candidate the
   function type's parameter types select (GEN-5); or an anonymous function,
   which takes its parameter and result types from the function type
   (FN-7). A value function given where `fn(...)` is expected is lifted
@@ -310,7 +309,12 @@ Local source/native declaration matching is defined in the native chapter.
   expected rejects. The function given has the function type's parameter
   types, in order, and its result type. A generic parameter of the
   function type binds from the function given, as it binds from any
-  argument's type (GEN-2). A function type is a template of the
+  argument's type (GEN-2). A generic function is given with its generic
+  arguments, `scale<f64>`, or bare, `scale`: given bare, it takes them
+  from the function type, where that type's parameter and result types,
+  as the call's other arguments have resolved them, decide every one.
+  Where they do not, nothing is guessed: the call rejects
+  (`generic.unresolved`) and writes the arguments. A function type is a template of the
   signature it takes. Where it writes a parameter's name,
   `fn(key: str, value: f64) -> f64`, the function given has a parameter
   of that name at that position; where it writes none, `fn(str, f64) ->
@@ -513,6 +517,14 @@ const fn four() -> i64 => apply(scale<i64>, 2)
 
 const fn five() -> i64 => apply(fn(x) => x + 2, 3)
 
+const fn apply_to<V>(f: const fn(V) -> V, x: V) -> V => f(x)
+
+const fn anything<R, ...Ps>(f: const fn(...{Ps}) -> R) -> i64 => 1
+
+const fn six() -> i64 => apply(scale, 3)
+
+const fn seven() -> f64 => apply_to(scale, 3.5)
+
 fn smoothed(price: f64) -> f64 {
     state last: f64 = 0.0
     when {
@@ -531,12 +543,15 @@ fn doubled(price: f64) -> f64 => twice(scale<f64>, price)
 `apply` takes a value function of one `i64`: `three()` is 3, `four()` is
 4, with `scale` given its generic argument, and `five()` is 5, the
 anonymous function taking `x` as an `i64` from the parameter's type.
+`six()` is 6: `scale` is given bare, and `fn(i64) -> i64` leaves only
+`i64` for its T. `seven()` is 7.0: `3.5` makes V an `f64`, and so T.
 `twice` takes a function composed in a graph: `calmer` composes two nodes
 of `smoothed`, each with its own state, and `doubled` lifts the value
 function `scale<f64>` twice (FN-6). Deliberate rejections:
 `apply(smoothed, 2)`, a temporal function where a value function is
-expected; `apply(scale, 2)`, a generic function given without its
-argument; `apply(fn(x) => "a", 2)`, whose result is no `i64`; and, in a
+expected; `anything(scale)`, where the function type takes any signature
+and so decides nothing of `scale`'s T (`generic.unresolved`), and
+`anything(scale<i64>)` is accepted; `apply(fn(x) => "a", 2)`, whose result is no `i64`; and, in a
 function with a `let g = add_one`, `apply(g, 2)`, since a binding holds no
 function (`function.argument`). A function type that writes a name is a
 tighter template: `const fn at_price(f: const fn(price: i64) -> i64, x:
