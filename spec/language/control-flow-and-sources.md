@@ -411,7 +411,9 @@ proposed, but for the sentence of SOURCE-3 that begins "Agreed:".
   nothing else; the block is `{ ... }`, a `while`, or a `for`. Its
   statements may use `const` configuration, `if`, `while`, and `for`. A
   `let` there holds a working value and is evaluated again on each pass of
-  a loop; a source declares no `var`. A source has no `when`. `stop`, where
+  a loop; a source declares no `var`. A source has no `when`. A source
+  declares a result, which is what it exists to publish: one with no
+  result arrow rejects. Proposed: with the code `source.result`. `stop`, where
   present, always runs when the node ends, whatever state the generator is
   in: finished, suspended at a `yield`, or not yet begun.
 - **SOURCE-2.** The first evaluation begins the body. Yield evaluates its time

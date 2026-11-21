@@ -87,9 +87,11 @@ ERR-15), and no operator raises one.
   result, whose failure has that code, or the value, raising it, or a null
   for an absent key; a `let` that writes no type holds the result. No
   other function is the strict read. Where V is nullable the result tells
-  a held null from an absent key. A null fallback is no fallback. A
-  non-null fallback gives a V: it has exact V type and is evaluated
-  even for a present key. A present zero/false/empty value is not absent.
+  a held null from an absent key. `get(dictionary, key, fallback)` gives a
+  V: the fallback has exact V type and is evaluated even for a present
+  key. Only a `null` written as the fallback is no fallback, and that call
+  is the plain read; any other fallback is a V, a null it evaluates to
+  where V is nullable included. A present zero/false/empty value is not absent.
   An inferred immutable local that holds that result, used where a V is
   expected with no test, gives its value or raises its error (ERR-15).
   Explicit nullable annotations follow TYPE-14; this lookup contract adds no
@@ -278,6 +280,7 @@ infrastructure and cannot satisfy a source-rejection expectation.
 | phase | `source.statement` | In a source with a declaration or a hook: a statement outside its one block, a second block, a hook out of order, or a `yield` in a hook. In any source: a `var`, or an `inject` of `out`, `scheduler`, or `alarm` (SOURCE-1); the statement |
 | phase | `source.when` | `when` in a source (SOURCE-1); `when` |
 | phase | `source.input` | Temporal parameter of a source (SOURCE-1); the parameter |
+| phase | `source.result` | Proposed: a source with no result arrow (SOURCE-1); the source's name |
 | phase | `state.input_read` | State initializer reads a temporal input (TIME-5); the read |
 | phase | `out.lifecycle` | `out` used in `start` or written in `stop`, or a `return` with a value in either (TIME-7); the use |
 | phase | `input.lifecycle` | A temporal input read, or given to an endpoint operation, in `start`, or given to `activate` or `passivate` in `stop` (TIME-5); the use |
@@ -292,7 +295,7 @@ infrastructure and cannot satisfy a source-rejection expectation.
 | type | `pack.const` | Pack parameter is const (FN-8); `const` |
 | type | `pack.order` | Fixed parameter follows a pack (FN-8); parameter name |
 | type | `pack.undeclared` | `...{Name}` names no type pack of its declaration (FN-8); name in the braces |
-| type | `pack.cardinality` | Cardinality's upper bound is below its lower (GEN-10); upper bound |
+| type | `pack.cardinality` | Cardinality's upper bound is below its lower (GEN-10); upper bound. A call that gives a pack a number of arguments its cardinality does not admit; the first argument beyond the upper bound, or the call's closing parenthesis where too few are given |
 | type | `type.not_a_type` | Name in a type position is no type: a function, operator, local, generic value parameter, or a type pack where one type is needed (UNIT-10, GEN-2, GEN-13); name |
 | type | `type.not_ordinary` | `rolling_window`, `atomic` or `signal` where an ordinary value type is required, or under a `?` that is not on the whole type of an input or a field (TYPE-12, TYPE-14, FN-1); offending type |
 | type | `signal.position` | `signal` other than as the whole type of a function's temporal parameter (TYPE-12); `signal` |

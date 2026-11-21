@@ -209,7 +209,9 @@ expression; group a constant expression that uses them as operand data.
   `each T in types(Ts)` checks every selected type; an empty conjunction is true.
   A cardinality follows the pack it bounds, on a pack parameter or a generic
   pack parameter: `{n}`, `{n:*}`, and `{n:m}` mean exact, minimum, and
-  inclusive bounded arity, with m at least n. A pack without one admits any
+  inclusive bounded arity, with m at least n. A call that gives a pack a
+  number of arguments its cardinality does not admit rejects
+  (`pack.cardinality`). A pack without one admits any
   number of arguments, none included. A generic struct takes an argument for
   each parameter that is no pack and, for its pack, as many as the pack
   admits; one whose only parameter is a pack that admits none may be named
