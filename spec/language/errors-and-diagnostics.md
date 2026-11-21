@@ -421,6 +421,7 @@ infrastructure and cannot satisfy a source-rejection expectation.
 | type | `delta.overlap` | Known overlapping addition/removal; later entry |
 | phase | `test.statement_phase` | Node/lifecycle/return statement in test; keyword |
 | phase | `yield.in_value` | A `yield` inside a block or an `if` whose value is used, under SOURCE-4, which is a proposed rule: the rejection is proposed with it, and so is this code; the `yield` |
+| phase | `yield.outside_source` | Proposed: a `yield` directly in a `const fn`, or inside an anonymous function, whatever function encloses it: neither is a source's own body (SOURCE-1, FN-1, FN-14); the `yield` |
 
 | Execution code | Required condition |
 | --- | --- |
