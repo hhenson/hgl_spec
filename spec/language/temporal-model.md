@@ -59,10 +59,15 @@ flowchart LR
   rejects (`payload.unguarded`). Elsewhere, `rows[i]` read whole, it is
   checked when it runs: one that is not all valid, though a field or a
   position of it is valid, fails it (`value.unset_read`), or gives an
-  `err` where its place takes a `result` (ERR-14). A dictionary
+  `err` where its place takes a `result` and null where it takes a `T?`
+  (ERR-14). A dictionary
   and an unsized list hold what they hold: a read of one whole requires
   its `valid` and no more. A dictionary read whole holds the entries that
-  have a value: a key whose entry is not valid is left out. A position of an
+  have a value: a key whose entry is not valid is left out. An entry that
+  is valid and not all valid, a struct, a tuple or a fixed list with a
+  part that has no value, is not left out: the read of the dictionary
+  whole fails as the read of that entry whole does (`value.unset_read`),
+  or gives the form its place takes (ERR-14). A position of an
   unsized list that holds no value, a gap or one removed (TYPE-16), reads
   in the whole value as the table below has it for the element type: as
   that type's value for "not set" where it has one. Where it has none the
