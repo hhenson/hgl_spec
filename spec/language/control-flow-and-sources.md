@@ -411,7 +411,9 @@ proposed, but for the sentence of SOURCE-3 that begins "Agreed:".
   nothing else; the block is `{ ... }`, a `while`, or a `for`. Its
   statements may use `const` configuration, `if`, `while`, and `for`. A
   `let` there holds a working value and is evaluated again on each pass of
-  a loop; a source declares no `var`. A source has no `when`. `stop`, where
+  a loop; a source declares no `var`. A source has no `when`. A source
+  declares a result, which is what it exists to publish: one with no
+  result arrow rejects. Proposed: with the code `source.result`. `stop`, where
   present, always runs when the node ends, whatever state the generator is
   in: finished, suspended at a `yield`, or not yet begun.
 - **SOURCE-2.** The first evaluation begins the body. Yield evaluates its time
@@ -479,7 +481,9 @@ to the next as a `cache`, which `stop` reads. In `replay` the block is a
 `for`, and `doubled` is a working value evaluated on each pass. Deliberate
 rejections: a `when` in a source; a `yield` in `start` or `stop`; in
 `greeting`, a `yield` outside the block, or a second block; `var seen = 0`
-in any of them; `inject out`; and a temporal parameter.
+in any of them; `inject out`; a temporal parameter; and a source with no
+result arrow, `fn ticking() { yield 1s: 7 }`, whose `yield` has no output
+to write (SOURCE-1; proposed: `source.result`).
 
 Proposed timing in `two_values`: the second delay is relative to the resumed
 evaluation, so publications occur one and two seconds after the initial
