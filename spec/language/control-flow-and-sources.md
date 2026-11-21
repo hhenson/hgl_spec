@@ -1,7 +1,9 @@
 # Control flow and sources
 
-Status: agreed conditionals, switch design, and phase-dependent independent
-iteration. Generator syntax and the shape of a source's body are agreed, as
+Status: agreed conditionals, switch design, and phase-dependent
+iteration, unrolled in composition where the graph is built. A sentence
+of CTRL-2, CTRL-7, or CTRL-15 that begins "Proposed:" is proposed.
+Generator syntax and the shape of a source's body are agreed, as
 is the sentence of SOURCE-3 that begins "Agreed:"; the rest of the timing
 of a `yield` is proposed.
 
@@ -43,9 +45,10 @@ CTRL-9 places the opening brace of an `if`, `for`, `switch`, `when`, or
   values do not recreate it. Producers composed outside the conditional keep
   their own lifetime. Selecting between pre-existing outputs is a different
   operation from controlling child execution. A branch started while the
-  program runs is the child a temporal `if` or `switch` selects, or one a
-  composition loop makes for a member (CTRL-7). An input of a node in it,
-  bound to an endpoint that is already valid, counts as modified in the
+  program runs is the child a temporal `if` or `switch` selects. Proposed:
+  so is one core's mapping operators make for a member (CTRL-7). An input
+  of a node in such a branch, bound to an endpoint that is already valid,
+  counts as modified in the
   cycle the branch starts, published in that cycle or not (TIME-3), and
   its `last_modified` (core's END-6) is that cycle's evaluation time: the
   branch's nodes run once with the values held.
@@ -69,19 +72,22 @@ CTRL-9 places the opening brace of an `if`, `for`, `switch`, `when`, or
   unmatched selector uses `default`, and with none fails with the code
   `switch.unmatched`, in composition as in a value function or a hook.
   Enum coverage can establish exhaustiveness; partial coverage is admitted.
-- **CTRL-7.** A composition loop over fixed structure receives child connections;
-  a loop over ordinary wiring-time data receives values. Dynamic independent
-  dictionary/list bodies create one child per member key/index. Update keeps
-  the child; removal stops it; reinsertion creates fresh state. A child
-  created while the program runs starts as CTRL-2 says. Captured
-  temporal connections are bound whole and add no membership.
+- **CTRL-7.** A composition loop is unrolled where the graph is built
+  (CTRL-15). Over ordinary wiring-time data it receives values; over a
+  connection of a fixed-size list, child connections; over a struct, the
+  names of its fields. No loop makes a child for each member of a
+  collection whose members change while the program runs. Proposed: core's
+  mapping operators make such children, one per member key/index of a
+  dictionary or a list: update keeps the child, removal stops it,
+  reinsertion creates fresh state, a child created while the program runs
+  starts as CTRL-2 says, and captured temporal connections are bound whole
+  and add no membership.
 - **CTRL-8.** During node evaluation, traversal uses current values/child views
   with hook-scoped borrowed lifetime. Lists preserve index order; sets promise
   no ordering. `elements` serves lists/sets; dictionaries/bundles use keys,
   values, or items. Iteration reads what it traverses, so over a `ref`
-  parameter it rejects (FN-16).
-  Dynamic composition loops do not admit loop-carried accumulation or inferred
-  reductions. Conditions inside a loop retain their own phase rules.
+  parameter it rejects (FN-16). Conditions inside a loop retain their own
+  phase rules.
 - **CTRL-9.** After `if`, `for`, `switch`, `when`, or `while`, the first `{`
   outside parentheses, brackets, and operator configuration (EXPR-10) opens
   the body. The expression before it is the condition of an `if`, `when`, or
@@ -162,16 +168,22 @@ CTRL-9 places the opening brace of an `if`, `for`, `switch`, `when`, or
   and each label a constant (CTRL-12); a case's assignments and returns
   follow CTRL-14, and over a connection what they give follows the case
   selected as a temporal `if`'s value follows its branch (CTRL-13).
-  `for item in items` over an ordinary list, set, or
-  dictionary composes its body once for each element, with ordinary values
-  bound, and may carry a `var` from one pass to the next. Over a connection
-  of `list<T, N>` it composes its body `N` times, `item` a connection of
-  `T`; over a connection of a tuple it rejects. Over a connection of
-  `list<T>`, `set<T>`, or `dict<K, V>` it makes one child for each member
-  (CTRL-7): `item` is a connection of `T` for a list and an ordinary `T`,
-  the member itself, for a set; `key` is an ordinary `K` and `value` a
-  connection of `V` for a dictionary. In such a loop an assignment to a
-  `var` declared outside it rejects (CTRL-8), and so does a `return`. The
+  A `for` is unrolled (CTRL-7). `for item in items` over an ordinary list,
+  set, or dictionary composes its body once for each element, with
+  ordinary values bound, and may carry a `var` from one pass to the next.
+  Over a connection of `list<T, N>` it composes its body `N` times, `item`
+  a connection of `T`. `for name in quote` over a struct, an ordinary
+  value or a connection, composes its body once for each field, `name`
+  being that field's name, an ordinary `str` and a constant in that pass.
+  The body reads the field by that name with the operation that member
+  projection is, `getattr_` in the operator table of
+  [generics](generics-and-operators.md): where `name` is `"bid"` the read
+  is `quote.bid`. With the name a constant, the read has that field's own
+  type, so the fields need not share one. Proposed: that read is written
+  `getattr_(quote, name)`. Over a connection of a tuple a `for` rejects,
+  and so it does over one of `list<T>`, `set<T>`, or `dict<K, V>`, whose
+  members change while the program runs (CTRL-7). Proposed: these reject
+  with the code `for.sequence`. The
   condition of a `while` is an ordinary `bool`, tested while the graph is
   built: a connection there rejects (FN-3), and the form with no condition
   is a source's (SOURCE-4).
@@ -205,8 +217,10 @@ fn choose(condition: bool, left: i64, right: i64) -> i64 {
 Only the selected child computes. Deliberate rejection: using a temporal input
 as a switch case constant. Conformance planned.
 
-Accepted declaration fragments, graphs (CTRL-13, CTRL-14, CTRL-15), with
-`window`, `scale`, and `log_tick` functions in scope:
+Accepted declaration fragments, graphs (CTRL-13, CTRL-14, CTRL-15) and a
+struct one of them reads, with the functions `window`, `scale`, and an
+outputless `log_tick<T>(value: T)` in scope; the read in `each_field` is
+written as CTRL-15 proposes:
 
 ```hgl
 fn sized(price: f64, const wide: bool) -> f64 {
@@ -233,9 +247,14 @@ fn chained(price: f64, const factors: list<f64>) -> f64 {
     return running
 }
 
-fn each_price(prices: dict<str, f64>) {
-    for name, price in prices {
-        log_tick(price)
+struct Order {
+    price: f64
+    size: i64
+}
+
+fn each_field(order: Order) {
+    for name in order {
+        log_tick(getattr_(order, name))
     }
 }
 ```
@@ -249,13 +268,18 @@ node that reads `open` fails in a cycle in which it publishes a null
 connection after the `if`: the scaled price while `rising` holds, and the
 price otherwise. `chained` is unrolled while the graph is built, one
 multiplication for each factor, and carries `running` from pass to pass.
-`each_price` makes one child for each key: `name` is an ordinary `str`, and
-`price` a connection of `f64`. Deliberate rejections: `if price { ... }`,
-a condition that is no `bool`; `var size = 3` then `size = price`, a
-connection assigned to a `var` that holds an ordinary value; `var size = 3`
-then `if open { size = 4 }`, an ordinary value chosen at runtime; in
-`each_price`, an assignment in the body to a `var` declared before the
-loop, and a `return`; and `while open { ... }`, a connection as the
+`each_field` is unrolled while the graph is built, once for each field of
+`Order`: in the pass for `"price"` the read is `order.price`, a connection
+of `f64`, and in the pass for `"size"` it is `order.size`, a connection of
+`i64`, each given to a `log_tick` of its own. Deliberate rejections:
+`if price { ... }`, a condition that is no `bool`; `var size = 3` then
+`size = price`, a connection assigned to a `var` that holds an ordinary
+value; `var size = 3` then `if open { size = 4 }`, an ordinary value
+chosen at runtime; `for name, price in prices { log_tick(price) }` in a
+graph that takes `prices: dict<str, f64>`, and a `for` over a connection
+of `list<f64>` or of `set<str>`, each a loop over a collection whose
+members change while the program runs, rejected when the program is
+compiled (CTRL-15); and `while open { ... }`, a connection as the
 condition of a `while`. Conformance planned.
 
 Accepted illustration, complete module, a branch that starts while the
