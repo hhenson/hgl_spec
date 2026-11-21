@@ -477,6 +477,12 @@ Deliberate rejections at a call (GEN-10, `pack.cardinality`), given
 argument where it takes two, reported at the closing parenthesis, and
 `pair(1, 2, 3)` gives it three, reported at `3`. `pair(1, 2)` is accepted.
 
+Deliberate rejection (FN-8, `pack.duplicate`):
+`const fn either(a: ...i64{0:1}, b: ...i64{0:1}) -> i64`, a second
+positional pack, reported at `b`: `either(1)` could give its argument to
+either. `const fn both<...Fields>(items: ...i64, named: ...{Fields}) -> i64`,
+one pack of each kind, is accepted.
+
 Accepted declaration fragment, a value candidate and a temporal candidate of
 one operator (GEN-4, GEN-5):
 
