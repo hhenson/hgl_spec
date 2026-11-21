@@ -28,7 +28,8 @@ constraint_call = ( IDENTIFIER | qualified_name ), "(",
                   [ constraint_operand, { ",", constraint_operand } ], ")",
                   [ "->", type ] ;
 operator_decl = "operator", callable_name, [ generic_parameters ],
-                function_signature, [ requires_clause ], { operator_properties } ;
+                [ configuration_parameters ], function_signature,
+                [ requires_clause ], { operator_properties } ;
 operator_properties = "properties", "<", value_type, { ",", value_type }, ">",
                       "{", operator_property, { ",", operator_property }, [ "," ], "}" ;
 operator_property = "associative" | "commutative" | "identity", "=", const_expression ;
@@ -603,6 +604,38 @@ each_key(handled, orders)`: it stands only in the result and under the
 nothing (GEN-3), so a call that gives it neither way rejects
 (`generic.unresolved`). `each_key<str>{key: "id"}(tracked, orders)`
 leaves out the parameter `id` of `tracked` instead (EXPR-10).
+
+Accepted declaration fragment, a configuration parameter beside a pack
+declared for a function (FN-18):
+
+```hgl
+operator each_wanted<K, R, ...Ps, ...As, const key: str = "key">{
+    const strict: bool = true,
+    keys: set<K>? = null,
+}(
+    f: fn(...{Ps}) -> R,
+    args: ...{As for f without key},
+) -> dict<K, R>
+    requires each name in names(As) {
+        As[name] == Ps[name] || As[name] == dict<K, Ps[name]>
+    }
+```
+
+`each_wanted{keys: wanted}(handled, orders)` gives `keys`, with `wanted`
+a connection of `set<str>`, which also resolves K as `str` (GEN-2): no
+type is written. `key` is a generic value parameter, since the pack's
+`without` reads it when the call is compiled; `strict` is read by the
+operator's implementation alone, so it is a configuration parameter,
+`const` since it is fixed when the graph is built. A call gives all
+three in its braces alike: `each_wanted{key: "id", strict: false, keys:
+wanted}(tracked, orders)`. Everything in the parentheses after `handled` is
+`handled`'s own. Given `fn found(order: Order, keys: set<str>) -> f64`,
+`each_wanted{keys: wanted}(found, orders, keys: allowed)` gives the
+operator its `keys` in the braces and `found` its parameter `keys` in
+the parentheses: the two do not meet. Deliberate rejection:
+`each_wanted(handled, orders, wanted)`, a third argument where `handled`
+has no parameter left to take it (`argument.unexpected`): a configuration
+parameter is not given by position.
 
 `without` takes several names, or a set of them:
 

@@ -186,7 +186,10 @@ GEN-14 resolves generic construction versus comparison using declaration lookup.
   A call of a named operator carries the same configuration after its
   name, before its arguments: `ratio{zero: .error}(a, b)` is
   `ratio(a, b, zero: .error)`. It binds as a symbol's does, and the
-  arguments in the parentheses are then the call's others. In the header of an `if`, `for`, `switch`,
+  arguments in the parentheses are then the call's others. A function's
+  call carries its configuration the same way. An entry names a
+  configuration parameter of the callee (FN-18) before any other: only
+  the configuration gives one. In the header of an `if`, `for`, `switch`,
   `when`, or `while` such a call stands in parentheses, since the first
   `{` there opens the body (CTRL-9).
 - **EXPR-11.** `<=>` is full comparison at the comparison precedence tier.

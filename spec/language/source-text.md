@@ -112,7 +112,7 @@ delta error
 - **LEX-10.** The contextual names are `const`, `native`, and `type`;
   `application`, at the head of a file (UNIT-14), and `integration_test`,
   before a test's name (TST-17);
-  `switch`, `case`, `default`, `in`, `each`, `unbounded`, `properties`,
+  `switch`, `case`, `default`, `in`, `each`, `without`, `unbounded`, `properties`,
   `associative`, `commutative`, `identity`, `raises`, `suppress_warning`,
   and `timeout`;
   the capability names (TIME-8); and the result forms `ok`, `err`, `is_ok`,

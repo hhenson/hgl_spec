@@ -13,9 +13,11 @@ native_type_body = "{", [ NL ],
 native_property = member_name, ":", value_type ;
 native_function_decl = [ "export" ], "native", [ "const" ], "fn",
                        callable_name, [ generic_parameters ],
+                       [ configuration_parameters ],
                        function_signature, [ requires_clause ]
                      | "native", [ "impl" ], [ "const" ], "fn", callable_name,
-                       [ generic_parameters ], function_signature,
+                       [ generic_parameters ], [ configuration_parameters ],
+                       function_signature,
                        [ requires_clause ], [ native_contract_body ] ;
 native_contract_body = "{", [ NL ],
                        { ( inject_decl, [ ";" ] | native_hook ), [ NL ] }, "}" ;
