@@ -96,7 +96,7 @@ Hard reserved words:
 ```text
 module part use as export abstract impl instantiate operator fn struct enum
 requires is let var state cache inject return if else start when stop
-for while yield test assert eval true false null bool i64 f64 str bytes any
+for while yield test assert eval run true false null bool i64 f64 str bytes any
 date time datetime duration tenor civil_datetime zoned_datetime zoned_time
 timezone atomic tuple list set dict rolling_window result ref signal endpoint
 delta error
@@ -110,9 +110,8 @@ delta error
   modifier only in positions that admit it; elsewhere it is an ordinary
   identifier, including callable and imported names (FN-5).
 - **LEX-10.** The contextual names are `const`, `native`, and `type`;
-  `application`, at the head of a file (UNIT-14), `run`, the word of a
-  run in real time (RUN-3), and `integration_test`, before a test's name
-  (TST-17);
+  `application`, at the head of a file (UNIT-14), and `integration_test`,
+  before a test's name (TST-17);
   `switch`, `case`, `default`, `in`, `each`, `unbounded`, `properties`,
   `associative`, `commutative`, `identity`, `raises`, `suppress_warning`,
   and `timeout`;
@@ -275,9 +274,8 @@ PUNCTUATION = "..." | "<=>" | "//="
   `f<T> (x)`, `rows [i]`, or `...T {2}`. A `(` or `[` on the next line is no
   call's or index's: LEX-5 says whether it begins a statement or completes
   the one before. A call here is a call suffix, the arguments of a typed or
-  delta constructor, a conversion such as `str(value)`, `eval(...)`,
-  `run(...)`, `raises(...)`, a constraint call, and a warning or a timeout
-  annotation. In an
+  delta constructor, a conversion such as `str(value)`, `raises(...)`, a
+  constraint call, and a warning or a timeout annotation. In an
   expression, a `<` that stands apart from the name before it is a
   comparison.
 
