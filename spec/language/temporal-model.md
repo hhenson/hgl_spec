@@ -785,9 +785,14 @@ module examples.seeded
 fn counted(const every: duration = 1s) -> i64 {
     inject global_state
     cache count: i64 = 0
-    while count < get<i64>(global_state, "limit")? {
-        count += 1
-        yield every: count
+    {
+        let limit = get<i64>(global_state, "limit")
+        if limit != null {
+            while count < limit {
+                count += 1
+                yield every: count
+            }
+        }
     }
 }
 
