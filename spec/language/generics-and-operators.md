@@ -605,7 +605,7 @@ nothing (GEN-3), so a call that gives it neither way rejects
 (`generic.unresolved`). `each_key<str>{key: "id"}(tracked, orders)`
 leaves out the parameter `id` of `tracked` instead (EXPR-10).
 
-Proposed declaration fragment, a configuration parameter beside a pack
+Accepted declaration fragment, a configuration parameter beside a pack
 declared for a function (FN-18):
 
 ```hgl

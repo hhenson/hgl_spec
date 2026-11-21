@@ -5,7 +5,7 @@ anonymous-function scope. The `ref` mode (FN-16) is agreed. The sentence
 of FN-9 that begins "Proposed:" is proposed. FN-17, a parameter that takes
 a function, and the pack of FN-8 declared `for` one are agreed, but for
 the sentence of FN-17 that begins "Proposed:". FN-18, configuration
-parameters, is proposed.
+parameters, is agreed.
 
 ## Grammar
 
@@ -347,7 +347,7 @@ Local source/native declaration matching is defined in the native chapter.
   called as the function it was given, `f(a, b)`, and is given on to
   another parameter that takes a function; it is not read, stored, or
   returned.
-- **FN-18.** Proposed. A declaration may declare configuration parameters,
+- **FN-18.** A declaration may declare configuration parameters,
   in braces between its name and its parameters, where a call writes its
   configuration (EXPR-10):
   `const fn rounded{places: i64 = 2}(value: f64) -> f64`. A configuration
@@ -374,7 +374,7 @@ Local source/native declaration matching is defined in the native chapter.
   configuration parameter with no default does not fit a function type
   (FN-17), which gives it none.
 
-Proposed illustration, complete module, configuration parameters (FN-18):
+Accepted illustration, complete module, configuration parameters (FN-18):
 
 ```hgl
 module examples.configuration_parameters
