@@ -347,7 +347,11 @@ Local source/native declaration matching is defined in the native chapter.
   from the function type, where that type's parameter and result types,
   as the call's other arguments have resolved them, decide every one.
   Where they do not, nothing is guessed: the call rejects
-  (`generic.unresolved`) and writes the arguments. A function type is a template of the
+  (`generic.unresolved`) and writes the arguments. An operator is given
+  in both ways too. `convert<f64>` supplies the first of its generic
+  parameters as a call does (GEN-8), the function type resolves the rest,
+  and its candidate is selected among those that fit both (GEN-5).
+  A function type is a template of the
   signature it takes. Where it writes a parameter's name,
   `fn(key: str, value: f64) -> f64`, the function given has a parameter
   of that name at that position; where it writes none, `fn(str, f64) ->
@@ -730,6 +734,10 @@ const fn six() -> i64 => apply(scale, 3)
 
 const fn seven() -> f64 => apply_to(scale, 3.5)
 
+const fn widened(f: const fn(i64) -> f64, x: i64) -> f64 => f(x)
+
+const fn eight() -> f64 => widened(convert<f64>, 8)
+
 fn smoothed(price: f64) -> f64 {
     state last: f64 = 0.0
     when {
@@ -752,6 +760,9 @@ fn steadier(price: f64) -> f64 => twice(fn(p) => smoothed(p) * 0.5, price)
 anonymous function taking `x` as an `i64` from the parameter's type.
 `six()` is 6: `scale` is given bare, and `fn(i64) -> i64` leaves only
 `i64` for its T. `seven()` is 7.0: `3.5` makes V an `f64`, and so T.
+`eight()` is 8.0: `convert` is an operator, given with the first of its
+generic arguments, the type it converts to; the function type's `i64`
+resolves the other and selects its candidate.
 `twice` takes a function composed in a graph: `calmer` composes two nodes
 of `smoothed`, each with its own state, and `doubled` lifts the value
 function `scale<f64>` twice (FN-6). In `steadier` the anonymous function
