@@ -3,7 +3,8 @@
 Status: agreed function roles, classification, defaults, lifting, and
 anonymous-function scope. The `ref` mode (FN-16) is agreed. The sentence
 of FN-9 that begins "Proposed:" is proposed. FN-17, a parameter that takes
-a function, and the pack of FN-8 declared `for` one are agreed.
+a function, and the pack of FN-8 declared `for` one are agreed, but for
+the sentence of FN-17 that begins "Proposed:".
 
 ## Grammar
 
@@ -307,7 +308,14 @@ Local source/native declaration matching is defined in the native chapter.
   (FN-7). A value function given where `fn(...)` is expected is lifted
   there (FN-6); a temporal function given where `const fn(...)` is
   expected rejects. The function given has the function type's parameter
-  types, in order, and its result type. A generic parameter of the
+  types, in order, and its result type. Proposed: a parameter the
+  function type writes is a plain one, and the function given has a plain
+  parameter there. One it marks `var`, `const`, or `ref` does not fit the
+  template (`type.mismatch`): the body's call, `f(x)`, could not give it
+  the place, the constant, or the designation its mark requires (FN-15,
+  FN-1, FN-16). The parameters a named pack stands for (GEN-17) are taken
+  as they are, marks included, and a pack declared for the function gives
+  each its argument as a call of the function does (FN-8). A generic parameter of the
   function type binds from the function given, as it binds from any
   argument's type (GEN-2). A generic function is given with its generic
   arguments, `scale<f64>`, a name with its generic arguments and no call
@@ -559,7 +567,10 @@ function (`function.argument`). A function type that writes a name is a
 tighter template: `const fn at_price(f: const fn(price: i64) -> i64, x:
 i64) -> i64 => f(x)` takes a function whose parameter is named `price`,
 so `at_price(add_one, 2)` rejects, `add_one` naming its parameter `x`
-(`type.mismatch`), where `apply(add_one, 2)` is accepted. Conformance
+(`type.mismatch`), where `apply(add_one, 2)` is accepted. A function that
+marks its parameter does not fit a template that writes a plain one:
+with `const fn bump(var count: i64) -> i64`, `apply(bump, 2)` rejects
+(`type.mismatch`), since `apply`'s `f(x)` gives no place. Conformance
 planned.
 
 | Phase | A temporal argument denotes | Ordinary calls |
