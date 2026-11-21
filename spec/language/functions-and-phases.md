@@ -363,7 +363,10 @@ Local source/native declaration matching is defined in the native chapter.
   the program runs (`function.argument`). In the body the parameter is
   called as the function it was given, `f(a, b)`, and is given on to
   another parameter that takes a function; it is not read, stored, or
-  returned.
+  returned. The call gives its arguments by position, or by a name the
+  function type writes: the body knows the template and nothing of the
+  function given, so a name the type does not write names no parameter
+  (`argument.unknown`).
 - **FN-18.** A declaration may declare configuration parameters,
   in braces between its name and its parameters, where a call writes its
   configuration (EXPR-10):
@@ -783,7 +786,11 @@ so `at_price(add_one, 2)` rejects, `add_one` naming its parameter `x`
 (`type.mismatch`), where `apply(add_one, 2)` is accepted. A function that
 marks its parameter does not fit a template that writes a plain one:
 with `const fn bump(var count: i64) -> i64`, `apply(bump, 2)` rejects
-(`type.mismatch`), since `apply`'s `f(x)` gives no place. Conformance
+(`type.mismatch`), since `apply`'s `f(x)` gives no place. A body calls
+its parameter by the names its type writes and no others: `const fn
+named(f: const fn(i64) -> i64) -> i64 => f(x: 4)` rejects, the type
+writing no `x` (`argument.unknown`), though `add_one` names its parameter
+so; with `f: const fn(x: i64) -> i64` it is accepted. Conformance
 planned.
 
 | Phase | A temporal argument denotes | Ordinary calls |
