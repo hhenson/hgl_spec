@@ -59,7 +59,9 @@ rejection (TYPE-12, TYPE-14). TYPE-16 says what a `delta_type` is.
   struct with a field of such a type, the fields it has from its parents
   included, a generic one with its arguments in place. `set<f64>`,
   `dict<tuple<str, f64>, i64>` and `set<Quote>`, for a `Quote` with an
-  `f64` field, reject.
+  `f64` field, reject (`key.unstable`). An `any` is such a type where what
+  it holds is: a value of one given to a set or as a dictionary's key
+  fails where it is given, with the same code.
   Bytes admit values 0 through 255; length and ordering use unsigned octets.
 - **TYPE-2.** Temporal scalar domains are: Gregorian `date` (years 1–9999),
   microsecond `time`, UTC-instant `datetime`, elapsed `duration`, local
