@@ -244,6 +244,7 @@ infrastructure and cannot satisfy a source-rejection expectation.
 | module | `module.duplicate_part` | Two files of a module share a part name (UNIT-1); part name in every such file but one |
 | module | `import.misplaced` | Import after a declaration of its file (UNIT-2); `use` |
 | module | `import.unknown_module` | No source declares the module (UNIT-2); module path |
+| name | `doc.unknown_key` | Proposed: a key of a documentation comment's `Args:` or `Type Args:` section names no parameter, or no generic parameter, of the declaration it documents (SDOC-3); the key |
 | name | `import.unknown_name` | Module declares no such name (UNIT-2); imported name |
 | module | `import.private` | Imported declaration is not public (UNIT-2, UNIT-3); imported name |
 | module | `import.cycle` | Modules import one another (UNIT-3); first import of the cycle |
@@ -252,7 +253,9 @@ infrastructure and cannot satisfy a source-rejection expectation.
 | module | `application.export` | `export` in an application (UNIT-14); `export` |
 | module | `application.run_count` | Application with no run statement, or with a second (UNIT-14); the application's path, or the later statement |
 | phase | `application.statement` | Statement of an application that is no `inject` of `run_config` or of `global_state` and no call of `put` on the store, or that follows the run statement or precedes a declaration; and either of those in a module (UNIT-14); the statement |
+| phase | `cache.input_read` | Proposed: a cache's initializer reads a temporal input (TIME-5, TIME-6); the read |
 | phase | `run.position` | Run statement in a module or before a declaration of its application (UNIT-14), or `run` in a test that is no integration test (RUN-3); the word |
+| type | `constant.failure` | Proposed: a module's constant whose evaluation fails, an `i64` out of range or a division by zero among them (UNIT-13, ERR-9); the expression |
 | type | `run.entry` | A run statement's call is of no entry (RUN-1); the call |
 | phase | `run.configuration` | A configuration on an application's run statement (RUN-6); the brace |
 | name | `name.duplicate` | Binding takes a name already in scope (UNIT-5, UNIT-12, TST-2, NATIVE-2); later name |
@@ -288,6 +291,8 @@ infrastructure and cannot satisfy a source-rejection expectation.
 | phase | `node.declaration_order` | `state`, `cache`, or `inject` after a `start`, `when`, or `stop` (TIME-5); the declaration |
 | phase | `node.duplicate_hook` | Second `start` or second `stop` (TIME-5); later hook |
 | phase | `node.statement` | Statement of a node's body that is no declaration and no hook, in a node that is no source (FN-2); the statement |
+| phase | `scheduled.outside_node` | Proposed: `scheduled()` in a value function, a graph or a test, which has no schedule of its own (FN-9, TIME-9); the selector |
+| phase | `source.return_value` | A source's `return` has a value, under SOURCE-4, which is a proposed rule: the rejection is proposed with it, and so is this code; the value |
 | phase | `source.statement` | In a source with a declaration or a hook: a statement outside its one block, a second block, a hook out of order, or a `yield` in a hook. In any source: a `var`, or an `inject` of `out`, `scheduler`, or `alarm` (SOURCE-1); the statement |
 | phase | `source.when` | `when` in a source (SOURCE-1); `when` |
 | phase | `source.input` | Temporal parameter of a source (SOURCE-1); the parameter |
@@ -310,6 +315,7 @@ infrastructure and cannot satisfy a source-rejection expectation.
 | type | `pack.name` | `Ps[name]` for a name the pack has not (GEN-17); the name |
 | type | `pack.duplicate` | A second positional pack, or a second named pack, in one declaration (FN-8); the second pack's parameter |
 | type | `pack.cardinality` | Cardinality's upper bound is below its lower (GEN-10); upper bound. A call that gives a pack a number of arguments its cardinality does not admit; the first argument beyond the upper bound, or the call's closing parenthesis where too few are given |
+| type | `switch.label_constant` | Proposed: a `switch` label that is no compile-time constant (CTRL-12, UNIT-13); the label |
 | type | `type.not_a_type` | Name in a type position is no type: a function, operator, local, generic value parameter, or a type pack where one type is needed (UNIT-10, GEN-2, GEN-13); name |
 | type | `type.not_ordinary` | `rolling_window`, `atomic` or `signal` where an ordinary value type is required, or under a `?` that is not on the whole type of an input or a field (TYPE-12, TYPE-14, FN-1); offending type |
 | type | `signal.position` | `signal` other than as the whole type of a function's temporal parameter (TYPE-12); `signal` |
@@ -394,6 +400,7 @@ infrastructure and cannot satisfy a source-rejection expectation.
 | type | `delta.index_bounds` | Negative/out-of-fixed-range index, or an `updated` index at or past the size a `size_modified` of the same delta gives (TYPE-16); index |
 | type | `delta.overlap` | Known overlapping addition/removal; later entry |
 | phase | `test.statement_phase` | Node/lifecycle/return statement in test; keyword |
+| phase | `yield.in_value` | A `yield` inside a block or an `if` whose value is used, under SOURCE-4, which is a proposed rule: the rejection is proposed with it, and so is this code; the `yield` |
 
 | Execution code | Required condition |
 | --- | --- |
