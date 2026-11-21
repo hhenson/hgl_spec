@@ -472,6 +472,11 @@ values, of the two types in `Ts`. `labelled` takes one to four named
 arguments and keeps their names. Deliberate rejection, in parsing: a
 cardinality on a parameter that is no pack, as in `value: f64{2}`.
 
+Deliberate rejections at a call (GEN-10, `pack.cardinality`), given
+`const fn pair(items: ...i64{2}) -> i64`: `pair(1)` gives its pack one
+argument where it takes two, reported at the closing parenthesis, and
+`pair(1, 2, 3)` gives it three, reported at `3`. `pair(1, 2)` is accepted.
+
 Accepted declaration fragment, a value candidate and a temporal candidate of
 one operator (GEN-4, GEN-5):
 

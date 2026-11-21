@@ -481,7 +481,9 @@ to the next as a `cache`, which `stop` reads. In `replay` the block is a
 `for`, and `doubled` is a working value evaluated on each pass. Deliberate
 rejections: a `when` in a source; a `yield` in `start` or `stop`; in
 `greeting`, a `yield` outside the block, or a second block; `var seen = 0`
-in any of them; `inject out`; and a temporal parameter.
+in any of them; `inject out`; a temporal parameter; and a source with no
+result arrow, `fn ticking() { yield 1s: 7 }`, whose `yield` has no output
+to write (SOURCE-1; proposed: `source.result`).
 
 Proposed timing in `two_values`: the second delay is relative to the resumed
 evaluation, so publications occur one and two seconds after the initial

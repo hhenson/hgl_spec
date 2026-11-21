@@ -461,6 +461,24 @@ Returned before that test, `price` gives the value, or raises its error,
 coded `value.missing_key`, for such a key. A strict lookup, `book[key]`,
 fails with that code too. Conformance planned.
 
+Accepted fragments, the fallback of `get` (ERR-6), with `book` a
+`dict<str, i64>`, `notes` a `dict<str, i64?>`, and `other` an `i64?`:
+
+```hgl
+let a: i64 = get(book, key, 0)
+let b = get(book, key, null)
+let c = get(notes, key, other)
+```
+
+`a` is the book's value for the key, or 0 for a key it has not: the
+fallback gives an `i64`, and nothing fails. In `b` the `null` is written,
+so it is no fallback and the call is the plain read: `b` holds a
+`result<i64, error>`, as `get(book, key)` gives. In `c` the fallback is an
+expression of exactly the dictionary's value type, `i64?`, so `c` is an
+`i64?` and no result: for a key `notes` has not it is what `other`
+evaluates to, a null included. Deliberate rejection: `get(book, key,
+"none")`, a fallback that is not exactly V (`lookup.default_type`).
+
 Accepted illustration, complete module, a child read when it runs (ERR-14):
 
 ```hgl
