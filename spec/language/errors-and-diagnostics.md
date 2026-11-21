@@ -142,7 +142,11 @@ ERR-15), and no operator raises one.
   candidate takes the result itself, as `==` and `!=` of two
   results do (ERR-2), that candidate is selected and the operands are
   given whole: `left == right`, of two `result<i64, error>`, compares tag
-  then payload, and raises nothing. Compared
+  then payload, and raises nothing. Where one candidate is admitted by
+  more than one choice of which operands to give whole and which to take
+  the T of, and no choice takes fewer than the others, nothing chooses
+  between them: the call rejects (`operator.ambiguous`), and the
+  candidate's own conditions are what say which it means. Compared
   with `null`, where T is not nullable, it expects the `T?`:
   `checked(value) == null` tests for a failure. Where T is nullable that
   place expects T, and takes the T form: the comparison is of a success's
@@ -357,7 +361,7 @@ infrastructure and cannot satisfy a source-rejection expectation.
 | type | `call.not_callable` | Call of a native type's name, which no call constructs (NATIVE-6); name |
 | name | `member.unknown` | Struct has no field, or enum no member, of the name, or of the constant number or name an enum is constructed from (EXPR-7, TYPE-7); name or constant |
 | operator | `operator.no_candidate` | Call of an operator, by symbol or by name, that no candidate admits (GEN-5), or, in a generic body, that its requirements make no candidate known to take (GEN-7); operator |
-| operator | `operator.ambiguous` | Call of an operator that two most-specific candidates admit equally (GEN-5); operator |
+| operator | `operator.ambiguous` | Call of an operator that two most-specific candidates admit equally (GEN-5), or that one candidate admits by more than one choice of which results to take the value of, none taking fewer than the others (ERR-15); operator |
 | type | `default.order` | Parameter that may not be omitted follows one that may (UNIT-8); the later parameter |
 | type | `tuple.index` | Tuple's index is no constant, or is outside the tuple (EXPR-7); index |
 | type | `rolling_window.size_kind` | Wrong/mixed size kind; offending size, the minimum when the two differ in kind |

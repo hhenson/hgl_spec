@@ -532,6 +532,24 @@ one argument more is given than it takes (`pack.cardinality`).
 `f<i64>(true)` rejects too, the one argument being no `i64`
 (`type.mismatch`).
 
+Deliberate rejection (ERR-15, `operator.ambiguous`), a candidate whose
+condition admits two arrangements:
+
+```hgl
+operator read_one<X, Y>(left: X, right: Y) -> i64
+
+impl const fn read_one<T, U>(left: T, right: U) -> i64
+    requires (T in {result<i64, error>} && U in {i64})
+          || (T in {i64} && U in {result<i64, error>}) => 0
+```
+
+Given two `result<i64, error>`, `read_one(left, right)` could hold the
+left whole and take the right's `i64`, or the reverse, and each could
+raise a different error: the call rejects. `read_one(left, 3)` and
+`read_one(3, right)` are accepted, each fitting one way. A candidate that
+means one arrangement says so in its condition, with the first
+alternative alone.
+
 Deliberate rejection (GEN-6; proposed: `impl.pack`), given
 `operator first_of<T>(values: ...T{1:*}) -> T`:
 `impl const fn first_of(values: i64) -> i64`, a fixed parameter where the
