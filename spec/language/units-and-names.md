@@ -82,7 +82,10 @@ admits one as a member name.
   and an omitted temporal input is never valid. A `var` parameter is the
   exception: it is always given, whatever its type, since the call assigns
   the place it is given (FN-15). A parameter that may be omitted follows
-  every parameter that may not. A default cannot use caller
+  every parameter that may not, among the parameters in the parentheses:
+  a configuration parameter (FN-18) is given by its name alone, so those
+  stand in any order, and before the parentheses whatever the parameters
+  there are. A default cannot use caller
   bindings or invent numeric generic values.
 - **UNIT-9.** Compare inherited defaults by bound expression and canonical type
   after substitution, before folding. Declaration identity matters; source

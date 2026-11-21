@@ -363,7 +363,10 @@ Local source/native declaration matching is defined in the native chapter.
   a configuration parameter. Both are given in the braces.
   One with a default is left out of a call, with its braces where no
   other is given; one with none is given at every call
-  (`argument.missing`). None is `ref`,
+  (`argument.missing`). Configuration parameters stand in any order, one
+  that may be omitted before one that may not (UNIT-8). A native
+  declaration declares them as any other does (NATIVE-1), and a
+  candidate declares those of its operator (GEN-6). None is `ref`,
   `var`, a pack, or one that takes a function, and its name is no other
   parameter's and no generic parameter's of the declaration. Where a
   declaration has a pack declared for a function (FN-8), every argument
