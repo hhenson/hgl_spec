@@ -342,7 +342,7 @@ infrastructure and cannot satisfy a source-rejection expectation.
 | type | `return.missing` | Value function that declares a result can reach its end with no value (FN-7), or a graph that returns a value in a branch of a temporal `if` or `switch` can (CTRL-14); function name |
 | type | `switch.duplicate_label` | Switch label has the value of an earlier label (CTRL-6); later label |
 | phase | `while.condition` | `while` with no condition in a value function or a graph (CTRL-12, CTRL-15); `while` |
-| phase | `loop.carried` | Assignment to a `var` declared outside a composition loop that makes one child for each member, or a `return` in one (CTRL-8, CTRL-15); target |
+| type | `for.sequence` | Proposed: `for` in a graph over a connection of a tuple, or over one of `list<T>`, `set<T>`, or `dict<K, V>`, whose members change while the program runs (CTRL-15); the sequence |
 | type | `struct.abstract` | Abstract struct constructed (TYPE-3); name |
 | type | `call.not_callable` | Call of a native type's name, which no call constructs (NATIVE-6); name |
 | name | `member.unknown` | Struct has no field, or enum no member, of the name, or of the constant number or name an enum is constructed from (EXPR-7, TYPE-7); name or constant |

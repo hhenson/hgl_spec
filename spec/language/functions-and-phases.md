@@ -1,7 +1,8 @@
 # Functions and phases
 
 Status: agreed function roles, classification, defaults, lifting, and
-anonymous-function scope. The `ref` mode (FN-16) is agreed.
+anonymous-function scope. The `ref` mode (FN-16) is agreed. The sentence
+of FN-9 that begins "Proposed:" is proposed.
 
 ## Grammar
 
@@ -138,8 +139,9 @@ Local source/native declaration matching is defined in the native chapter.
   call on it is evaluated once then, in the order written, before any node
   of that graph starts, and is given no connection
   (`connection.as_constant`). A graph built while the run is under way, a
-  child of a `switch` or of a `for` over a temporal collection (CTRL-15), is
-  built then, and its calls are evaluated then. A value
+  child of a `switch` (CTRL-15), is built then, and its calls are
+  evaluated then. Proposed: so is one core's mapping operators make for a
+  member (CTRL-7). A value
   function injects none. What it needs of one is its argument: a value the
   node reads from it, `clock.evaluation_time`, or the capability itself,
   given to a parameter of its type (TIME-8).
