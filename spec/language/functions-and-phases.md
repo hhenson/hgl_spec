@@ -241,7 +241,10 @@ Local source/native declaration matching is defined in the native chapter.
   A `return` to a `ref` result is given an expression that names an
   endpoint: a temporal input of the node, `ref` or not, or a child of one,
   `items[idx]`. Returning a whole `ref` parameter samples its current
-  designation when the `return` executes. Readers follow that target's
+  designation when the `return` executes; one that holds no reference
+  gives the result the empty designation, which designates nothing, and a
+  reader of the result is then not valid until a later designation
+  (TIME-10). Readers follow that target's
   publications. If the input later designates another target, the result
   keeps the sampled designation until the node writes its result again.
   Returning an ordinary input or a child path designates the logical

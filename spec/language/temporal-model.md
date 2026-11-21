@@ -122,7 +122,8 @@ flowchart LR
   dormant by design acknowledges the warning. `valid()`
   requires all temporal inputs to be valid;
   `valid(a, b)` requires both named inputs, and similarly for more inputs.
-  Omitting the validity selector requires all temporal inputs to be valid.
+  Omitting the validity selector requires all temporal inputs to be valid,
+  but for a `ref` parameter that holds no reference (TIME-10).
   A header that is `scheduled()` alone is the exception: it requires no
   input to be valid, as one that writes `valid([])` does, since it runs at
   the wake whatever the inputs hold.
@@ -315,7 +316,9 @@ flowchart LR
   publishes in that cycle; where the endpoint holds none, the reader is
   not valid, and is silent, until the endpoint publishes, as the endpoint
   itself is not valid until then; and a publication of the endpoint
-  left behind no longer reaches it. Where the result is given the
+  left behind no longer reaches it. Where the result is given the empty
+  designation (FN-16), the reader is not valid until the result is given
+  another. Where the result is given the
   designation it holds, that gives the reader no tick: it goes on
   observing the endpoint, a publication of it in that cycle included.
   In a node, a `ref` parameter is passive to what it designates: a
@@ -323,7 +326,11 @@ flowchart LR
   test of the parameter, and the endpoint operations given the parameter
   (FN-16) observe the reference, not the endpoint: `valid` of a `ref`
   parameter is whether a reference is present, whatever the endpoint it
-  designates holds, and nothing of that endpoint is seen through it.
+  designates holds, and nothing of that endpoint is seen through it. One
+  that holds no reference does not hold back the default admission
+  (TIME-3): a handler that writes no validity selector is admitted by the
+  validity of the node's other inputs, and a `return` of the parameter
+  there gives the result the empty designation (FN-16).
   Where a `ref` parameter is active, as `when modified(low)` makes it
   (TIME-3), the node is woken where the parameter is given a designation;
   a handler that returns the parameter there has its readers follow each
@@ -660,7 +667,10 @@ in the fourth, `follow` publishes 2.0, nothing, 1.0, 4.0. The second
 return gives the result the designation it holds, and `follow` observes
 nothing. The third designates `bid`, which does not publish in that cycle:
 `follow` ticks with the 1.0 that `bid` holds. A later tick of `ask` does
-not reach `follow`, and no tick of `bid` or `ask` wakes `pick`.
+not reach `follow`, and no tick of `bid` or `ask` wakes `pick`. Where
+`low` holds no reference as `flag` publishes false, `pick` still runs and
+returns it, and `follow` is not valid until `pick` returns a parameter
+that holds one (TIME-10, FN-16).
 Deliberate rejections: `pick(flag, "a", ask)`, a `str` where an `f64` is
 taken (`type.mismatch`); and `return low + 1.0` in `pick`, a read of a
 `ref` parameter's value (FN-16). Conformance planned.
