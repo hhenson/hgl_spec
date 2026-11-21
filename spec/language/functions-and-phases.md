@@ -5,7 +5,7 @@ anonymous-function scope. The `ref` mode (FN-16) is agreed. The sentence
 of FN-9 that begins "Proposed:" is proposed. FN-17, a parameter that takes
 a function, and the pack of FN-8 declared `for` one are agreed, but for
 the sentence of FN-17 that begins "Proposed:". FN-18, configuration
-parameters, is agreed.
+parameters, is agreed. FN-19, a pack as a value, is proposed.
 
 ## Grammar
 
@@ -376,6 +376,19 @@ Local source/native declaration matching is defined in the native chapter.
   collide with one of the declaration's. A function that declares a
   configuration parameter with no default does not fit a function type
   (FN-17), which gives it none.
+- **FN-19.** Proposed. A named pack is a value where the program is
+  compiled. `args[name]`, with `name` a constant, is the entry under that
+  name, of the type `As[name]` (GEN-17); a name the pack has not rejects
+  (`pack.name`). A named pack is made by a loop over names:
+  `{for name in names(Ps): expr}` has an entry under each name, the value
+  of the expression in that pass, with that pass's type. A pack is given
+  to a call with `...`: `f(...given)` gives each entry of a named pack as
+  the named argument of its name, and each of a positional pack as a
+  positional argument, in order, among whatever other arguments the call
+  writes. The call is then checked as any other (EXPR-2): an entry that
+  names no parameter, a parameter given twice, and one left with nothing
+  reject as they do there. A pack is bound with `let` and given to a
+  call; nothing else holds one, and none is a connection's value.
 
 Accepted illustration, complete module, configuration parameters (FN-18):
 
@@ -419,6 +432,63 @@ of the parentheses (`argument.unknown`); `sampled(price)`, which gives
 `every` nothing (`argument.missing`); and
 `const fn twice{places: i64}(places: i64) -> i64`, whose configuration
 parameter takes the name of a parameter. Conformance planned.
+
+Proposed illustration, complete module, ranges, loop forms and packs
+(EXPR-16, EXPR-17, FN-19, CTRL-16):
+
+```hgl
+module examples.pack_forms
+
+const fn squares(n: i64) -> list<i64> => [for i in 0..<n: i * i]
+
+const fn below(n: i64) -> i64 {
+    var sum = 0
+    for i in 0..<n { sum += i }
+    return sum
+}
+
+fn doubled(prices: list<f64, 3>) -> list<f64, 3> => [for i in 0..<3: prices[i] * 2.0]
+
+fn scaled(price: f64, factor: f64) -> f64 => price * factor
+
+fn passed_on<R, ...Ps, ...As>(f: fn(...{Ps}) -> R, args: ...{As for f}) -> R
+    requires each name in names(As) { As[name] == Ps[name] }
+{
+    let given = {for name in names(Ps): args[name]}
+    return f(...given)
+}
+
+fn tagged<R, ...Ps, ...As, const key: str = "key">(
+    f: fn(...{Ps}) -> R,
+    args: ...{As for f without key},
+) -> R {
+    let given = {for name in names(Ps): if name == key { "fixed" } else { args[name] }}
+    return f(...given)
+}
+
+fn labelled(key: str, price: f64) -> str => key
+
+fn one(price: f64, factor: f64) -> f64 => passed_on(scaled, price, factor)
+
+fn two(price: f64) -> str => tagged(labelled, price)
+```
+
+`squares(4)` is `[0, 1, 4, 9]` and `below(4)` is 6: the range has 0 to
+3, and `squares(0)` is the empty list (EXPR-16, EXPR-17). `doubled` is
+unrolled where the graph is built, three multiplications whose
+connections are the entries of a `list<f64, 3>`. In `passed_on`, `given`
+has an entry for each parameter of `f`, and `f(...given)` gives each as
+the named argument of its name, so `one` composes `scaled(price: price,
+factor: factor)` (FN-19). In `tagged`, the pass for `key` takes the
+first branch alone, a `str`, and reads no `args["key"]`, which the pack
+has not; the pass for `price` takes the second (CTRL-16), so `two`
+composes `labelled(key: "fixed", price: price)`. Deliberate rejections:
+`let r = 0..<3`, a range bound as a value (EXPR-16); in a graph,
+`[for i in 0..<n: prices[i]]` with `n` a parameter that is no constant,
+whose number of entries is not known where the graph is built
+(EXPR-17); `f(...given, price: other)` in `passed_on`, which gives
+`price` twice (`argument.duplicate`); and `args["rate"]` there, a name
+the pack has not (`pack.name`). Conformance planned.
 
 Accepted declaration fragment, a temporal input with a default (UNIT-8):
 

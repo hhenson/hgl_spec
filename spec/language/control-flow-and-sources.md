@@ -2,7 +2,8 @@
 
 Status: agreed conditionals, switch design, and phase-dependent
 iteration, unrolled in composition where the graph is built. A sentence
-of CTRL-2, CTRL-7, or CTRL-15 that begins "Proposed:" is proposed.
+of CTRL-2, CTRL-7, or CTRL-15 that begins "Proposed:" is proposed, and so
+is CTRL-16.
 Generator syntax and the shape of a source's body are agreed, as
 is the sentence of SOURCE-3 that begins "Agreed:"; the rest of the timing
 of a `yield` is proposed.
@@ -17,7 +18,7 @@ statement = local_decl | assignment | return_statement | expression
           | switch_statement | assert_statement ;
 return_statement = "return", [ expression ] ;
 if_expression = "if", expression, block, [ "else", ( block | if_expression ) ] ;
-for_statement = "for", iteration_pattern, "in", expression, block ;
+for_statement = "for", iteration_pattern, "in", iterable, block ;
 iteration_pattern = IDENTIFIER, [ ",", IDENTIFIER ] ;
 while_statement = "while", [ expression ], block ;
 yield_statement = "yield", expression, ":", expression ;
@@ -199,6 +200,15 @@ CTRL-9 places the opening brace of an `if`, `for`, `switch`, `when`, or
   condition of a `while` is an ordinary `bool`, tested while the graph is
   built: a connection there rejects (FN-3), and the form with no condition
   is a source's (SOURCE-4).
+- **CTRL-16.** Proposed. Where a loop is unrolled, its name is a constant
+  in each pass (CTRL-15). An `if` there whose condition is a constant
+  expression, of the loop's name, generic value parameters and literals,
+  composes the branch it selects, and that branch alone is checked: in
+  `if name == key { i } else { args[name] }`, the pass in which `name` is
+  `key` has the type of `i` and does not read `args`. The same holds of a
+  generic function's body for a condition of its generic value
+  parameters alone, in each instance. A condition that is no constant
+  expression checks both branches, as any `if` does.
 
 Accepted illustrations, statement fragments with `ready` a bool, `items` a
 list, and `step` a function in scope:

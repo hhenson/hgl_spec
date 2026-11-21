@@ -177,6 +177,9 @@ tenor_unit = "Y" | "M" | "W" | "D" | "B" ;
   by `=>` or `<=` followed by `>`. It continues a line as the other binary
   operators do (LEX-5). Operator configuration uses ordinary brace/colon
   tokens.
+- **LEX-29.** Proposed. `..<` is one token, the range's (EXPR-16). A digit
+  run directly followed by `..<` is an integer, and its `.` begins no
+  fraction: `0..<n` is a range from 0.
 
 Accepted illustrations, lexical fragments:
 
