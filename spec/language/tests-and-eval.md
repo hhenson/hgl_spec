@@ -2,9 +2,8 @@
 
 Status: a test's value code (TST-3), the eval rules, TST-5 to TST-9,
 what a `const fn` is given for a trace, TST-16, and integration tests,
-TST-17, are agreed, but for the sentences that begin "Proposed:" in
-TST-3 and in its example, which are proposed. The error expectation
-contracts retain their status below.
+TST-17, are agreed. The error expectation contracts retain their status
+below.
 
 ## Grammar
 
@@ -51,7 +50,7 @@ assert.
   connection is bound in a test. An operator applied there is resolved by
   GEN-5, and the candidate it selects must be a value candidate, an
   `impl const fn`: one that is temporal rejects the same way. Nothing there
-  is lifted (FN-6). Proposed: those rejections have the code `call.role`.
+  is lifted (FN-6). Those rejections have the code `call.role`.
   A test cannot itself declare state/cache, inject, lifecycle hooks, when,
   yield, or return; an integration test injects `run_config`, and no other
   capability (TST-17).
@@ -279,8 +278,8 @@ graph in value code, and rejects; `twice(a)` would be an ordinary call,
 never lifted. `assert twice(2) == 4` and
 `assert eval pass(value: [1]) == [1]` are admitted there, and so is
 `1 + 2`. `1 +{invalid: .identity} 2`, whose one candidate that takes the
-option is temporal (core's OPS-9), rejects the same way. Proposed: both
-reject with `call.role`.
+option is temporal (core's OPS-9), rejects the same way. Both reject with
+`call.role`.
 
 ## Execution-error expectations
 

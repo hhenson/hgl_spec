@@ -3,8 +3,7 @@
 Status: agreed publication, handler, state/cache, and capability baseline.
 The alarm, the run-wide keyed store, collection validity with
 `all_valid` (TIME-9), and the read of a collection's child and of a
-collection whole (TIME-1) are agreed. The sentence of TIME-9 that begins
-"Proposed:" is proposed.
+collection whole (TIME-1) are agreed.
 
 ## Grammar
 
@@ -58,10 +57,12 @@ flowchart LR
   child tells it from a published null (TYPE-15). Where such a read is
   seen when the program is compiled and `all_valid` does not admit it, it
   rejects (`payload.unguarded`). Elsewhere, `rows[i]` read whole, it is
-  checked when it runs: one that is not all valid fails it
-  (`value.unset_read`), or gives an `err` where its place takes a
-  `result` (ERR-14). A dictionary and an unsized list hold what they hold:
-  a read of one whole requires its `valid` and no more. A position of an
+  checked when it runs: one that is not all valid, though a field or a
+  position of it is valid, fails it (`value.unset_read`), or gives an
+  `err` where its place takes a `result` (ERR-14). A dictionary
+  and an unsized list hold what they hold: a read of one whole requires
+  its `valid` and no more. A dictionary read whole holds the entries that
+  have a value: a key whose entry is not valid is left out. A position of an
   unsized list that holds no value, a gap or one removed (TYPE-16), reads
   in the whole value as the table below has it for the element type: as
   that type's value for "not set" where it has one. Where it has none the
@@ -125,7 +126,8 @@ flowchart LR
   dormant by design acknowledges the warning. `valid()`
   requires all temporal inputs to be valid;
   `valid(a, b)` requires both named inputs, and similarly for more inputs.
-  Omitting the validity selector requires all temporal inputs to be valid.
+  Omitting the validity selector requires all temporal inputs to be valid,
+  but for a `ref` parameter that holds no reference (TIME-10).
   A header that is `scheduled()` alone is the exception: it requires no
   input to be valid, as one that writes `valid([])` does, since it runs at
   the wake whatever the inputs hold.
@@ -162,7 +164,9 @@ flowchart LR
   endpoint operation: it runs before any has a value. `stop` reads a
   temporal input under manual admission, as a `when` under `valid([])`
   does: no header stands over it, so each payload read is dominated by a
-  guard (TIME-4). Start follows initialization; stop performs semantic
+  guard (TIME-4). Every input is passive in `stop`, and `activate` and
+  `passivate` there reject (`input.lifecycle`). Start follows
+  initialization; stop performs semantic
   finalization. Runtime ownership handles destruction.
 - **TIME-6.** State is persistent, recordable node history. Initializers do not
   overwrite restored state. Cache is reconstructible node-local value data,
@@ -273,7 +277,7 @@ flowchart LR
   TYPE-4 makes optional, is not asked. For a list of lists, each contained
   list is present and has a valid element or is a published empty list.
   It is true of a valid empty collection. `all_valid` of a collection that
-  is not valid is false. Proposed: read as the child under `all_valid`,
+  is not valid is false. Read as the child under `all_valid`,
   `order.note`, an optional child that is not valid is null, as it is in
   the whole value. A window is valid and all valid as TYPE-11
   has it.
@@ -321,7 +325,9 @@ flowchart LR
   publishes in that cycle; where the endpoint holds none, the reader is
   not valid, and is silent, until the endpoint publishes, as the endpoint
   itself is not valid until then; and a publication of the endpoint
-  left behind no longer reaches it. Where the result is given the
+  left behind no longer reaches it. Where the result is given the empty
+  designation (FN-16), the reader is not valid until the result is given
+  another. Where the result is given the
   designation it holds, that gives the reader no tick: it goes on
   observing the endpoint, a publication of it in that cycle included.
   In a node, a `ref` parameter is passive to what it designates: a
@@ -329,7 +335,11 @@ flowchart LR
   test of the parameter, and the endpoint operations given the parameter
   (FN-16) observe the reference, not the endpoint: `valid` of a `ref`
   parameter is whether a reference is present, whatever the endpoint it
-  designates holds, and nothing of that endpoint is seen through it.
+  designates holds, and nothing of that endpoint is seen through it. One
+  that holds no reference does not hold back the default admission
+  (TIME-3): a handler that writes no validity selector is admitted by the
+  validity of the node's other inputs, and a `return` of the parameter
+  there gives the result the empty designation (FN-16).
   Where a `ref` parameter is active, as `when modified(low)` makes it
   (TIME-3), the node is woken where the parameter is given a designation;
   a handler that returns the parameter there has its readers follow each
@@ -438,10 +448,14 @@ runs and `ask_or_zero` publishes the ask. Deliberate rejections:
 
 Once `price` alone has published, `all_valid(order)` is true, since `note`
 is optional: `labelled` reads the order whole, with `note` null, and
-publishes `"plain"`, and `noted` publishes false. A published null `note`
+publishes `"plain"`, and `noted` publishes false. Under the same header,
+`return order.note` in a function of a `str?` result reads the child
+alone, and publishes null there too. A published null `note`
 leaves the whole value as it was, and `noted` publishes true: `valid` of
 the child tells the null from none. A dictionary or an unsized list would
-need only `valid` to be read whole. Deliberate rejections: `labelled` with
+need only `valid` to be read whole: a `dict<str, i64>` whose entry for
+`"a"` holds 1 and whose entry for `"b"` is not valid reads whole as
+`["a": 1]`. Deliberate rejections: `labelled` with
 `when { return label(order) }`, and a function of a `Quote` result with
 `when { return quote }`: whole reads that the default admission, `valid`
 alone, does not admit (`payload.unguarded`). Conformance planned.
@@ -666,7 +680,10 @@ in the fourth, `follow` publishes 2.0, nothing, 1.0, 4.0. The second
 return gives the result the designation it holds, and `follow` observes
 nothing. The third designates `bid`, which does not publish in that cycle:
 `follow` ticks with the 1.0 that `bid` holds. A later tick of `ask` does
-not reach `follow`, and no tick of `bid` or `ask` wakes `pick`.
+not reach `follow`, and no tick of `bid` or `ask` wakes `pick`. Where
+`low` holds no reference as `flag` publishes false, `pick` still runs and
+returns it, and `follow` is not valid until `pick` returns a parameter
+that holds one (TIME-10, FN-16).
 Deliberate rejections: `pick(flag, "a", ask)`, a `str` where an `f64` is
 taken (`type.mismatch`); and `return low + 1.0` in `pick`, a read of a
 `ref` parameter's value (FN-16). Conformance planned.
@@ -690,8 +707,9 @@ graph is built it holds what the run's application put there (UNIT-14), and
 nothing else. A graph that injects it puts values there as it is built
 (FN-9), before any node of that graph starts. Nothing outside the program
 puts a value in it. All uses of a key bind
-the same exact ordinary type: a use of another type in one program rejects
-(`store.key_type`). Binding alone does not initialize a value. `get`
+the same exact ordinary type: a use of another type rejects where the two
+uses are in one program, and fails as it runs where they are not, each
+with `store.key_type`. Binding alone does not initialize a value. `get`
 of an absent entry can fail and says so: it takes its form from its place
 (ERR-15). A write preserves the type. Writable borrows are
 hook-scoped; retained results own independent values. Storage access adds no

@@ -1,8 +1,7 @@
 # Units and names
 
 Status: agreed module, application, visibility, default-binding, lookup, and
-constant rules. The sentence of UNIT-14 that begins "Proposed:" is
-proposed.
+constant rules.
 
 ## Grammar
 
@@ -166,8 +165,8 @@ admits one as a member name.
   An
   operator applied there is resolved by GEN-5, and the candidate it
   selects must be a value candidate, an `impl const fn`: one that is
-  temporal rejects the same way. Nothing there is lifted (FN-6). Proposed:
-  those rejections have the code `call.role`. An application's path is no
+  temporal rejects the same way. Nothing there is lifted (FN-6). Those
+  rejections have the code `call.role`. An application's path is no
   module's and no other application's. Its declarations are private: an application
   exports nothing, and no `use` names one.
 

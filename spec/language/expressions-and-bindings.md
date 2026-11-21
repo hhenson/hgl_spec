@@ -96,9 +96,10 @@ GEN-14 resolves generic construction versus comparison using declaration lookup.
   binding are read-only all the way down. The value is of the field's type;
   of a list's element type, under an `i64` index; of a dictionary's value
   type, under a key of its key type; or of a tuple's position, under a
-  constant index. A key the dictionary
-  has not is added. An index outside a list, below zero or at or past its
-  size, fails where it is evaluated, with code `value.index_out_of_range`.
+  constant index. A key the dictionary has not is added; given to a `var`
+  parameter, the entry of such a key fails the call instead (FN-15). An
+  index outside a list, below zero or at or past its size, fails where it
+  is evaluated, with code `value.index_out_of_range`.
   A set has no place to assign. A compound assignment reads the place
   first: `total.count += 1`.
 - **EXPR-4.** Ordinary values and temporal connections remain distinct. A graph
@@ -156,7 +157,11 @@ GEN-14 resolves generic construction versus comparison using declaration lookup.
   With no expected type, value entries make a list of the one type they
   have: `[1, 2.5]` is a `list<f64>`, its integer literal an `f64` (EXPR-5),
   and `[1, null]` a `list<i64?>`. Entries of two types reject, and so do
-  entries that give no type: `[]`, `[null]`.
+  entries that give no type: `[]`, `[null]`. Of pairs that make a
+  dictionary, two whose keys are the same constant (UNIT-13) reject:
+  `["a": 1, "a": 2]`. Where the compiler does not see that two keys are
+  one, the value written last for a key is the one held: `[k: 1, "a": 2]`,
+  for a parameter `k` that is `"a"`, holds 2 under `"a"`.
 - **EXPR-10.** A symbol operator may carry named configuration immediately
   after its token: `a /{zero: .ieee} b`. The brace is the next token; spaces
   may stand between. Bind these arguments to the same core identity as the
