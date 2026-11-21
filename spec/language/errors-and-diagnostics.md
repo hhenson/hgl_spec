@@ -67,14 +67,15 @@ postfix suffix. `argument` is that grammar's call argument.
   `result<U,E>`, one that gives an `i64` or gives nothing, only
   `result<T,error>` may propagate too, and its failure is an execution
   failure (ERR-1), as an index outside a list is (EXPR-7): the function
-  need not declare that it can fail. Composition, lifecycle, and generator
-  uses reject
+  need not declare that it can fail. In a source's body only
+  `result<T,error>` may propagate, and its failure fails the source, as it
+  fails a node in a `when`. Composition and lifecycle uses reject
   (`result.propagation_phase`), and an operand or an enclosing result of
   another type rejects (`result.propagation_type`). Proposed: a
-  `result<T,error>` propagates in a lifecycle hook, in a source's body, and
-  in value code evaluated where a graph is built or among a test's or an
-  application's statements, as a failure of that phase (RUN-4); there only
-  `?` on a connection rejects. `?` binds as a call
+  `result<T,error>` propagates in a lifecycle hook too, and in value code
+  evaluated where a graph is built or among a test's or an application's
+  statements, as a failure of that phase (RUN-4); there only `?` on a
+  connection rejects. `?` binds as a call
   suffix does and stands on its operand's line: `a()? + b` propagates before
   the addition. It does not unwrap null (ERR-12).
   Returning Err as result data does not fail the node.
@@ -122,9 +123,14 @@ postfix suffix. `argument` is that grammar's call argument.
   expects T, the call gives a success's value, and a failure is raised as
   `?` raises it, where `?` may stand (ERR-5): a place that expects T is
   `?` written by its type. Where it expects `T?`, the call gives a
-  success's value, or null for a failure, whose error is not kept. Where
-  the place gives no type, a `let` with none written or an operand, the
-  call gives the `T?` too: `let price = checked(value)` binds an `i64?`,
+  success's value, or null for a failure, whose error is not kept. An
+  operand of an operator expects the T, as the operator's candidates take
+  one: `checked(value) + 1` adds to the value or raises. Compared with
+  `null` it expects the `T?`: `checked(value) == null` tests for a
+  failure. What a member or an index is read from, a condition, and what a
+  `for` iterates each expect the T too. Where nothing gives the place a
+  type, a `let` with none written, the call gives the `T?`:
+  `let price = checked(value)` binds an `i64?`,
   which reaches no `i64` without its guard (ERR-12). `checked(value)?`
   there is the T form. Where T is itself nullable, a place that expects T
   takes the T form: a null there is a success's value and never a
@@ -447,8 +453,8 @@ constant index that nothing admits (`payload.unguarded`). Conformance planned.
 | `binding.error` | A binding proved a failure | The E | `result.required_variant` |
 | `value?` | A `result<T,E>` | The T; a failure leaves a function that gives a result as its failure, fails the node in a `when`, and is an execution failure in any other value function | `result.propagation_type`, `result.propagation_phase` |
 | `call(...)` where `result<T, error>` is expected | A call of a function that gives `result<T, error>` (ERR-15) | The result | None |
-| `call(...)` where T is expected | The same | The T; a failure is raised as `?` raises it | `result.propagation_phase` |
-| `call(...)` where `T?` is expected, or no type | The same | The T, or null for a failure | None |
+| `call(...)` where T is expected, an operand among them | The same | The T; a failure is raised as `?` raises it | `result.propagation_phase` |
+| `call(...)` where `T?` is expected, or a `let` writes no type | The same | The T, or null for a failure | None |
 | `parts[i]` where `result<T, error>` is expected | A collection's child read when it runs (ERR-14) | `ok` of its value; `err` coded `value.unset_read` for a child that is not valid | None |
 | `delta_value(x)` where `result<delta<T>, error>` is expected | An endpoint (ERR-14) | `ok` of the delta; `err` coded `value.unset_read` where the endpoint has no delta in the cycle | None |
 | `removed_value(x)` | A window, where `result<V, error>` is expected (ERR-14) | `ok` of the value that left; `err` coded `value.unset_read` where none left | `payload.unguarded` elsewhere |
@@ -529,7 +535,8 @@ Each call of `checked` takes its form from its place (ERR-15): the result
 in `recovered`, whose `let` writes that type, and where `diagnostic` and
 `tagged` take one; the `i64` in `trusted`, in `lifted_required` and, with
 `?`, in `doubled` and `required`; and the `i64?` in `or_null`, in
-`lifted_or_null` and in `or_zero`, whose `let` writes no type.
+`lifted_or_null` and in `or_zero`, whose `let` writes no type. As an
+operand, `checked(value) + 1` takes the `i64` with no `?`.
 In `recovered` the early return under `is_err(outcome)` proves `outcome` a
 success after it, so `outcome.value` is read; in `diagnostic` the return
 under `is_ok` proves it a failure. `error.message` is a `str`; its `code`

@@ -716,7 +716,7 @@ fn poll(const every: duration = 1s) -> i64 {
     }
     when scheduled() {
         schedule(alarm, every)
-        let count = get<i64>(global_state, "count")? + 1
+        let count = get<i64>(global_state, "count") + 1
         put(global_state, "count", count)
         return count
     }
@@ -785,14 +785,9 @@ module examples.seeded
 fn counted(const every: duration = 1s) -> i64 {
     inject global_state
     cache count: i64 = 0
-    {
-        let limit = get<i64>(global_state, "limit")
-        if limit != null {
-            while count < limit {
-                count += 1
-                yield every: count
-            }
-        }
+    while count < get<i64>(global_state, "limit") {
+        count += 1
+        yield every: count
     }
 }
 
