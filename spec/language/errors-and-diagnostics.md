@@ -146,7 +146,13 @@ ERR-15), and no operator raises one.
   more than one choice of which operands to give whole and which to take
   the T of, and no choice takes fewer than the others, nothing chooses
   between them: the call rejects (`operator.ambiguous`), and the
-  candidate's own conditions are what say which it means. Compared
+  candidate's own conditions are what say which it means. Between two
+  candidates that both admit the call, the one that takes the T of fewer
+  operands is selected, whatever else ranks them: given two
+  `result<i64, error>`, a candidate that takes `(result<i64, error>, i64)`
+  is selected over one that takes `(i64, i64)`, as one that takes both
+  whole is over either. Candidates that take the T of as many are ranked
+  as any are (GEN-5), and tie where that ranks them equal. Compared
   with `null`, where T is not nullable, it expects the `T?`:
   `checked(value) == null` tests for a failure. Where T is nullable that
   place expects T, and takes the T form: the comparison is of a success's
@@ -733,7 +739,8 @@ executable conformance is planned.
   (ERR-5). A connection of `T?` given where a connection of T is taken, a
   node's input, a lifted parameter (FN-11), or a condition in composition
   (CTRL-13), is read so too, the node that reads it failing in a cycle
-  that publishes a null. An immutable nullable parameter or local
+  that publishes a null, whether or not a handler of it would have read
+  that input, as a node given a failed result does (ERR-15). An immutable nullable parameter or local
   may be tested directly against null: that same binding is a T on paths
   proving a non-null value, including after a terminating null branch, and
   its read there does not fail. A `null` written where a T is expected
