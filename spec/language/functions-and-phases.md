@@ -387,9 +387,11 @@ Local source/native declaration matching is defined in the native chapter.
   (GEN-17), is the entry under that key, of the type `As[arg]`; a key the
   pack has not rejects (`pack.name`). A pack is made by a loop over keys:
   `{for arg in arg_keys(Ps): expr}` has an entry under each key, the value
-  of the expression in that pass, with that pass's type. A pass whose
-  expression is an `if` with no `else`, on a constant (CTRL-16), that
-  takes no branch gives no entry: the pack has none under that key. A pack is given
+  of the expression in that pass, with that pass's type. Where the
+  expression is an `if` on a constant (CTRL-16), or a chain of them by
+  `else if`, a pass in which every condition is false and the last `if`
+  has no `else` gives no entry: the pack has none under that key. Every
+  condition of such a chain is a constant. A pack is given
   to a call with `...`, `f(...given)`, among whatever other arguments the
   call writes. Its entries are bound after those arguments: each under a
   name to the parameter of that name, and those under positions, in
