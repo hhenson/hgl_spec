@@ -2,7 +2,7 @@
 
 Status: agreed expression/binding baseline. The sparse-field rules of
 structural delta construction are proposed. EXPR-16, a range, and EXPR-17,
-a list made by a loop, are proposed.
+a list made by a loop, are agreed.
 
 ## Grammar
 
@@ -236,18 +236,21 @@ GEN-14 resolves generic construction versus comparison using declaration lookup.
   changed in place: what read `point` before the assignment keeps the
   connection it had. The place, the type of its value, and a compound
   assignment are as EXPR-3 has them.
-- **EXPR-16.** Proposed. `a..<b` is a range: the `i64` values from `a` up
+- **EXPR-16.** `a..<b` is a range: the `i64` values from `a` up
   to and not including `b`, in order, and none where `b` is not more than
   `a`. It is written as what a `for` iterates, in a statement and in a
   loop form (EXPR-17, FN-19), and is no value of its own: nothing binds
-  one, and no parameter takes one. Its bounds are `i64`. In value code
+  one, and no parameter takes one: a list of its values is made by a
+  loop, `[for i in 0..<n: i]` (EXPR-17). Its bounds are `i64`. In value code
   they are evaluated once, before the first pass. In composition they are
   ordinary values, fixed when the graph is built, and the loop is
   unrolled (CTRL-15).
-- **EXPR-17.** Proposed. A list is made by a loop:
+- **EXPR-17.** A list is made by a loop:
   `[for i in 0..<n: i * i]` has one entry for each pass, in order, the
   value of the expression after the `:` with the loop's name bound. In
-  value code it is a `list<T>`, T the expression's type. In composition
+  value code it is a `list<T>`, T the expression's type, or, where its
+  place expects a `list<T, N>` and the number of passes is the constant N,
+  that fixed-size list (EXPR-5). In composition
   the loop is unrolled, each entry is a connection, and the result is a
   connection of `list<T, N>`, where N is the number of passes: its
   iterable is a range whose bounds are constants, or a connection of a

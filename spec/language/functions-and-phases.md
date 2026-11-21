@@ -5,7 +5,7 @@ anonymous-function scope. The `ref` mode (FN-16) is agreed. The sentence
 of FN-9 that begins "Proposed:" is proposed. FN-17, a parameter that takes
 a function, and the pack of FN-8 declared `for` one are agreed, but for
 the sentence of FN-17 that begins "Proposed:". FN-18, configuration
-parameters, is agreed. FN-19, a pack as a value, is proposed.
+parameters, is agreed, and so is FN-19, a pack as a value.
 
 ## Grammar
 
@@ -379,12 +379,14 @@ Local source/native declaration matching is defined in the native chapter.
   collide with one of the declaration's. A function that declares a
   configuration parameter with no default does not fit a function type
   (FN-17), which gives it none.
-- **FN-19.** Proposed. A pack is a value where the program is
+- **FN-19.** A pack is a value where the program is
   compiled. `args[arg]`, with `arg` a constant key, a name or a position
   (GEN-17), is the entry under that key, of the type `As[arg]`; a key the
   pack has not rejects (`pack.name`). A pack is made by a loop over keys:
   `{for arg in arg_keys(Ps): expr}` has an entry under each key, the value
-  of the expression in that pass, with that pass's type. A pack is given
+  of the expression in that pass, with that pass's type. A pass whose
+  expression is an `if` with no `else`, on a constant (CTRL-16), that
+  takes no branch gives no entry: the pack has none under that key. A pack is given
   to a call with `...`, `f(...given)`, among whatever other arguments the
   call writes. Its entries are bound after those arguments: each under a
   name to the parameter of that name, and those under positions, in
@@ -438,7 +440,7 @@ of the parentheses (`argument.unknown`); `sampled(price)`, which gives
 `const fn twice{places: i64}(places: i64) -> i64`, whose configuration
 parameter takes the name of a parameter. Conformance planned.
 
-Proposed illustration, complete module, ranges, loop forms and packs
+Accepted illustration, complete module, ranges, loop forms and packs
 (EXPR-16, EXPR-17, FN-19, CTRL-16):
 
 ```hgl
@@ -467,9 +469,12 @@ fn tagged<R, ...Ps, ...As, const key: str = "key">(
     f: fn(...{Ps}) -> R,
     args: ...{As for f without key},
 ) -> R {
-    let given = {for arg in arg_keys(Ps): if arg == key { "fixed" } else { args[arg] }}
+    let given = {for arg in arg_keys(Ps):
+        if arg == key { "fixed" } else if arg in arg_keys(As) { args[arg] }}
     return f(...given)
 }
+
+fn weighted(price: f64, weight: f64 = 1.0) -> f64 => price * weight
 
 fn labelled(key: str, price: f64) -> str => key
 
@@ -485,6 +490,8 @@ fn one(price: f64, factor: f64) -> f64 => passed_on(scaled, price, factor)
 
 fn two(price: f64) -> str => tagged(labelled, price)
 
+fn four(price: f64) -> f64 => tagged(weighted, price)
+
 fn three(a: f64, b: f64) -> f64 => passed_on(total, 2.0, a, b)
 ```
 
@@ -497,7 +504,10 @@ the named argument of its name, so `one` composes `scaled(price: price,
 factor: factor)` (FN-19). In `tagged`, the pass for `key` takes the
 first branch alone, a `str`, and reads no `args["key"]`, which the pack
 has not; the pass for `price` takes the second (CTRL-16), so `two`
-composes `labelled(key: "fixed", price: price)`. In `three`, `2.0` is
+composes `labelled(key: "fixed", price: price)`. In `four`, `weight`
+is a parameter of `weighted` that the call leaves out, so the pack `args`
+has no such key: its pass takes no branch and gives no entry, and
+`weighted` takes its own default. In `three`, `2.0` is
 matched to `scale` and takes that name as its key, though the call gave
 it by position, and `a` and `b`, which `total`'s own pack takes, have
 the keys 0 and 1: `arg_keys(Ps)` is `"scale"`, 0, 1. `f(...given)`
