@@ -11,12 +11,15 @@ collection whole (TIME-1) are agreed. The sentence of TIME-9 that begins
 ```ebnf
 state_decl = "state", IDENTIFIER, [ ":", value_type ], "=", expression ;
 cache_decl = "cache", IDENTIFIER, [ ":", value_type ], "=", expression ;
-inject_decl = "inject", IDENTIFIER, { ",", IDENTIFIER }, [ "," ] ;
+inject_decl = "inject", injected, { ",", injected }, [ "," ] ;
+injected = IDENTIFIER, [ operator_configuration ] ;
 lifecycle_block = ( "start" | "stop" ), block ;
 when_statement = "when", [ expression ], block ;
 ```
 
-CTRL-9 places the opening brace of a `when` body.
+CTRL-9 places the opening brace of a `when` body. `operator_configuration`
+is in [expressions](expressions-and-bindings.md): `run_config` takes one,
+and no other capability does (RUN-6).
 
 ## Rules
 
@@ -213,16 +216,19 @@ flowchart LR
   `ref` result takes no value: a `return` to it names an endpoint, which
   it designates, and `out` of it is as FN-16 gives it.
 - **TIME-8.** The injectables are `out`, `logger`, `clock`, `scheduler`,
-  `alarm`, and `global_state`; `inject` names no other. `out` is the node's
+  `alarm`, `global_state`, and `run_config`; `inject` names no other. `out`
+  is the node's
   result (TIME-7). `inject` binds each of the others to a local of its
   capability's type, which core declares and names as the capability with a
-  capital: `Logger`, `Clock`, `Scheduler`, `Alarm`, `GlobalState`. A
+  capital: `Logger`, `Clock`, `Scheduler`, `Alarm`, `GlobalState`,
+  `RunConfig`. A
   capability type is written only as the type of a parameter of a `const fn`
   or of a native value function. A capability is used within the node that
   injects it, or, for `global_state`, in the graph that injects it, where
   the graph is built (FN-9), and in the statements an application sets its
-  run's store with (UNIT-14), and is not retained: it is
-  not the value of a `state` or a
+  run's store with (UNIT-14); `run_config` is an application's and an
+  integration test's, and no function's (RUN-6). A capability is not
+  retained: it is not the value of a `state` or a
   `cache`, an entry of a tuple, list, set, dictionary, or struct, what a
   function returns, what a node publishes, or a capture of an anonymous
   function (FN-14). Binding one to a `let` and giving one to a parameter of
@@ -498,7 +504,7 @@ fn watched(step: i64) -> bool => woken(publish_members(step))
 | 6 | 3 | An invalidation, which wakes `woken` (TIME-3) | Not valid | No | false |
 | 7 | 0 | `delta<set<i64>>()`, where it is not valid | Valid and empty | Yes | true |
 
-So `eval(watched(step: [0, 0, 1, 2, 0, 3, 0]))` is
+So `eval watched(step: [0, 0, 1, 2, 0, 3, 0])` is
 `[true, _, _, true, _, false, true]`. A `list<i64>` written
 `delta<list<i64>>()`, and a `dict<str, i64>` written
 `delta<dict<str, i64>>()`, tick alike. The `Quote` above written
@@ -761,9 +767,9 @@ fn level(value: i64) -> i64 {
 
 In `ranked`, `observe` takes what `change` publishes: it depends on
 `change`, is of the next rank, and is evaluated after it. It sees the `put`,
-and `eval(ranked(value: [7]))` is `[7]`. In `level` each takes `value` and
+and `eval ranked(value: [7])` is `[7]`. In `level` each takes `value` and
 neither takes the other's output: they are of one rank, their order is
-undefined, and `eval(level(value: [7]))` is `[7]` where `change` is evaluated
+undefined, and `eval level(value: [7])` is `[7]` where `change` is evaluated
 first and `[0]` where `observe` is. A program that needs one of the two
 gives `observe` a dependency on `change`, as `ranked` does. Conformance
 planned for `ranked`; `level` has no one observation to test.
@@ -790,8 +796,8 @@ fn seeded(const limit: i64) -> i64 {
 }
 
 test the_store_is_set_where_the_graph_is_built {
-    assert eval(seeded(limit: 2)) == [1s: 1, 2s: 2]
-    assert eval(seeded(limit: 3)) == [1s: 1, 2s: 2, 3s: 3]
+    assert eval seeded(limit: 2) == [1s: 1, 2s: 2]
+    assert eval seeded(limit: 3) == [1s: 1, 2s: 2, 3s: 3]
 }
 ```
 

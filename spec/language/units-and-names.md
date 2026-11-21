@@ -151,15 +151,17 @@ admits one as a member name.
 - **UNIT-14.** An application is one file, headed `application name`, where
   a module's files are headed `module name`. It holds what a module holds,
   and one run statement (RUN-1), which follows its declarations. Between its
-  declarations and its run statement it may set the run's store: `inject
-  global_state`, and then calls of `put` on it. Each is evaluated once, in
-  the order written, before the run's graph is built, and its value is read
-  as a constant's is (UNIT-13), with no parameter in scope. Any other
-  statement there rejects (`application.statement`). A module holds none
-  of these. Those statements, and the arguments of the run statement's
-  call and its configuration, are value code; the call itself, of the
-  entry, is composition (RUN-1). Value code calls `const fn`s only: a call
-  of any other function there, a node, a graph or a source, rejects. An
+  declarations and its run statement it may inject `run_config`, giving
+  the run's configuration its defaults (RUN-6), and set the run's store:
+  `inject global_state`, and then calls of `put` on it. Each is evaluated
+  once, in the order written, before the run's graph is built, and its
+  value is read as a constant's is (UNIT-13), with no parameter in scope.
+  Any other statement there rejects (`application.statement`). A module
+  holds none of these. Those statements, the defaults among them, and the
+  arguments of the run statement's call are value code; the call itself,
+  of the entry, is composition (RUN-1). Value code calls `const fn`s only:
+  a call of any other function there, a node, a graph or a source, rejects.
+  An
   operator applied there is resolved by GEN-5, and the candidate it
   selects must be a value candidate, an `impl const fn`: one that is
   temporal rejects the same way. Nothing there is lifted (FN-6). Proposed:

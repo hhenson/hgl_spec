@@ -173,9 +173,10 @@ infrastructure and cannot satisfy a source-rejection expectation.
 | module | `application.import` | `use` names an application (UNIT-14); module path |
 | module | `application.export` | `export` in an application (UNIT-14); `export` |
 | module | `application.run_count` | Application with no run statement, or with a second (UNIT-14); the application's path, or the later statement |
-| phase | `application.statement` | Statement of an application that is no `inject global_state` and no call of `put` on it, or that follows the run statement or precedes a declaration; and either of those in a module (UNIT-14); the statement |
+| phase | `application.statement` | Statement of an application that is no `inject` of `run_config` or of `global_state` and no call of `put` on the store, or that follows the run statement or precedes a declaration; and either of those in a module (UNIT-14); the statement |
 | phase | `run.position` | Run statement in a module or before a declaration of its application (UNIT-14), or `run` in a test that is no integration test (RUN-3); the word |
-| type | `run.entry` | A run statement's first argument is no call of an entry (RUN-1); the argument |
+| type | `run.entry` | A run statement's call is of no entry (RUN-1); the call |
+| phase | `run.configuration` | Proposed: a configuration on an application's run statement (RUN-6); the brace |
 | name | `name.duplicate` | Binding takes a name already in scope (UNIT-5, UNIT-12, TST-2, NATIVE-2); later name |
 | name | `name.used_before_declaration` | Local used before the statement that declares it (UNIT-6); use |
 | name | `constant.cycle` | Constant whose value depends on itself (UNIT-13); name |
@@ -198,6 +199,8 @@ infrastructure and cannot satisfy a source-rejection expectation.
 | injectable | `inject.out_without_result` | `inject out` in a function that declares no result (TIME-7); `out` |
 | injectable | `capability.as_value` | Capability retained: the value of a `state` or `cache`, an entry of a tuple, list, set, dictionary, or struct, returned, or published; a capability given to a parameter written as a generic parameter or `any`; or a capability type written other than as a parameter's of a `const fn` or a native value function (TIME-8); use |
 | injectable | `inject.alarm_and_scheduler` | `alarm` and `scheduler` injected in one node (TIME-8); the later name |
+| injectable | `inject.position` | Proposed: `inject run_config` in a function, or in a test that is no integration test (RUN-6); the name |
+| injectable | `inject.configuration` | Proposed: a configuration in braces on an `inject` of a capability that is not `run_config` (RUN-6); the brace |
 | injectable | `inject.no_scheduler` | `scheduled()` in a node that injects neither `scheduler` nor `alarm` (TIME-9); the selector |
 | injectable | `store.reserved_key` | A key of the global store that is the run's own, `"run.output"` (TIME-8); the key |
 | phase | `node.nested` | `state`, `cache`, `inject`, `start`, `when`, or `stop` inside a block of a temporal function (TIME-3, TIME-5); keyword |
@@ -281,7 +284,7 @@ infrastructure and cannot satisfy a source-rejection expectation.
 | type | `rolling_window.size_bounds` | Invalid bounds; offending size/minimum |
 | type | `yield.time_type` | Wrong time type; yield time operand |
 | type | `test.raises_code` | Not a literal catalogued execution code; argument |
-| type | `eval.target` | Eval's first argument is no call of a function of a module: a call of an operator among them (TST-5); or a call of a function that declares a `var` parameter (FN-15); the argument |
+| type | `eval.target` | Eval's call is of no function of a module: a call of an operator among them (TST-5); or of a function that declares a `var` parameter (FN-15); the call |
 | type | `eval.no_result` | The value of an eval of an outputless target is bound or compared (TST-8); the eval |
 | type | `trace.placeholder` | `_` in a timed trace, or outside a trace of a test (EXPR-8, TST-7); the `_` |
 | type | `trace.style` | Dense and timed traces in one eval, its expectation included (TST-7); the later trace |
