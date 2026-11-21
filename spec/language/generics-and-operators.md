@@ -629,7 +629,7 @@ operator's implementation alone, so it is a configuration parameter,
 `const` since it is fixed when the graph is built. A call gives all
 three in its braces alike: `each_wanted{key: "id", strict: false, keys:
 wanted}(tracked, orders)`. Everything in the parentheses after `handled` is
-`handled`'s own. Given `fn found(keys: set<str>, order: Order) -> f64`,
+`handled`'s own. Given `fn found(order: Order, keys: set<str>) -> f64`,
 `each_wanted{keys: wanted}(found, orders, keys: allowed)` gives the
 operator its `keys` in the braces and `found` its parameter `keys` in
 the parentheses: the two do not meet. Deliberate rejection:
