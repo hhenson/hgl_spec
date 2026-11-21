@@ -48,7 +48,10 @@ flowchart LR
   or a field, one that is not admitted rejects (`payload.unguarded`).
   Elsewhere, `parts[i]`, it is checked when it runs: a child that is not
   valid fails it (`value.unset_read`), or gives an `err` where its place
-  takes a `result` (ERR-14). A read of a struct, a tuple or a fixed list
+  takes a `result` and null where it takes a `T?` (ERR-14). A child is
+  read only where a value is required of it: a binding that writes no
+  type, `let entry = parts[i]`, holds the endpoint and reads nothing
+  (ERR-14). A read of a struct, a tuple or a fixed list
   whole, `return quote`, requires `all_valid` of it. So does one of a child
   that is a struct, a tuple or a fixed list: `return rows[0]`, for
   `rows: list<Quote, 2>`, requires `all_valid(rows[0])`, which
