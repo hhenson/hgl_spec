@@ -1,8 +1,7 @@
 # Program execution
 
-Status: RUN-1 to RUN-4 and RUN-6 are agreed, but for the sentences of RUN-6
-that begin "Proposed:", which are proposed. RUN-5 is reviewed.
-Tool-specific configuration formats are outside this language contract.
+Status: RUN-1 to RUN-4 and RUN-6 are agreed. RUN-5 is reviewed. Tool-specific
+configuration formats are outside this language contract.
 
 ## Grammar
 
@@ -81,15 +80,15 @@ test's block and nowhere else (TST-17).
   injects `run_config`, and so does an integration test (TST-17), whose
   runs' configuration what runs the test supplies. A test that is no
   integration test does not, and neither does a function: one that needs a
-  bound of the run takes it as a `const` argument. Proposed: an `end` or a
-  `length` that what starts an application gives replaces a default of
-  either. Proposed: in an integration test that injects `run_config`, an
-  entry of a run statement's configuration is that statement's own value
-  for its field, and a field the statement does not name is the injected
-  configuration's. Proposed: `inject run_config` where it has no place
-  rejects with `inject.position`, braces on an `inject` of any other
-  capability with `inject.configuration`, and a configuration on an
-  application's run statement with `run.configuration`.
+  bound of the run takes it as a `const` argument. An `end` or a `length`
+  that what starts an application gives replaces a default of either. In
+  an integration test that injects `run_config`, an entry of a run
+  statement's configuration is that statement's own value for its field,
+  and a field the statement does not name is the injected configuration's.
+  `inject run_config` where it has no place rejects (`inject.position`),
+  and so do braces on an `inject` of any other capability
+  (`inject.configuration`) and a configuration on an application's run
+  statement (`run.configuration`).
 
 Accepted illustration, a module and two applications over its entry:
 
@@ -177,7 +176,10 @@ for a `duration`; `run scaled(price: [1.0])`, a call of a function with a
 temporal input, which is no entry (`run.entry`); `RunConfig(length: 3s)`,
 a call of a capability's type, which no call constructs
 (`call.not_callable`); `inject run_config{until: 3s}`, an entry that names
-no field (`argument.unknown`); an application with no run
+no field (`argument.unknown`); `eval{length: 3s} heartbeat()` as an
+application's run statement (`run.configuration`); `inject clock{}`
+(`inject.configuration`); `inject run_config` in `heartbeat`
+(`inject.position`); an application with no run
 statement, or a second one (`application.run_count`); a run statement in a
 module, or one that a declaration follows (`run.position`); `export fn` in an application
 (`application.export`); `use examples.entry.live::{heartbeat}`, an

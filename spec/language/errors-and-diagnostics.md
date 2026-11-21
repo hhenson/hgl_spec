@@ -176,7 +176,7 @@ infrastructure and cannot satisfy a source-rejection expectation.
 | phase | `application.statement` | Statement of an application that is no `inject` of `run_config` or of `global_state` and no call of `put` on the store, or that follows the run statement or precedes a declaration; and either of those in a module (UNIT-14); the statement |
 | phase | `run.position` | Run statement in a module or before a declaration of its application (UNIT-14), or `run` in a test that is no integration test (RUN-3); the word |
 | type | `run.entry` | A run statement's call is of no entry (RUN-1); the call |
-| phase | `run.configuration` | Proposed: a configuration on an application's run statement (RUN-6); the brace |
+| phase | `run.configuration` | A configuration on an application's run statement (RUN-6); the brace |
 | name | `name.duplicate` | Binding takes a name already in scope (UNIT-5, UNIT-12, TST-2, NATIVE-2); later name |
 | name | `name.used_before_declaration` | Local used before the statement that declares it (UNIT-6); use |
 | name | `constant.cycle` | Constant whose value depends on itself (UNIT-13); name |
@@ -199,8 +199,8 @@ infrastructure and cannot satisfy a source-rejection expectation.
 | injectable | `inject.out_without_result` | `inject out` in a function that declares no result (TIME-7); `out` |
 | injectable | `capability.as_value` | Capability retained: the value of a `state` or `cache`, an entry of a tuple, list, set, dictionary, or struct, returned, or published; a capability given to a parameter written as a generic parameter or `any`; or a capability type written other than as a parameter's of a `const fn` or a native value function (TIME-8); use |
 | injectable | `inject.alarm_and_scheduler` | `alarm` and `scheduler` injected in one node (TIME-8); the later name |
-| injectable | `inject.position` | Proposed: `inject run_config` in a function, or in a test that is no integration test (RUN-6); the name |
-| injectable | `inject.configuration` | Proposed: a configuration in braces on an `inject` of a capability that is not `run_config` (RUN-6); the brace |
+| injectable | `inject.position` | `inject run_config` in a function, or in a test that is no integration test (RUN-6); the name |
+| injectable | `inject.configuration` | A configuration in braces on an `inject` of a capability that is not `run_config` (RUN-6); the brace |
 | injectable | `inject.no_scheduler` | `scheduled()` in a node that injects neither `scheduler` nor `alarm` (TIME-9); the selector |
 | injectable | `store.reserved_key` | A key of the global store that is the run's own, `"run.output"` (TIME-8); the key |
 | injectable | `store.key_type` | A key of the global store used with two types in one program: a `put` or a `get` of another type than an earlier use of the key has (TIME-8, core's CAP-6); the later use |
