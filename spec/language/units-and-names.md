@@ -154,7 +154,12 @@ admits one as a member name.
   back as written, and is never compared: a constant has one value
   however it is written.
 - **UNIT-14.** An application is one file, headed `application name`, where
-  a module's files are headed `module name`. It holds what a module holds,
+  a module's files are headed `module name`. The last name of its path is
+  five characters long or more, so that an application's path never
+  reads as a file of some kind: `application demo.pricing.app`,
+  `application demo.pricing.so` and `application demo.pricing.live`
+  reject, and `application demo.pricing.daily` is accepted. Proposed:
+  with the code `application.name`. It holds what a module holds,
   and one run statement (RUN-1), which follows its declarations. Between its
   declarations and its run statement it may inject `run_config`, giving
   the run's configuration its defaults (RUN-6), and set the run's store:
