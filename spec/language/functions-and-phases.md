@@ -138,7 +138,10 @@ Local source/native declaration matching is defined in the native chapter.
   when T is a declared type pack. `...{Fields}` captures the named ones, each
   under its source name, where `Fields` is a type pack among the generic
   parameters of the same declaration, named bare. Packs have no defaults,
-  cannot be const, and follow all fixed parameters. Cardinality and
+  cannot be const, and follow all fixed parameters. A declaration has at
+  most one positional pack and at most one named pack: a second of either
+  kind rejects (`pack.duplicate`), since nothing would say which of the
+  two an argument is for. Cardinality and
   reflection follow the generic chapter.
   Proposed: a named pack may be declared for a parameter that takes a
   function (FN-17), `args: ...{As for f}`. It takes the arguments a call

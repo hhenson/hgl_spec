@@ -210,7 +210,9 @@ expression; group a constant expression that uses them as operand data.
   `each T in types(Ts)` checks every selected type; an empty conjunction is true.
   A cardinality follows the pack it bounds, on a pack parameter or a generic
   pack parameter: `{n}`, `{n:*}`, and `{n:m}` mean exact, minimum, and
-  inclusive bounded arity, with m at least n. A pack without one admits any
+  inclusive bounded arity, with m at least n. A call that gives a pack a
+  number of arguments its cardinality does not admit rejects
+  (`pack.cardinality`). A pack without one admits any
   number of arguments, none included. A generic struct takes an argument for
   each parameter that is no pack and, for its pack, as many as the pack
   admits; one whose only parameter is a pack that admits none may be named
@@ -481,6 +483,17 @@ operator labelled<...Fields>(values: ...{Fields}{1:4}) -> str
 values, of the two types in `Ts`. `labelled` takes one to four named
 arguments and keeps their names. Deliberate rejection, in parsing: a
 cardinality on a parameter that is no pack, as in `value: f64{2}`.
+
+Deliberate rejections at a call (GEN-10, `pack.cardinality`), given
+`const fn pair(items: ...i64{2}) -> i64`: `pair(1)` gives its pack one
+argument where it takes two, reported at the closing parenthesis, and
+`pair(1, 2, 3)` gives it three, reported at `3`. `pair(1, 2)` is accepted.
+
+Deliberate rejection (FN-8, `pack.duplicate`):
+`const fn either(a: ...i64{0:1}, b: ...i64{0:1}) -> i64`, a second
+positional pack, reported at `b`: `either(1)` could give its argument to
+either. `const fn both<...Fields>(items: ...i64, named: ...{Fields}) -> i64`,
+one pack of each kind, is accepted.
 
 Proposed declaration fragments, a function's parameters read as a named
 pack (GEN-17) and a pack declared for the function (FN-8):
