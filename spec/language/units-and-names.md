@@ -86,7 +86,8 @@ admits one as a member name.
   a configuration parameter (FN-18) is given by its name alone, so those
   stand in any order, and before the parentheses whatever the parameters
   there are. A default cannot use caller
-  bindings or invent numeric generic values.
+  bindings or invent numeric generic values, but for a law predicate of a
+  function the call gives (GEN-18).
 - **UNIT-9.** Compare inherited defaults by bound expression and canonical type
   after substitution, before folding. Declaration identity matters; source
   location, alias spelling, and how a literal is written do not (UNIT-13):
