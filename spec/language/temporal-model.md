@@ -30,6 +30,10 @@ flowchart LR
     V --> E
 ```
 
+A connection that publishes in a cycle is also said to tick in it, and a
+publication a reader sees is a tick. The two words mean the same in every
+chapter.
+
 - **TIME-1.** A temporal endpoint has validity, modification at the current
   evaluation time, retained data, and publication-delta observations. Silence
   is not a value. An equal publication may still be a new tick; a delta
