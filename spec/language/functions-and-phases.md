@@ -385,10 +385,12 @@ Local source/native declaration matching is defined in the native chapter.
   pack has not rejects (`pack.name`). A pack is made by a loop over keys:
   `{for arg in arg_keys(Ps): expr}` has an entry under each key, the value
   of the expression in that pass, with that pass's type. A pack is given
-  to a call with `...`: `f(...given)` gives each entry under a name as
-  the named argument of that name, and each entry under a position as a
-  positional argument, in the order of the positions, among whatever
-  other arguments the call writes. The call is then checked as any other (EXPR-2): an entry that
+  to a call with `...`, `f(...given)`, among whatever other arguments the
+  call writes. Its entries are bound after those arguments: each under a
+  name to the parameter of that name, and those under positions, in
+  order, to the parameters nothing has yet given, from the first, the
+  callee's positional pack taking what remains. So an entry keeps the
+  parameter the matching of FN-8 gave it. The call is then checked as any other (EXPR-2): an entry that
   names no parameter, a parameter given twice, and one left with nothing
   reject as they do there. A pack is bound with `let` and given to a
   call; nothing else holds one, and none is a connection's value.
@@ -498,9 +500,9 @@ has not; the pass for `price` takes the second (CTRL-16), so `two`
 composes `labelled(key: "fixed", price: price)`. In `three`, `2.0` is
 matched to `scale` and takes that name as its key, though the call gave
 it by position, and `a` and `b`, which `total`'s own pack takes, have
-the keys 0 and 1: `arg_keys(Ps)` is `"scale"`, 0, 1, and `f(...given)`
-gives `scale` by name and the two others by position, so `three`
-composes `total(a, b, scale: 2.0)`, which is `total(2.0, a, b)`.
+the keys 0 and 1: `arg_keys(Ps)` is `"scale"`, 0, 1. `f(...given)`
+binds `scale` by its name, and then the entries at 0 and 1 to what is
+left, `total`'s pack, so `three` composes `total(2.0, a, b)`.
 Deliberate rejections:
 `let r = 0..<3`, a range bound as a value (EXPR-16); in a graph,
 `[for i in 0..<n: prices[i]]` with `n` a parameter that is no constant,
