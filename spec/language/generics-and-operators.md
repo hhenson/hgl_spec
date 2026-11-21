@@ -188,7 +188,10 @@ expression; group a constant expression that uses them as operand data.
   one.
 - **GEN-7.** A generic body is checked under its stated requirements; choosing
   a specialization does not authorize unrelated operations or reify a type/size
-  parameter as an ordinary numeric runtime value. It is judged once, where it
+  parameter as an ordinary numeric runtime value. A value parameter, a
+  list's size among them (GEN-13), is read in the body as the constant it
+  is: in `fn f<T, N>(items: list<T, N>)`, `N` may be a range's bound,
+  `0..<N`, or an index. It is judged once, where it
   is declared, by what its `requires` states, and never again for the
   generic arguments a call of it gives. A call of an operator in it is
   admitted where those requirements make a candidate known to take it, and

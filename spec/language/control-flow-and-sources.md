@@ -175,7 +175,11 @@ CTRL-9 places the opening brace of an `if`, `for`, `switch`, `when`, or
   set, or dictionary composes its body once for each element, with
   ordinary values bound, and may carry a `var` from one pass to the next.
   Over a connection of `list<T, N>` it composes its body `N` times, `item`
-  a connection of `T`. `for name in quote` over a struct, an ordinary
+  a connection of `T`, and over a range whose bounds are constants
+  (EXPR-16) once for each of its values. Each of these loops may carry a
+  `var` likewise: every pass is composed where the graph is built, so an
+  assignment in one rebinds the `var` (EXPR-15) to what that pass
+  composed, and the next pass reads it. `for name in quote` over a struct, an ordinary
   value or a connection, composes its body once for each field, `name`
   being that field's name, an ordinary `str` and a constant in that pass.
   The body reads the field by that name with the operation that member
