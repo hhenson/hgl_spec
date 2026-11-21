@@ -326,8 +326,9 @@ expression; group a constant expression that uses them as operand data.
   `requires` (GEN-3), `each name in names(As) { As[name] == Ps[name] }`,
   and in a body where a `for` is unrolled (CTRL-15), `for name in
   names(Ps)`. A name the pack has not rejects (`pack.name`). Nothing of a
-  function but its parameters' names and types and its result type is
-  read, and nothing is read while the program runs.
+  function is read but its parameters' names and types, its result type,
+  and the laws it declares (GEN-18), and nothing is read while the program
+  runs.
 - **GEN-18.** `associative(f)` and `commutative(f)`, of a parameter that
   takes a function (FN-17), are constraint predicates (GEN-16). Each holds
   where the function given is an operator whose property clauses declare
