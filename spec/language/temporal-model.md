@@ -48,7 +48,10 @@ flowchart LR
   or a field, one that is not admitted rejects (`payload.unguarded`).
   Elsewhere, `parts[i]`, it is checked when it runs: a child that is not
   valid fails it (`value.unset_read`), or gives an `err` where its place
-  takes a `result` (ERR-14). A read of a struct, a tuple or a fixed list
+  takes a `result` and null where it takes a `T?` (ERR-14). A child is
+  read only where a value is required of it: a binding that writes no
+  type, `let entry = parts[i]`, holds the endpoint and reads nothing
+  (ERR-14). A read of a struct, a tuple or a fixed list
   whole, `return quote`, requires `all_valid` of it. So does one of a child
   that is a struct, a tuple or a fixed list: `return rows[0]`, for
   `rows: list<Quote, 2>`, requires `all_valid(rows[0])`, which
@@ -59,10 +62,15 @@ flowchart LR
   rejects (`payload.unguarded`). Elsewhere, `rows[i]` read whole, it is
   checked when it runs: one that is not all valid, though a field or a
   position of it is valid, fails it (`value.unset_read`), or gives an
-  `err` where its place takes a `result` (ERR-14). A dictionary
+  `err` where its place takes a `result` and null where it takes a `T?`
+  (ERR-14). A dictionary
   and an unsized list hold what they hold: a read of one whole requires
   its `valid` and no more. A dictionary read whole holds the entries that
-  have a value: a key whose entry is not valid is left out. A position of an
+  have a value: a key whose entry is not valid is left out. An entry that
+  is valid and not all valid, a struct, a tuple or a fixed list with a
+  part that has no value, is not left out: the read of the dictionary
+  whole fails as the read of that entry whole does (`value.unset_read`),
+  or gives the form its place takes (ERR-14). A position of an
   unsized list that holds no value, a gap or one removed (TYPE-16), reads
   in the whole value as the table below has it for the element type: as
   that type's value for "not set" where it has one. Where it has none the

@@ -96,18 +96,32 @@ ERR-15), and no operator raises one.
   expected with no test, gives its value or raises its error (ERR-15).
   Explicit nullable annotations follow TYPE-14; this lookup contract adds no
   null-return suppression.
-- **ERR-14.** A read of a collection's child that is checked when it runs
-  (TIME-1), `parts[i]`, takes its form from its place (EXPR-5). Where the
-  place expects `result<T, error>`, T the child's type, it gives `ok` of
-  the child's value, or, for a child that is not valid, `err` of an
-  `error` whose code is `value.unset_read`. Elsewhere it gives the T, and
+- **ERR-14.** A collection's child, `parts[i]`, is an endpoint (TIME-1),
+  and an endpoint becomes a value only where a value is required of it:
+  as an operand, as an argument a parameter takes as a value, in a
+  `return` of a value, or in a binding that writes a type. A binding that
+  writes none, `let entry = parts[i]`, requires none and holds the
+  endpoint: nothing is read there and nothing fails there, `valid(entry)`
+  and the other operations of an endpoint take it, and a later use of
+  `entry` that requires a value reads it then. Where a value is required
+  and the read is checked when it runs (TIME-1), it is a read that can
+  fail: it gives the child's value, or, for a child that is not valid,
+  the failure of an `error` whose code is `value.unset_read`, and it
+  takes its form from the place that requires it as a call that gives
+  `result<T, error>` does (ERR-15), T the child's type. Where the place
+  expects `result<T, error>` it gives `ok` of the child's value, or the
+  `err` of that error. Where it expects `T?` it gives the value, or null
+  for a child that is not valid. Where it expects the T it gives the T,
+  and
   a child that is not valid fails the read with `value.unset_read`: in a
   `when` the node fails, as a raised failure makes it (ERR-5). A read of a
   struct, a tuple or a fixed list whole that is checked when it runs,
   `rows[i]`, takes its form the same way, for one that is not all valid
   (TIME-1), though a field or a position of it is valid, and so does a
   read of an unsized list whole with a position that holds no
-  value, where its element type has no value for that (TIME-1), and a read
+  value, where its element type has no value for that (TIME-1), a read of
+  a dictionary whole with an entry that is valid and not all valid
+  (TIME-1), and a read
   of a window's value before it is `all_valid`, T being the `list<V>` it
   reads as (TYPE-11). So does `delta_value` of any endpoint (TIME-9), T
   being its `delta<T>`: where the place expects `result<delta<T>, error>`
