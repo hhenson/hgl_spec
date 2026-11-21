@@ -265,6 +265,7 @@ infrastructure and cannot satisfy a source-rejection expectation.
 | module | `test.export` | Exported declaration in a test context (TST-1); `export` |
 | operator | `test.implementation` | Operator candidate in a test context (TST-1); operator name |
 | operator | `impl.unknown_operator` | Operator candidate names no operator (GEN-4); operator name |
+| operator | `impl.pack` | Proposed: a candidate declares a fixed parameter where its operator declares a pack (GEN-6); the parameter's name |
 | operator | `impl.option_kind` | Candidate declares as a parameter an option that another candidate of its operator declares as a generic value parameter (GEN-6); the parameter's name |
 | name | `native.missing_declaration` | Native implementation completes no declaration (NATIVE-2); function name |
 | phase | `native.const_hook` | Native const implementation has a lifecycle hook (NATIVE-3); hook |
@@ -302,6 +303,8 @@ infrastructure and cannot satisfy a source-rejection expectation.
 | type | `pack.const` | Pack parameter is const (FN-8); `const` |
 | type | `pack.order` | Fixed parameter follows a pack (FN-8); parameter name |
 | type | `pack.undeclared` | `...{Name}` names no type pack of its declaration (FN-8); name in the braces |
+| type | `function.argument` | An argument for a parameter that takes a function names no function known where the call is compiled (FN-17); the argument |
+| type | `pack.name` | `Ps[name]` for a name the pack has not (GEN-17); the name |
 | type | `pack.duplicate` | A second positional pack, or a second named pack, in one declaration (FN-8); the second pack's parameter |
 | type | `pack.cardinality` | Cardinality's upper bound is below its lower (GEN-10); upper bound. A call that gives a pack a number of arguments its cardinality does not admit; the first argument beyond the upper bound, or the call's closing parenthesis where too few are given |
 | type | `type.not_a_type` | Name in a type position is no type: a function, operator, local, generic value parameter, or a type pack where one type is needed (UNIT-10, GEN-2, GEN-13); name |
@@ -358,7 +361,7 @@ infrastructure and cannot satisfy a source-rejection expectation.
 | type | `call.not_callable` | Call of a native type's name, which no call constructs (NATIVE-6); name |
 | name | `member.unknown` | Struct has no field, or enum no member, of the name, or of the constant number or name an enum is constructed from (EXPR-7, TYPE-7); name or constant |
 | operator | `operator.no_candidate` | Call of an operator, by symbol or by name, that no candidate admits (GEN-5), or, in a generic body, that its requirements make no candidate known to take (GEN-7); operator |
-| operator | `operator.ambiguous` | Call of an operator that two most-specific candidates admit equally (GEN-5), or that one candidate admits by more than one choice of which results to take the value of (ERR-15); operator |
+| operator | `operator.ambiguous` | Call of an operator that two most-specific candidates admit equally (GEN-5), or that one candidate admits by more than one choice of which results to take the value of, none taking fewer than the others (ERR-15); operator |
 | type | `default.order` | Parameter that may not be omitted follows one that may (UNIT-8); the later parameter |
 | type | `tuple.index` | Tuple's index is no constant, or is outside the tuple (EXPR-7); index |
 | type | `rolling_window.size_kind` | Wrong/mixed size kind; offending size, the minimum when the two differ in kind |

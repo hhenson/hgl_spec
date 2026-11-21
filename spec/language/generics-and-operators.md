@@ -2,6 +2,7 @@
 
 Status: agreed generic, pack, and nominal-operator baseline. Detailed core
 operation domains belong to core and retain their own decision status.
+GEN-17, a function's parameters read as a named pack, is agreed.
 
 ## Grammar
 
@@ -140,6 +141,11 @@ expression; group a constant expression that uses them as operand data.
   literals they take as an `f64`, the one that takes every one of them as
   an `f64` is selected.
 - **GEN-6.** An operator declares the parameters every candidate takes.
+  Where the operator declares a pack, a candidate declares a pack there
+  too: one that declares a fixed parameter in a pack's place rejects where
+  it is declared. Proposed: with the code `impl.pack`. A candidate for one
+  argument alone writes the pack with that cardinality,
+  `values: ...i64{1}`.
   A candidate's shape honors them and the operator's generic relationships,
   and it may declare further options of its own, each with a default or
   without. An option that selects among candidates is a generic value
@@ -294,6 +300,18 @@ expression; group a constant expression that uses them as operand data.
   is what a node or a value function it calls may require. A candidate that
   marks a parameter `var` (FN-15) answers no requirement: a requirement
   supplies types, and no place.
+- **GEN-17.** In a function type (FN-17) a named pack stands for
+  the parameters the fixed ones leave: `f: fn(...{Ps}) -> R` binds `Ps` to
+  the parameters of the function given, each under its own name with its
+  type, in the order declared. A named pack is read by its names where the
+  program is compiled: `names(Ps)` is its names, constant strings in
+  order, and `Ps[name]` the type under one of them, a type wherever one
+  is written there (`pack_member`), `dict<K, Ps[name]>` among them. Both are read in a
+  `requires` (GEN-3), `each name in names(As) { As[name] == Ps[name] }`,
+  and in a body where a `for` is unrolled (CTRL-15), `for name in
+  names(Ps)`. A name the pack has not rejects (`pack.name`). Nothing of a
+  function but its parameters' names and types and its result type is
+  read, and nothing is read while the program runs.
 
 Syntax binds these core identities independently of local same-named functions.
 A symbol is the call of its identity: its operands are read as that call's
@@ -532,11 +550,79 @@ raise a different error: the call rejects. `read_one(left, 3)` and
 means one arrangement says so in its condition, with the first
 alternative alone.
 
+Deliberate rejection (GEN-6; proposed: `impl.pack`), given
+`operator first_of<T>(values: ...T{1:*}) -> T`:
+`impl const fn first_of(values: i64) -> i64`, a fixed parameter where the
+operator declares a pack, reported at `values`.
+`impl const fn first_of(values: ...i64{1}) -> i64`, a pack of one, is
+accepted.
+
 Deliberate rejection (FN-8, `pack.duplicate`):
 `const fn either(a: ...i64{0:1}, b: ...i64{0:1}) -> i64`, a second
 positional pack, reported at `b`: `either(1)` could give its argument to
 either. `const fn both<...Fields>(items: ...i64, named: ...{Fields}) -> i64`,
 one pack of each kind, is accepted.
+
+Accepted declaration fragments, a function's parameters read as a named
+pack (GEN-17) and a pack declared for the function (FN-8):
+
+```hgl
+operator call_through<R, ...Ps, ...As>(f: fn(...{Ps}) -> R, args: ...{As for f}) -> R
+    requires each name in names(As) { As[name] == Ps[name] }
+
+operator each_key<K, R, ...Ps, ...As, const key: str = "key">(
+    f: fn(...{Ps}) -> R,
+    args: ...{As for f without key},
+) -> dict<K, R>
+    requires each name in names(As) {
+        As[name] == Ps[name] || As[name] == dict<K, Ps[name]>
+    }
+```
+
+Given `fn scaled(price: f64, factor: f64) -> f64`, a call
+`call_through(scaled, quote, factor: two)` binds `Ps` to `price: f64` and
+`factor: f64`. Its arguments are matched as a call of `scaled` matches
+them, so `As` is `price` and `factor` too, each the type of the
+connection given, and the `requires` holds where both are `f64`.
+Deliberate rejections: `call_through(scaled, quote)`, which gives `factor`
+nothing, as `scaled(quote)` does not (`argument.missing`);
+`call_through(scaled, quote, rate: two)`, which names no parameter of
+`scaled` (`argument.unknown`); and `call_through(scaled, label, two)` with
+`label` a connection of `str`, where the `requires` does not hold
+(`requires.unmet`).
+
+`each_key` leaves the parameter its `key` names out of the matching.
+Given `fn handled(key: str, order: Order) -> f64` and `orders` a
+connection of `dict<str, Order>`, `each_key<str>(handled, orders)`
+matches `orders` to `order`, the first parameter the matching has: `As`
+is `order: dict<str, Order>`, which the second alternative of the
+`requires` admits, K being the `str` the call writes. K is written, or
+given by the call's place, `let prices: dict<str, f64> =
+each_key(handled, orders)`: it stands only in the result and under the
+`||` of the `requires`, which tests what is resolved and resolves
+nothing (GEN-3), so a call that gives it neither way rejects
+(`generic.unresolved`). `each_key<str>{key: "id"}(tracked, orders)`
+leaves out the parameter `id` of `tracked` instead (EXPR-10).
+
+`without` takes several names, or a set of them:
+
+```hgl
+operator each_slot<R, ...Ps, ...As, const key: str = "key", const index: str = "index">(
+    f: fn(...{Ps}) -> R,
+    args: ...{As for f without key, index},
+) -> list<R>
+
+operator each_given<R, ...Ps, ...As, const given: set<str> = ["key", "index"]>(
+    f: fn(...{Ps}) -> R,
+    args: ...{As for f without given},
+) -> list<R>
+```
+
+Both leave out the parameters named `key` and `index` where the function
+has them. Given `fn placed(index: i64, key: str, order: Order) -> f64`,
+`each_slot(placed, orders)` and `each_given(placed, orders)` match
+`orders` to `order`. `each_given{given: ["key"]}(placed, slots, orders)`
+leaves out `key` alone, and so matches `slots` to `index`.
 
 Accepted declaration fragment, a value candidate and a temporal candidate of
 one operator (GEN-4, GEN-5):

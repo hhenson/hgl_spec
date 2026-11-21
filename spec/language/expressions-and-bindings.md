@@ -24,13 +24,13 @@ operator_configuration = "{", configuration_argument,
                          { ",", configuration_argument }, [ "," ], "}" ;
 configuration_argument = member_name, ":", expression ;
 postfix_expr = primary_expr, { call_suffix | index_suffix | member_suffix } ;
-call_suffix = "(", [ arguments ], ")" ;
+call_suffix = [ operator_configuration ], "(", [ arguments ], ")" ;
 index_suffix = "[", expression, "]" ;
 member_suffix = ".", member_name ;
 primary_expr = literal | IDENTIFIER | qualified_name | implied_member
              | "(", expression, ")" | tuple_literal | sequence_literal
              | typed_constructor | delta_constructor | type_call
-             | function_expr | if_expression
+             | function_reference | function_expr | if_expression
              | eval_expression | run_expression | block ;
 arguments = argument, { ",", argument }, [ "," ] ;
 argument = [ member_name, ":" ], expression ;
@@ -42,7 +42,8 @@ sequence_pairs = sequence_pair, { ",", sequence_pair }, [ "," ] ;
 sequence_pair = sequence_item, ":", sequence_item ;
 sequence_item = expression | "_" ;
 typed_constructor = ( IDENTIFIER | qualified_name ), generic_arguments,
-                    "(", [ arguments ], ")" ;
+                    [ operator_configuration ], "(", [ arguments ], ")" ;
+function_reference = ( IDENTIFIER | qualified_name ), generic_arguments ;
 type_call = ( "str" | "bytes" | "any" | "error" ), "(", [ arguments ], ")" ;
 implied_member = ".", member_name ;
 local_decl = ( "let" | "var" ), IDENTIFIER, [ ":", type ], "=", expression
@@ -182,6 +183,12 @@ GEN-14 resolves generic construction versus comparison using declaration lookup.
   options, incompatible types, and an option that no candidate for the
   operands declares. Intrinsic harness and constraint forms retain their own
   rules.
+  A call of a named operator carries the same configuration after its
+  name, before its arguments: `ratio{zero: .error}(a, b)` is
+  `ratio(a, b, zero: .error)`. It binds as a symbol's does, and the
+  arguments in the parentheses are then the call's others. In the header of an `if`, `for`, `switch`,
+  `when`, or `while` such a call stands in parentheses, since the first
+  `{` there opens the body (CTRL-9).
 - **EXPR-11.** `<=>` is full comparison at the comparison precedence tier.
   It returns core's `CmpResult`, an ordinary enum, rather than a bool; `==`,
   `!=`, `<`, `<=`, `>`, and `>=` return a bool. The core
