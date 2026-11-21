@@ -155,12 +155,12 @@ admits one as a member name.
   however it is written.
 - **UNIT-14.** An application is one file, headed `application name`, where
   a module's files are headed `module name`. The last name of its path is
-  not two or three characters long. An application is built as a file of
-  its own name, and a host takes so short an ending for a kind of file
-  and may refuse to run it: `application demo.pricing.app` and
-  `application demo.pricing.so` reject, and `application
-  demo.pricing.live` is accepted. Proposed: with the code
-  `application.name`. It holds what a module holds,
+  five characters long or more. An application is built as a file of
+  its own name, and a host takes a shorter ending for a kind of file
+  and may refuse to run it: `application demo.pricing.app`,
+  `application demo.pricing.so` and `application demo.pricing.live`
+  reject, and `application demo.pricing.daily` is accepted. Proposed:
+  with the code `application.name`. It holds what a module holds,
   and one run statement (RUN-1), which follows its declarations. Between its
   declarations and its run statement it may inject `run_config`, giving
   the run's configuration its defaults (RUN-6), and set the run's store:

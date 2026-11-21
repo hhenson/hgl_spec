@@ -114,7 +114,7 @@ eval heartbeat(every: 500ms)
 ```
 
 ```hgl
-application examples.entry.live
+application examples.entry.realtime
 
 use examples.entry::{heartbeat}
 
@@ -183,10 +183,10 @@ in `heartbeat` (`inject.configuration`); `inject run_config` there
 (`inject.position`); an application with no run
 statement, or a second one (`application.run_count`); a run statement in a
 module, or one that a declaration follows (`run.position`); `export fn` in an application
-(`application.export`); `use examples.entry.live::{heartbeat}`, an
+(`application.export`); `use examples.entry.realtime::{heartbeat}`, an
 import of an application (`application.import`); and a second file headed
-`application examples.entry.live`, or one headed `module
-examples.entry.live` (`application.duplicate_path`).
+`application examples.entry.realtime`, or one headed `module
+examples.entry.realtime` (`application.duplicate_path`).
 
 ## Core boundary
 
