@@ -28,7 +28,7 @@ constraint_set = "{", constraint_operand, { ",", constraint_operand }, [ "," ], 
 constraint_call = ( IDENTIFIER | qualified_name ), "(",
                   [ constraint_operand, { ",", constraint_operand } ], ")",
                   [ "->", type ] ;
-operator_decl = "operator", callable_name, [ generic_parameters ],
+operator_decl = [ "export" ], "operator", callable_name, [ generic_parameters ],
                 [ configuration_parameters ], function_signature,
                 [ requires_clause ], { operator_properties } ;
 operator_properties = "properties", "<", value_type, { ",", value_type }, ">",
@@ -113,7 +113,10 @@ expression; group a constant expression that uses them as operand data.
   `impl const fn` a value candidate. Each binds that operator through local
   declaration, selective import, or the prelude. An operator is neither
   temporal nor value: the candidate a call selects is. No matching operator
-  is a declaration error. A plain fn is not a candidate.
+  is a declaration error. A plain fn is not a candidate. An operator is
+  private unless exported (UNIT-3): one that is not is called, and given
+  candidates, in its own module alone, and a candidate of an exported
+  operator may stand in any module that imports it.
 - **GEN-5.** Match candidates against the requested output before inputs, then
   check their conditions. A candidate that gives `result<T, error>` meets a
   requested T or `T?` as one that gives T does, and its call takes the form
@@ -584,6 +587,38 @@ Deliberate rejection (GEN-6; proposed: `impl.pack`), given
 operator declares a pack, reported at `values`.
 `impl const fn first_of(values: ...i64{1}) -> i64`, a pack of one, is
 accepted.
+
+Accepted illustration, two modules, an operator that is exported and one
+that is not (GEN-4, UNIT-3):
+
+```hgl
+module examples.shapes
+
+operator scaled_by<T>(value: T, factor: f64) -> T
+impl const fn scaled_by(value: f64, factor: f64) -> f64 => value * factor
+impl const fn scaled_by(value: i64, factor: f64) -> i64 => value
+
+export operator area<S>(shape: S) -> f64
+impl const fn area(side: f64) -> f64 => scaled_by(side, side)
+```
+
+```hgl
+module examples.rooms
+
+use examples.shapes::{area}
+
+struct Room { width: f64, depth: f64 }
+
+impl const fn area(room: Room) -> f64 => room.width * room.depth
+```
+
+`scaled_by` is a helper: its two candidates are selected by type, which
+no plain function offers, and nothing outside `examples.shapes` sees it.
+`area` is exported, so `examples.rooms` imports it and adds a candidate.
+Deliberate rejections: `use examples.shapes::{scaled_by}` in another
+module (`import.private`); and, in `examples.rooms`,
+`impl const fn scaled_by(value: Room, factor: f64) -> Room`, which names
+no operator that module binds (`impl.unknown_operator`).
 
 Deliberate rejection (FN-8, `pack.duplicate`):
 `const fn either(a: ...i64{0:1}, b: ...i64{0:1}) -> i64`, a second
