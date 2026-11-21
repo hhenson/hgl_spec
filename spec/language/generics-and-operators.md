@@ -72,6 +72,11 @@ expression; group a constant expression that uses them as operand data.
   inherits from widens the parameter to that struct, so the order of two
   such arguments does not matter. What the call writes, or its place
   expects, is not widened: `same<Round>(round, shape)` rejects at `shape`.
+  A nullable place `U?` says of a result that is a type parameter and
+  nothing more only that the parameter is `U` or `U?`. The arguments then
+  decide it, in declared parameter order; where they say nothing of it, it
+  is `U?`, the place's type whole. What the call writes is taken whole:
+  `same<i64?>(1, 2)` is an `i64?`.
   Partial applications and `_` struct
   arguments are not admitted. A generic value parameter may have a default,
   a function's, a candidate's, a struct's, or an operator's, which it takes
@@ -215,8 +220,9 @@ expression; group a constant expression that uses them as operand data.
   given, at a `ref` parameter as at any other (FN-16). `ref low: T` given a
   connection of `f64` binds T to `f64`, and so does `value: T` given a
   `ref` result of `f64`, whose target that input observes (TIME-10). A
-  requested output binds a whole output variable as requested. A
-  structural projection resolves no generic.
+  requested output binds a whole output variable as requested, or, where
+  it is nullable, as GEN-2 says. A structural projection resolves no
+  generic.
 - **GEN-12.** Compare structural specificity component by component; a `ref`
   mark adds no priority (FN-16), and a repeated variable counts once. Scalar
   configuration separates only otherwise equally specific candidates. A prior
@@ -330,6 +336,26 @@ decides T, and the `1` is widened. Deliberate rejections: `same("a", 1)`,
 at the `1`;
 `let real: f64 = same(1, count)`, at `count`, which is no literal; and
 `let names = repeat(3)`, which leaves T unresolved (`generic.unresolved`).
+
+Accepted declaration fragments, nullable places of a result that is a type
+parameter and nothing more (GEN-2), with core's `get<V>` of the
+[global store](https://github.com/hhenson/hgl_core/blob/main/spec/capabilities.md):
+
+```hgl
+const fn first<T>(values: list<T>) -> T => values[0]
+const fn number<T>(values: list<T>) -> T requires T in {i64, f64} => values[0]
+
+const fn head(xs: list<i64>) -> i64? => first(xs)
+const fn head_number(xs: list<i64>) -> i64? => number(xs)
+const fn saved(store: GlobalState) -> i64? => get(store, "k")
+```
+
+In `head`, `xs` decides T, an `i64`, and the result fits the `i64?` place
+(TYPE-14), as it does in `let x: i64? = first(xs)` and as an argument for
+an `i64?` parameter. In `head_number` T is `i64` too, and the membership
+holds (GEN-3). In `saved` nothing but the place says what V is, so it is
+`i64?`, and a stored null reads back as null; `get<i64?>(store, "k")` is
+an `i64?` as written. Conformance planned.
 
 Accepted declaration fragments, each with a default on a generic value
 parameter (GEN-2):
