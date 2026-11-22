@@ -90,7 +90,9 @@ expression; group a constant expression that uses them as operand data.
 - **GEN-3.** `requires` may use type/category membership, equalities, the
   membership of a constant in a set of constants, field/pack reflection, and
   named operator requirements. It cannot inspect temporal values or call
-  arbitrary language functions. A membership of a type parameter in a set
+  arbitrary language functions. A category is written with its keyword:
+  `requires T in struct` holds for every struct type and no other, and
+  `requires T in enum` for every enum type and no other. A membership of a type parameter in a set
   of types, `requires T in {i64, f64}`, authorizes in the body (GEN-7) an
   operation that each listed type has a candidate for, `a < b` there, and
   each instance selects its own candidate (GEN-5). An operation that a
@@ -265,7 +267,10 @@ expression; group a constant expression that uses them as operand data.
   admits; one whose only parameter is a pack that admits none may be named
   bare. An argument that names a type pack stands for as many as that pack
   holds; where that is a range, the application rejects only when no length
-  in it fits. `schemas(pack)` is a runtime-only
+  in it fits. `tuple` takes a type pack as a generic struct does:
+  `tuple<Ts>` is the tuple of the pack's types, in their order, and a
+  parameter of that type binds `Ts` from the tuple it is given.
+  `schemas(pack)` is a runtime-only
   borrowed schema view, not a storable value/result or general reflection
   facility.
 - **GEN-11.** No type holds a reference (TYPE-12), so argument inference
@@ -404,6 +409,39 @@ fn same<T>(left: T, right: T) -> T => left
 
 Both arguments require the same resolved source type. Deliberate rejection:
 an `impl fn missing` without an operator `missing` in scope. Conformance planned.
+
+Accepted illustration, complete module, a category and a tuple of any
+length (GEN-3, GEN-10):
+
+```hgl
+module examples.categories
+
+struct Point {
+    x: f64
+    y: f64
+}
+
+struct Label {
+    text: str
+}
+
+operator shown<T>(value: T) -> str
+impl const fn shown<T>(value: T) -> str requires T in struct => "a struct"
+impl const fn shown(value: Point) -> str => "a point"
+impl const fn shown<...Ts>(value: tuple<Ts>) -> str => "a tuple"
+
+test selection {
+    assert shown(Label(text: "a")) == "a struct"
+    assert shown(Point(x: 1.0, y: 2.0)) == "a point"
+    assert shown((1, "a")) == "a tuple"
+}
+```
+
+A `Label` selects the candidate for any struct. A `Point` selects the
+candidate that names it: a concrete type outranks a variable (GEN-5). A
+tuple selects the candidate whose `tuple<Ts>` binds `Ts` to `i64` and
+`str`. Deliberate rejection: `shown(1)`, an `i64`, which is no struct and
+no tuple (`operator.no_candidate`). Conformance planned.
 
 Accepted value-function fragments for the order of GEN-2, with
 `const fn same<T>(left: T, right: T) -> T`,
