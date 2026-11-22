@@ -464,8 +464,9 @@ tuple selects the candidate whose `tuple<Ts>` binds `Ts` to `i64` and
 `str`. Deliberate rejection: `shown(1)`, an `i64`, which is no struct and
 no tuple (`operator.no_candidate`). Conformance planned.
 
-Candidates that tie (GEN-6): with `impl const fn amb<B>(a: i64, b: B) ->
-i64` and `impl const fn amb<A>(a: A, b: i64) -> i64` both declared, each
+Candidates that tie (GEN-6): with `operator amb<A, B>(a: A, b: B) -> i64`
+and its candidates `impl const fn amb<B>(a: i64, b: B) -> i64` and
+`impl const fn amb<A>(a: A, b: i64) -> i64` declared, each candidate
 is reported with a warning (`operator.candidates_tie`), since a call
 given two `i64` matches them equally, and `amb(1, 1)` rejects
 (`operator.ambiguous`). `amb(1, "a")` and `amb("a", 1)` select one each.
