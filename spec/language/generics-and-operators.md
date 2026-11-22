@@ -269,9 +269,12 @@ expression; group a constant expression that uses them as operand data.
   admits; one whose only parameter is a pack that admits none may be named
   bare. An argument that names a type pack stands for as many as that pack
   holds; where that is a range, the application rejects only when no length
-  in it fits. `tuple` takes a type pack as a generic struct does:
-  `tuple<Ts>` is the tuple of the pack's types, in their order, and a
-  parameter of that type binds `Ts` from the tuple it is given.
+  in it fits. A type pack is given to `tuple` too: `tuple<Ts>` is the
+  tuple of the pack's types, in their order, and a parameter of that
+  type binds `Ts` from the tuple it is given. A tuple has one type or
+  more, as its grammar has it (`tuple_type`), so `tuple` is never named
+  bare, and a pack that holds none makes no tuple: such a parameter is
+  given none.
   `schemas(pack)` is a runtime-only
   borrowed schema view, not a storable value/result or general reflection
   facility.
