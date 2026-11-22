@@ -269,7 +269,7 @@ chapter.
   runs, with `schedule.non_positive_duration`. A wake asked for at a `datetime`
   before the evaluation time, or at it outside `start`, is dropped: there is
   no wake, and no failure. In `start` one at the evaluation time asks for a
-  wake: the node wakes in the run's first cycle.
+  wake at the start, the node's first evaluation, as `0s` does.
   Core's capability contract has the rest of what a wake is.
 - **TIME-9.** `endpoint<T>` is the type of the endpoint of a temporal value
   of T, for a function that takes the endpoint and not its payload
