@@ -1,7 +1,6 @@
 # Source documentation
 
-Status: agreed documentation-comment and declaration-formatting contracts,
-but for the sentences of SDOC-7 and SDOC-9 that begin "Proposed:".
+Status: agreed documentation-comment and declaration-formatting contracts.
 This is source-language documentation, distinct from specification authoring.
 
 ## Rules
@@ -45,10 +44,10 @@ This is source-language documentation, distinct from specification authoring.
   block whose info string is `math` holds a formula, written in LaTeX, and
   one whose info string is `mermaid` a diagram, written in mermaid. A tool
   that presents documentation renders both, or shows their text as
-  written; it changes neither (SDOC-6). Proposed: a formula within a line
-  is a code span between dollar signs, `` $`a^2 + b^2`$ ``, so that a
-  dollar sign in prose is never taken to open one; and HTML written in a
-  comment is text, shown as written.
+  written; it changes neither (SDOC-6). A formula within a line is a
+  code span between dollar signs, `` $`a^2 + b^2`$ ``, so that a dollar
+  sign in prose is never taken to open one. HTML written in a comment is
+  text, shown as written.
 - **SDOC-8.** A code span that is a name refers to the declaration the
   name resolves to where the comment stands (UNIT-10): `` `tripled` ``, a
   name with its module, `` `examples.documented.tripled` ``, or a field or
@@ -64,7 +63,7 @@ This is source-language documentation, distinct from specification authoring.
   (TST-15). It is known by the declaration it documents and its place
   among that comment's examples, counted from 1. A fenced `hgl` block
   anywhere else in a comment is shown, and is neither checked nor run.
-  Proposed: so is one in `Examples:` whose info string is `hgl no-run`.
+  So is one in `Examples:` whose info string is `hgl no-run`.
 - **SDOC-10.** A module's documented interface is the declarations it
   exports (UNIT-3), each with its comment. A tool that presents
   documentation presents those, and the rest where it is asked to.
@@ -113,8 +112,7 @@ export enum Side {
 
 The comments document doubled, tripled, Side, and each member of Side. In
 the comment of `doubled`, `` `tripled` `` refers to that function (SDOC-8),
-`` $`2v`$ `` is a formula in the form SDOC-7 proposes, and is proposed
-with it, and the block under `Examples:` is a
+`` $`2v`$ `` is a formula (SDOC-7), and the block under `Examples:` is a
 test of the module with two assertions, known as the first example of
 `doubled` (SDOC-9); its fence is of tildes, which Markdown admits as it
 does backticks. Deliberate rejection: `Args:` names a parameter absent
