@@ -264,11 +264,16 @@ GEN-14 resolves generic construction versus comparison using declaration lookup.
   value code it is a `list<T>`, T the expression's type, or, where its
   place expects a `list<T, N>` and the number of passes is the constant N,
   that fixed-size list (EXPR-5). In composition
-  the loop is unrolled, each entry is a connection, and the result is a
-  connection of `list<T, N>`, where N is the number of passes: its
-  iterable is a range whose bounds are constants, or a connection of a
-  fixed-size list. What it iterates is what a `for` statement iterates in
-  that phase (CTRL-12, CTRL-15).
+  the loop is unrolled: its iterable is a range whose bounds are
+  constants, or a connection of a fixed-size list, and N is the number of
+  passes. Where an entry is a connection, the result is a connection of
+  `list<T, N>`, an entry that is an ordinary value being the constant it
+  is wherever a connection is expected (FN-3). Where the iterable is a
+  range and the expression is an ordinary value in every pass, the result
+  is the ordinary value the same entries written out are,
+  `[for i in 2..<4: i]` as `[2, 3]`: nothing in it changes while the
+  program runs, and a `const` parameter takes it (FN-1). What it iterates
+  is what a `for` statement iterates in that phase (CTRL-12, CTRL-15).
 
 Accepted illustration, complete module:
 
