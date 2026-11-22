@@ -354,6 +354,11 @@ Local source/native declaration matching is defined in the native chapter.
   in both ways too. `convert<f64>` supplies the first of its generic
   parameters as a call does (GEN-8), the function type resolves the rest,
   and its candidate is selected among those that fit both (GEN-5).
+  Where the function type takes its parameters as a pack (GEN-17),
+  `f: const fn(...{Ps}) -> f64`, the types that select are those the
+  call's other arguments give those parameters. Where they give none,
+  nothing selects, whether the operator has one candidate or several:
+  the call rejects (`generic.unresolved`).
   A function type is a template of the
   signature it takes. Where it writes a parameter's name,
   `fn(key: str, value: f64) -> f64`, the function given has a parameter
@@ -793,7 +798,10 @@ with `const fn bump(var count: i64) -> i64`, `apply(bump, 2)` rejects
 its parameter by the names its type writes and no others: `const fn
 named(f: const fn(i64) -> i64) -> i64 => f(x: 4)` rejects, the type
 writing no `x` (`argument.unknown`), though `add_one` names its parameter
-so; with `f: const fn(x: i64) -> i64` it is accepted. Conformance
+so; with `f: const fn(x: i64) -> i64` it is accepted. An operator given
+where the type is a pack alone has nothing to select its candidate by:
+with `const fn inspect<...Ps>(f: const fn(...{Ps}) -> f64) -> i64`,
+`inspect(convert)` rejects (`generic.unresolved`). Conformance
 planned.
 
 | Phase | A temporal argument denotes | Ordinary calls |
