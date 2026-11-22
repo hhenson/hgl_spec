@@ -87,7 +87,8 @@ assert.
 
 ## Eval contract
 
-- **TST-5.** Eval takes a call of a module function, written as any call is:
+- **TST-5.** Eval takes a call of a module function, or of a helper
+  function of the test it stands in (TST-1), written as any call is:
   `eval target(value: [7, _, 9])`. The call binds its arguments by the
   function's public positional/named rules, and its generic arguments as
   any call does. Temporal/value role selection follows FN-4; a
