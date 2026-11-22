@@ -244,7 +244,11 @@ chapter.
   capital: `Logger`, `Clock`, `Scheduler`, `Alarm`, `GlobalState`,
   `RunConfig`. A
   capability type is written only as the type of a parameter of a `const fn`
-  or of a native value function. A capability is used within the node that
+  or of a native value function, and as a member of the set of types in
+  a membership of an operator's declaration (GEN-3), which names the type
+  and holds no capability:
+  `operator schedule<C, W>(capability: C, at: W) requires C in {Scheduler, Alarm}`.
+  A capability is used within the node that
   injects it, or, for `global_state`, in the graph that injects it, where
   the graph is built (FN-9), and in the statements an application sets its
   run's store with (UNIT-14); `run_config` is an application's and an
