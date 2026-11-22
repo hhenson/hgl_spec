@@ -113,7 +113,8 @@ export enum Side {
 
 The comments document doubled, tripled, Side, and each member of Side. In
 the comment of `doubled`, `` `tripled` `` refers to that function (SDOC-8),
-`` $`2v`$ `` is a formula (SDOC-7), and the block under `Examples:` is a
+`` $`2v`$ `` is a formula in the form SDOC-7 proposes, and is proposed
+with it, and the block under `Examples:` is a
 test of the module with two assertions, known as the first example of
 `doubled` (SDOC-9); its fence is of tildes, which Markdown admits as it
 does backticks. Deliberate rejection: `Args:` names a parameter absent
