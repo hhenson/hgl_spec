@@ -3,7 +3,8 @@
 Status: agreed publication, handler, state/cache, and capability baseline.
 The alarm, the run-wide keyed store, collection validity with
 `all_valid` (TIME-9), and the read of a collection's child and of a
-collection whole (TIME-1) are agreed.
+collection whole (TIME-1) are agreed. The sentence of TIME-8 that begins
+"Proposed:" is proposed.
 
 ## Grammar
 
@@ -268,6 +269,9 @@ chapter.
   `schedule.duration_bounds`, and elsewhere fails the call as the program
   runs, with `schedule.non_positive_duration`. A wake asked for at a `datetime`
   before the evaluation time is dropped: there is no wake, and no failure.
+  One at the evaluation time is asked for in `start` alone, where it asks
+  for a wake at the start, the node's first evaluation, as `0s` does.
+  Proposed: outside `start` it is dropped, as an earlier one is.
   Core's capability contract has the rest of what a wake is.
 - **TIME-9.** `endpoint<T>` is the type of the endpoint of a temporal value
   of T, for a function that takes the endpoint and not its payload
@@ -724,7 +728,8 @@ the same exact ordinary type: a use of another type rejects where the two
 uses are in one program, and fails as it runs where they are not, each
 with `store.key_type`. Binding alone does not initialize a value. `get`
 of an absent entry can fail and says so: it takes its form from its place
-(ERR-15). A write preserves the type. Writable borrows are
+(ERR-15), and its failure has the code a dictionary's has,
+`value.missing_key` (ERR-6). A write preserves the type. Writable borrows are
 hook-scoped; retained results own independent values. Storage access adds no
 activation dependency or temporal endpoint type, and so no rank (TIME-2): a
 `put` is seen by what is evaluated after it, and what a node sees of a `put`

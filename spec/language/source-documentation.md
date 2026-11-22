@@ -60,9 +60,9 @@ This is source-language documentation, distinct from specification authoring.
   module, as if a `test` block of that module held its lines (TST-3):
   whatever a named test's block holds it holds, declarations of its
   own among them (TST-1), and nothing else. It imports nothing: what it
-  names is what a named test of its module sees. It is a test of the
-  program, checked with it and run with its tests, and its failure is a
-  test's (TST-15). It is known by the declaration it documents and its
+  names is what a named test of its module sees. It is checked and run
+  with its module's tests, where those are a run's cases (TST-14), and
+  its failure is a test's (TST-15). It is known by the declaration it documents and its
   place among that comment's examples, counted from 1. A fenced `hgl` block
   anywhere else in a comment is shown, and is neither checked nor run.
   So is one in `Examples:` whose info string is `hgl no-run`.

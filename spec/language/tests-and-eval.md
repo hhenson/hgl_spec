@@ -2,8 +2,8 @@
 
 Status: a test's value code (TST-3), the eval rules, TST-5 to TST-9,
 what a `const fn` is given for a trace, TST-16, and integration tests,
-TST-17, are agreed. The error expectation contracts retain their status
-below.
+TST-17, are agreed, and so is which modules' tests are a run's cases
+(TST-14). The error expectation contracts retain their status below.
 
 ## Grammar
 
@@ -373,7 +373,11 @@ option is temporal (core's OPS-9), rejects the same way. Both reject with
 - **TST-14.** Invalid metadata, ambiguous boundaries, or surviving-source errors
   prevent execution. A rejection mismatch fails that case while other valid
   cases continue. Named selectors include rejection tests; declaration-owned
-  cases always run. A selector is a test's name, alone or as
+  cases always run. A module's named tests, the examples of its
+  documentation comments among them (SDOC-9), are a run's cases where the
+  run is given the module's source. Those of a module the compiler
+  supplies, `core` where its source is not given, are neither checked nor
+  run. A selector is a test's name, alone or as
   `module.path::name`; a bare name selects that test in every module.
   Unknown selectors reject. Report executed/rejected counts
   separately; omitted cases, empty output, crashes, and infrastructure failures

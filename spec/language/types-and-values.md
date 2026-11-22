@@ -154,8 +154,10 @@ rejection (TYPE-12, TYPE-14). TYPE-16 says what a `delta_type` is.
   that exact name. Construction is checked: a constant that is no member's
   number or name rejects, and a value that is none fails where it is
   evaluated, with the code `enum.no_member`. String conversion returns
-  the member name. Numeric conversion
-  is explicit.
+  the member name. Numeric conversion, to the member's number and from
+  it, is explicit. Core's
+  [conversion contract](https://github.com/hhenson/hgl_core/blob/main/spec/scalar-operators.md)
+  gives each.
 - **TYPE-8.** `any` owns a boxed value with its exact contained type; boxing
   adds no numeric conversion. Equality across contained types is false.
   Operations needing an absent capability fail rather than inventing an
