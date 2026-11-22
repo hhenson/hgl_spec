@@ -207,7 +207,7 @@ expression; group a constant expression that uses them as operand data.
   the temporal candidate, which in value code then rejects (`call.role`);
   in a value function or a runtime body, which select among the value
   candidates, no candidate admits the call (`operator.no_candidate`).
-  Neither of the two is reported `operator.candidates_tie`. Proposed:
+  Proposed:
   where both take the function given, a value function, which the
   `fn(...)` lifts (FN-17), or an anonymous function, which takes the kind
   of either, the call selects between them as between candidates of the
@@ -950,7 +950,7 @@ composition, for a temporal `count` of `i64`, selects the temporal
 candidate, the one that takes `step`. Given `const fn inc(x: i64) -> i64`,
 `applied(inc, n)` and `applied(fn(y) => y + 1, n)` in a `const fn`, with
 `n` an `i64`, select the value candidate, as a call there selects among
-the value candidates (GEN-5). Neither candidate is reported `operator.candidates_tie`.
+the value candidates (GEN-5).
 Deliberate rejections: `applied(step, 1)` in a test, which selects the
 temporal candidate in value code (`call.role`); and `applied(step, n)` in
 a `const fn`, which no value candidate admits (`operator.no_candidate`).
