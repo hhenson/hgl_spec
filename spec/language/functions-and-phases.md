@@ -118,7 +118,8 @@ Local source/native declaration matching is defined in the native chapter.
   operator, with temporal arguments in composition is lifted: temporal
   arguments become inputs; scalar arguments and omitted defaults bind as
   configuration. A supplied temporal argument remains an
-  input even when its parameter has a default. Any input notification activates
+  input even when its parameter has a default. A configuration parameter
+  (FN-18) takes no temporal argument (EXPR-14). Any input notification activates
   the node; FN-11 defines admission and binding. Each admitted evaluation
   publishes its result, including an equal result. An outputless helper lifts
   to a sink. All-scalar calls execute
@@ -385,7 +386,9 @@ Local source/native declaration matching is defined in the native chapter.
   is otherwise a parameter as any other: an ordinary value in a value
   function, a connection in a temporal one, or, marked `const`, what is
   fixed when the graph is built (FN-1), and is read in the body by its
-  name. What a call's types, its `requires`, its selection of a
+  name. Where a graph calls a value function, its configuration parameter
+  is bound when the graph is built and is no input of the lifted call: a
+  connection given to it rejects (EXPR-14). What a call's types, its `requires`, its selection of a
   candidate, or a pack's `without` read is a generic value parameter
   (GEN-6), known when the call is compiled; what only the body reads is
   a configuration parameter. Both are given in the braces.
@@ -421,7 +424,10 @@ Local source/native declaration matching is defined in the native chapter.
   callee's positional pack taking what remains. So an entry keeps the
   parameter the matching of FN-8 gave it. The call is then checked as any other (EXPR-2): an entry that
   names no parameter, a parameter given twice, and one left with nothing
-  reject as they do there. A pack is bound with `let` and given to a
+  reject as they do there. A struct's construction is such a call:
+  `point(...fields)` gives each entry under a name to the field of that
+  name, and an entry under a position rejects as a positional argument
+  does there (TYPE-5). A pack is bound with `let` and given to a
   call; nothing else holds one, and none is a connection's value.
 
 Accepted illustration, complete module, configuration parameters (FN-18):

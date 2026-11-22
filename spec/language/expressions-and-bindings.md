@@ -222,14 +222,26 @@ GEN-14 resolves generic construction versus comparison using declaration lookup.
   EXPR-6's short-circuiting and reject unsupported configuration under EXPR-10.
   An escaping error prevents later evaluation steps; an ordinary Err value
   follows its result contract. Lowering must preserve this order. A named call
-  instead follows EXPR-2's written argument order: shared parameter binding
-  does not imply identical effect order for differently written expressions.
-- **EXPR-14.** Scalar operator configuration binds during graph construction
-  in temporal composition. In a value function or runtime hook, evaluate it
-  for the current invocation. Configuration must not silently introduce a
-  temporal input: time-varying temporal configuration requires a signature
-  explicitly admitting that input. EXPR-12 still requires result-type selectors
-  to resolve during checking. Configuration grants no purity or phase exemption.
+  instead follows EXPR-2's written argument order, the entries of its
+  configuration before the arguments in its parentheses: shared parameter
+  binding does not imply identical effect order for differently written
+  expressions.
+- **EXPR-14.** Where a value function, a value candidate of an operator
+  among them, declares an option says what a graph may give it. One it
+  declares as a configuration parameter, in its braces (FN-18), is
+  configuration: in temporal composition it is bound when the graph is
+  built, and a connection given to it rejects (`connection.as_constant`);
+  in a value function or runtime hook it is evaluated for the current
+  invocation. One it declares among its parameters, in its parentheses, is
+  a parameter as any other: a connection given to it in composition is an
+  input of the lifted call (FN-6). What the callee declares decides, in
+  either spelling of the call (EXPR-10), and not where the call writes the
+  entry. So configuration introduces no temporal input, and a value
+  function admits one by declaring a parameter. A temporal function's
+  configuration parameter is what it declares: a connection or, marked
+  `const`, what is fixed when the graph is built (FN-18). EXPR-12 still
+  requires result-type selectors to resolve during checking. Configuration
+  grants no purity or phase exemption.
 - **EXPR-15.** In a graph, an assignment into a place of a `var` is copy on
   write. A graph's `var` denotes a connection (EXPR-4), and a field of a
   connection is no storage: `point.x = price` rebinds `point` to a new
@@ -364,14 +376,15 @@ and `tolerance` that record their own invocation names:
 
 ```hgl
 left() =={abs: tolerance()} right()
-eq_(left(), right(), abs: tolerance())
+eq_{abs: tolerance()}(left(), right())
 ```
 
 The symbolic form calls `left`, `tolerance`, `right`; the named form calls
-`left`, `right`, `tolerance`. Each call occurs once. In temporal composition,
+`tolerance`, `left`, `right`. Each call occurs once. In temporal composition,
 the scalar tolerance is bound during graph construction; runtime payload reads
 are unavailable there. Deliberate source rejection under EXPR-14: binding a
-time-series tolerance to the built-in scalar `abs` option. Core owns executable
+time-series tolerance to the built-in scalar `abs` option, a configuration
+parameter (`connection.as_constant`). Core owns executable
 observations; conformance is planned.
 
 Accepted value-function fragments for EXPR-12; `error` is a member of the
