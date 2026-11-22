@@ -372,6 +372,10 @@ infrastructure and cannot satisfy a source-rejection expectation.
 | type | `sequence.context_type` | Sequence whose entries give no type, where none is expected (EXPR-9); the sequence |
 | type | `dict.duplicate_key` | Two keys of a dictionary written as pairs are the same constant (EXPR-9); the later key |
 | type | `set.duplicate_member` | Proposed: two entries of a set written out are the same constant (EXPR-9); the later entry |
+| type | `format.syntax` | Proposed: a format string of core's in which a brace opens no place and closes none (core's FMT-3); the brace |
+| type | `format.argument` | Proposed: a place of a format string of core's that has no argument: one that takes the next positional argument where none is left, or one that names no named argument (core's FMT-3), the evaluation time asked for in value code among them (core's FMT-9); the place |
+| type | `format.unused` | Proposed: an argument of a call with a format string of core's that no place takes (core's FMT-3); the argument |
+| type | `format.specifier` | Proposed: a specifier in a place of a format string of core's that its argument's type does not admit (core's FMT-3, FMT-4), or a mark on a place that takes none (core's FMT-9); the specifier or the mark |
 | type | `enum.context_type` | `.member` where no enum type is expected (TYPE-7); the member |
 | name | `binding.unassigned` | `var` read on a path that gives it no value (EXPR-3); the read |
 | name | `binding.immutable` | Assignment to an immutable binding: a `let`, a parameter, an iteration binding, or a field or element of one (EXPR-3), or to a property of a native type (NATIVE-6) or of a delta (TYPE-16); or one given to a `var` parameter (FN-15). Also an assignment to a part of `out` of a `ref` result, `out.bid = x` (FN-16); target |
