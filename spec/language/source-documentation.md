@@ -1,6 +1,7 @@
 # Source documentation
 
-Status: agreed documentation-comment and declaration-formatting contracts.
+Status: agreed documentation-comment and declaration-formatting contracts,
+but for the sentences of SDOC-7 and SDOC-9 that begin "Proposed:".
 This is source-language documentation, distinct from specification authoring.
 
 ## Rules
@@ -10,8 +11,8 @@ This is source-language documentation, distinct from specification authoring.
   that declaration. Only whitespace may intervene. Ordinary comments remain
   comments. Repeated/unattached documentation or a body comment claiming a
   later declaration is rejected.
-- **SDOC-2.** Write a short summary followed by structured sections with
-  reStructuredText content. Remove delimiters, outer blank lines, and common
+- **SDOC-2.** Write a short summary followed by structured sections. Their
+  text is Markdown (SDOC-7). Remove delimiters, outer blank lines, and common
   indentation; preserve internal spacing, Unicode, escapes, and relative
   indentation. Normalize each line break (LEX-15) to LF. A same-line summary
   does not set subsequent indentation. Do not decorate every source line with
@@ -35,6 +36,38 @@ This is source-language documentation, distinct from specification authoring.
 - **SDOC-6.** Documentation-only changes do not affect execution, overload
   resolution, or provider semantics. Tools may expose math and diagrams but
   must preserve authoritative markup rather than silently reinterpret it.
+  An example that runs (SDOC-9) is a test of the program and nothing else
+  of it: a change to one changes what the program's tests are, and no more.
+- **SDOC-7.** A comment's text is Markdown: CommonMark, with tables. The
+  summary and the prose outside a section are Markdown as written. A
+  section's contents are Markdown once the section's four spaces are
+  removed (SDOC-3), and an entry's description once its key is. A fenced
+  block whose info string is `math` holds a formula, written in LaTeX, and
+  one whose info string is `mermaid` a diagram, written in mermaid. A tool
+  that presents documentation renders both, or shows their text as
+  written; it changes neither (SDOC-6). Proposed: a formula within a line
+  is a code span between dollar signs, `` $`a^2 + b^2`$ ``, so that a
+  dollar sign in prose is never taken to open one; and HTML written in a
+  comment is text, shown as written.
+- **SDOC-8.** A code span that is a name refers to the declaration the
+  name resolves to where the comment stands (UNIT-10): `` `tripled` ``, a
+  name with its module, `` `examples.documented.tripled` ``, or a field or
+  a member through its owner, `` `Side.buy` ``. A tool that presents
+  documentation links it to that declaration. A code span that names no
+  declaration is code, and no error: an expression, `` `value + 1` ``, a
+  parameter of the declaration documented, or a name nothing declares.
+- **SDOC-9.** In an `Examples:` section a fenced block whose info string
+  is `hgl` is an example that runs. It is the body of a test (TST-3): its
+  statements are those a `test` block holds, with the scope a named test
+  of the comment's module has (TST-1). It is a test of the program,
+  checked with it and run with its tests, and its failure is a test's
+  (TST-15). It is known by the declaration it documents and its place
+  among that comment's examples, counted from 1. A fenced `hgl` block
+  anywhere else in a comment is shown, and is neither checked nor run.
+  Proposed: so is one in `Examples:` whose info string is `hgl no-run`.
+- **SDOC-10.** A module's documented interface is the declarations it
+  exports (UNIT-3), each with its comment. A tool that presents
+  documentation presents those, and the rest where it is asked to.
 
 | Section | Contents |
 | --- | --- |
@@ -50,15 +83,24 @@ Accepted illustration, complete module:
 module examples.documented
 
 /**
-Double a value.
+Double a value, as `tripled` triples one.
 
 Args:
     value: Input value.
 
 Returns:
-    Twice the input.
+    Twice the input, $`2v`$.
+
+Examples:
+    ~~~hgl
+    assert doubled(2) == 4
+    assert doubled(tripled(1)) == 6
+    ~~~
 */
 const fn doubled(value: i64) -> i64 => value * 2
+
+/** Triple a value. */
+const fn tripled(value: i64) -> i64 => value * 3
 
 /** A side of the order book. */
 export enum Side {
@@ -69,9 +111,13 @@ export enum Side {
 }
 ```
 
-The comments document doubled, Side, and each member of Side. Deliberate
-rejection: `Args:` names a parameter absent from that declaration.
-Conformance planned.
+The comments document doubled, tripled, Side, and each member of Side. In
+the comment of `doubled`, `` `tripled` `` refers to that function (SDOC-8),
+`` $`2v`$ `` is a formula (SDOC-7), and the block under `Examples:` is a
+test of the module with two assertions, known as the first example of
+`doubled` (SDOC-9); its fence is of tildes, which Markdown admits as it
+does backticks. Deliberate rejection: `Args:` names a parameter absent
+from that declaration. Conformance planned.
 
 ## Core boundary
 

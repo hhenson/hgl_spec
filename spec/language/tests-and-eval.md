@@ -53,7 +53,8 @@ assert.
   is lifted (FN-6). Those rejections have the code `call.role`.
   A test cannot itself declare state/cache, inject, lifecycle hooks, when,
   yield, or return; an integration test injects `run_config`, and no other
-  capability (TST-17).
+  capability (TST-17). An example that runs in a documentation comment is
+  the body of a test as well (SDOC-9).
   Eval traces are test-local values. An eval of a target that has a result
   is a trace of that result's type, and source writes no type for it. A
   trace is bound with `let`, compared with `==` or `!=` against a trace
