@@ -279,7 +279,7 @@ infrastructure and cannot satisfy a source-rejection expectation.
 | phase | `application.statement` | Statement of an application that is no `inject` of `run_config` or of `global_state` and no call of `put` on the store, or that follows the run statement or precedes a declaration; and either of those in a module (UNIT-14); the statement |
 | phase | `cache.input_read` | Proposed: a cache's initializer reads a temporal input (TIME-5, TIME-6); the read |
 | phase | `run.position` | Run statement in a module or before a declaration of its application (UNIT-14), or `run` in a test that is no integration test (RUN-3); the word |
-| type | `constant.failure` | Proposed: a module's constant whose evaluation fails, an `i64` out of range or a division by zero among them (UNIT-13, ERR-9); the expression |
+| type | `constant.failure` | Proposed: a module's constant, or the default of a parameter or of a field, whose evaluation fails, an `i64` out of range or a division by zero among them (UNIT-13, UNIT-8, ERR-9); the expression |
 | type | `run.entry` | A run statement's call is of no entry (RUN-1); the call |
 | phase | `run.configuration` | A configuration on an application's run statement (RUN-6); the brace |
 | name | `name.duplicate` | Binding takes a name already in scope (UNIT-5, UNIT-12, TST-2, NATIVE-2); later name |
