@@ -55,8 +55,8 @@ chapter.
   takes a `result` and null where it takes a `T?` (ERR-14). A child is
   read only where a value is required of it: a `let` that writes no
   type, `let entry = parts[i]`, holds the endpoint and reads nothing,
-  and a `var`, `var entry = parts[i]`, requires a value and reads it
-  there (ERR-14). A read of a struct, a tuple or a fixed list
+  and a hook's `var`, `var entry = parts[i]`, requires a value and
+  reads it there (ERR-14). A read of a struct, a tuple or a fixed list
   whole, `return quote`, requires `all_valid` of it. So does one of a child
   that is a struct, a tuple or a fixed list: `return rows[0]`, for
   `rows: list<Quote, 2>`, requires `all_valid(rows[0])`, which
