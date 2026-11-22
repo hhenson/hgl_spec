@@ -2,8 +2,9 @@
 
 Status: a test's value code (TST-3), the eval rules, TST-5 to TST-9,
 what a `const fn` is given for a trace, TST-16, and integration tests,
-TST-17, are agreed, and so is which modules' tests are a run's cases
-(TST-14). The error expectation contracts retain their status below.
+TST-17, are agreed, and so are which modules' tests are a run's cases
+and that a case an integration test owns goes with its test (TST-14).
+The error expectation contracts retain their status below.
 
 ## Grammar
 
@@ -176,7 +177,10 @@ assert.
   its runs, and the braces give defaults, as an application's do (RUN-6).
   Its value code may read `run_config` then, and no other capability.
   An integration test is run only when it is
-  asked for; a run of a module's tests leaves it out. It is time-bound: it
+  asked for; a run of a module's tests leaves it out. A rejection case
+  that an integration test owns (TST-12) is checked only when the test is
+  asked for: a run that leaves the test out leaves the case out with it.
+  It is time-bound: it
   runs within a time limit by the host clock, the duration `@timeout(5s)`
   gives on the line before it, or one minute where none is written. One
   still running when its limit passes is stopped, and has failed (TST-11).
@@ -373,7 +377,8 @@ option is temporal (core's OPS-9), rejects the same way. Both reject with
 - **TST-14.** Invalid metadata, ambiguous boundaries, or surviving-source errors
   prevent execution. A rejection mismatch fails that case while other valid
   cases continue. Named selectors include rejection tests; declaration-owned
-  cases always run. A module's named tests, the examples of its
+  cases always run, and a case an integration test owns goes with its test
+  (TST-17). A module's named tests, the examples of its
   documentation comments among them (SDOC-9), are a run's cases where the
   run is given the module's source. Those of a module the compiler
   supplies, `core` where its source is not given, are neither checked nor

@@ -297,6 +297,7 @@ infrastructure and cannot satisfy a source-rejection expectation.
 | operator | `impl.unknown_operator` | Operator candidate names no operator (GEN-4); operator name |
 | operator | `impl.pack` | Proposed: a candidate declares a fixed parameter where its operator declares a pack (GEN-6); the parameter's name |
 | operator | `impl.option_kind` | Candidate declares as a parameter an option that another candidate of its operator declares as a generic value parameter (GEN-6); the parameter's name |
+| operator | `property.duplicate` | Proposed: a domain that a second property clause of an operator names, or that one clause names twice, or a property that one clause gives twice (GEN-9); the later domain or property |
 | name | `native.missing_declaration` | Native implementation completes no declaration (NATIVE-2); function name |
 | phase | `native.const_hook` | Native const implementation has a lifecycle hook (NATIVE-3); hook |
 | phase | `native.hook_without_when` | Start or stop hook with no `when` hook (NATIVE-3); hook |
