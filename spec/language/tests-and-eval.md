@@ -42,7 +42,10 @@ assert.
   candidate of an operator, `impl fn` or `impl const fn`, of its own
   operator or of one the test sees. They are private to that test:
   nothing outside it names them, another test may declare one of the same
-  name, and none takes a name the test already sees (TST-2). A candidate
+  name, and none takes a name the test already sees (TST-2). The test is
+  part of the identity of a type or an operator it declares,
+  `(module, test, name)`, so the same name in two tests is two
+  declarations with nothing in common (GEN-4, UNIT-4). A candidate
   a test declares is, for the calls written in that test, a candidate of
   its operator as one declared in the test's module is, and for no other
   call. None is exported or native, and a test imports nothing. Unnamed contexts
