@@ -303,7 +303,7 @@ infrastructure and cannot satisfy a source-rejection expectation.
 | phase | `native.duplicate_hook` | Second start or stop hook (NATIVE-3); later hook |
 | injectable | `inject.unknown_capability` | `inject` names no capability (TIME-8); name |
 | injectable | `inject.out_without_result` | `inject out` in a function that declares no result (TIME-7); `out` |
-| injectable | `capability.as_value` | Capability retained: the value of a `state` or `cache`, an entry of a tuple, list, set, dictionary, or struct, returned, or published; a capability given to a parameter written as a generic parameter or `any`; or a capability type written other than as a parameter's of a `const fn` or a native value function (TIME-8); use |
+| injectable | `capability.as_value` | Capability retained: the value of a `state` or `cache`, an entry of a tuple, list, set, dictionary, or struct, returned, or published; a capability given to a parameter written as a generic parameter or `any`; or a capability type written other than as a parameter's of a `const fn` or a native value function, or in a membership of an operator's declaration (TIME-8); use |
 | injectable | `inject.alarm_and_scheduler` | `alarm` and `scheduler` injected in one node (TIME-8); the later name |
 | injectable | `inject.position` | `inject run_config` in a function, or in a test that is no integration test (RUN-6); the name |
 | injectable | `inject.configuration` | A configuration in braces on an `inject` of a capability that is not `run_config` (RUN-6); the brace |
