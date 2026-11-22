@@ -99,8 +99,10 @@ ERR-15), and no operator raises one.
 - **ERR-14.** A collection's child, `parts[i]`, is an endpoint (TIME-1),
   and an endpoint becomes a value only where a value is required of it:
   as an operand, as an argument a parameter takes as a value, in a
-  `return` of a value, or in a binding that writes a type. A binding that
-  writes none, `let entry = parts[i]`, requires none and holds the
+  `return` of a value, in a binding that writes a type, or in a `var`,
+  which is a place for a value: `var entry = parts[i]` reads the child
+  where it is written. A `let` that writes no type,
+  `let entry = parts[i]`, requires none and holds the
   endpoint: nothing is read there and nothing fails there, `valid(entry)`
   and the other operations of an endpoint take it, and a later use of
   `entry` that requires a value reads it then. Where a value is required
