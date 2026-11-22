@@ -112,7 +112,8 @@ expression; group a constant expression that uses them as operand data.
   its arguments. An equality of two constants there is the `==` a program
   evaluates, and not their sameness (UNIT-13): with `const k: f64`,
   `requires k == 0.0` holds where `k` is `-0.0`.
-- **GEN-4.** An operator has nominal identity `(module, name)` and owns public
+- **GEN-4.** An operator has nominal identity `(module, name)`, or
+  `(module, test, name)` where a named test declares it (TST-1), and owns public
   names/order, roles, defaults, generic relationships, and requirements. An
   `impl fn` is a temporal candidate of the operator it names and an
   `impl const fn` a value candidate. Each binds that operator through local

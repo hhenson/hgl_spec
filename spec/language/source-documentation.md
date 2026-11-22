@@ -58,7 +58,7 @@ This is source-language documentation, distinct from specification authoring.
 - **SDOC-9.** In an `Examples:` section a fenced block whose info string
   is `hgl` is an example that runs. It is a named test of the comment's
   module, as if a `test` block of that module held its lines (TST-3):
-  whatever a named test's block holds it holds, helper functions of its
+  whatever a named test's block holds it holds, declarations of its
   own among them (TST-1), and nothing else. It imports nothing: what it
   names is what a named test of its module sees. It is a test of the
   program, checked with it and run with its tests, and its failure is a
@@ -76,6 +76,8 @@ This is source-language documentation, distinct from specification authoring.
 | `Returns:` / `Raises:` | Result meaning and required failure conditions |
 | `Ticks:` / `Validity:` | Publication/admission observations |
 | `Properties:` / `Requires:` | Explanations keyed by declared contracts |
+| `Options:` | What each option of the declaration does, as a list |
+| `Rules:` / `Status:` | The rules a declaration or a case rests on, and a case's standing |
 | `Notes:` / `Examples:` | Additional prose, examples, math, and diagrams |
 
 Accepted illustration, complete module:
