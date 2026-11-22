@@ -209,7 +209,7 @@ form to another keeps its tokens, their lines and columns, and its meaning.
 WHITESPACE = whitespace_character, { whitespace_character } ;
 whitespace_character = ? U+0020 or U+0009 ? ;
 LINE_CONTINUATION = "\\", { whitespace_character }, line_break ;
-PUNCTUATION = "..." | "<=>" | "//="
+PUNCTUATION = "..." | "..<" | "<=>" | "//="
             | "::" | "->" | "=>" | "==" | "!=" | "<=" | ">=" | "&&" | "||"
             | "//" | "+=" | "-=" | "*=" | "/=" | "%="
             | "(" | ")" | "[" | "]" | "{" | "}" | "," | ";" | ":" | "." | "@"
