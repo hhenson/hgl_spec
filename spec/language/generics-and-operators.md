@@ -393,6 +393,18 @@ expression; group a constant expression that uses them as operand data.
   and one that gives it, `fold{associative: true}(...)`, takes what it
   gives. It is the one default that reads an argument (UNIT-8), which it
   can because the function is known where the call is compiled.
+  Of a body's own parameter that takes a function, a predicate holds in
+  that body only where the declaration's `requires` states it: the body
+  knows nothing of the function given (FN-17) and is judged where it is
+  declared (GEN-7). So a function that gives its parameter on to a call
+  that requires a law states the law, `requires associative(f)`, and a
+  call of it with a function that has not the law rejects at that call. One
+  that states none and gives its parameter on to such a call rejects
+  where it is declared (`operator.no_candidate`). Where what it calls
+  has a candidate for the law holding and one for it not holding, it
+  states nothing, and each call of it selects by the function that call
+  gives, which is fixed where the call is compiled as a generic argument
+  is.
 
 Syntax binds these core identities independently of local same-named functions.
 A symbol is the call of its identity: its operands are read as that call's
