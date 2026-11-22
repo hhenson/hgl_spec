@@ -400,11 +400,14 @@ expression; group a constant expression that uses them as operand data.
   that requires a law states the law, `requires associative(f)`, and a
   call of it with a function that has not the law rejects at that call. One
   that states none and gives its parameter on to such a call rejects
-  where it is declared (`operator.no_candidate`). Where what it calls
-  has a candidate for the law holding and one for it not holding, it
-  states nothing, and each call of it selects by the function that call
-  gives, which is fixed where the call is compiled as a generic argument
-  is.
+  where it is declared (`operator.no_candidate`), also where what it
+  calls has a candidate for the law holding and one for it not holding:
+  between them they take every function and neither takes every one
+  (GEN-7). A function that takes either declares the law as its own
+  generic value parameter, `<const associative: bool = associative(f)>`,
+  with `requires associative in {true, false}`, and gives it on,
+  `fold{associative: associative}(f, a, b)`: each instance then selects
+  its own candidate (GEN-3).
 
 Syntax binds these core identities independently of local same-named functions.
 A symbol is the call of its identity: its operands are read as that call's
