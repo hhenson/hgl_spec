@@ -3,8 +3,7 @@
 Status: agreed publication, handler, state/cache, and capability baseline.
 The alarm, the run-wide keyed store, collection validity with
 `all_valid` (TIME-9), and the read of a collection's child and of a
-collection whole (TIME-1) are agreed. The sentence of TIME-8 that begins
-"Proposed:" is proposed.
+collection whole (TIME-1) are agreed.
 
 ## Grammar
 
@@ -273,7 +272,7 @@ chapter.
   One at the evaluation time is asked for in `start` alone, where it asks
   for a wake at the start, the node's first evaluation, as `0s` does.
   Outside `start` it is dropped with that warning, as an earlier one is.
-  Proposed: a node is warned of once in a run, at its first dropped wake,
+  A node is warned of once in a run, at its first dropped wake,
   and where it had more, their count is logged when the node stops.
   Core's capability contract has the rest of what a wake is.
 - **TIME-9.** `endpoint<T>` is the type of the endpoint of a temporal value
