@@ -61,7 +61,12 @@ This is source-language documentation, distinct from specification authoring.
   of the comment's module has (TST-1). It is a test of the program,
   checked with it and run with its tests, and its failure is a test's
   (TST-15). It is known by the declaration it documents and its place
-  among that comment's examples, counted from 1. A fenced `hgl` block
+  among that comment's examples, counted from 1. An example may begin
+  with helper functions of its own, `fn` or `const fn`, before its
+  statements: an endpoint is asked inside a node, and a test declares
+  none. They are that example's alone: nothing outside it names them,
+  another example may declare one of the same name, and none takes a
+  name its module's tests already see (TST-2). A fenced `hgl` block
   anywhere else in a comment is shown, and is neither checked nor run.
   So is one in `Examples:` whose info string is `hgl no-run`.
 - **SDOC-10.** A module's documented interface is the declarations it
@@ -101,6 +106,17 @@ const fn doubled(value: i64) -> i64 => value * 2
 /** Triple a value. */
 const fn tripled(value: i64) -> i64 => value * 3
 
+/**
+Apply a function to a value twice.
+
+Examples:
+    ~~~hgl
+    const fn add_one(x: i64) -> i64 => x + 1
+    assert twice(add_one, 1) == 3
+    ~~~
+*/
+const fn twice(f: const fn(i64) -> i64, value: i64) -> i64 => f(f(value))
+
 /** A side of the order book. */
 export enum Side {
     /** The bid side. */
@@ -110,7 +126,9 @@ export enum Side {
 }
 ```
 
-The comments document doubled, tripled, Side, and each member of Side. In
+The comments document doubled, tripled, twice, Side, and each member of
+Side. The example of `twice` begins with a helper of its own, `add_one`,
+which nothing else in the module names (SDOC-9). In
 the comment of `doubled`, `` `tripled` `` refers to that function (SDOC-8),
 `` $`2v`$ `` is a formula (SDOC-7), and the block under `Examples:` is a
 test of the module with two assertions, known as the first example of
