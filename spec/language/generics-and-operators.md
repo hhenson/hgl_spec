@@ -24,7 +24,8 @@ constraint_term = "!", constraint_term | "(", constraint_expression, ")"
                 | ( "each" | "any" ), IDENTIFIER, "in", constraint_operand,
                   "{", constraint_expression, "}" ;
 constraint_relation = constraint_operand, ( "==" | "in" | "is" ), constraint_operand ;
-constraint_operand = type | additive_expr | constraint_set ;
+constraint_operand = type | additive_expr | constraint_set | type_category ;
+type_category = "struct" | "enum" ;
 constraint_set = "{", constraint_operand, { ",", constraint_operand }, [ "," ], "}" ;
 constraint_call = ( IDENTIFIER | qualified_name ), "(",
                   [ constraint_operand, { ",", constraint_operand } ], ")",
@@ -90,7 +91,8 @@ expression; group a constant expression that uses them as operand data.
 - **GEN-3.** `requires` may use type/category membership, equalities, the
   membership of a constant in a set of constants, field/pack reflection, and
   named operator requirements. It cannot inspect temporal values or call
-  arbitrary language functions. A category is written with its keyword:
+  arbitrary language functions. A category is written with its keyword,
+  after `in` and nowhere else:
   `requires T in struct` holds for every struct type and no other, and
   `requires T in enum` for every enum type and no other. A membership of a type parameter in a set
   of types, `requires T in {i64, f64}`, authorizes in the body (GEN-7) an
