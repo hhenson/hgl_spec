@@ -5,7 +5,7 @@ operation domains belong to core and retain their own decision status.
 GEN-17, a function's parameters read as a named pack, is agreed, and so
 are the `any` of GEN-10 and the law predicates of GEN-18. The sentence of
 GEN-7 that begins "Proposed:" is proposed, with those that follow it, and
-so is the sentence of GEN-3 that begins "Proposed:".
+so is each sentence of GEN-3, GEN-6 and GEN-9 that begins "Proposed:".
 
 ## Grammar
 
@@ -200,7 +200,20 @@ expression; group a constant expression that uses them as operand data.
   value candidate and a temporal candidate with the same parameter types
   stay resolvable: a call in composition selects the temporal one (GEN-5),
   and a call in a value function, a runtime body or value code the value
-  one.
+  one. So do a value candidate and a temporal candidate alike but for a
+  parameter that takes a function (FN-17), `const fn(...)` in the value
+  one and `fn(...)` in the temporal one: the function given decides. A
+  temporal function is taken by the `fn(...)` alone (FN-17), so it selects
+  the temporal candidate, which in value code then rejects (`call.role`);
+  in a value function or a runtime body, which select among the value
+  candidates, no candidate admits the call (`operator.no_candidate`).
+  Proposed:
+  where both take the function given, a value function, which the
+  `fn(...)` lifts (FN-17), or an anonymous function, which takes the kind
+  of either, the call selects between them as between candidates of the
+  same parameter types: the temporal one in composition, whether the
+  other arguments are connections or not, and the value one in value
+  code.
 - **GEN-7.** A generic body is checked under its stated requirements; choosing
   a specialization does not authorize unrelated operations or reify a type/size
   parameter as an ordinary numeric runtime value. A value parameter, a
@@ -266,6 +279,14 @@ expression; group a constant expression that uses them as operand data.
 - **GEN-9.** Property clauses apply to explicit concrete domains. Missing
   metadata gives no algebraic guarantee. Recorded laws are contracts, not
   proofs authorizing reassociation across overflow or floating-point effects.
+  A clause gives its properties to each domain it names:
+  `properties<i64, f64> { associative }` declares the law for `i64` and
+  for `f64`. The identity it gives is a value of each of those types, and
+  one that is not rejects where it is declared (`type.mismatch`). A clause
+  that names a domain an earlier clause of the operator names rejects
+  where it is declared. Proposed: so do a domain that one clause names
+  twice and a property that one clause gives twice. Proposed: each of
+  these three with the code `property.duplicate`, at the later of the two.
 - **GEN-10.** Pack views preserve positional order or supplied named keys.
   `each T in types(Ts)` checks every selected type; an empty conjunction is true.
   `any T in types(Ts)` holds where its body holds for at least one, and
@@ -826,6 +847,21 @@ declaring no law, and has no candidate (`operator.no_candidate`).
 `fold{associative: true}(fn(a, b) => a + b, xs)` gives it, and is
 accepted: the caller answers for the law.
 
+Accepted declaration fragment, a property clause for two domains (GEN-9):
+
+```hgl
+operator combined<T>(a: T, b: T) -> T
+    properties<i64, f64> { associative, commutative, identity = 0 }
+```
+
+Both laws and the identity are declared for `i64` and for `f64`: the
+identity `0`, and `0.0` (EXPR-5). Deliberate rejections, where the
+operator is declared: `identity = "zero"`, a `str` (`type.mismatch`); and
+a further clause `properties<f64> { associative }`, a second for `f64`
+(proposed: `property.duplicate`). Proposed rejections, with that code:
+`properties<i64, i64>`, and `{ associative, associative }`. Conformance
+planned.
+
 Accepted declaration fragment, a configuration parameter beside a pack
 declared for a function (FN-18):
 
@@ -897,6 +933,31 @@ declared too, `doubled(count)` in composition selects that temporal
 candidate, and `doubled(21)` in a `const fn` still the value one.
 Deliberate rejection: `doubled(1.5)` in a `const fn`, where no value
 candidate takes an `f64`.
+
+Accepted declaration fragment, a value candidate and a temporal candidate
+alike but for the kind of the function they take (GEN-6):
+
+```hgl
+operator applied<V>(f: fn(V) -> V, x: V) -> V
+
+impl const fn applied(f: const fn(i64) -> i64, x: i64) -> i64 => f(x)
+
+impl fn applied(f: fn(i64) -> i64, x: i64) -> i64 => f(x)
+```
+
+Given a temporal `fn step(x: i64) -> i64`, `applied(step, count)` in
+composition, for a temporal `count` of `i64`, selects the temporal
+candidate, the one that takes `step`. Given `const fn inc(x: i64) -> i64`,
+`applied(inc, n)` and `applied(fn(y) => y + 1, n)` in a `const fn`, with
+`n` an `i64`, select the value candidate, as a call there selects among
+the value candidates (GEN-5).
+Deliberate rejections: `applied(step, 1)` in a test, which selects the
+temporal candidate in value code (`call.role`); and `applied(step, n)` in
+a `const fn`, which no value candidate admits (`operator.no_candidate`).
+Proposed: `applied(inc, 1)` in a test selects the value candidate, and
+`applied(inc, count)` and `applied(fn(y) => y + 1, count)` in composition
+select the temporal one, which lifts `inc` and composes the anonymous
+function's body. Conformance planned.
 
 Accepted declaration fragments, a named operator requirement (GEN-7,
 GEN-16):
