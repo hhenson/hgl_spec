@@ -3,8 +3,8 @@
 Status: agreed generic, pack, and nominal-operator baseline. Detailed core
 operation domains belong to core and retain their own decision status.
 GEN-17, a function's parameters read as a named pack, is agreed, and so
-are the `any` of GEN-10 and the law predicates of GEN-18. The sentence of
-GEN-7 that begins "Proposed:" is proposed, with those that follow it, and
+are the `any` of GEN-10 and the law predicates of GEN-18. The first sentence
+of GEN-7 that begins "Proposed:" is proposed, with those that follow it, and
 so is each sentence of GEN-3, GEN-6 and GEN-9 that begins "Proposed:".
 
 ## Grammar
@@ -236,6 +236,11 @@ expression; group a constant expression that uses them as operand data.
   value candidate that would be lifted (GEN-5). An instance in which
   that does not hold rejects at the call in the body, with the code the
   call written out would have, and the report names the instance.
+  Proposed: in the instance the call is of the type its selected
+  candidate gives, and what the body does with it is checked there, as
+  for the same body written with the instance's types. An instance in
+  which that does not hold rejects at the call in the body, with the code
+  the body written out would have, and the report names the instance.
   Proposed: a loop unrolled over
   the keys of a pack among the declaration's generic parameters (GEN-17)
   has its passes only where the pack is known, in an instance. What a
@@ -521,6 +526,28 @@ admitted by the first. `through("a")` selects it. `through(3)` selects
 the second, whose `var` parameter the immutable `value` cannot be given:
 that instance rejects (`binding.immutable`), as `bump(value)` written
 with an `i64` parameter would.
+
+Proposed deliberate rejection, an instance checked for the result its
+candidate gives (GEN-7):
+
+```hgl
+operator fetch<T, R>(value: T) -> R
+
+impl const fn fetch<T>(value: T) -> i64 => 5
+
+impl const fn fetch(value: i64) -> str => "other"
+
+const fn inferred<T>(value: T) -> i64 {
+    let answer = fetch(value)
+    return answer
+}
+```
+
+`fetch(value)` is admitted by the first candidate, which takes every `T`,
+and the instance `inferred(true)` makes selects it. The instance
+`inferred(3)` makes selects the second, so `answer` is a `str` there and
+`return answer` does not fit the `i64` result (EXPR-5): that instance
+rejects at `fetch(value)` (`type.mismatch`), and the report names it.
 
 Accepted value-function fragments for the order of GEN-2, with
 `const fn same<T>(left: T, right: T) -> T`,
