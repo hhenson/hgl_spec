@@ -182,10 +182,17 @@ expression; group a constant expression that uses them as operand data.
   differ in result type (EXPR-12). A candidate may give any of its inputs a
   default. A value candidate may mark a parameter `var` (FN-15); the
   operator's declaration marks none, and the mark takes no part in selecting
-  a candidate. The candidates of an operator stay resolvable together: once
-  defaults fill what a call omits, no call matches two of them equally. With
-  candidates `add(lhs = 1, rhs = 1)` and `add(lhs = 1.0, rhs = 2.0)`,
-  `add()` would. A
+  a candidate. The candidates of an operator are meant to stay resolvable
+  together: once defaults fill what a call omits, no call matches two of
+  them equally. Two that some call would match equally, with no other
+  candidate the more specific for it, are a warning, reported at each of
+  the two (`operator.candidates_tie`), and the call that does match them
+  equally rejects (`operator.ambiguous`, GEN-5). With candidates
+  `add(lhs = 1, rhs = 1)` and `add(lhs = 1.0, rhs = 2.0)`, `add()` is
+  such a call; with `amb<B>(a: i64, b: B)` and `amb<A>(a: A, b: i64)`, a
+  call given two `i64` is. A candidate that takes exactly what ties,
+  `amb(a: i64, b: i64)`, is the more specific and ends it. Neither of
+  two that tie is ever taken for its place in the source (GEN-5). A
   value candidate and a temporal candidate with the same parameter types
   stay resolvable: a call in composition selects the temporal one (GEN-5),
   and a call in a value function, a runtime body or value code the value
@@ -203,7 +210,16 @@ expression; group a constant expression that uses them as operand data.
   make one known where a candidate takes every generic argument they
   admit, where a named operator requirement states the call (GEN-16), and,
   under a membership, where each listed type has one (GEN-3). Each instance
-  then selects its own candidate (GEN-5). Proposed: a loop unrolled over
+  then selects its own candidate (GEN-5). What that candidate asks of
+  the call is checked in the instance, as it is for the same call
+  written with the instance's types: a `var` parameter is given a place
+  (FN-15), a `const` parameter a constant, and the candidate is one the
+  call's setting admits, a value candidate in a node's hook or a value
+  function and, where a graph is built, a temporal candidate before a
+  value candidate that would be lifted (GEN-5). An instance in which
+  that does not hold rejects at the call in the body, with the code the
+  call written out would have, and the report names the instance.
+  Proposed: a loop unrolled over
   the keys of a pack among the declaration's generic parameters (GEN-17)
   has its passes only where the pack is known, in an instance. What a
   pass composes is checked there, the branch a constant `if` selects
@@ -447,6 +463,24 @@ candidate that names it: a concrete type outranks a variable (GEN-5). A
 tuple selects the candidate whose `tuple<Ts>` binds `Ts` to `i64` and
 `str`. Deliberate rejection: `shown(1)`, an `i64`, which is no struct and
 no tuple (`operator.no_candidate`). Conformance planned.
+
+Candidates that tie (GEN-6): with `operator amb<A, B>(a: A, b: B) -> i64`
+and its candidates `impl const fn amb<B>(a: i64, b: B) -> i64` and
+`impl const fn amb<A>(a: A, b: i64) -> i64` declared, each candidate
+is reported with a warning (`operator.candidates_tie`), since a call
+given two `i64` matches them equally, and `amb(1, 1)` rejects
+(`operator.ambiguous`). `amb(1, "a")` and `amb("a", 1)` select one each.
+A third candidate, `impl const fn amb(a: i64, b: i64) -> i64`, takes
+`amb(1, 1)` and ends the warning.
+
+An instance checked for what its candidate asks (GEN-7): with
+`operator bump<T>(value: T) -> i64`, a candidate for every `T`, and one
+that marks its parameter, `impl const fn bump(var value: i64) -> i64`,
+the body of `const fn through<T>(value: T) -> i64 => bump(value)` is
+admitted by the first. `through("a")` selects it. `through(3)` selects
+the second, whose `var` parameter the immutable `value` cannot be given:
+that instance rejects (`binding.immutable`), as `bump(value)` written
+with an `i64` parameter would.
 
 Accepted value-function fragments for the order of GEN-2, with
 `const fn same<T>(left: T, right: T) -> T`,

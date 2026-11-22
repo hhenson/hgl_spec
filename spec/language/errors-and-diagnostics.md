@@ -491,6 +491,7 @@ warning_annotation = "@", "suppress_warning", "(", STRING_LITERAL, ")" ;
 | Warning code | Condition |
 | --- | --- |
 | `node.no_activation` | The dormant-node warning: `modified([])` in a node that injects neither `scheduler` nor `alarm`, or whose `start` does not use the one it injects (TIME-3); the selector |
+| `operator.candidates_tie` | Two candidates of an operator that some call would match equally, with no other candidate the more specific for it (GEN-6); each of the two candidates |
 | `statement.no_effect` | Expression statement that holds no call, assignment, or `return`, its value dropped; the expression |
 
 Accepted illustration, complete module:
