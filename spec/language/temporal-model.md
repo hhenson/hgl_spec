@@ -3,7 +3,8 @@
 Status: agreed publication, handler, state/cache, and capability baseline.
 The alarm, the run-wide keyed store, collection validity with
 `all_valid` (TIME-9), and the read of a collection's child and of a
-collection whole (TIME-1) are agreed.
+collection whole (TIME-1) are agreed. The sentence of TIME-8 that begins
+"Proposed:" is proposed.
 
 ## Grammar
 
@@ -267,9 +268,10 @@ chapter.
   sees its value, a literal or a constant (UNIT-13), with
   `schedule.duration_bounds`, and elsewhere fails the call as the program
   runs, with `schedule.non_positive_duration`. A wake asked for at a `datetime`
-  before the evaluation time, or at it outside `start`, is dropped: there is
-  no wake, and no failure. In `start` one at the evaluation time asks for a
-  wake at the start, the node's first evaluation, as `0s` does.
+  before the evaluation time is dropped: there is no wake, and no failure.
+  One at the evaluation time is asked for in `start` alone, where it asks
+  for a wake at the start, the node's first evaluation, as `0s` does.
+  Proposed: outside `start` it is dropped, as an earlier one is.
   Core's capability contract has the rest of what a wake is.
 - **TIME-9.** `endpoint<T>` is the type of the endpoint of a temporal value
   of T, for a function that takes the endpoint and not its payload
