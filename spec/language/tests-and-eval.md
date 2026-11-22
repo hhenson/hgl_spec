@@ -8,8 +8,10 @@ below.
 ## Grammar
 
 ```ebnf
-test_decl = "test", IDENTIFIER, block
-          | [ timeout_annotation, NL ], "integration_test", IDENTIFIER, block ;
+test_decl = "test", IDENTIFIER, test_block
+          | [ timeout_annotation, NL ], "integration_test", IDENTIFIER, test_block ;
+test_block = "{", [ NL ], { function_decl, NL },
+             [ statement, { NL, statement }, [ NL ] ], "}" ;
 timeout_annotation = "@", "timeout", "(", TEMPORAL_LITERAL, ")" ;
 test_context = "test", "{", [ NL ],
                [ test_item, { NL, test_item }, [ NL ] ], "}" ;
@@ -32,7 +34,11 @@ assert.
 
 ## Test scope and assertions
 
-- **TST-1.** A named test sees module-private declarations. Unnamed contexts
+- **TST-1.** A named test sees module-private declarations. It may begin
+  with helper functions of its own, `fn` or `const fn`, before its
+  statements. They are private to that test: nothing outside it names
+  them, another test may declare one of the same name, and none takes a
+  name the test already sees (TST-2). Unnamed contexts
   contribute private fn/const-fn helpers, unexported struct/enum types, and
   named tests to one module-wide test scope across all parts, independent of
   order. They create no helper namespace. Nested contexts, imports, operator
@@ -53,8 +59,10 @@ assert.
   is lifted (FN-6). Those rejections have the code `call.role`.
   A test cannot itself declare state/cache, inject, lifecycle hooks, when,
   yield, or return; an integration test injects `run_config`, and no other
-  capability (TST-17). An example that runs in a documentation comment is
-  the body of a test as well (SDOC-9).
+  capability (TST-17). The helper functions it begins with (TST-1) are
+  declared as any function is, and a node among them has what a node
+  has. An example that runs in a documentation comment is a named test
+  as well (SDOC-9).
   Eval traces are test-local values. An eval of a target that has a result
   is a trace of that result's type, and source writes no type for it. A
   trace is bound with `let`, compared with `==` or `!=` against a trace
@@ -79,7 +87,8 @@ assert.
 
 ## Eval contract
 
-- **TST-5.** Eval takes a call of a module function, written as any call is:
+- **TST-5.** Eval takes a call of a module function, or of a helper
+  function of the test it stands in (TST-1), written as any call is:
   `eval target(value: [7, _, 9])`. The call binds its arguments by the
   function's public positional/named rules, and its generic arguments as
   any call does. Temporal/value role selection follows FN-4; a
@@ -226,6 +235,13 @@ test bounded {
     assert ticks(eval{length: 4s} beats(every: 1s)) == 3
 }
 
+test with_a_helper {
+    fn twice(value: i64) -> i64 {
+        when { return value * 2 }
+    }
+    assert eval twice(value: [1, _, 3]) == [2, _, 6]
+}
+
 @timeout(5s)
 integration_test beats_live {
     let seen = run{length: 1s} beats(every: 10ms)
@@ -243,8 +259,10 @@ compared with the quote the result holds after its cycle (TST-5).
 `beats` never stops of itself, so each run of it is
 given a length: `bounded` evaluates four seconds of it in simulation, and
 `beats_live` runs it for a second of the host clock, when it is asked for
-(TST-17), and has failed if it is still running after five. Conformance
-source is planned, not supplied by this example.
+(TST-17), and has failed if it is still running after five.
+`with_a_helper` declares the node it evaluates, `twice`, which no other
+test names (TST-1). Conformance source is planned, not supplied by this
+example.
 
 Deliberate source rejections: `eval add_(lhs: [7], rhs: [9])`, whose
 call is of an operator and of no function (`eval.target`); `eval 7` and
@@ -257,7 +275,10 @@ a trace (`trace.placeholder`); `eval pass_through_i64(value: [7, 9]) ==
 stored in a field (`trace.escape`); `ticks([7, 9])`, a list of `i64`
 where a list of tuples is taken (`type.mismatch`); and `@timeout(5s)` before
 a `test` that is no integration test, and `@timeout(5)`, whose argument is no
-duration (`syntax.expected_token`).
+duration (`syntax.expected_token`); a function declared in a named test
+after one of its statements (`syntax.expected_token`); and a helper of a
+named test called `ticks`, a name that test already sees
+(`name.duplicate`).
 
 Deliberate rejection, complete module, value code in a test (TST-3):
 
