@@ -433,7 +433,7 @@ infrastructure and cannot satisfy a source-rejection expectation.
 
 | Execution code | Required condition |
 | --- | --- |
-| `value.missing_key` | Strict ordinary dictionary lookup has no member; also the code of the failure that `get` of an absent key gives (ERR-6) |
+| `value.missing_key` | Strict ordinary dictionary lookup has no member; also the code of the failure that `get` of an absent key gives, of a dictionary (ERR-6) or of the global store (TIME-8, core's CAP-6) |
 | `key.unstable` | An `any` that holds an `f64`, or a value of a type that holds one, is given to a set or as a dictionary's key (TYPE-1) |
 | `value.null` | A `T?` that holds null is read where a T is expected, a connection's by the node that reads it among them (ERR-12) |
 | `value.index_out_of_range` | An index outside a list, below zero or at or past its size, where a read or an assignment evaluates it (EXPR-3, EXPR-7) |
@@ -445,6 +445,7 @@ infrastructure and cannot satisfy a source-rejection expectation.
 | `store.key_type` | A `put` or a `get` of a key of the global store of another type than an earlier use of the key, where the two uses are not in one program (TIME-8, core's CAP-6) |
 | `numeric.division_by_zero` | A checked division's Err is raised, given where its `f64` is expected (ERR-5, ERR-15); see the [core numeric contract](https://github.com/hhenson/hgl_core/blob/main/spec/numeric-operators.md) |
 | `numeric.out_of_range` | A result is outside its type's range: an `i64`, a `duration`, an instant or a count of a `tenor`; or a `str` is repeated a count below zero; see the core [numeric](https://github.com/hhenson/hgl_core/blob/main/spec/numeric-operators.md) and [scalar operator](https://github.com/hhenson/hgl_core/blob/main/spec/scalar-operators.md) contracts |
+| `numeric.invalid_tolerance` | A tolerance of `==` or `!=`, `abs` or `rel`, is negative or not finite; see the [core numeric contract](https://github.com/hhenson/hgl_core/blob/main/spec/numeric-operators.md) |
 | `tenor.mixed_units` | A sum or a difference of a `tenor` of business days and one of months and days; see the core [scalar operator contract](https://github.com/hhenson/hgl_core/blob/main/spec/scalar-operators.md) |
 | `convert.invalid` | A conversion fails under `invalid: .fail`, or a checked conversion's Err is raised, given where its value is expected (ERR-5, ERR-15); see the core [scalar operator contract](https://github.com/hhenson/hgl_core/blob/main/spec/scalar-operators.md) |
 | `yield.negative_duration` | Both yield operands succeeded; delay is negative |

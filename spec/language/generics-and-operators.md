@@ -4,7 +4,8 @@ Status: agreed generic, pack, and nominal-operator baseline. Detailed core
 operation domains belong to core and retain their own decision status.
 GEN-17, a function's parameters read as a named pack, is agreed, and so
 are the `any` of GEN-10 and the law predicates of GEN-18. The sentence of
-GEN-7 that begins "Proposed:" is proposed, with those that follow it.
+GEN-7 that begins "Proposed:" is proposed, with those that follow it, and
+so is the sentence of GEN-3 that begins "Proposed:".
 
 ## Grammar
 
@@ -23,7 +24,7 @@ constraint_term = "!", constraint_term | "(", constraint_expression, ")"
                 | constraint_relation | constraint_call | IDENTIFIER
                 | ( "each" | "any" ), IDENTIFIER, "in", constraint_operand,
                   "{", constraint_expression, "}" ;
-constraint_relation = constraint_operand, ( "==" | "in" | "is" ), constraint_operand ;
+constraint_relation = constraint_operand, ( "==" | "!=" | "in" | "is" ), constraint_operand ;
 constraint_operand = type | additive_expr | constraint_set | type_category ;
 type_category = "struct" | "enum" ;
 constraint_set = "{", constraint_operand, { ",", constraint_operand }, [ "," ], "}" ;
@@ -88,7 +89,8 @@ expression; group a constant expression that uses them as operand data.
   where a call or an application neither gives it nor resolves it (GEN-8).
   A type parameter and a pack have none.
   A type pack is a sequence, not a singular source type.
-- **GEN-3.** `requires` may use type/category membership, equalities, the
+- **GEN-3.** `requires` may use type/category membership, equalities and
+  inequalities, the
   membership of a constant in a set of constants, field/pack reflection, and
   named operator requirements. It cannot inspect temporal values or call
   arbitrary language functions. A category is written with its keyword,
@@ -111,7 +113,8 @@ expression; group a constant expression that uses them as operand data.
   and so is an application of a struct whose `requires` does not hold with
   its arguments. An equality of two constants there is the `==` a program
   evaluates, and not their sameness (UNIT-13): with `const k: f64`,
-  `requires k == 0.0` holds where `k` is `-0.0`.
+  `requires k == 0.0` holds where `k` is `-0.0`. Proposed: `a != b` there
+  is `!(a == b)`, and binds nothing.
 - **GEN-4.** An operator has nominal identity `(module, name)`, or
   `(module, test, name)` where a named test declares it (TST-1), and owns public
   names/order, roles, defaults, generic relationships, and requirements. An
