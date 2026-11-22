@@ -10,8 +10,10 @@ below.
 ```ebnf
 test_decl = "test", IDENTIFIER, test_block
           | [ timeout_annotation, NL ], "integration_test", IDENTIFIER, test_block ;
-test_block = "{", [ NL ], { function_decl, NL },
+test_block = "{", [ NL ], { test_declaration, NL },
              [ statement, { NL, statement }, [ NL ] ], "}" ;
+test_declaration = function_decl | constant_decl | struct_decl | enum_decl
+                 | operator_decl ;
 timeout_annotation = "@", "timeout", "(", TEMPORAL_LITERAL, ")" ;
 test_context = "test", "{", [ NL ],
                [ test_item, { NL, test_item }, [ NL ] ], "}" ;
@@ -35,10 +37,15 @@ assert.
 ## Test scope and assertions
 
 - **TST-1.** A named test sees module-private declarations. It may begin
-  with helper functions of its own, `fn` or `const fn`, before its
-  statements. They are private to that test: nothing outside it names
-  them, another test may declare one of the same name, and none takes a
-  name the test already sees (TST-2). Unnamed contexts
+  with declarations of its own, before its statements: a function, `fn`
+  or `const fn`, a constant, a struct, an enum, an operator, and a
+  candidate of an operator, `impl fn` or `impl const fn`, of its own
+  operator or of one the test sees. They are private to that test:
+  nothing outside it names them, another test may declare one of the same
+  name, and none takes a name the test already sees (TST-2). A candidate
+  a test declares is, for the calls written in that test, a candidate of
+  its operator as one declared in the test's module is, and for no other
+  call. None is exported or native, and a test imports nothing. Unnamed contexts
   contribute private fn/const-fn helpers, unexported struct/enum types, and
   named tests to one module-wide test scope across all parts, independent of
   order. They create no helper namespace. Nested contexts, imports, operator
@@ -242,6 +249,16 @@ test with_a_helper {
     assert eval twice(value: [1, _, 3]) == [2, _, 6]
 }
 
+test with_a_type {
+    struct Closed {
+        day: date
+    }
+    operator open_on<C>(calendar: C, day: date) -> bool
+    impl const fn open_on(calendar: Closed, day: date) -> bool =>
+        day != calendar.day
+    assert !open_on(Closed(day: @2026-01-05), @2026-01-05)
+}
+
 @timeout(5s)
 integration_test beats_live {
     let seen = run{length: 1s} beats(every: 10ms)
@@ -261,8 +278,10 @@ given a length: `bounded` evaluates four seconds of it in simulation, and
 `beats_live` runs it for a second of the host clock, when it is asked for
 (TST-17), and has failed if it is still running after five.
 `with_a_helper` declares the node it evaluates, `twice`, which no other
-test names (TST-1). Conformance source is planned, not supplied by this
-example.
+test names (TST-1). `with_a_type` declares a struct, an operator and a
+candidate of it for that struct, which its own call selects and nothing
+outside the test sees. Conformance source is planned, not supplied by
+this example.
 
 Deliberate source rejections: `eval add_(lhs: [7], rhs: [9])`, whose
 call is of an operator and of no function (`eval.target`); `eval 7` and
@@ -275,7 +294,7 @@ a trace (`trace.placeholder`); `eval pass_through_i64(value: [7, 9]) ==
 stored in a field (`trace.escape`); `ticks([7, 9])`, a list of `i64`
 where a list of tuples is taken (`type.mismatch`); and `@timeout(5s)` before
 a `test` that is no integration test, and `@timeout(5)`, whose argument is no
-duration (`syntax.expected_token`); a function declared in a named test
+duration (`syntax.expected_token`); a declaration in a named test
 after one of its statements (`syntax.expected_token`); and a helper of a
 named test called `ticks`, a name that test already sees
 (`name.duplicate`).
