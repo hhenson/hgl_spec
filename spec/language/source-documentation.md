@@ -56,17 +56,14 @@ This is source-language documentation, distinct from specification authoring.
   declaration is code, and no error: an expression, `` `value + 1` ``, a
   parameter of the declaration documented, or a name nothing declares.
 - **SDOC-9.** In an `Examples:` section a fenced block whose info string
-  is `hgl` is an example that runs. It is the body of a test (TST-3): its
-  statements are those a `test` block holds, with the scope a named test
-  of the comment's module has (TST-1). It is a test of the program,
-  checked with it and run with its tests, and its failure is a test's
-  (TST-15). It is known by the declaration it documents and its place
-  among that comment's examples, counted from 1. An example may begin
-  with helper functions of its own, `fn` or `const fn`, before its
-  statements: an endpoint is asked inside a node, and a test declares
-  none. They are that example's alone: nothing outside it names them,
-  another example may declare one of the same name, and none takes a
-  name its module's tests already see (TST-2). A fenced `hgl` block
+  is `hgl` is an example that runs. It is a named test of the comment's
+  module, as if a `test` block of that module held its lines (TST-3):
+  whatever a named test's block holds it holds, helper functions of its
+  own among them (TST-1), and nothing else. It imports nothing: what it
+  names is what a named test of its module sees. It is a test of the
+  program, checked with it and run with its tests, and its failure is a
+  test's (TST-15). It is known by the declaration it documents and its
+  place among that comment's examples, counted from 1. A fenced `hgl` block
   anywhere else in a comment is shown, and is neither checked nor run.
   So is one in `Examples:` whose info string is `hgl no-run`.
 - **SDOC-10.** A module's documented interface is the declarations it
@@ -128,7 +125,7 @@ export enum Side {
 
 The comments document doubled, tripled, twice, Side, and each member of
 Side. The example of `twice` begins with a helper of its own, `add_one`,
-which nothing else in the module names (SDOC-9). In
+as a named test may (TST-1), which nothing else in the module names. In
 the comment of `doubled`, `` `tripled` `` refers to that function (SDOC-8),
 `` $`2v`$ `` is a formula (SDOC-7), and the block under `Examples:` is a
 test of the module with two assertions, known as the first example of
