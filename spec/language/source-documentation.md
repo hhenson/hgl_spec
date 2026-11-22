@@ -6,8 +6,8 @@ This is source-language documentation, distinct from specification authoring.
 ## Rules
 
 - **SDOC-1.** `/** ... */` immediately before a module, function/native function,
-  operator, struct, field, enum, enum member, native type, or test documents
-  that declaration. Only whitespace may intervene. Ordinary comments remain
+  operator, constant, struct, field, enum, enum member, native type, a
+  native type's property, or test documents that declaration. Only whitespace may intervene. Ordinary comments remain
   comments. Repeated/unattached documentation or a body comment claiming a
   later declaration is rejected.
 - **SDOC-2.** Write a short summary followed by structured sections. Their
@@ -114,6 +114,9 @@ Examples:
 */
 const fn twice(f: const fn(i64) -> i64, value: i64) -> i64 => f(f(value))
 
+/** The deepest level a book is kept to. */
+export const depth: i64 = 10
+
 /** A side of the order book. */
 export enum Side {
     /** The bid side. */
@@ -123,8 +126,10 @@ export enum Side {
 }
 ```
 
-The comments document doubled, tripled, twice, Side, and each member of
-Side. The example of `twice` begins with a helper of its own, `add_one`,
+The comments document doubled, tripled, twice, depth, Side, and each
+member of Side. A property of a native type takes its comment as a
+struct's field does: in `export native type Handle { ... }`,
+`/** Its size. */` on the line before `size: i64` documents that property. The example of `twice` begins with a helper of its own, `add_one`,
 as a named test may (TST-1), which nothing else in the module names. In
 the comment of `doubled`, `` `tripled` `` refers to that function (SDOC-8),
 `` $`2v`$ `` is a formula (SDOC-7), and the block under `Examples:` is a
