@@ -4,7 +4,7 @@ Status: agreed generic, pack, and nominal-operator baseline. Detailed core
 operation domains belong to core and retain their own decision status.
 GEN-17, a function's parameters read as a named pack, is agreed, and so
 are the `any` of GEN-10 and the law predicates of GEN-18. Each sentence
-of GEN-3 and GEN-6 that begins "Proposed:" is proposed.
+of GEN-3, GEN-6 and GEN-7 that begins "Proposed:" is proposed.
 
 ## Grammar
 
@@ -251,6 +251,20 @@ expression; group a constant expression that uses them as operand data.
   value candidate that would be lifted (GEN-5). An instance in which
   that does not hold rejects at the call in the body, with the code the
   call written out would have, and the report names the instance.
+  Where the call's place asks a type of it, a `let` that writes one or a
+  result it is returned as, the call is of that type. Where its place
+  asks none, every candidate the call could select gives it one type,
+  which is the call's, and where they give more than one the call rejects
+  where the body is declared. Proposed: one type is one in the
+  declaration's terms: under `requires T in {i64, f64}`, `a + b` is a
+  `T`, each listed type's candidate giving its own. Proposed: where the
+  place asks a type, a candidate that does not give it is not admitted in
+  an instance, which selects the most specific of those that do.
+  Proposed: that rejection has the code `operator.result_type`.
+  Proposed: a candidate the declaring module does not see, another
+  module's or a test's own, that an instance selects and that gives
+  another type rejects the call that makes the instance, and the report
+  names the instance.
   A loop unrolled over
   the keys of a pack among the declaration's generic parameters (GEN-17)
   has its passes only where the pack is known, in an instance. What a
@@ -536,6 +550,40 @@ admitted by the first. `through("a")` selects it. `through(3)` selects
 the second, whose `var` parameter the immutable `value` cannot be given:
 that instance rejects (`binding.immutable`), as `bump(value)` written
 with an `i64` parameter would.
+
+Deliberate rejections where the body is declared, a call whose
+candidates give more than one type (GEN-7):
+
+```hgl
+operator fetch<T, R>(value: T) -> R
+
+impl const fn fetch<T>(value: T) -> i64 => 5
+
+impl const fn fetch(value: i64) -> str => "other"
+
+const fn inferred<T>(value: T) -> i64 {
+    let answer = fetch(value)
+    return answer
+}
+
+operator items_of<T, C>(value: T) -> C
+
+impl const fn items_of<T>(value: T) -> list<i64, 2> => [1, 2]
+
+impl const fn items_of(value: i64) -> list<i64, 3> => [value, value + 1, value + 2]
+
+const fn first_of<T>(value: T) -> i64 => items_of(value)[0]
+```
+
+`let answer` writes no type and the index asks none, and the candidates
+the call could select give an `i64` and a `str`, a `list<i64, 2>` and a
+`list<i64, 3>`: each declaration rejects at its call (proposed:
+`operator.result_type`). With `let answer: i64 = fetch(value)`, or
+`return fetch(value)`, the call is an `i64`, and `inferred` is accepted;
+so is `first_of` with `let items: list<i64, 2> = items_of(value)` before
+`items[0]`. Proposed: the instances that `inferred(3)` and `first_of(5)`
+make then select the first candidate of each, the second giving no
+`i64` and no `list<i64, 2>`: 5, and 1.
 
 Accepted value-function fragments for the order of GEN-2, with
 `const fn same<T>(left: T, right: T) -> T`,

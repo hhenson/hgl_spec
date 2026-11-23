@@ -403,6 +403,7 @@ infrastructure and cannot satisfy a source-rejection expectation.
 | type | `call.not_callable` | Call of a native type's name, which no call constructs (NATIVE-6); name |
 | name | `member.unknown` | Struct has no field, or enum no member, of the name, or of the constant number or name an enum is constructed from (EXPR-7, TYPE-7); name or constant |
 | operator | `operator.no_candidate` | Call of an operator, by symbol or by name, that no candidate admits (GEN-5), or, in a generic body, that its requirements make no candidate known to take (GEN-7); operator |
+| operator | `operator.result_type` | Proposed: in a generic body, a call of an operator whose place asks it no type and whose candidates it could select give it more than one (GEN-7); the call |
 | operator | `operator.ambiguous` | Call of an operator that two most-specific candidates admit equally (GEN-5), or that one candidate admits by more than one choice of which results to take the value of, none taking fewer than the others (ERR-15); operator |
 | type | `default.order` | Parameter that may not be omitted follows one that may (UNIT-8); the later parameter |
 | type | `tuple.index` | Tuple's index is no constant, or is outside the tuple (EXPR-7); index |
