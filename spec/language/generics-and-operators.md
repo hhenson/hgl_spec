@@ -207,13 +207,13 @@ expression; group a constant expression that uses them as operand data.
   the temporal candidate, which in value code then rejects (`call.role`);
   in a value function or a runtime body, which select among the value
   candidates, no candidate admits the call (`operator.no_candidate`).
-  Proposed:
-  where both take the function given, a value function, which the
+  Where both take the function given, a value function, which the
   `fn(...)` lifts (FN-17), or an anonymous function, which takes the kind
-  of either, the call selects between them as between candidates of the
-  same parameter types: the temporal one in composition, whether the
-  other arguments are connections or not, and the value one in value
-  code.
+  of either, the call's arguments decide: with temporal arguments the
+  temporal candidate is selected, and with ordinary arguments alone, an
+  all-scalar call (FN-6), the value one, in composition too. Where the
+  arguments are temporal and the value candidate alone admits the call,
+  it is lifted (FN-6).
 - **GEN-7.** A generic body is checked under its stated requirements; choosing
   a specialization does not authorize unrelated operations or reify a type/size
   parameter as an ordinary numeric runtime value. A value parameter, a
@@ -284,9 +284,9 @@ expression; group a constant expression that uses them as operand data.
   for `f64`. The identity it gives is a value of each of those types, and
   one that is not rejects where it is declared (`type.mismatch`). A clause
   that names a domain an earlier clause of the operator names rejects
-  where it is declared. Proposed: so do a domain that one clause names
-  twice and a property that one clause gives twice. Proposed: each of
-  these three with the code `property.duplicate`, at the later of the two.
+  where it is declared, and so does a property that one clause gives
+  twice, each with the code `property.duplicate`, at the later of the two.
+  Proposed: so does a domain that one clause names twice, with that code.
 - **GEN-10.** Pack views preserve positional order or supplied named keys.
   `each T in types(Ts)` checks every selected type; an empty conjunction is true.
   `any T in types(Ts)` holds where its body holds for at least one, and
@@ -857,10 +857,9 @@ operator combined<T>(a: T, b: T) -> T
 Both laws and the identity are declared for `i64` and for `f64`: the
 identity `0`, and `0.0` (EXPR-5). Deliberate rejections, where the
 operator is declared: `identity = "zero"`, a `str` (`type.mismatch`); and
-a further clause `properties<f64> { associative }`, a second for `f64`
-(proposed: `property.duplicate`). Proposed rejections, with that code:
-`properties<i64, i64>`, and `{ associative, associative }`. Conformance
-planned.
+a further clause `properties<f64> { associative }`, a second for `f64`,
+and `{ associative, associative }` (`property.duplicate`). Proposed
+rejection, with that code: `properties<i64, i64>`. Conformance planned.
 
 Accepted declaration fragment, a configuration parameter beside a pack
 declared for a function (FN-18):
@@ -954,10 +953,10 @@ the value candidates (GEN-5).
 Deliberate rejections: `applied(step, 1)` in a test, which selects the
 temporal candidate in value code (`call.role`); and `applied(step, n)` in
 a `const fn`, which no value candidate admits (`operator.no_candidate`).
-Proposed: `applied(inc, 1)` in a test selects the value candidate, and
-`applied(inc, count)` and `applied(fn(y) => y + 1, count)` in composition
-select the temporal one, which lifts `inc` and composes the anonymous
-function's body. Conformance planned.
+`applied(inc, count)` and `applied(fn(y) => y + 1, count)` select the
+temporal candidate, which lifts `inc` and composes the anonymous
+function's body. `applied(inc, 1)` selects the value candidate wherever
+it is written, in a test and in composition alike. Conformance planned.
 
 Accepted declaration fragments, a named operator requirement (GEN-7,
 GEN-16):
