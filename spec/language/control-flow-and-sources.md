@@ -2,8 +2,8 @@
 
 Status: agreed conditionals, switch design, and phase-dependent
 iteration, unrolled in composition where the graph is built. A sentence
-of CTRL-2, CTRL-7, CTRL-15, or CTRL-16 that begins "Proposed:" is
-proposed. CTRL-16 is otherwise agreed.
+of CTRL-2, CTRL-7, or CTRL-15 that begins "Proposed:" is proposed.
+CTRL-16 is agreed.
 Generator syntax and the shape of a source's body are agreed, as
 is the sentence of SOURCE-3 that begins "Agreed:"; the rest of the timing
 of a `yield` is proposed.
@@ -217,7 +217,7 @@ CTRL-9 places the opening brace of an `if`, `for`, `switch`, `when`, or
   in which `arg` is `key` has the type of `i` and does not read `args`.
   So does `if key in arg_keys(Ps)` (GEN-17) in any body, in a pass or
   not, where `key` is a generic value parameter or a constant that is a
-  key, `<const key: str = "key">`. Proposed: where the pack is among the
+  key, `<const key: str = "key">`. Where the pack is among the
   declaration's generic parameters, that branch is selected and checked
   in each instance, as a loop's passes are (GEN-7). Elsewhere an `if`
   checks both its branches, whatever its condition: a generic body is

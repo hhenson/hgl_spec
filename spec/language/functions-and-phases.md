@@ -2,10 +2,11 @@
 
 Status: agreed function roles, classification, defaults, lifting, and
 anonymous-function scope. The `ref` mode (FN-16) is agreed. The sentence
-of FN-9 that begins "Proposed:" is proposed. FN-17, a parameter that takes
-a function, and the pack of FN-8 declared `for` one are agreed, but for
-the sentence of FN-17 that begins "Proposed:". FN-18, configuration
-parameters, is agreed, and so is FN-19, a pack as a value.
+of FN-4, and that of FN-9, that begins "Proposed:" is proposed. FN-17, a
+parameter that takes a function, and the pack of FN-8 declared `for` one
+are agreed, but for the sentence of FN-17 that begins "Proposed:".
+FN-18, configuration parameters, is agreed, and so is FN-19, a pack as a
+value.
 
 ## Grammar
 
@@ -107,8 +108,10 @@ Local source/native declaration matching is defined in the native chapter.
   (GEN-5).
 - **FN-4.** A temporal/value pair may share a name. Composition and eval choose
   the temporal definition if one exists; runtime/value evaluation chooses the
-  value definition. A bad selected signature is an error, not fallback to the
-  other role. Two definitions of the same exact role remain duplicates.
+  value definition. Proposed: an all-scalar call (FN-6) written in
+  composition takes the value definition there too. A bad selected
+  signature is an error, not fallback to the other role. Two definitions
+  of the same exact role remain duplicates.
   An operator's candidates are no such pair: GEN-5 selects among them.
 - **FN-5.** `const` is a modifier only in a position admitting that modifier.
   Otherwise it is an ordinary name, including for an operator or function.
