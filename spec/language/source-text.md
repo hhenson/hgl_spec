@@ -96,11 +96,11 @@ Hard reserved words:
 
 ```text
 module part use as export abstract impl instantiate operator fn struct enum
-requires is let var state cache inject return if else start when stop
-for while yield test assert eval run true false null bool i64 f64 str bytes any
-date time datetime duration tenor civil_datetime zoned_datetime zoned_time
-timezone atomic tuple list set dict rolling_window result ref signal endpoint
-delta error
+requires is let var state cache inject return if else switch start when stop
+for while yield test assert raises eval run true false null bool i64 f64 str
+bytes any date time datetime duration tenor civil_datetime zoned_datetime
+zoned_time timezone atomic tuple list set dict rolling_window result ref signal
+endpoint delta error
 ```
 
 - **LEX-9.** A member name is any word of identifier form (LEX-1), a hard
@@ -113,9 +113,9 @@ delta error
 - **LEX-10.** The contextual names are `const`, `native`, and `type`;
   `application`, at the head of a file (UNIT-14), and `integration_test`,
   before a test's name (TST-17);
-  `switch`, `case`, `default`, `in`, `each`, `without`, `unbounded`, `properties`,
-  `associative`, `commutative`, `identity`, `raises`, `suppress_warning`,
-  and `timeout`;
+  `case`, `default`, `in`, `each`, `without`, `unbounded`, `properties`,
+  `associative`, `commutative`, `identity`, `suppress_warning`, and
+  `timeout`;
   the capability names (TIME-8); and the result forms `ok`, `err`, `is_ok`,
   `is_err`, and `capture` (ERR-13). Each acquires its special meaning only in
   its defined positions. A contextual spelling is not globally reserved.

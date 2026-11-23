@@ -32,8 +32,7 @@ error_category = ? a source category of the diagnostic catalog ? ;
 `run_target` is in [program execution](program-execution.md), and
 `operator_configuration` in [expressions](expressions-and-bindings.md). The
 target is a call of a function (TST-5), and the configuration, where one
-is written, the run's (RUN-6). `raises` is contextual immediately after
-assert.
+is written, the run's (RUN-6).
 `expect_error` gives the characters of one line comment, not a token sequence.
 
 ## Test scope and assertions
