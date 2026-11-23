@@ -94,8 +94,8 @@ admits one as a member name.
   default again rejects where it is declared (`default.cycle`): a field's
   default that constructs its own struct leaving that field out, directly
   or through a function it calls, and a parameter's default that calls its
-  own function leaving that parameter out. With
-  `struct Pt { a: i64 = first(), b: i64 = 0 }` and
+  own function leaving that parameter out. With a struct `Pt` of the
+  fields `a: i64 = first()` and `b: i64 = 0`, and
   `const fn first() -> i64 => Pt(b: 1).a`, `a`'s default rejects.
 - **UNIT-9.** Compare inherited defaults by bound expression and canonical type
   after substitution, before folding. Declaration identity matters; source
