@@ -3,9 +3,8 @@
 Status: agreed generic, pack, and nominal-operator baseline. Detailed core
 operation domains belong to core and retain their own decision status.
 GEN-17, a function's parameters read as a named pack, is agreed, and so
-are the `any` of GEN-10 and the law predicates of GEN-18. The sentence of
-GEN-7 that begins "Proposed:" is proposed, with those that follow it, and
-so is each sentence of GEN-3 and GEN-6 that begins "Proposed:".
+are the `any` of GEN-10 and the law predicates of GEN-18. Each sentence
+of GEN-3 and GEN-6 that begins "Proposed:" is proposed.
 
 ## Grammar
 
@@ -134,7 +133,9 @@ expression; group a constant expression that uses them as operand data.
   result is read there (ERR-12).
   Select exactly one most-specific admitted candidate.
   Concrete types outrank variables; structurally constrained variables outrank
-  unconstrained ones. No match rejects; tied most-specific candidates are
+  unconstrained ones. Given a list of a fixed size, a sized list pattern,
+  `list<T, N>`, outranks an unsized one, `list<T>`, which admits it too
+  (TYPE-10). No match rejects; tied most-specific candidates are
   ambiguous. Library membership and registration order grant no priority.
   A call in a value function or a runtime body selects among the value
   candidates. A call in a test's or an application's value code (TST-3,
@@ -163,7 +164,15 @@ expression; group a constant expression that uses them as operand data.
   `values: ...i64{1}`.
   A candidate's shape honors them and the operator's generic relationships,
   and it may declare further options of its own, each with a default or
-  without. An option that selects among candidates is a generic value
+  without. A candidate whose result is not the type its operator's
+  declaration gives for the candidate's parameters rejects where it is
+  declared (`impl.result`): with `operator fixed<T>(value: T) -> T`,
+  `impl const fn fixed(value: i64) -> f64` does. So does a candidate for
+  types its operator's `requires` does not admit (`impl.requires`): one
+  for a `str` where the operator `requires T in {i64, f64}`. Proposed: a
+  result that meets that type as GEN-5 has a requested output met, a
+  `result<T, error>` or a `T?` for a T, is not another type here. An
+  option that selects among candidates is a generic value
   parameter, `<const zero: Zero = .ieee>` (GEN-13): its value is known when
   the call is checked, which is what lets it select. An option that does
   not select is a parameter. Across the candidates of one operator an
@@ -175,8 +184,14 @@ expression; group a constant expression that uses them as operand data.
   A call is matched against each candidate's own signature. One that names
   an option admits only the candidates that declare it. An option the call
   omits takes its candidate's default, and a candidate whose option has
-  none is admitted only when the call gives it. The operator owns the
-  defaults of the parameters it declares. A candidate states in `requires`
+  none is admitted only when the call gives it. The same holds of a
+  parameter the call leaves out: a candidate for which it has no default
+  is not admitted, and the call selects among the others. The operator
+  owns the defaults of the parameters it declares: with
+  `operator choose<T>(value: T, zero: T? = null)` and the candidates
+  `choose<T>(value: T, zero: T? = null)` and `choose(value: i64, zero: i64)`,
+  `null` is no default for an `i64`, and `choose(1)` selects the first.
+  A candidate states in `requires`
   the values of a generic value parameter it is for, by comparing it with
   constants: `requires zero == .error`, `requires zero in {.ieee, .nan}`.
   One of type `bool` is also named alone, as a term of the `requires`
@@ -237,7 +252,7 @@ expression; group a constant expression that uses them as operand data.
   value candidate that would be lifted (GEN-5). An instance in which
   that does not hold rejects at the call in the body, with the code the
   call written out would have, and the report names the instance.
-  Proposed: a loop unrolled over
+  A loop unrolled over
   the keys of a pack among the declaration's generic parameters (GEN-17)
   has its passes only where the pack is known, in an instance. What a
   pass composes is checked there, the branch a constant `if` selects

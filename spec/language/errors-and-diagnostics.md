@@ -279,12 +279,14 @@ infrastructure and cannot satisfy a source-rejection expectation.
 | phase | `application.statement` | Statement of an application that is no `inject` of `run_config` or of `global_state` and no call of `put` on the store, or that follows the run statement or precedes a declaration; and either of those in a module (UNIT-14); the statement |
 | phase | `cache.input_read` | Proposed: a cache's initializer reads a temporal input (TIME-5, TIME-6); the read |
 | phase | `run.position` | Run statement in a module or before a declaration of its application (UNIT-14), or `run` in a test that is no integration test (RUN-3); the word |
-| type | `constant.failure` | Proposed: a module's constant, or the default of a parameter or of a field, whose evaluation fails, an `i64` out of range or a division by zero among them (UNIT-13, UNIT-8, ERR-9); the expression |
+| type | `constant.failure` | A module's constant, or the default of a parameter or of a field, whose evaluation fails, an `i64` out of range or a division by zero among them (UNIT-13, UNIT-8, ERR-9); the expression |
 | type | `run.entry` | A run statement's call is of no entry (RUN-1); the call |
 | phase | `run.configuration` | A configuration on an application's run statement (RUN-6); the brace |
 | name | `name.duplicate` | Binding takes a name already in scope (UNIT-5, UNIT-12, TST-2, NATIVE-2); later name |
 | name | `name.used_before_declaration` | Local used before the statement that declares it (UNIT-6); use |
 | name | `constant.cycle` | Constant whose value depends on itself (UNIT-13); name |
+| name | `default.cycle` | Default whose evaluation needs that default again: a field's default that constructs its own struct leaving that field out, or a parameter's default that calls its own function leaving that parameter out, directly or through a function it calls (UNIT-8); the default |
+| name | `name.reserved` | Proposed: a function named for an activation form, `scheduled` (UNIT-10, TIME-9); the name |
 | name | `name.test_only` | Test-only declaration used outside the tests (TST-2); use |
 | name | `name.captured` | Anonymous function uses an enclosing `var`, `state`, `cache`, or injected capability (FN-14); use |
 | name | `default.formal_argument` | Default names a parameter of its declaration or a field of its struct (UNIT-7); use |
@@ -296,6 +298,8 @@ infrastructure and cannot satisfy a source-rejection expectation.
 | operator | `test.implementation` | Operator candidate in a test context (TST-1); operator name |
 | operator | `impl.unknown_operator` | Operator candidate names no operator (GEN-4); operator name |
 | operator | `impl.pack` | Proposed: a candidate declares a fixed parameter where its operator declares a pack (GEN-6); the parameter's name |
+| operator | `impl.result` | Candidate's result is not the type its operator's declaration gives for the candidate's parameters (GEN-6); the result type |
+| operator | `impl.requires` | Candidate for types its operator's `requires` does not admit (GEN-6); the candidate's name |
 | operator | `impl.option_kind` | Candidate declares as a parameter an option that another candidate of its operator declares as a generic value parameter (GEN-6); the parameter's name |
 | operator | `property.duplicate` | A domain that a second property clause of an operator names, or that one clause names twice, or a property that one clause gives twice (GEN-9); the later domain or property |
 | name | `native.missing_declaration` | Native implementation completes no declaration (NATIVE-2); function name |

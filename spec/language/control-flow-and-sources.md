@@ -2,8 +2,8 @@
 
 Status: agreed conditionals, switch design, and phase-dependent
 iteration, unrolled in composition where the graph is built. A sentence
-of CTRL-2, CTRL-7, or CTRL-15 that begins "Proposed:" is proposed.
-CTRL-16 is agreed.
+of CTRL-2, CTRL-7, CTRL-15, or CTRL-16 that begins "Proposed:" is
+proposed. CTRL-16 is otherwise agreed.
 Generator syntax and the shape of a source's body are agreed, as
 is the sentence of SOURCE-3 that begins "Agreed:"; the rest of the timing
 of a `yield` is proposed.
@@ -211,12 +211,17 @@ CTRL-9 places the opening brace of an `if`, `for`, `switch`, `when`, or
   connection of a fixed-size list binds a connection, which is none, and
   an `if` on it is the temporal `if` it ever was (CTRL-13). An `if` whose
   condition is a constant
-  expression, of such a name, generic value parameters and literals,
-  composes the branch it selects, and that branch alone is checked: in
-  `if arg == key { i } else { args[arg] }`, the pass in which `arg` is
-  `key` has the type of `i` and does not read `args`. Outside such a
-  pass an `if` checks both its branches, whatever its condition: a
-  generic body is judged once (GEN-7). A condition that is no constant
+  expression, of such a name, generic value parameters, constants
+  (UNIT-13) and literals, composes the branch it selects, and that branch
+  alone is checked: in `if arg == key { i } else { args[arg] }`, the pass
+  in which `arg` is `key` has the type of `i` and does not read `args`.
+  So does `if key in arg_keys(Ps)` (GEN-17) in any body, in a pass or
+  not, where `key` is a generic value parameter or a constant that is a
+  key, `<const key: str = "key">`. Proposed: where the pack is among the
+  declaration's generic parameters, that branch is selected and checked
+  in each instance, as a loop's passes are (GEN-7). Elsewhere an `if`
+  checks both its branches, whatever its condition: a generic body is
+  judged once (GEN-7). A condition that is no constant
   expression checks both branches, as any `if` does.
 
 Accepted illustrations, statement fragments with `ready` a bool, `items` a
