@@ -210,11 +210,11 @@ expression; group a constant expression that uses them as operand data.
   Where both take the function given, a value function, which the
   `fn(...)` lifts (FN-17), or an anonymous function, which takes the kind
   of either, the call's arguments decide: with temporal arguments the
-  temporal candidate is selected, and with ordinary arguments alone, an
-  all-scalar call (FN-6), the value one. Where the arguments are temporal
+  temporal candidate is selected, and in value code, where every
+  argument is ordinary, the value one. Where the arguments are temporal
   and the value candidate alone admits the call, it is lifted (FN-6).
-  Proposed: an all-scalar call written in composition selects the value
-  candidate too.
+  Proposed: an all-scalar call (FN-6) written in composition selects the
+  value candidate too.
 - **GEN-7.** A generic body is checked under its stated requirements; choosing
   a specialization does not authorize unrelated operations or reify a type/size
   parameter as an ordinary numeric runtime value. A value parameter, a
