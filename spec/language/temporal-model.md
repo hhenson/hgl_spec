@@ -231,7 +231,8 @@ chapter.
   A `return` with no value publishes nothing (FN-7). A result of
   `atomic<V>` takes a V. A result of `rolling_window<V, Max, Min>` takes a
   V, which arrives, and nothing else (TYPE-11): for a nullable V, `return
-  null` is a null that arrives. One of a nullable V takes its delta as
+  null` is a null that arrives. `out` of it, read after a write in the
+  same evaluation, holds that arrival. One of a nullable V takes its delta as
   well, `delta<f64?>(value: 1.0)` or `delta<f64?>()`, as the
   arrival it holds, which is how a replay publishes a recorded one. A
   `ref` result takes no value: a `return` to it names an endpoint, which
@@ -276,8 +277,9 @@ chapter.
   One at the evaluation time is asked for in `start` alone, where it asks
   for a wake at the start, the node's first evaluation, as `0s` does.
   Outside `start` it is dropped with that warning, as an earlier one is.
-  A node is warned of once in a run, at its first dropped wake,
-  and where it had more, their count is logged when the node stops.
+  A node is warned of once each time it starts, at its first dropped
+  wake, and the warning names the node and the time the wake was asked
+  for; where it had more, their count is logged when the node stops.
   Core's capability contract has the rest of what a wake is.
 - **TIME-9.** `endpoint<T>` is the type of the endpoint of a temporal value
   of T, for a function that takes the endpoint and not its payload

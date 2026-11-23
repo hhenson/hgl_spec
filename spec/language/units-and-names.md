@@ -1,7 +1,8 @@
 # Units and names
 
 Status: agreed module, application, visibility, default-binding, lookup, and
-constant rules.
+constant rules. The sentence of UNIT-10 that begins "Proposed:" is
+proposed.
 
 ## Grammar
 
@@ -89,7 +90,13 @@ admits one as a member name.
   stand in any order, and before the parentheses whatever the parameters
   there are. A default cannot use caller
   bindings or invent numeric generic values, but for a law predicate of a
-  function the call gives (GEN-18).
+  function the call gives (GEN-18). A default whose evaluation needs that
+  default again rejects where it is declared (`default.cycle`): a field's
+  default that constructs its own struct leaving that field out, directly
+  or through a function it calls, and a parameter's default that calls its
+  own function leaving that parameter out. With
+  `struct Pt { a: i64 = first(), b: i64 = 0 }` and
+  `const fn first() -> i64 => Pt(b: 1).a`, `a`'s default rejects.
 - **UNIT-9.** Compare inherited defaults by bound expression and canonical type
   after substitution, before folding. Declaration identity matters; source
   location, alias spelling, and how a literal is written do not (UNIT-13):
@@ -101,7 +108,10 @@ admits one as a member name.
   (GEN-1); a module declaration; a selective import; or the prelude. A name
   that none of these binds rejects (`name.unknown`). Direct
   capability receivers select their capability operation; reserved activation
-  forms are not shadowable identifiers. Resolution grants no payload read
+  forms are not shadowable identifiers. A function named for one,
+  `scheduled` (TIME-9), rejects where it is declared. Proposed: so does
+  any other declaration of that name, an operator, a struct, an enum or
+  a constant. Resolution grants no payload read
   during composition and does not change default binding (UNIT-7). A name
   in a type position names a struct, an enum, a native type, or a generic
   parameter that is a type. The types of a signature see the declaration's

@@ -198,7 +198,8 @@ rejection (TYPE-12, TYPE-14). TYPE-16 says what a `delta_type` is.
 - **TYPE-10.** `list<T>` denotes a growing shape; fixed sizes are nonnegative
   integer constants. A generic value parameter declared with a type other
   than `i64` is no size; one declared with none is a size (GEN-13).
-  `unbounded` is the size sentinel. Size participates in identity;
+  `unbounded` is the size sentinel: `list<T>` and `list<T, unbounded>`
+  are one type. Size participates in identity;
   an unsized parameter pattern can accept a fixed size. A tuple retains
   positional identity and is not a fixed list alias.
 - **TYPE-11.** `rolling_window<V, Max, Min>` is a rolling window of V. Its
