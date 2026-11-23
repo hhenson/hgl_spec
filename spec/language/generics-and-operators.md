@@ -185,12 +185,13 @@ expression; group a constant expression that uses them as operand data.
   an option admits only the candidates that declare it. An option the call
   omits takes its candidate's default, and a candidate whose option has
   none is admitted only when the call gives it. The same holds of a
-  parameter: a candidate that gives no default for a parameter the call
-  leaves out is not admitted, and the call selects among the others. With
+  parameter the call leaves out: a candidate for which it has no default
+  is not admitted, and the call selects among the others. The operator
+  owns the defaults of the parameters it declares: with
   `operator choose<T>(value: T, zero: T? = null)` and the candidates
   `choose<T>(value: T, zero: T? = null)` and `choose(value: i64, zero: i64)`,
-  `choose(1)` selects the first. The operator owns the
-  defaults of the parameters it declares. A candidate states in `requires`
+  `null` is no default for an `i64`, and `choose(1)` selects the first.
+  A candidate states in `requires`
   the values of a generic value parameter it is for, by comparing it with
   constants: `requires zero == .error`, `requires zero in {.ieee, .nan}`.
   One of type `bool` is also named alone, as a term of the `requires`
