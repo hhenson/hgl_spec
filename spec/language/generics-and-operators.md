@@ -4,7 +4,7 @@ Status: agreed generic, pack, and nominal-operator baseline. Detailed core
 operation domains belong to core and retain their own decision status.
 GEN-17, a function's parameters read as a named pack, is agreed, and so
 are the `any` of GEN-10 and the law predicates of GEN-18. Each sentence
-of GEN-3, GEN-6, and GEN-7 that begins "Proposed:" is proposed.
+of GEN-3 and GEN-6 that begins "Proposed:" is proposed.
 
 ## Grammar
 
@@ -144,9 +144,9 @@ expression; group a constant expression that uses them as operand data.
   selects rejects. A call in composition selects among all of them; a value
   candidate it selects for temporal arguments is lifted (FN-6). There, a
   temporal candidate outranks a value candidate of the same parameter
-  types where the call has a temporal argument, as composition chooses
-  the temporal definition of a pair (FN-4), and an all-scalar call (FN-6)
-  selects the value candidate.
+  types where the call has a temporal argument, and an all-scalar call
+  (FN-6) selects the value candidate: a direct match outranks a lifted
+  one, as for the two definitions of a pair (FN-4).
   A candidate that takes each integer literal as the `i64` it is outranks
   one for which a literal is widened to an `f64` (EXPR-5): `doubled(1)`
   selects `doubled(value: i64)` where there is one, and
@@ -259,9 +259,8 @@ expression; group a constant expression that uses them as operand data.
   instance in which either does not hold rejects at the call that makes
   the instance, with the code the call or the body written out would
   have, and the report names the instance and the call in the body.
-  Proposed: where one instance makes another, that call is the one
-  written outside every generic body, and the report names each instance
-  on the way.
+  Where one instance makes another, that call is the one written outside
+  every generic body, and the report names each instance on the way.
   A loop unrolled over
   the keys of a pack among the declaration's generic parameters (GEN-17)
   has its passes only where the pack is known, in an instance. What a
