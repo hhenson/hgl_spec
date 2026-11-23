@@ -69,8 +69,9 @@ A lone `_` is classified as a placeholder token, not an identifier.
   `.member` (TYPE-7) begins no statement after another. Where no statement
   precedes it in its block it is an expression, and may be the block's
   value (CTRL-10): `{ .buy }`. Two or more line breaks between two tokens,
-  as around a blank line, always separate. A body's opening brace stays
-  with its header.
+  as around a blank line, always separate. A body's opening brace
+  continues its header across one line break: the header is incomplete
+  without its body.
 - **LEX-6.** Inside blocks, indentation alone cannot join statements. Two
   ordinary statements on one physical line are rejected. An inject list may
   continue after a comma when the next line begins with a name.
@@ -318,6 +319,12 @@ struct Quote {
 fn spread(quote: Quote) -> f64
     => quote.ask - quote.bid
 
+const fn larger<T>(a: T, b: T) -> T
+    requires T in {i64, f64}
+{
+    if a < b { b } else { a }
+}
+
 fn low(quote: Quote, margin: f64) -> f64 {
     let sum = quote
         .bid
@@ -333,7 +340,9 @@ fn low(quote: Quote, margin: f64) -> f64 {
 }
 ```
 
-`spread` is one declaration: `=>` cannot begin one. In `low`, `.bid` and
+`spread` is one declaration: `=>` cannot begin one. The `{` on the line
+after `larger`'s `requires` opens its body: the declaration cannot end
+before it. In `low`, `.bid` and
 `+ quote.ask` continue `let sum`, and `- margin` continues `let reduced`.
 `2.0` completes `let half` and `(reduced)` completes `let lowest`: neither
 first line can end. After a line that can end, `(reduced)` would begin a
@@ -350,7 +359,8 @@ delimiter, a text-block line ending in `\`, and a text block the file ends
 inside (LEX-25); `@[]` and `@[Europe/]` (LEX-12);
 `@2026-09-03T09:30+24:00` (LEX-19); `1e400` (LEX-20);
 `xs: list<i64>= value` (LEX-17); a form feed between tokens (LEX-16);
-a blank line between `let half = sum /` and `2.0` (LEX-5); `\` followed on
+a blank line between `let half = sum /` and `2.0`, and one between
+`larger`'s `requires` and its `{` (LEX-5); `\` followed on
 its line by a comment or by any token (LEX-26); `f (x)`, `x [i]`,
 `fn f <T>(x: T)`, `list <i64>`, and `...T {2}` (LEX-27).
 Conformance is planned.
