@@ -5,7 +5,7 @@ operation domains belong to core and retain their own decision status.
 GEN-17, a function's parameters read as a named pack, is agreed, and so
 are the `any` of GEN-10 and the law predicates of GEN-18. The sentence of
 GEN-7 that begins "Proposed:" is proposed, with those that follow it, and
-so is each sentence of GEN-3, GEN-6 and GEN-9 that begins "Proposed:".
+so is each sentence of GEN-3 and GEN-6 that begins "Proposed:".
 
 ## Grammar
 
@@ -284,9 +284,9 @@ expression; group a constant expression that uses them as operand data.
   for `f64`. The identity it gives is a value of each of those types, and
   one that is not rejects where it is declared (`type.mismatch`). A clause
   that names a domain an earlier clause of the operator names rejects
-  where it is declared, and so does a property that one clause gives
-  twice, each with the code `property.duplicate`, at the later of the two.
-  Proposed: so does a domain that one clause names twice, with that code.
+  where it is declared, and so do a domain that one clause names twice
+  and a property that one clause gives twice, each with the code
+  `property.duplicate`, at the later of the two.
 - **GEN-10.** Pack views preserve positional order or supplied named keys.
   `each T in types(Ts)` checks every selected type; an empty conjunction is true.
   `any T in types(Ts)` holds where its body holds for at least one, and
@@ -858,8 +858,8 @@ Both laws and the identity are declared for `i64` and for `f64`: the
 identity `0`, and `0.0` (EXPR-5). Deliberate rejections, where the
 operator is declared: `identity = "zero"`, a `str` (`type.mismatch`); and
 a further clause `properties<f64> { associative }`, a second for `f64`,
-and `{ associative, associative }` (`property.duplicate`). Proposed
-rejection, with that code: `properties<i64, i64>`. Conformance planned.
+`properties<i64, i64>`, and `{ associative, associative }`
+(`property.duplicate`). Conformance planned.
 
 Accepted declaration fragment, a configuration parameter beside a pack
 declared for a function (FN-18):
