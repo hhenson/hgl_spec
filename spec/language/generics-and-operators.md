@@ -211,9 +211,10 @@ expression; group a constant expression that uses them as operand data.
   `fn(...)` lifts (FN-17), or an anonymous function, which takes the kind
   of either, the call's arguments decide: with temporal arguments the
   temporal candidate is selected, and with ordinary arguments alone, an
-  all-scalar call (FN-6), the value one, in composition too. Where the
-  arguments are temporal and the value candidate alone admits the call,
-  it is lifted (FN-6).
+  all-scalar call (FN-6), the value one. Where the arguments are temporal
+  and the value candidate alone admits the call, it is lifted (FN-6).
+  Proposed: an all-scalar call written in composition selects the value
+  candidate too.
 - **GEN-7.** A generic body is checked under its stated requirements; choosing
   a specialization does not authorize unrelated operations or reify a type/size
   parameter as an ordinary numeric runtime value. A value parameter, a
@@ -955,8 +956,9 @@ temporal candidate in value code (`call.role`); and `applied(step, n)` in
 a `const fn`, which no value candidate admits (`operator.no_candidate`).
 `applied(inc, count)` and `applied(fn(y) => y + 1, count)` select the
 temporal candidate, which lifts `inc` and composes the anonymous
-function's body. `applied(inc, 1)` selects the value candidate wherever
-it is written, in a test and in composition alike. Conformance planned.
+function's body. `applied(inc, 1)` in a test selects the value candidate.
+Proposed: so does `applied(inc, 1)` written in composition. Conformance
+planned.
 
 Accepted declaration fragments, a named operator requirement (GEN-7,
 GEN-16):
