@@ -144,7 +144,9 @@ expression; group a constant expression that uses them as operand data.
   selects rejects. A call in composition selects among all of them; a value
   candidate it selects for temporal arguments is lifted (FN-6). There, a
   temporal candidate outranks a value candidate of the same parameter
-  types, as composition chooses the temporal definition of a pair (FN-4).
+  types where the call has a temporal argument, as composition chooses
+  the temporal definition of a pair (FN-4), and an all-scalar call (FN-6)
+  selects the value candidate.
   A candidate that takes each integer literal as the `i64` it is outranks
   one for which a literal is widened to an `f64` (EXPR-5): `doubled(1)`
   selects `doubled(value: i64)` where there is one, and
@@ -213,11 +215,13 @@ expression; group a constant expression that uses them as operand data.
   `amb(a: i64, b: i64)`, is the more specific and ends it. Neither of
   two that tie is ever taken for its place in the source (GEN-5). A
   value candidate and a temporal candidate with the same parameter types
-  stay resolvable: a call in composition selects the temporal one (GEN-5),
-  and a call in a value function, a runtime body or value code the value
-  one. So do a value candidate and a temporal candidate alike but for a
-  parameter that takes a function (FN-17), `const fn(...)` in the value
-  one and `fn(...)` in the temporal one: the function given decides. A
+  stay resolvable: a call in composition that has a temporal argument
+  selects the temporal one (GEN-5), and an all-scalar call (FN-6) in
+  composition, as a call in a value function, a runtime body or value
+  code, the value one. So do a value candidate and a temporal candidate
+  alike but for a parameter that takes a function (FN-17), `const fn(...)`
+  in the value one and `fn(...)` in the temporal one: the function given
+  decides. A
   temporal function is taken by the `fn(...)` alone (FN-17), so it selects
   the temporal candidate, which in value code then rejects (`call.role`);
   in a value function or a runtime body, which select among the value
@@ -225,11 +229,10 @@ expression; group a constant expression that uses them as operand data.
   Where both take the function given, a value function, which the
   `fn(...)` lifts (FN-17), or an anonymous function, which takes the kind
   of either, the call's arguments decide: with temporal arguments the
-  temporal candidate is selected, and in value code, where every
-  argument is ordinary, the value one. Where the arguments are temporal
-  and the value candidate alone admits the call, it is lifted (FN-6).
-  Proposed: an all-scalar call (FN-6) written in composition selects the
-  value candidate too.
+  temporal candidate is selected, and where every argument is ordinary,
+  in value code and in an all-scalar call (FN-6) written in composition,
+  the value one. Where the arguments are temporal and the value candidate
+  alone admits the call, it is lifted (FN-6).
 - **GEN-7.** A generic body is checked under its stated requirements; choosing
   a specialization does not authorize unrelated operations or reify a type/size
   parameter as an ordinary numeric runtime value. A value parameter, a
@@ -249,9 +252,13 @@ expression; group a constant expression that uses them as operand data.
   (FN-15), a `const` parameter a constant, and the candidate is one the
   call's setting admits, a value candidate in a node's hook or a value
   function and, where a graph is built, a temporal candidate before a
-  value candidate that would be lifted (GEN-5). An instance in which
-  that does not hold rejects at the call in the body, with the code the
-  call written out would have, and the report names the instance.
+  value candidate that would be lifted, and the value candidate for an
+  all-scalar call (GEN-5). In the instance the call is of the type its
+  selected candidate gives, and what the body does with it is checked
+  there, as for the same body written with the instance's types. An
+  instance in which either does not hold rejects at the call in the body,
+  with the code the call or the body written out would have, and the
+  report names the instance.
   A loop unrolled over
   the keys of a pack among the declaration's generic parameters (GEN-17)
   has its passes only where the pack is known, in an instance. What a
@@ -537,6 +544,41 @@ admitted by the first. `through("a")` selects it. `through(3)` selects
 the second, whose `var` parameter the immutable `value` cannot be given:
 that instance rejects (`binding.immutable`), as `bump(value)` written
 with an `i64` parameter would.
+
+An instance checked for the result its candidate gives (GEN-7):
+
+```hgl
+operator fetch<T, R>(value: T) -> R
+
+impl const fn fetch<T>(value: T) -> i64 => 5
+
+impl const fn fetch(value: i64) -> str => "other"
+
+const fn inferred<T>(value: T) -> i64 {
+    let answer = fetch(value)
+    return answer
+}
+
+operator items_of<T, C>(value: T) -> C
+
+impl const fn items_of<T>(value: T) -> list<i64, 2> => [1, 2]
+
+impl const fn items_of(value: i64) -> list<i64, 3> => [value, value + 1, value + 2]
+
+const fn first_of<T>(value: T) -> i64 => items_of(value)[0]
+```
+
+Both declarations are accepted: the first candidate of each takes every
+`T`. `inferred("s")` is 5. The instance `inferred(3)` makes selects the
+second candidate, so `answer` is a `str` there, which `return answer`
+does not fit (EXPR-5): that instance rejects at `fetch(value)`, with
+`type.mismatch`, as the body written with an `i64` would, and the report
+names the instance and `inferred(3)`, the call that made it. With
+`let answer: i64 = fetch(value)` the call requests an `i64`, which the
+second candidate does not give, and the instance selects the first
+(GEN-5): `inferred(3)` is 5. `first_of(5)` is 5 and `first_of("s")` is
+1: each instance indexes the list its own candidate gives. Conformance
+planned.
 
 Accepted value-function fragments for the order of GEN-2, with
 `const fn same<T>(left: T, right: T) -> T`,
@@ -971,9 +1013,8 @@ temporal candidate in value code (`call.role`); and `applied(step, n)` in
 a `const fn`, which no value candidate admits (`operator.no_candidate`).
 `applied(inc, count)` and `applied(fn(y) => y + 1, count)` select the
 temporal candidate, which lifts `inc` and composes the anonymous
-function's body. `applied(inc, 1)` in a test selects the value candidate.
-Proposed: so does `applied(inc, 1)` written in composition. Conformance
-planned.
+function's body. `applied(inc, 1)` selects the value candidate, in a test
+and written in composition alike. Conformance planned.
 
 Accepted declaration fragments, a named operator requirement (GEN-7,
 GEN-16):

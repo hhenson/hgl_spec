@@ -4,9 +4,8 @@ Status: a test's value code (TST-3), the eval rules, TST-5 to TST-9,
 what a `const fn` is given for a trace, TST-16, and integration tests,
 TST-17, are agreed, and so are which modules' tests are a run's cases
 and that a case an integration test owns goes with its test (TST-14).
-The scope of a candidate a test declares (TST-1) is agreed, but for the
-sentence of TST-1 that begins "Proposed:". The error expectation
-contracts retain their status below.
+The scope of a candidate a test declares (TST-1) is agreed. The error
+expectation contracts retain their status below.
 
 ## Grammar
 
@@ -49,12 +48,11 @@ assert.
   part of the identity of a type or an operator it declares,
   `(module, test, name)`, so the same name in two tests is two
   declarations with nothing in common (GEN-4, UNIT-4). A candidate a test
-  declares is a candidate of its operator, as one declared in the test's
-  module is, within that test's scope alone: the module as released, and
-  an application's run, do not have it. Proposed: within that scope the
-  candidate takes part in every call the test evaluates, a call inside a
-  function or an operator the test calls among them. None is exported or
-  native, and a test imports nothing. Unnamed contexts
+  declares is a candidate of its operator for every test of its module,
+  selected by the ordinary rules (GEN-5), in a call a test writes and in
+  a call inside a function or an operator a test calls; the module as
+  released, an application's run, and another module do not have it.
+  None is exported or native, and a test imports nothing. Unnamed contexts
   contribute private fn/const-fn helpers, unexported struct/enum types, and
   named tests to one module-wide test scope across all parts, independent of
   order. They create no helper namespace. Nested contexts, imports, operator
