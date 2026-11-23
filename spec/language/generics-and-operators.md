@@ -4,7 +4,7 @@ Status: agreed generic, pack, and nominal-operator baseline. Detailed core
 operation domains belong to core and retain their own decision status.
 GEN-17, a function's parameters read as a named pack, is agreed, and so
 are the `any` of GEN-10 and the law predicates of GEN-18. Each sentence
-of GEN-3 and GEN-6 that begins "Proposed:" is proposed.
+of GEN-3, GEN-6, and GEN-7 that begins "Proposed:" is proposed.
 
 ## Grammar
 
@@ -256,9 +256,12 @@ expression; group a constant expression that uses them as operand data.
   all-scalar call (GEN-5). In the instance the call is of the type its
   selected candidate gives, and what the body does with it is checked
   there, as for the same body written with the instance's types. An
-  instance in which either does not hold rejects at the call in the body,
-  with the code the call or the body written out would have, and the
-  report names the instance.
+  instance in which either does not hold rejects at the call that makes
+  the instance, with the code the call or the body written out would
+  have, and the report names the instance and the call in the body.
+  Proposed: where one instance makes another, that call is the one
+  written outside every generic body, and the report names each instance
+  on the way.
   A loop unrolled over
   the keys of a pack among the declaration's generic parameters (GEN-17)
   has its passes only where the pack is known, in an instance. What a
@@ -571,9 +574,10 @@ const fn first_of<T>(value: T) -> i64 => items_of(value)[0]
 Both declarations are accepted: the first candidate of each takes every
 `T`. `inferred("s")` is 5. The instance `inferred(3)` makes selects the
 second candidate, so `answer` is a `str` there, which `return answer`
-does not fit (EXPR-5): that instance rejects at `fetch(value)`, with
-`type.mismatch`, as the body written with an `i64` would, and the report
-names the instance and `inferred(3)`, the call that made it. With
+does not fit (EXPR-5): that instance rejects at `inferred(3)`, the call
+that makes it, with `type.mismatch`, as the body written with an `i64`
+would, and the report names the instance and `fetch(value)`, the call
+in the body. With
 `let answer: i64 = fetch(value)` the call requests an `i64`, which the
 second candidate does not give, and the instance selects the first
 (GEN-5): `inferred(3)` is 5. `first_of(5)` is 5 and `first_of("s")` is
