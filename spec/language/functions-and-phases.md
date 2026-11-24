@@ -62,8 +62,11 @@ Local source/native declaration matching is defined in the native chapter.
   the graph is built. In composition that is any ordinary value. In a hook
   and in a value function it is a constant expression: of literals, enum
   members, constants (UNIT-13), generic value parameters, and the enclosing
-  function's own `const` parameters. A temporal `fn` has temporal non-const
-  parameters and a temporal result; an omitted result arrow means outputless.
+  function's own `const` parameters. These expressions may read a field of a
+  constant, a generic value parameter, or an enclosing `const` parameter, and may
+  read an entry of any of them at a constant index. A temporal `fn` has temporal
+  non-const parameters and a temporal result. An omitted result arrow means
+  outputless.
   A parameter that takes a function is neither temporal nor `const`, in a
   temporal function as in a value function: it is no connection and no
   value, and is fixed where the call is compiled (FN-17).

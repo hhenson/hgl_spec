@@ -79,7 +79,8 @@ admits one as a member name.
   may have one: a value function's, const configuration, or a temporal input. An omitted temporal argument is
   wired as a constant of its default, so the default is a value a constant of
   the parameter's type can publish. A default of `null` marks a temporal input
-  optional: an omitted argument binds an input that is never valid. A
+  optional: an omitted argument binds an input that is never valid. For an
+  optional signal input, writing `null` is equivalent to omission (TYPE-14). A
   parameter whose type is written `T?` needs no default to be omitted: it is
   taken to have a default of `null`, so an omitted value parameter is null
   and an omitted temporal input is never valid. A `var` parameter is the
