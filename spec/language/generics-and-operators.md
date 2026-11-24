@@ -1075,7 +1075,9 @@ impl fn visit(f: fn(i64), a: i64) => f(a)
 In a graph, for a temporal `count` of `i64`: `through(plus_one, count)`
 binds R as `i64` and is a connection of `i64`; `through(record, count)`
 binds R to none, gives no result and is a statement, and in its instance
-`f(a)` is a statement too (FN-7). `visit(plus_one, count)` selects the
+`f(a)` is a statement too (FN-7). An anonymous function binds R by its
+body: `through(fn(x) => x + 1, count)` as `i64`, and
+`through(fn(x) => record(x), count)` to none. `visit(plus_one, count)` selects the
 first candidate, the second's `fn(i64)` taking no function that gives a
 result, and `visit(record, count)` selects the second and gives no
 result. Deliberate rejections: `through(record, count)` where the body of
