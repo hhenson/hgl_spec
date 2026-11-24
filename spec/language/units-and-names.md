@@ -97,7 +97,11 @@ admits one as a member name.
   or through a function it calls, and a parameter's default that calls its
   own function leaving that parameter out. With a struct `Pt` of the
   fields `a: i64 = first()` and `b: i64 = 0`, and
-  `const fn first() -> i64 => Pt(b: 1).a`, `a`'s default rejects.
+  `const fn first() -> i64 => Pt(b: 1).a`, `a`'s default rejects. What a
+  default needs is read from what is written, as a constant's dependence is
+  (UNIT-13), a branch that never runs among it: with
+  `const fn first() -> i64 => if false { Pt(b: 1).a } else { 1 }`, `a`'s
+  default rejects too.
 - **UNIT-9.** Compare inherited defaults by bound expression and canonical type
   after substitution, before folding. Declaration identity matters; source
   location, alias spelling, and how a literal is written do not (UNIT-13):
@@ -156,7 +160,10 @@ admits one as a member name.
   (FN-1), and a compile-time constant where a generic value argument
   (GEN-8) or a `switch` label (CTRL-12) requires one. It is referenced
   forward as any module declaration is (UNIT-6), and its value depends on
-  no constant that depends on it.
+  no constant that depends on it (`constant.cycle`). That dependence is read
+  from what is written, in the expression and in the functions it calls,
+  and not from what an evaluation reaches:
+  `const a: i64 = if false { a } else { 1 }` depends on itself.
   A compile-time constant (GEN-8), a literal or a constant among them, is
   one value of the type its place gives it (EXPR-5): `1` where an `f64` is
   expected is `1.0`. Two compile-time constants are one where those values
