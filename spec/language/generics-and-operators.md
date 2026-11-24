@@ -170,6 +170,11 @@ expression; group a constant expression that uses them as operand data.
   types where the call has a temporal argument, and an all-scalar call
   (FN-6) selects the value candidate: a direct match outranks a lifted
   one, as for the two definitions of a pair (FN-4).
+  An exact match is the best match: a candidate that takes an argument
+  as the type it is outranks one for which the argument is widened, to a
+  `T?` (TYPE-14) or to a struct its type inherits from. `pick(v)` for an
+  `i64` selects `pick(value: i64)` where there is one, and
+  `pick(value: i64?)` where there is not.
   A candidate that takes each integer literal as the `i64` it is outranks
   one for which a literal is widened to an `f64` (EXPR-5): `doubled(1)`
   selects `doubled(value: i64)` where there is one, and
