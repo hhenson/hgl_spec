@@ -210,7 +210,8 @@ expression; group a constant expression that uses them as operand data.
   `operator pick<R>(value: any) -> R`, `impl fn pick(value: i64) -> i64`
   rejects, though an `i64` is a value an `any` holds. An operator whose
   candidates take a parameter as different types declares a generic
-  parameter for it, `operator pick<T, R>(value: T) -> R`. A parameter the
+  parameter for it, `operator pick<T, R>(value: T) -> R`, which a
+  candidate may bind to `any`, `impl fn pick(value: any) -> i64`. A parameter the
   operator declares nullable a candidate may take as required, as
   `choose(value: i64, zero: i64)` below does. Proposed: a candidate may
   take as `any` a parameter its operator declares as another type.
