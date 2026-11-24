@@ -201,7 +201,24 @@ expression; group a constant expression that uses them as operand data.
   `values: ...i64{1}`.
   A candidate's shape honors them and the operator's generic relationships,
   and it may declare further options of its own, each with a default or
-  without. A candidate whose result is not the type its operator's
+  without. A candidate takes each parameter the operator declares as the
+  type the operator gives it, the operator's generic parameters bound to
+  what the candidate is for: one that writes another type there does not
+  match its operator and rejects where it is declared. Proposed: with the
+  code `impl.parameter`. `any` is a type of its own (TYPE-8) and no generic
+  parameter, and a candidate does not narrow it: with
+  `operator pick<R>(value: any) -> R`, `impl fn pick(value: i64) -> i64`
+  rejects, though an `i64` is a value an `any` holds. An operator whose
+  candidates take a parameter as different types declares a generic
+  parameter for it, `operator pick<T, R>(value: T) -> R`, which a
+  candidate may bind to `any`, `impl fn pick(value: any) -> i64`. Two
+  differences are no other type: a parameter the operator declares
+  nullable a candidate may take as required, as
+  `choose(value: i64, zero: i64)` below does, and a function the operator
+  declares `fn(...)` a value candidate may take as `const fn(...)`, as
+  below. Proposed: a candidate may take as `any` a parameter its operator
+  declares as another type.
+  A candidate whose result is not the type its operator's
   declaration gives for the candidate's parameters rejects where it is
   declared (`impl.result`): with `operator fixed<T>(value: T) -> T`,
   `impl const fn fixed(value: i64) -> f64` does. So does a candidate for
