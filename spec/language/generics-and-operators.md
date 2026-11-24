@@ -211,10 +211,13 @@ expression; group a constant expression that uses them as operand data.
   rejects, though an `i64` is a value an `any` holds. An operator whose
   candidates take a parameter as different types declares a generic
   parameter for it, `operator pick<T, R>(value: T) -> R`, which a
-  candidate may bind to `any`, `impl fn pick(value: any) -> i64`. A parameter the
-  operator declares nullable a candidate may take as required, as
-  `choose(value: i64, zero: i64)` below does. Proposed: a candidate may
-  take as `any` a parameter its operator declares as another type.
+  candidate may bind to `any`, `impl fn pick(value: any) -> i64`. Two
+  differences are no other type: a parameter the operator declares
+  nullable a candidate may take as required, as
+  `choose(value: i64, zero: i64)` below does, and a function the operator
+  declares `fn(...)` a value candidate may take as `const fn(...)`, as
+  below. Proposed: a candidate may take as `any` a parameter its operator
+  declares as another type.
   A candidate whose result is not the type its operator's
   declaration gives for the candidate's parameters rejects where it is
   declared (`impl.result`): with `operator fixed<T>(value: T) -> T`,
