@@ -175,6 +175,13 @@ expression; group a constant expression that uses them as operand data.
   `T?` (TYPE-14) or to a struct its type inherits from. `pick(v)` for an
   `i64` selects `pick(value: i64)` where there is one, and
   `pick(value: i64?)` where there is not.
+  So it is with an anonymous function that writes no result (FN-17): where
+  its body gives a value, a candidate whose function type has a result
+  outranks one whose function type has none, which would drop that value.
+  With `visit<R>(f: fn(i64) -> R, a: i64) -> R` and
+  `visit(f: fn(i64), a: i64)`, `visit(fn(x) => x + 1, count)` selects the
+  first, and R is `i64`; `visit(fn(x) => record(x), count)`, for a `record`
+  that gives none, selects the second (GEN-6).
   A candidate that takes each integer literal as the `i64` it is outranks
   one for which a literal is widened to an `f64` (EXPR-5): `doubled(1)`
   selects `doubled(value: i64)` where there is one, and
