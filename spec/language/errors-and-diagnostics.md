@@ -298,6 +298,7 @@ infrastructure and cannot satisfy a source-rejection expectation.
 | operator | `test.implementation` | Operator candidate in a test context (TST-1); operator name |
 | operator | `impl.unknown_operator` | Operator candidate names no operator (GEN-4); operator name |
 | operator | `impl.pack` | Proposed: a candidate declares a fixed parameter where its operator declares a pack (GEN-6); the parameter's name |
+| operator | `impl.parameter` | Proposed: a candidate writes for a parameter a type that is not the one its operator declares (GEN-6); the parameter's name |
 | operator | `impl.result` | Candidate's result is not the type its operator's declaration gives for the candidate's parameters (GEN-6); the result type |
 | operator | `impl.requires` | Candidate for types its operator's `requires` does not admit (GEN-6); the candidate's name |
 | operator | `impl.option_kind` | Candidate declares as a parameter an option that another candidate of its operator declares as a generic value parameter (GEN-6); the parameter's name |
