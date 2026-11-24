@@ -132,8 +132,8 @@ admits one as a member name.
   the other, and everywhere else the name is what it was. Where the binding
   is of a function type (FN-17) and the name it takes is a function's or an
   operator's, a call of the name in its scope calls the binding, and the
-  binding is a warning (`name.hides_function`). The forms of the language
-  are taken by no binding: `scheduled`, `modified`, and `valid` (TIME-9),
+  binding is a warning (`name.hides_function`). It takes none of the names
+  of the language's forms: `scheduled`, `modified`, and `valid` (TIME-9),
   and the contextual names of ERR-13. `state`, `cache`,
   and `inject` bind locals; an `each` constraint binds a generic parameter
   within its braces. A `use` binds no name another `use` of its file has
