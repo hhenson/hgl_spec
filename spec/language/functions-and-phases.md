@@ -62,8 +62,11 @@ Local source/native declaration matching is defined in the native chapter.
   the graph is built. In composition that is any ordinary value. In a hook
   and in a value function it is a constant expression: of literals, enum
   members, constants (UNIT-13), generic value parameters, and the enclosing
-  function's own `const` parameters. A temporal `fn` has temporal non-const
-  parameters and a temporal result; an omitted result arrow means outputless.
+  function's own `const` parameters. These expressions admit a field of,
+  or an entry at a constant index of, a constant, a generic value parameter,
+  an enclosing `const` parameter, or another read admitted by this rule.
+  A temporal `fn` has temporal non-const parameters and a temporal result;
+  an omitted result arrow means outputless.
   A parameter that takes a function is neither temporal nor `const`, in a
   temporal function as in a value function: it is no connection and no
   value, and is fixed where the call is compiled (FN-17).
@@ -575,9 +578,13 @@ Accepted declaration fragment, an input that may be omitted (TYPE-14):
 
 ```hgl
 fn sampled(value: f64, tick: signal?) -> f64 => value
+
+fn omitted_tick(price: f64) -> f64 => sampled(price)
+fn written_null_tick(price: f64) -> f64 => sampled(price, null)
 ```
 
-`sampled(price)` omits `tick`, an input that is then never valid (UNIT-8).
+`sampled(price)` omits `tick`. The call `sampled(price, null)` gives it
+a written `null`. Both bind a never-valid `tick` input (UNIT-8).
 Deliberate source rejections: a result of type `rolling_window<f64, 5>?`
 (TYPE-14);
 `tick: signal = 1`, a default a signal cannot take (TYPE-12). Executable
@@ -598,6 +605,39 @@ which is fixed wherever `named` is called. Deliberate source rejection:
 `const fn found(store: Store, key: str) -> bool => held(store, key)`, whose
 `key` is a value of one call (`argument.constant`). Executable conformance is
 planned.
+
+Accepted illustration, complete module (FN-1).
+
+```hgl
+module examples.fixed_reads
+
+struct Settings {
+    pattern: str
+    width: i64
+}
+
+const SETTINGS: Settings = Settings(pattern: "x", width: 3)
+const fn take(const p: str) -> str => p
+
+const fn from_parameter(const settings: Settings) -> str => take(settings.pattern)
+const fn from_pair(const pair: tuple<str, i64>) -> str => take(pair[0])
+const fn from_constant() -> str => take(SETTINGS.pattern)
+const fn from_nested(const pair: tuple<Settings, i64>) -> str => take(pair[0].pattern)
+```
+
+The first three calls to `take` receive the argument's `pattern` field,
+the tuple's first entry, and `"x"` from `SETTINGS.pattern`, respectively.
+In `from_nested`, `pair[0].pattern` reads the first tuple entry and then
+its `pattern` field.
+Adding the following declaration is a deliberate source rejection.
+The index is a value of one call, so the entry is refused as a constant
+argument (`argument.constant`).
+
+```hgl
+const fn indexed(const items: list<str>, index: i64) -> str => take(items[index])
+```
+
+Conformance planned.
 
 Accepted declaration fragments, a `var` parameter (FN-15):
 
