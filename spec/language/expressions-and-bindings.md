@@ -1,8 +1,9 @@
 # Expressions and bindings
 
 Status: agreed expression/binding baseline. The sparse-field rules of
-structural delta construction are proposed. EXPR-16, a range, and EXPR-17,
-a list made by a loop, are agreed.
+structural delta construction are proposed, and so is the sentence of
+EXPR-2 that begins "Proposed:". EXPR-16, a range, and EXPR-17, a list
+made by a loop, are agreed.
 
 ## Grammar
 
@@ -81,7 +82,10 @@ GEN-14 resolves generic construction versus comparison using declaration lookup.
   an operator an option its candidates declare (GEN-6). Positional arguments
   fill the parameters from the first and stop where they stop; named
   arguments come in any order, and a parameter that may be omitted may be
-  left out. A parameter that may be omitted, one with a default or a type
+  left out. Proposed: a positional pack takes every positional argument
+  the parameters before it leave, so a parameter declared after it is
+  given by name alone (FN-8). A parameter that may be omitted, one with a
+  default or a type
   written `T?` that is no `var` parameter, follows every parameter that may
   not (UNIT-8). A struct's
   constructor takes named arguments only (TYPE-5). An enum's takes one

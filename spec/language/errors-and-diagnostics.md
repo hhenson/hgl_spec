@@ -338,7 +338,7 @@ infrastructure and cannot satisfy a source-rejection expectation.
 | type | `generic.invalid_application` | Generic type's name before a `<` that opens no arguments (GEN-14); name |
 | type | `pack.default` | Pack parameter has a default (FN-8); `=` |
 | type | `pack.const` | Pack parameter is const (FN-8); `const` |
-| type | `pack.order` | Fixed parameter follows a pack (FN-8); parameter name |
+| type | `pack.order` | Fixed parameter follows a pack (FN-8); parameter name. Proposed: a named pack alone, since one may follow a positional pack (FN-8) |
 | type | `pack.undeclared` | `...{Name}` names no type pack of its declaration (FN-8); name in the braces |
 | type | `function.argument` | An argument for a parameter that takes a function names no function known where the call is compiled (FN-17); the argument |
 | type | `pack.name` | `Ps[name]` for a name the pack has not (GEN-17); the name |
