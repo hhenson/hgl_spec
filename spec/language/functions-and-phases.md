@@ -62,11 +62,11 @@ Local source/native declaration matching is defined in the native chapter.
   the graph is built. In composition that is any ordinary value. In a hook
   and in a value function it is a constant expression: of literals, enum
   members, constants (UNIT-13), generic value parameters, and the enclosing
-  function's own `const` parameters. These expressions may read a field of a
-  constant, a generic value parameter, or an enclosing `const` parameter, and may
-  read an entry of any of them at a constant index. A temporal `fn` has temporal
-  non-const parameters and a temporal result; an omitted result arrow means
-  outputless.
+  function's own `const` parameters. These expressions admit a field of,
+  or an entry at a constant index of, a constant, a generic value parameter,
+  an enclosing `const` parameter, or another read admitted by this rule.
+  A temporal `fn` has temporal non-const parameters and a temporal result;
+  an omitted result arrow means outputless.
   A parameter that takes a function is neither temporal nor `const`, in a
   temporal function as in a value function: it is no connection and no
   value, and is fixed where the call is compiled (FN-17).
@@ -622,10 +622,13 @@ const fn take(const p: str) -> str => p
 const fn from_parameter(const settings: Settings) -> str => take(settings.pattern)
 const fn from_pair(const pair: tuple<str, i64>) -> str => take(pair[0])
 const fn from_constant() -> str => take(SETTINGS.pattern)
+const fn from_nested(const pair: tuple<Settings, i64>) -> str => take(pair[0].pattern)
 ```
 
-The three calls to `take` receive the argument's `pattern` field, the
-tuple's first entry, and `"x"` from `SETTINGS.pattern`, respectively.
+The first three calls to `take` receive the argument's `pattern` field,
+the tuple's first entry, and `"x"` from `SETTINGS.pattern`, respectively.
+In `from_nested`, `pair[0].pattern` reads the first tuple entry and then
+its `pattern` field.
 Adding the following declaration is a deliberate source rejection.
 The index is a value of one call, so the entry is refused as a constant
 argument (`argument.constant`).
