@@ -4,7 +4,7 @@ Status: agreed function roles, classification, defaults, lifting, and
 anonymous-function scope. The `ref` mode (FN-16) is agreed. The sentence
 of FN-9 that begins "Proposed:" is proposed. FN-17, a
 parameter that takes a function, and the pack of FN-8 declared `for` one
-are agreed, but for the sentence of FN-17 that begins "Proposed:".
+are agreed, but for each sentence of FN-17 that begins "Proposed:".
 FN-18, configuration parameters, is agreed, and so is FN-19, a pack as a
 value.
 
@@ -378,7 +378,10 @@ Local source/native declaration matching is defined in the native chapter.
   `f: const fn(...{Ps}) -> f64`, the types that select are those the
   call's other arguments give those parameters. Where they give none,
   nothing selects, whether the operator has one candidate or several:
-  the call rejects (`generic.unresolved`).
+  the call rejects (`generic.unresolved`). Proposed: where the
+  declaration's `requires` gives alternatives for how an argument's type
+  relates to its parameter's, the type the argument gives is the one
+  GEN-3 resolves.
   A function type is a template of the
   signature it takes. Where it writes a parameter's name,
   `fn(key: str, value: f64) -> f64`, the function given has a parameter
