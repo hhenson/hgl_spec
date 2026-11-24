@@ -116,7 +116,18 @@ expression; group a constant expression that uses them as operand data.
   positive conjunctive equality
   may bind one unresolved generic from known data, and so may a positive
   conjunctive `any` (GEN-10); under negation/disjunction
-  it only tests already-resolved data. Solve bindings to a fixed point; reject
+  it only tests already-resolved data. Proposed: where nothing else has
+  resolved a parameter's type, a membership that gives alternatives for
+  how its argument's type relates to it, `As[arg] in {Ps[arg], list<Ps[arg], N>}`,
+  standing as a positive conjunct or as the body of an `each` that does
+  (GEN-10), resolves it by the most specific alternative the argument's
+  type fits, compared as GEN-12 compares candidates: a structure before a
+  bare variable. Proposed: so a `list<i64, 2>` argument resolves
+  `Ps[arg]` as `i64`, and an `i64`, which the bare alternative alone
+  fits, as `i64`. Proposed: the types so resolved are those the call's
+  other arguments give the parameters of a function given bare (FN-17):
+  they select an operator's candidate, and a generic function takes its
+  generic arguments from them. Solve bindings to a fixed point; reject
   unresolved/conflicting dependencies. A call of a function whose `requires`
   does not hold with the generic arguments the call resolves is rejected,
   and so is an application of a struct whose `requires` does not hold with
@@ -938,6 +949,17 @@ The `each` then admits `two`, whole. Deliberate rejections:
 no argument (`requires.unmet`); and `keyed(scaled, prices, by_id)` with
 `by_id` a connection of `dict<i64, f64>`, which the `each` rejects, K
 being `str` from `prices` (`requires.unmet`).
+
+Proposed illustration (GEN-3, FN-17), with `keyed` above, `prices` and
+`costs` connections of `dict<str, f64>`, and
+`operator total<L, R, O>(lhs: L, rhs: R) -> O` with a candidate over two
+`f64` and one over an `f64` and a `dict<str, f64>`:
+`keyed(total, prices, costs)` gives `total` bare, and `costs` fits both
+alternatives of the `each`. The more specific, `dict<K, Ps[arg]>`,
+resolves the type of `rhs` as `f64`, and the call selects the candidate
+over two `f64`. `keyed(total<f64, dict<str, f64>>, prices, costs)` writes
+the types, which resolves them first, and selects the other, `costs`
+given whole.
 
 With `operator plus<T>(a: T, b: T) -> T properties<i64> { associative }`
 and a candidate of it over `i64`, `fold(plus, xs)` takes `associative`
