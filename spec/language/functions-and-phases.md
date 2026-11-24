@@ -344,7 +344,13 @@ Local source/native declaration matching is defined in the native chapter.
   (`call.role`). A value function given where `fn(...)` is expected is lifted
   there (FN-6); a temporal function given where `const fn(...)` is
   expected rejects. The function given has the function type's parameter
-  types, in order, and its result type. Proposed: a parameter the
+  types, in order, and its result type. A function type that writes no
+  result, `fn(i64)`, takes a function that gives none, and only such a
+  one: one that gives a result does not fit it (`type.mismatch`). One
+  whose result is a type parameter that admits none (GEN-1),
+  `fn(i64) -> R`, also takes a function that gives none, and binds R to
+  none; where R needs a type, a function that gives none does not fit
+  (`type.mismatch`). Proposed: a parameter the
   function type writes is a plain one, and the function given has a plain
   parameter there. One it marks `var`, `const`, or `ref` does not fit the
   template (`type.mismatch`): the body's call, `f(x)`, could not give it
@@ -846,7 +852,10 @@ so `at_price(add_one, 2)` rejects, `add_one` naming its parameter `x`
 (`type.mismatch`), where `apply(add_one, 2)` is accepted. A function that
 marks its parameter does not fit a template that writes a plain one:
 with `const fn bump(var count: i64) -> i64`, `apply(bump, 2)` rejects
-(`type.mismatch`), since `apply`'s `f(x)` gives no place. A body calls
+(`type.mismatch`), since `apply`'s `f(x)` gives no place. A template
+that writes no result takes only a function that gives none: with
+`const fn each_of(f: const fn(i64), x: i64) => f(x)`,
+`each_of(add_one, 2)` rejects (`type.mismatch`). A body calls
 its parameter by the names its type writes and no others: `const fn
 named(f: const fn(i64) -> i64) -> i64 => f(x: 4)` rejects, the type
 writing no `x` (`argument.unknown`), though `add_one` names its parameter

@@ -53,7 +53,17 @@ expression; group a constant expression that uses them as operand data.
   require equivalent types or one constant (UNIT-13); differently named
   variables are independent. Occurrence requirements intersect: ordinary
   positions require value types, temporal positions admit temporal shapes,
-  and delta formation imposes its own admitted domain.
+  and delta formation imposes its own admitted domain. A result position
+  also admits none: a type parameter whose every occurrence in the
+  signature is a result written as the parameter alone, the declaration's
+  own, `-> R`, or a function type's, `fn(i64) -> R`, admits no result. An
+  occurrence anywhere else needs a type: a parameter's type, a function
+  type's parameter among them, an argument of another type,
+  `-> list<R, N>` or `dict<K, R>`, or a `requires`. A function given
+  that gives none binds such a parameter to none (FN-17); the declaration
+  then gives no result where its result is that parameter, and its call
+  is a statement: `fn through<R>(f: fn(i64) -> R, a: i64) -> R`, given a
+  function that gives none, gives none. GEN-7 checks that instance's body.
 - **GEN-2.** Resolve every needed generic from actual inputs, requested output,
   or solvable equality. A generic struct application supplies all arguments or
   infers them from constructor fields and expected type. A type position, a
@@ -173,7 +183,12 @@ expression; group a constant expression that uses them as operand data.
   declared (`impl.result`): with `operator fixed<T>(value: T) -> T`,
   `impl const fn fixed(value: i64) -> f64` does. So does a candidate for
   types its operator's `requires` does not admit (`impl.requires`): one
-  for a `str` where the operator `requires T in {i64, f64}`. Proposed: a
+  for a `str` where the operator `requires T in {i64, f64}`. Where the
+  operator's result, or the result of a function type it declares, is a
+  type parameter that admits none (GEN-1), a candidate may write none
+  there: with `operator visit<R>(f: fn(i64) -> R, a: i64) -> R`,
+  `impl fn visit(f: fn(i64), a: i64)` is a candidate, and the call that
+  selects it gives no result. Proposed: a
   result that meets that type as GEN-5 has a requested output met, a
   `result<T, error>` or a `T?` for a T, is not another type here. An
   option that selects among candidates is a generic value
@@ -257,8 +272,12 @@ expression; group a constant expression that uses them as operand data.
   value candidate that would be lifted, and the value candidate for an
   all-scalar call (GEN-5). In the instance the call is of the type its
   selected candidate gives, and what the body does with it is checked
-  there, as for the same body written with the instance's types. An
-  instance in which either does not hold rejects at the call that makes
+  there, as for the same body written with the instance's types. The
+  body of an instance that gives no result (GEN-1) is checked as that of
+  a function that declares no result (FN-7): in the instance of
+  `through` that a function giving none makes, a body `=> f(a)` is a
+  statement, and `{ return f(a) }` rejects (`type.mismatch`). An
+  instance in which one of these does not hold rejects at the call that makes
   the instance, with the code the call or the body written out would
   have, and the report names the instance and the call in the body.
   Where one instance makes another, that call is the one written outside
@@ -359,7 +378,8 @@ expression; group a constant expression that uses them as operand data.
   configuration separates only otherwise equally specific candidates. A prior
   binding constrains every later occurrence in declared parameter order.
 - **GEN-13.** A generic parameter denotes a type, type pack, or compile-time
-  ordinary value, never a temporal connection or current payload. Infer its
+  ordinary value, never a temporal connection or current payload; a type
+  parameter bound to none (GEN-1) denotes no result. Infer its
   kind from signature positions and constraints: the type of a parameter, a
   result, or a field, or a part of one, makes it a type; a size or a default
   makes it a value; as an argument of a generic type it is what that type's
@@ -1037,6 +1057,32 @@ a `const fn`, which no value candidate admits (`operator.no_candidate`).
 temporal candidate, which lifts `inc` and composes the anonymous
 function's body. `applied(inc, 1)` selects the value candidate, in a test
 and written in composition alike. Conformance planned.
+
+Accepted declaration fragments, results that admit none (GEN-1, GEN-6,
+GEN-7, FN-17), with `fn plus_one(value: i64) -> i64` and an outputless
+`fn record(value: i64)` in scope:
+
+```hgl
+fn through<R>(f: fn(i64) -> R, a: i64) -> R => f(a)
+
+operator visit<R>(f: fn(i64) -> R, a: i64) -> R
+
+impl fn visit(f: fn(i64) -> i64, a: i64) -> i64 => f(a)
+
+impl fn visit(f: fn(i64), a: i64) => f(a)
+```
+
+In a graph, for a temporal `count` of `i64`: `through(plus_one, count)`
+binds R as `i64` and is a connection of `i64`; `through(record, count)`
+binds R to none, gives no result and is a statement, and in its instance
+`f(a)` is a statement too (FN-7). `visit(plus_one, count)` selects the
+first candidate, the second's `fn(i64)` taking no function that gives a
+result, and `visit(record, count)` selects the second and gives no
+result. Deliberate rejections: `through(record, count)` where the body of
+`through` is `{ return f(a) }`, at that call (`type.mismatch`, GEN-7);
+and, for `fn listed<R>(f: fn(i64) -> R, a: i64) -> list<R>`,
+`listed(record, count)`, as R stands inside `list<R>` and needs a type
+(`type.mismatch`). Conformance planned.
 
 Accepted declaration fragments, a named operator requirement (GEN-7,
 GEN-16):
