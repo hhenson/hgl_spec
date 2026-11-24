@@ -350,7 +350,11 @@ Local source/native declaration matching is defined in the native chapter.
   whose result is a type parameter that admits none (GEN-1),
   `fn(i64) -> R`, also takes a function that gives none, and binds R to
   none; where R needs a type, a function that gives none does not fit
-  (`type.mismatch`). Proposed: a parameter the
+  (`type.mismatch`). Where the function type's result is a type parameter
+  nothing else has resolved, an anonymous function that writes no result
+  gives what its body gives: the type of its value, `fn(x) => x + 1`, or
+  none where the body gives no value, `fn(x) => record(x)` for a `record`
+  that gives none. Proposed: a parameter the
   function type writes is a plain one, and the function given has a plain
   parameter there. One it marks `var`, `const`, or `ref` does not fit the
   template (`type.mismatch`): the body's call, `f(x)`, could not give it
