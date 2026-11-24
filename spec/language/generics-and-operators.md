@@ -136,9 +136,9 @@ expression; group a constant expression that uses them as operand data.
   unconstrained ones. Given a list of a fixed size, a sized list pattern,
   `list<T, N>`, outranks an unsized one, `list<T>`, which admits it too
   (TYPE-10). A fixed-length tuple pattern outranks a tuple pattern with a pack
-  that admits the same tuple (GEN-10). A call with no match rejects. Tied
-  most-specific candidates are ambiguous. Library membership and registration
-  order grant no priority.
+  that admits the same tuple (GEN-10). No match rejects; tied most-specific
+  candidates are ambiguous. Library membership and registration order grant
+  no priority.
   A call in a value function or a runtime body selects among the value
   candidates. A call in a test's or an application's value code (TST-3,
   UNIT-14) selects among all of them, a value candidate outranking a
@@ -531,9 +531,7 @@ tuple selects the candidate whose `tuple<Ts>` binds `Ts` to `i64` and
 `str`. Deliberate rejection: `shown(1)`, an `i64`, which is no struct and
 no tuple (`operator.no_candidate`). Conformance planned.
 
-This complete module illustrates the agreed GEN-5 order. The two-element
-tuple selects the fixed-length pattern and the three-element tuple selects
-the pack.
+Accepted illustration, complete module (GEN-5).
 
 ```hgl
 module examples.tuple_specificity
@@ -545,6 +543,10 @@ impl const fn p<A, B>(value: tuple<A, B>) -> str => "pair"
 test pair { assert p((1, "a")) == "pair" }
 test pack { assert p((1, "a", true)) == "pack" }
 ```
+
+`p((1, "a"))` selects the fixed-length pattern and returns `"pair"`.
+`p((1, "a", true))` selects the pack and returns `"pack"`. Conformance
+planned.
 
 Candidates that tie (GEN-6): with `operator amb<A, B>(a: A, b: B) -> i64`
 and its candidates `impl const fn amb<B>(a: i64, b: B) -> i64` and
