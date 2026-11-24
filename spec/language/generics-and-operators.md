@@ -53,18 +53,17 @@ expression; group a constant expression that uses them as operand data.
   require equivalent types or one constant (UNIT-13); differently named
   variables are independent. Occurrence requirements intersect: ordinary
   positions require value types, temporal positions admit temporal shapes,
-  and delta formation imposes its own admitted domain. In every generic
-  function and operator a result position also admits none: a type
-  parameter whose every occurrence in the signature is a result written
-  as the parameter alone, the declaration's own, `-> R`, or a function
-  type's, `fn(i64) -> R`, admits no result. An occurrence anywhere else
-  needs a type: as a parameter's type, a function type's among them,
-  inside another type, `-> list<R, N>` or `dict<K, R>`, or in a
-  `requires`. Bound to none by a function given (FN-17), such a
-  parameter makes the declaration give no result where its result is
-  that parameter, and the call is then a statement:
-  `fn through<R>(f: fn(i64) -> R, a: i64) -> R`, given a function that
-  gives none, gives none. GEN-7 checks that instance's body.
+  and delta formation imposes its own admitted domain. A result position
+  also admits none: a type parameter whose every occurrence in the
+  signature is a result written as the parameter alone, the declaration's
+  own, `-> R`, or a function type's, `fn(i64) -> R`, admits no result. An
+  occurrence anywhere else needs a type: a parameter's type, a function
+  type's parameter among them, an argument of another type,
+  `-> list<R, N>` or `dict<K, R>`, or a `requires`. A function given
+  that gives none binds such a parameter to none (FN-17); the declaration
+  then gives no result where its result is that parameter, and its call
+  is a statement: `fn through<R>(f: fn(i64) -> R, a: i64) -> R`, given a
+  function that gives none, gives none. GEN-7 checks that instance's body.
 - **GEN-2.** Resolve every needed generic from actual inputs, requested output,
   or solvable equality. A generic struct application supplies all arguments or
   infers them from constructor fields and expected type. A type position, a
@@ -184,14 +183,14 @@ expression; group a constant expression that uses them as operand data.
   declared (`impl.result`): with `operator fixed<T>(value: T) -> T`,
   `impl const fn fixed(value: i64) -> f64` does. So does a candidate for
   types its operator's `requires` does not admit (`impl.requires`): one
-  for a `str` where the operator `requires T in {i64, f64}`. Proposed: a
+  for a `str` where the operator `requires T in {i64, f64}`. Where the
+  operator's result, or the result of a function type it declares, is a
+  type parameter that admits none (GEN-1), a candidate may write none
+  there: with `operator visit<R>(f: fn(i64) -> R, a: i64) -> R`,
+  `impl fn visit(f: fn(i64), a: i64)` is a candidate, and the call that
+  selects it gives no result. Proposed: a
   result that meets that type as GEN-5 has a requested output met, a
-  `result<T, error>` or a `T?` for a T, is not another type here. A
-  candidate that declares no result, its parameter that takes a function
-  written with none, honors an operator whose result is a type parameter
-  that admits none (GEN-1), and the call that selects it gives no
-  result: with `operator visit<R>(f: fn(i64) -> R, a: i64) -> R`,
-  `impl fn visit(f: fn(i64), a: i64)` is a candidate. An
+  `result<T, error>` or a `T?` for a T, is not another type here. An
   option that selects among candidates is a generic value
   parameter, `<const zero: Zero = .ieee>` (GEN-13): its value is known when
   the call is checked, which is what lets it select. An option that does
