@@ -4,7 +4,7 @@ Status: agreed generic, pack, and nominal-operator baseline. Detailed core
 operation domains belong to core and retain their own decision status.
 GEN-17, a function's parameters read as a named pack, is agreed, and so
 are the `any` of GEN-10 and the law predicates of GEN-18. Each sentence
-of GEN-3 and GEN-6 that begins "Proposed:" is proposed.
+of GEN-3, GEN-5 and GEN-6 that begins "Proposed:" is proposed.
 
 ## Grammar
 
@@ -182,6 +182,15 @@ expression; group a constant expression that uses them as operand data.
   `visit(f: fn(i64), a: i64)`, `visit(fn(x) => x + 1, count)` selects the
   first, and R is `i64`; `visit(fn(x) => record(x), count)`, for a `record`
   that gives none, selects the second (GEN-6).
+  Proposed: so it is with the types a candidate gives a function that
+  takes them from the call (FN-17), an anonymous function that writes no
+  parameter types, a generic function or an operator given bare: a
+  candidate whose function type gives it a type as the other arguments
+  give it, `R`, outranks one that gives it widened, `R?`. With
+  `each<R>(f: fn(R), items: list<R>)` and
+  `each<R>(f: fn(R?), items: list<R>)`, `each(fn(x) => record(x), items)`
+  selects the first, and `each(fn(x: i64?) => record(x), items)`, over a
+  `list<i64>`, the second.
   A candidate that takes each integer literal as the `i64` it is outranks
   one for which a literal is widened to an `f64` (EXPR-5): `doubled(1)`
   selects `doubled(value: i64)` where there is one, and
