@@ -65,6 +65,9 @@ rejection (TYPE-12, TYPE-14). TYPE-16 says what a `delta_type` is.
   it holds is: a value of one given to a set or as a dictionary's key
   fails where it is given, with the same code.
   Bytes admit values 0 through 255; length and ordering use unsigned octets.
+  A `str` is built by appending to a `var`: `text += piece` appends `piece`
+  to `text` in place (EXPR-3), at the cost of the piece and not of the text
+  so far, so a text of many pieces is built in time linear in its length.
 - **TYPE-2.** Temporal scalar domains are: Gregorian `date` (years 1–9999),
   microsecond `time`, UTC-instant `datetime`, elapsed `duration`, local
   `civil_datetime`, named `timezone`, resolved `zoned_datetime`, and
