@@ -282,7 +282,7 @@ infrastructure and cannot satisfy a source-rejection expectation.
 | type | `constant.failure` | A module's constant, or the default of a parameter or of a field, whose evaluation fails, an `i64` out of range or a division by zero among them (UNIT-13, UNIT-8, ERR-9); the expression |
 | type | `run.entry` | A run statement's call is of no entry (RUN-1); the call |
 | phase | `run.configuration` | A configuration on an application's run statement (RUN-6); the brace |
-| name | `name.duplicate` | Binding takes a name already in scope (UNIT-5, UNIT-12, TST-2, NATIVE-2); later name |
+| name | `name.duplicate` | Binding takes a name that is not free to it (UNIT-5, UNIT-12, TST-2, NATIVE-2); later name |
 | name | `name.used_before_declaration` | Local used before the statement that declares it (UNIT-6); use |
 | name | `constant.cycle` | Constant whose value depends on itself (UNIT-13); name |
 | name | `default.cycle` | Default whose evaluation needs that default again: a field's default that constructs its own struct leaving that field out, or a parameter's default that calls its own function leaving that parameter out, directly or through a function it calls (UNIT-8); the default |
@@ -496,6 +496,7 @@ warning_annotation = "@", "suppress_warning", "(", STRING_LITERAL, ")" ;
 
 | Warning code | Condition |
 | --- | --- |
+| `name.hides_function` | A local, a parameter, or an iteration binding of a function type that takes the name of a function or an operator, which it hides in its scope (UNIT-12); the binding |
 | `node.no_activation` | The dormant-node warning: `modified([])` in a node that injects neither `scheduler` nor `alarm`, or whose `start` does not use the one it injects (TIME-3); the selector |
 | `operator.candidates_tie` | Two candidates of an operator that some call would match equally, with no other candidate the more specific for it (GEN-6); each of the two candidates |
 | `statement.no_effect` | Expression statement that holds no call, assignment, or `return`, its value dropped; the expression |

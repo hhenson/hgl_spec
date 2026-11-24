@@ -103,7 +103,8 @@ admits one as a member name.
   location, alias spelling, and how a literal is written do not (UNIT-13):
   `= 1` and `= 1.0` of an `f64` field are one default. Conflicting
   inherited defaults require an explicit child override.
-- **UNIT-10.** A name resolves to the one binding in scope for it (UNIT-12):
+- **UNIT-10.** A name resolves to the nearest binding in scope for it
+  (UNIT-12), the first of these that binds it:
   an earlier local or iteration binding of an enclosing block; a parameter of
   an enclosing function; a generic parameter of an enclosing declaration
   (GEN-1); a module declaration; a selective import; or the prelude. A name
@@ -123,10 +124,17 @@ admits one as a member name.
 - **UNIT-12.** A block's scope is the scope around it plus its own bindings;
   an anonymous function's is the scope around it plus its parameters (FN-14).
   A `switch` case has no scope of its own: its statements bind in the block
-  around the `switch`. No binding takes a name already in scope: that is a
-  duplicate definition. A local or iteration binding, parameter, or generic
-  parameter takes no name bound there by an enclosing block or function, a
-  module declaration, a `use` in its file, or the prelude. `state`, `cache`,
+  around the `switch`. A local or iteration binding, parameter, or generic
+  parameter takes no name bound there by an enclosing block, function, or
+  declaration: that is a duplicate definition (`name.duplicate`). It may
+  take the name of a module declaration, of a `use` in its file, or of the
+  prelude: within its scope the name is that binding (UNIT-10), which hides
+  the other, and everywhere else the name is what it was. Where the binding
+  is of a function type (FN-17) and the name it takes is a function's or an
+  operator's, a call of the name in its scope calls the binding, and the
+  binding is a warning (`name.hides_function`). The forms of the language
+  are taken by no binding: `scheduled`, `modified`, and `valid` (TIME-9),
+  and the contextual names of ERR-13. `state`, `cache`,
   and `inject` bind locals; an `each` constraint binds a generic parameter
   within its braces. A `use` binds no name another `use` of its file has
   bound. A declaration takes no name its module imports or uses as an import
@@ -208,15 +216,19 @@ modules may import (UNIT-13). The default calls the module's `seed`
 (UNIT-7); the body reads its parameters (UNIT-10). The
 [eval illustration](tests-and-eval.md) calls
 `delta_value` with no `use`: it is a prelude name (UNIT-11). Two blocks,
-neither enclosing the other, may each bind the same local name.
+neither enclosing the other, may each bind the same local name. A parameter
+or a local named `scale`, `delta_value`, or for a declaration its file
+imports is that binding within its scope, where it hides the other
+(UNIT-12); one of a function type named `seed` hides the module's function
+with a warning (`name.hides_function`).
 Deliberate source rejections: a default of `base` in place of `seed()` reads
-a formal argument (UNIT-7); a first parameter named `seed`, a local named
+a formal argument (UNIT-7); a local named
 `base` in a block body of `choose`, a local of an inner block named for an
 earlier local of a block around it, a local declared in two cases of one
-`switch`, a test helper named `choose`, or any
-function, parameter, or local named `delta_value` or for a declaration its
-file imports, takes a name already in scope (UNIT-12), as does a parameter
-or a local named `scale`; and `const twice: i64 = twice + 1`, a constant
+`switch`, a test helper named `choose`, a function named `delta_value` or
+for a declaration its file imports, or a parameter or a local named
+`scheduled`, takes a name that is not free to it (UNIT-12); and
+`const twice: i64 = twice + 1`, a constant
 whose value depends on itself (`constant.cycle`). Conformance is planned.
 
 ## Core boundary

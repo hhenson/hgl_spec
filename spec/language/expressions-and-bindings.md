@@ -108,7 +108,8 @@ GEN-14 resolves generic construction versus comparison using declaration lookup.
   index outside a list, below zero or at or past its size, fails where it
   is evaluated, with code `value.index_out_of_range`.
   A set has no place to assign. A compound assignment reads the place
-  first: `total.count += 1`.
+  first: `total.count += 1`. `+=` on a `var` of type `str` appends to it
+  in place (TYPE-1).
 - **EXPR-4.** Ordinary values and temporal connections remain distinct. A graph
   binding denotes a connection without reading a payload. Reassigning a graph
   var changes the described connection; it creates neither mutable per-tick

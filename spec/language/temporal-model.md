@@ -327,7 +327,8 @@ chapter.
   and so do `start` and `stop` (`scheduled.lifecycle`).
   `modified` and `valid` are selectors in a `when` header (TIME-3): there
   they are forms of the language, which set subscription and admission.
-  None of these names is shadowed (UNIT-12). A value function injects no
+  `scheduled`, `modified`, and `valid` are taken by no binding (UNIT-12).
+  A value function injects no
   capability and has no output or schedule of its own (FN-9).
 - **TIME-10.** A reference is a temporal value whose payload is a
   designation: the endpoint it points at. The rules of a temporal value
