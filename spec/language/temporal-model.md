@@ -4,6 +4,7 @@ Status: agreed publication, handler, state/cache, and capability baseline.
 The alarm, the run-wide keyed store, collection validity with
 `all_valid` (TIME-9), and the read of a collection's child and of a
 collection whole (TIME-1) are agreed.
+A sentence of TIME-8 that begins "Proposed:" is proposed.
 
 ## Grammar
 
@@ -747,7 +748,12 @@ by a node of its own rank in the same cycle is undefined. A program that
 shares a key between two such nodes takes that order on itself. The key
 `"run.output"` is
 the run's own, where it keeps its output: a program that names it rejects
-(`store.reserved_key`).
+(`store.reserved_key`). Proposed: the rejection is in source where the
+program's text fixes the key: the key is a constant expression (FN-1), and
+so is the argument of each `const` parameter it reads, back through the
+calls that reach it. Where a computation gives the key, or an argument on
+that path, the key is fixed only as the graph is built, and building the
+graph fails with that code.
 
 Accepted illustration, complete module:
 
