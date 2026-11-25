@@ -478,8 +478,11 @@ expression; group a constant expression that uses them as operand data.
   shared name syntax is not a second interpretation. In a type argument,
   `Type` denotes the descriptor type (TYPE-18), even with a value of that
   name in scope. In a value argument, `Type` follows ordinary value lookup.
-  Any other lone name among the arguments is a constant when it names a
-  generic value parameter, a local, or a parameter. Reject an invalid
+  If the call supplies the parameter's kind (GEN-13), a lone name that
+  names a generic value parameter, a local, or a parameter is a value
+  argument. This includes `Type`; with no such value in scope, `Type`
+  supplies the descriptor type. In all other cases a lone name that names
+  such a value is a constant unless it is `Type` in a type argument. Reject an invalid
   application without comparison fallback.
   Ordinary `<` and `>` do not order type names. At the current generic nesting
   level, `>` closes the argument list; parenthesize a greater-than expression
