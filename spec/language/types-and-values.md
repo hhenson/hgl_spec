@@ -1,7 +1,8 @@
 # Types and values
 
-Status: agreed type foundation, `delta<T>` (TYPE-16) and `tenor` (TYPE-17)
-included. The storage extensions below are proposed.
+Status: agreed type foundation, `delta<T>` (TYPE-16), `tenor` (TYPE-17) and
+a type as a value (TYPE-18) included, but for the sentence of TYPE-18 that
+begins "Proposed:". The storage extensions below are proposed.
 
 ## Grammar
 
@@ -191,6 +192,21 @@ rejection (TYPE-12, TYPE-14). TYPE-16 says what a `delta_type` is.
   Nullable/default lifted argument binding follows FN-11. `?` is written
   only in a type, where it declares nullability; no expression takes it.
   Field requiredness/defaults still follow TYPE-4.
+- **TYPE-18.** A type is a value, of the type `Type`. A `Type` is an
+  ordinary value and a constant, fixed where the program is compiled.
+  `type(e)` is the type of the expression `e` as the program's text gives
+  it, and evaluates nothing of `e`: with `values: list<i64, 2>`,
+  `type(values)` is `list<i64, 2>`, and with
+  `change: delta<list<i64, 2>>`, `type(change)` is
+  `delta<list<i64, 2>>`. In an instance of a generic declaration it is
+  the instance's type, and of a connection it is the type of the value
+  the connection carries. Two types are equal, by `==`, where they are one
+  type (GEN-13), and a `Type` is an element of a set and a key of a
+  dictionary. A `Type` has text, its canonical spelling, which core gives
+  through `convert<str>` (FMT-5): `format("{}", type(values))` is
+  `list<i64, 2>`.
+  Proposed: no connection carries a `Type`, and the type of an `any` is
+  `any`, whatever it holds.
 
 ## Agreed temporal shapes
 

@@ -455,8 +455,8 @@ expression; group a constant expression that uses them as operand data.
   parameter is. An explicit `const N: V` declares a value parameter of
   ordinary type V. `type(N) in {i64, f64}` constrains the ordinary type of a
   value parameter N; `T in {i64, f64}` instead constrains a type parameter T.
-  `type(N)` here is compile-time reflection, not a runtime payload read or a
-  general first-class type value. Reject conflicting kinds, and a struct's
+  `type(N)` is the type of N, a `Type` (TYPE-18), fixed where the program
+  is compiled: it reads no runtime payload. Reject conflicting kinds, and a struct's
   parameter whose kind no field or constraint determines. A function whose
   signature determines no kind for a parameter is accepted: a call supplies
   the parameter, and one that does not rejects. Constraining N's type does

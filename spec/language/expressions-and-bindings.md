@@ -1,9 +1,8 @@
 # Expressions and bindings
 
 Status: agreed expression/binding baseline. The sparse-field rules of
-structural delta construction are proposed, and so is the sentence of
-EXPR-2 that begins "Proposed:". EXPR-16, a range, and EXPR-17, a list
-made by a loop, are agreed.
+structural delta construction are proposed. EXPR-16, a range, and EXPR-17,
+a list made by a loop, are agreed.
 
 ## Grammar
 
@@ -32,7 +31,8 @@ index_suffix = "[", expression, "]" ;
 member_suffix = ".", member_name ;
 primary_expr = literal | IDENTIFIER | qualified_name | implied_member
              | "(", expression, ")" | tuple_literal | sequence_literal
-             | typed_constructor | delta_constructor | type_call | pack_loop
+             | typed_constructor | delta_constructor | type_call | type_of
+             | pack_loop
              | function_reference | function_expr | if_expression
              | eval_expression | run_expression | block ;
 arguments = argument, { ",", argument }, [ "," ] ;
@@ -52,6 +52,7 @@ typed_constructor = ( IDENTIFIER | qualified_name ), generic_arguments,
                     [ operator_configuration ], "(", [ arguments ], ")" ;
 function_reference = ( IDENTIFIER | qualified_name ), generic_arguments ;
 type_call = ( "str" | "bytes" | "any" | "error" ), "(", [ arguments ], ")" ;
+type_of = "type", "(", expression, ")" ;
 implied_member = ".", member_name ;
 local_decl = ( "let" | "var" ), IDENTIFIER, [ ":", type ], "=", expression
            | "var", IDENTIFIER, ":", type ;
@@ -82,10 +83,7 @@ GEN-14 resolves generic construction versus comparison using declaration lookup.
   an operator an option its candidates declare (GEN-6). Positional arguments
   fill the parameters from the first and stop where they stop; named
   arguments come in any order, and a parameter that may be omitted may be
-  left out. Proposed: a positional pack takes every positional argument
-  the parameters before it leave, so a parameter declared after it is
-  given by name alone (FN-8). A parameter that may be omitted, one with a
-  default or a type
+  left out. A parameter that may be omitted, one with a default or a type
   written `T?` that is no `var` parameter, follows every parameter that may
   not (UNIT-8). A struct's
   constructor takes named arguments only (TYPE-5). An enum's takes one
