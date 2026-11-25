@@ -748,9 +748,12 @@ by a node of its own rank in the same cycle is undefined. A program that
 shares a key between two such nodes takes that order on itself. The key
 `"run.output"` is
 the run's own, where it keeps its output: a program that names it rejects
-(`store.reserved_key`). Proposed: a key that is no constant expression (FN-1)
-is fixed only as the graph is built, and building the graph then fails with
-that code.
+(`store.reserved_key`). Proposed: the rejection is in source where the
+program's text fixes the key: the key is a constant expression (FN-1), and
+so is the argument of each `const` parameter it reads, back through the
+calls that reach it. Where a computation gives the key, or an argument on
+that path, the key is fixed only as the graph is built, and building the
+graph fails with that code.
 
 Accepted illustration, complete module:
 
