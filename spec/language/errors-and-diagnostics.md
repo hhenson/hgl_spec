@@ -286,7 +286,7 @@ infrastructure and cannot satisfy a source-rejection expectation.
 | name | `name.used_before_declaration` | Local used before the statement that declares it (UNIT-6); use |
 | name | `constant.cycle` | Constant whose value depends on itself (UNIT-13); name |
 | name | `default.cycle` | Default whose evaluation needs that default again: a field's default that constructs its own struct leaving that field out, or a parameter's default that calls its own function leaving that parameter out, directly or through a function it calls (UNIT-8); the default |
-| name | `name.reserved` | Proposed: a function named for an activation form, `scheduled` (UNIT-10, TIME-9); the name |
+| name | `name.reserved` | Proposed: a function named `scheduled` (UNIT-10, TIME-9), or a declaration introducing a type named `Type`, including a type parameter (TYPE-18); the declared name |
 | name | `name.test_only` | Test-only declaration used outside the tests (TST-2); use |
 | name | `name.captured` | Anonymous function uses an enclosing `var`, `state`, `cache`, or injected capability (FN-14); use |
 | name | `default.formal_argument` | Default names a parameter of its declaration or a field of its struct (UNIT-7); use |
