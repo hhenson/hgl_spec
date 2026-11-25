@@ -1,8 +1,8 @@
 # Functions and phases
 
 Status: agreed function roles, classification, defaults, lifting, and
-anonymous-function scope. The `ref` mode (FN-16) is agreed. Each sentence
-of FN-8 and FN-9 that begins "Proposed:" is proposed. FN-17, a
+anonymous-function scope. The `ref` mode (FN-16) is agreed. The sentence
+of FN-9 that begins "Proposed:" is proposed. FN-17, a
 parameter that takes a function, and the pack of FN-8 declared `for` one
 are agreed, but for each sentence of FN-17 that begins "Proposed:".
 FN-18, configuration parameters, is agreed, and so is FN-19, a pack as a
@@ -159,13 +159,7 @@ Local source/native declaration matching is defined in the native chapter.
   when T is a declared type pack. `...{Fields}` captures the named ones, each
   under its source name, where `Fields` is a type pack among the generic
   parameters of the same declaration, named bare. Packs have no defaults,
-  cannot be const, and follow all fixed parameters. Proposed: a
-  positional pack is the exception: a fixed parameter may follow it and
-  takes its argument by name alone, every positional argument the fixed
-  parameters before the pack leave going to the pack, so with
-  `fn joined(parts: ...str, separator: str) -> str`,
-  `joined("a", "b", "c", separator: " ")` gives the pack `"a"`, `"b"`
-  and `"c"`. A declaration has at
+  cannot be const, and follow all fixed parameters. A declaration has at
   most one positional pack and at most one named pack: a second of either
   kind rejects (`pack.duplicate`), since nothing would say which of the
   two an argument is for. Cardinality and
@@ -582,12 +576,6 @@ whose number of entries is not known where the graph is built
 (EXPR-17); `f(...given, price: other)` in `passed_on`, which gives
 `price` twice (`argument.duplicate`); and `args["rate"]` there, a name
 the pack has not (`pack.name`). Conformance planned.
-
-Proposed illustration (FN-8, EXPR-2), with `joined` of FN-8. Deliberate
-rejection: `joined("a", "b", " ")`, whose three arguments the pack
-takes, leaving `separator` nothing (`argument.missing`). With
-`separator: str = " "` declared, the call is accepted and `separator`
-takes its default (UNIT-8). Conformance planned.
 
 Accepted declaration fragment, a temporal input with a default (UNIT-8):
 
