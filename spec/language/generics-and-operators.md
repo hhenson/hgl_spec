@@ -172,16 +172,27 @@ expression; group a constant expression that uses them as operand data.
   one, as for the two definitions of a pair (FN-4).
   An exact match is the best match: a candidate that takes an argument
   as the type it is outranks one for which the argument is widened, to a
-  `T?` (TYPE-14) or to a struct its type inherits from. `pick(v)` for an
+  `T?` (TYPE-14), to a struct its type inherits from or to `any`
+  (TYPE-8). `pick(v)` for an
   `i64` selects `pick(value: i64)` where there is one, and
   `pick(value: i64?)` where there is not.
+  The exact match is compared first, before the specificity of the
+  candidates' types. A candidate outranks another where it widens no
+  argument the other takes as the type it is, and takes one so that the
+  other widens, whatever in either is concrete: with `pick<T>(value: T)`
+  and `pick(value: i64?)`, `pick(v)` for an `i64` selects the first.
+  Where two candidates widen the same arguments, their types decide, and
+  where each widens one the other does not, the call is ambiguous.
   So it is with an anonymous function that writes no result (FN-17): where
   its body gives a value, a candidate whose function type has a result
   outranks one whose function type has none, which would drop that value.
   With `visit<R>(f: fn(i64) -> R, a: i64) -> R` and
   `visit(f: fn(i64), a: i64)`, `visit(fn(x) => x + 1, count)` selects the
   first, and R is `i64`; `visit(fn(x) => record(x), count)`, for a `record`
-  that gives none, selects the second (GEN-6).
+  that gives none, selects the second (GEN-6). This too is compared
+  first: with `visit<T, R>(f: fn(T) -> R, a: T) -> R` in the first's
+  place, `visit(fn(x) => x + 1, count)` still selects it, though the
+  second is concrete.
   Proposed: so it is with the types a candidate gives a function that
   takes them from the call (FN-17), an anonymous function that writes no
   parameter types, a generic function or an operator given bare: a
@@ -223,10 +234,19 @@ expression; group a constant expression that uses them as operand data.
   candidate may bind to `any`, `impl fn pick(value: any) -> i64`. Two
   differences are no other type: a parameter the operator declares
   nullable a candidate may take as required, as
-  `choose(value: i64, zero: i64)` below does, and a function the operator
+  `choose(value: i64, zero: i64)` below does, and a parameter it declares
+  as another type a candidate may take as `any`: with
+  `operator pick(value: i64) -> i64`, `impl fn pick(value: any) -> i64`
+  is its candidate.
+  `const` and `var` are modifiers, and no part of the type that is
+  matched: one the operator states a candidate states too, and one it
+  does not state a candidate may state. So a function the operator
   declares `fn(...)` a value candidate may take as `const fn(...)`, as
-  below. Proposed: a candidate may take as `any` a parameter its operator
-  declares as another type.
+  below, and a parameter it declares plain a candidate may take as
+  `const`, or a value candidate as `var` (FN-15). With
+  `operator at(value: i64, const n: i64) -> i64`,
+  `impl fn at(value: i64, n: i64) -> i64` rejects where it is declared.
+  Proposed: with the code `impl.parameter`.
   A candidate whose result is not the type its operator's
   declaration gives for the candidate's parameters rejects where it is
   declared (`impl.result`): with `operator fixed<T>(value: T) -> T`,
