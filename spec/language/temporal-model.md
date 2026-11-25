@@ -4,7 +4,8 @@ Status: agreed publication, handler, state/cache, and capability baseline.
 The alarm, the run-wide keyed store, collection validity with
 `all_valid` (TIME-9), and the read of a collection's child and of a
 collection whole (TIME-1) are agreed.
-A sentence of TIME-8 that begins "Proposed:" is proposed.
+In TIME-8, "Proposed:" begins what is proposed: that sentence and those
+after it in its paragraph.
 
 ## Grammar
 
@@ -753,7 +754,12 @@ program's text fixes the key: the key is a constant expression (FN-1), and
 so is the argument of each `const` parameter it reads, back through the
 calls that reach it. Where a computation gives the key, or an argument on
 that path, the key is fixed only as the graph is built, and building the
-graph fails with that code.
+graph fails with that code. Where a function gives a call of itself a key
+computed from its own `const` parameter, `key + ".output"`, a constant
+expression FN-1 admits, each call's key is fixed and the run decides how
+many calls there are, whatever the first is given: neither the text nor
+the building of the graph fixes which key is used, and the call that uses
+it fails with that code as it is evaluated.
 
 Accepted illustration, complete module:
 

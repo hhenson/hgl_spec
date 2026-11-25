@@ -449,7 +449,7 @@ infrastructure and cannot satisfy a source-rejection expectation.
 | `enum.no_member` | An enum is constructed, where it is evaluated, from an `i64` or a `str` that is no member's number or name (TYPE-7) |
 | `switch.unmatched` | A `switch` with no `default` is given a selector that matches none of its labels, in composition as elsewhere (CTRL-6) |
 | `store.key_type` | A `put` or a `get` of a key of the global store of another type than an earlier use of the key, where the two uses are not in one program (TIME-8, core's CAP-6) |
-| `store.reserved_key` | Proposed: a key of the global store that is the run's own, `"run.output"`, where the program's text does not fix the key and it takes that value as the graph is built (TIME-8, core's CAP-6) |
+| `store.reserved_key` | Proposed: a key of the global store that is the run's own, `"run.output"`, where the program's text does not fix the key and it takes that value as the graph is built, or in a call the run decides (TIME-8, core's CAP-6) |
 | `numeric.division_by_zero` | A checked division's Err is raised, given where its `f64` is expected (ERR-5, ERR-15); see the [core numeric contract](https://github.com/hhenson/hgl_core/blob/main/spec/numeric-operators.md) |
 | `numeric.out_of_range` | A result is outside its type's range: an `i64`, a `duration`, an instant or a count of a `tenor`; or a `str` is repeated a count below zero; see the core [numeric](https://github.com/hhenson/hgl_core/blob/main/spec/numeric-operators.md) and [scalar operator](https://github.com/hhenson/hgl_core/blob/main/spec/scalar-operators.md) contracts |
 | `numeric.invalid_tolerance` | A tolerance of `==` or `!=`, `abs` or `rel`, is negative or not finite; see the [core numeric contract](https://github.com/hhenson/hgl_core/blob/main/spec/numeric-operators.md) |
@@ -477,7 +477,8 @@ program, and an execution failure where they are not. `key.unstable` is a
 source rejection where the type is written, and an execution failure for
 what an `any` holds. Proposed: `store.reserved_key` is a third, a source
 rejection where the program's text fixes the key, and an execution
-failure, as the graph is built, where the key is fixed only then (TIME-8).
+failure where it does not: as the graph is built, where the key is fixed
+then, and as the call is evaluated, where the run decides it (TIME-8).
 Unlisted failures still fail;
 they cannot satisfy a coded expectation. Delta equality/bounds checks require
 prior typing/formation; provider-backed key checks use the required run context.
