@@ -754,12 +754,13 @@ program's text fixes the key: the key is a constant expression (FN-1), and
 so is the argument of each `const` parameter it reads, back through the
 calls that reach it. Where a computation gives the key, or an argument on
 that path, the key is fixed only as the graph is built, and building the
-graph fails with that code. Where a function gives a call of itself a key
-computed from its own `const` parameter, `key + ".output"`, a constant
-expression FN-1 admits, each call's key is fixed and the run decides how
-many calls there are, whatever the first is given: neither the text nor
-the building of the graph fixes which key is used, and the call that uses
-it fails with that code as it is evaluated.
+graph fails with that code. Where a function calls itself, directly or
+through other functions, and the key is computed from a `const` parameter
+on the way round, `key + ".output"`, a constant expression FN-1 admits,
+each call's key is fixed and the run decides how many calls there are,
+whatever the first is given: neither the text nor the building of the
+graph fixes which key is used, and the call that uses it fails with that
+code as it is evaluated.
 
 Accepted illustration, complete module:
 
