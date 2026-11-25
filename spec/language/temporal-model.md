@@ -753,7 +753,9 @@ program's text fixes the key: the key is a constant expression (FN-1), and
 so is the argument of each `const` parameter it reads, back through the
 calls that reach it. Where a computation gives the key, or an argument on
 that path, the key is fixed only as the graph is built, and building the
-graph fails with that code.
+graph fails with that code. Where a function computes the key in a call of
+itself, the run decides the key, and the call that uses it fails with that
+code as it is evaluated.
 
 Accepted illustration, complete module:
 
