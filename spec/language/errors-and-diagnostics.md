@@ -424,7 +424,7 @@ infrastructure and cannot satisfy a source-rejection expectation.
 | phase | `capture.phase` | Non-temporal capture/context; call |
 | type | `capture.output_field` | Value requested from outputless capture; property |
 | type | `value.constant_capability` | Required constant lacks contained capability; operation |
-| shape | `delta.unsupported_shape` | `delta<T>` of a T that has no delta: a `signal` (TYPE-16); the application |
+| shape | `delta.unsupported_shape` | `delta<T>` of a T that has no delta: a `signal`, or proposed a `Type` or a type that holds one (TYPE-16, TYPE-18); the application |
 | type | `delta.type_mismatch` | Incompatible originating delta/destination; value |
 | name | `delta.argument_name` | Unknown delta field/argument, or the constructor form of a delta that is no type of its own (TYPE-16); name |
 | name | `delta.duplicate_argument` | Repeated delta argument; later name |

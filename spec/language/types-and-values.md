@@ -205,8 +205,10 @@ rejection (TYPE-12, TYPE-14). TYPE-16 says what a `delta_type` is.
   dictionary. A `Type` has text, its canonical spelling, which core gives
   through `convert<str>` (FMT-5): `format("{}", type(values))` is
   `list<i64, 2>`.
-  Proposed: no connection carries a `Type`, and the type of an `any` is
-  `any`, whatever it holds.
+  Proposed: no connection carries a `Type`, alone or held in another
+  value, so a `Type` and a type that holds one have no delta (TYPE-16):
+  as an ordinary value a struct with a `Type` field is whole. And the
+  type of an `any` is `any`, whatever it holds.
 
 ## Agreed temporal shapes
 
@@ -388,6 +390,7 @@ rejection (TYPE-12, TYPE-14). TYPE-16 says what a `delta_type` is.
 | `dict<K, V>` | A type of its own, with the properties `updated`, a `dict<K, delta<V>>` of each key added or changed with its delta, and `removed`, a `set<K>` |
 | A struct | A type of its own, with a property for each field `name: F`, of the same name and of type `delta<F>?`: null where the field did not change |
 | `signal` | None: `delta.unsupported_shape` |
+| `Type`, or a type that holds one | Proposed: none, `delta.unsupported_shape` (TYPE-18) |
 
 Accepted illustration, complete module:
 
