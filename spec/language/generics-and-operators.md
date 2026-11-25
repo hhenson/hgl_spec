@@ -120,19 +120,20 @@ expression; group a constant expression that uses them as operand data.
   resolved a parameter's type, a membership that gives alternatives for
   how its argument's type relates to it, `As[arg] in {Ps[arg], list<Ps[arg], N>}`,
   standing as a positive conjunct or as the body of an `each` that does
-  (GEN-10), supplies candidate types for that parameter. Compare alternatives
-  as GEN-12 compares candidates, with a structure more specific than a bare
-  variable. Test the alternatives against the argument, known parameter and
-  result types (GEN-2, FN-17), and shared bindings across the call. Where a
-  more specific choice contradicts those types, consider the next most
-  specific compatible choice. A matching alternative that gives no binding
-  supplies no type by itself. The call must have a unique best compatible
-  interpretation. Equally specific or incomparable best interpretations
-  with different bindings or whole and member choices are ambiguous,
-  regardless of declaration order. Proposed: a `list<i64, 2>` argument
-  first supplies `i64` for `Ps[arg]`. If a known type excludes that choice,
-  the bare alternative can supply `list<i64, 2>` instead. An `i64` fits
-  only the bare alternative. Proposed: the types so resolved are those the call's
+  (GEN-10), supplies candidate types for that parameter. Proposed: compare
+  alternatives as GEN-12 compares candidates, with a structure more specific
+  than a bare variable. Proposed: test alternatives against the argument,
+  known parameter and result types (GEN-2, FN-17), and shared bindings across
+  the call. Proposed: where a more specific choice contradicts those types,
+  consider the next most specific compatible choice. Proposed: a matching
+  alternative that gives no binding supplies no type by itself. Proposed:
+  the call must have a unique best compatible interpretation. Proposed:
+  equally specific or incomparable best interpretations with different
+  bindings or whole and member choices are ambiguous, regardless of
+  declaration order. Proposed: a `list<i64, 2>` argument first supplies `i64`
+  for `Ps[arg]`. Proposed: if a known type excludes that choice, the bare
+  alternative can supply `list<i64, 2>` instead. Proposed: an `i64` fits only
+  the bare alternative. Proposed: the types so resolved are those the call's
   other arguments give the parameters of a function given bare (FN-17):
   they select an operator's candidate, and a generic function takes its
   generic arguments from them. Solve bindings to a fixed point; reject
