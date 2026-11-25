@@ -142,7 +142,7 @@ rejection (TYPE-12, TYPE-14). TYPE-16 says what a `delta_type` is.
   elements outside an `atomic<...>`. Cross-module references to
   non-recursive public structs remain admitted.
 - **TYPE-7.** Enum members are distinct typed constants with distinct names.
-  `Type.member` names one, through an alias as `alias::Type.member`. Where a
+  `Side.buy` names one, through an alias as `alias::Side.buy`. Where a
   position expects
   the enum's type, `.member` names one too: the value of an argument or
   configuration option of that type, an initializer or result declared with
