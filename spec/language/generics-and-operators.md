@@ -475,10 +475,12 @@ expression; group a constant expression that uses them as operand data.
   directly following (LEX-27) a name resolved to a generic type, function,
   or operator in an expression, `<` opens generic arguments rather than a
   comparison. Check each argument against the corresponding parameter kind;
-  shared name syntax is not a second interpretation. A lone name among the
-  arguments is a constant when it names a value: a generic value parameter,
-  a local, or a parameter. Reject an invalid application without comparison
-  fallback.
+  shared name syntax is not a second interpretation. In a type argument,
+  `Type` denotes the descriptor type (TYPE-18), even with a value of that
+  name in scope. In a value argument, `Type` follows ordinary value lookup.
+  Any other lone name among the arguments is a constant when it names a
+  generic value parameter, a local, or a parameter. Reject an invalid
+  application without comparison fallback.
   Ordinary `<` and `>` do not order type names. At the current generic nesting
   level, `>` closes the argument list; parenthesize a greater-than expression
   used as a constant argument. Nested generic closers follow LEX-8.
