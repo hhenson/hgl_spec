@@ -8,13 +8,13 @@ begins "Proposed:". The storage extensions below are proposed.
 
 ```ebnf
 type = type_base, [ "?" ] ;
-type_base = scalar_type | named_type | tuple_type | list_type | set_type
+type_base = "Type" | scalar_type | named_type | tuple_type | list_type | set_type
      | dict_type | rolling_window_type | "signal" | endpoint_type
      | "atomic", "<", value_type, ">" | result_type | "error" | delta_type
      | pack_member ;
 pack_member = IDENTIFIER, "[", IDENTIFIER, "]" ;
 value_type = value_type_base, [ "?" ] ;
-value_type_base = scalar_type | named_type | value_tuple_type | value_list_type
+value_type_base = "Type" | scalar_type | named_type | value_tuple_type | value_list_type
            | set_type | value_dict_type | result_type | "error" | delta_type ;
 scalar_type = "bool" | "i64" | "f64" | "str" | "bytes" | "any"
             | "date" | "time" | "datetime" | "duration" | "civil_datetime"
@@ -142,7 +142,7 @@ rejection (TYPE-12, TYPE-14). TYPE-16 says what a `delta_type` is.
   elements outside an `atomic<...>`. Cross-module references to
   non-recursive public structs remain admitted.
 - **TYPE-7.** Enum members are distinct typed constants with distinct names.
-  `Type.member` names one, through an alias as `alias::Type.member`. Where a
+  `Side.buy` names one, through an alias as `alias::Side.buy`. Where a
   position expects
   the enum's type, `.member` names one too: the value of an argument or
   configuration option of that type, an initializer or result declared with
@@ -194,6 +194,8 @@ rejection (TYPE-12, TYPE-14). TYPE-16 says what a `delta_type` is.
   Field requiredness/defaults still follow TYPE-4.
 - **TYPE-18.** A type is a value, of the type `Type`. A `Type` is an
   ordinary value and a constant, fixed where the program is compiled.
+  For `let t: Type = type(42)`, `t` describes `i64`, `type(t)` describes
+  `Type`, and `type(type(t)) == type(t)`.
   `type(e)` is the type of the expression `e` as the program's text gives
   it, and evaluates nothing of `e`: with `values: list<i64, 2>`,
   `type(values)` is `list<i64, 2>`, and with
