@@ -194,6 +194,12 @@ rejection (TYPE-12, TYPE-14). TYPE-16 says what a `delta_type` is.
   Field requiredness/defaults still follow TYPE-4.
 - **TYPE-18.** A type is a value, of the type `Type`. A `Type` is an
   ordinary value and a constant, fixed where the program is compiled.
+  The spelling `Type` is reserved in type names. A declaration introducing
+  a type named `Type`, including a type parameter, rejects at its name.
+  In value names and member names it is an ordinary identifier. With
+  `enum Kind { Type }` and `struct Row { Type: Kind }`,
+  `let Type = Row(Type: Kind.Type)` binds a value whose field
+  `Type.Type` holds `Kind.Type`.
   For `let t: Type = type(42)`, `t` describes `i64`, `type(t)` describes
   `Type`, and `type(type(t)) == type(t)`.
   `type(e)` is the type of the expression `e` as the program's text gives
