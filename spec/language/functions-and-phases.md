@@ -381,8 +381,11 @@ Local source/native declaration matching is defined in the native chapter.
   nothing selects, whether the operator has one candidate or several:
   the call rejects (`generic.unresolved`). Proposed: where the
   declaration's `requires` gives alternatives for how an argument's type
-  relates to its parameter's, the type the argument gives is the one
-  GEN-3 resolves.
+  relates to its parameter's, GEN-3 selects the unique best alternatives
+  compatible with the complete function type and the types known across
+  the call. Proposed: a type from a less specific alternative may select a
+  candidate or resolve a generic where a more specific alternative would
+  contradict the known input or result types.
   A function type is a template of the
   signature it takes. Where it writes a parameter's name,
   `fn(key: str, value: f64) -> f64`, the function given has a parameter
