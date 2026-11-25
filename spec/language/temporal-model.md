@@ -4,7 +4,8 @@ Status: agreed publication, handler, state/cache, and capability baseline.
 The alarm, the run-wide keyed store, collection validity with
 `all_valid` (TIME-9), and the read of a collection's child and of a
 collection whole (TIME-1) are agreed.
-A sentence of TIME-8 that begins "Proposed:" is proposed.
+In TIME-8, "Proposed:" begins what is proposed: that sentence and those
+after it in its paragraph.
 
 ## Grammar
 
