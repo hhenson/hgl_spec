@@ -123,7 +123,7 @@ rejection (TYPE-12, TYPE-14). TYPE-16 says what a `delta_type` is.
   mutation of a source cannot change an earlier retained value.
   When the expected type identifies a concrete struct, a nonempty literal
   with named fields constructs it by the same rules. Given
-  `struct Point { x: i64 }` and `fn x_of(p: Point) -> i64 => p.x`,
+  `struct Point { x: i64 }` and `const fn x_of(p: Point) -> i64 => p.x`,
   `let p: Point = {x: 3}`, `var q: Point = {x: 3}` and `x_of({x: 3})`
   all construct `Point(x: 3)`. Each field name is an unquoted member name
   resolved against the struct, even when a local variable has that name.
