@@ -505,7 +505,7 @@ warning_annotation = "@", "suppress_warning", "(", STRING_LITERAL, ")" ;
 | `name.hides_function` | A local, a parameter, or an iteration binding of a function type that takes the name of a function or an operator, which it hides in its scope (UNIT-12); the binding |
 | `node.no_activation` | The dormant-node warning: `modified([])` in a node that injects neither `scheduler` nor `alarm`, or whose `start` does not use the one it injects (TIME-3); the selector |
 | `operator.candidates_tie` | Two candidates of an operator that some call would match equally, with no other candidate the more specific for it (GEN-6); each of the two candidates |
-| `operator.sequence_reading` | An operator call selects a list reading of a sequence literal that also admits a set reading (GEN-5, EXPR-9); the literal |
+| `operator.sequence_reading` | An operator call selects one candidate after comparing list and set readings (GEN-5, EXPR-9); each literal taken as a list where an admitted combination took a set |
 | `statement.no_effect` | Expression statement that holds no call, assignment, or `return`, its value dropped; the expression |
 
 Accepted illustration, complete module:
