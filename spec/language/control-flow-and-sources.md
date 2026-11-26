@@ -90,11 +90,12 @@ CTRL-9 places the opening brace of an `if`, `for`, `switch`, `when`, or
   parameter it rejects (FN-16). Conditions inside a loop retain their own
   phase rules.
 - **CTRL-9.** After `if`, `for`, `switch`, `when`, or `while`, the first `{`
-  outside parentheses, brackets, and operator configuration (EXPR-10) opens
-  the body. The expression before it is the condition of an `if`, `when`, or
-  `while`, the sequence of a `for`, or the selector of a `switch`; `when` and
-  `while` may have none. An expression there that contains any other brace is
-  parenthesized.
+  outside parentheses, brackets, and a symbol operator's configuration
+  (EXPR-10) opens the body. The expression before it is the condition of an
+  `if`, `when`, or `while`, the sequence of a `for`, or the selector of a
+  `switch`; `when` and `while` may have none. An expression there that
+  contains any other brace is parenthesized. A configured call of a named
+  operator or function stands in parentheses as EXPR-10 requires.
 - **CTRL-10.** A block whose last statement is an expression has that
   expression's value and type; any other block has none. In a value function
   the condition of an `if` or a `while` is a `bool`: a `bool?` there is
@@ -225,7 +226,8 @@ CTRL-9 places the opening brace of an `if`, `for`, `switch`, `when`, or
   expression checks both branches, as any `if` does.
 
 Accepted illustrations, statement fragments with `ready` a bool, `items` a
-list, and `step` a function in scope:
+list, `step` a function in scope, and `scaled` a value function with signature
+`const fn scaled{by: i64}(value: i64) -> i64`:
 
 | Source | Reading |
 | --- | --- |
@@ -235,10 +237,13 @@ list, and `step` a function in scope:
 | `if ready { step() }` | Condition `ready` |
 | `if ({ ready }) { step() }` | The block `{ ready }` is the condition |
 | `for item in items { step() }` | Sequence `items` |
+| `if (scaled{by: 1}(1)) == 1 { step() }` | The named configured call is parenthesized (EXPR-10) |
 
 Deliberate rejections, in parsing: `when { ready } { step() }`, where the
 first block is the body, so a second statement follows on its line (LEX-6);
-and `if { ready } { step() }`, which has no condition before its first `{`.
+`if { ready } { step() }`, which has no condition before its first `{`;
+and `if scaled{by: 1}(1) == 1 { step() }`, whose named configured call
+is not parenthesized (EXPR-10).
 
 Accepted illustration, complete module:
 
