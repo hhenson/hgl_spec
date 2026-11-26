@@ -31,7 +31,7 @@ index_suffix = "[", expression, "]" ;
 member_suffix = ".", member_name ;
 primary_expr = literal | IDENTIFIER | qualified_name | implied_member
              | "(", expression, ")" | tuple_literal | sequence_literal
-             | set_literal | dict_literal
+             | set_literal | keyed_literal
              | typed_constructor | delta_constructor | type_call | type_of
              | pack_loop
              | function_reference | function_expr | if_expression
@@ -40,8 +40,8 @@ arguments = argument, { ",", argument }, [ "," ] ;
 argument = [ member_name, ":" ], expression | "...", expression ;
 tuple_literal = "(", [ expression, ",", [ expression, { ",", expression }, [ "," ] ] ], ")" ;
 set_literal = "{", ( "," | expression, ",", [ expression, { ",", expression }, [ "," ] ] ), "}" ;
-dict_literal = "{", ( ":" | dict_entry, { ",", dict_entry }, [ "," ] ), "}" ;
-dict_entry = expression, ":", expression ;
+keyed_literal = "{", ( ":" | keyed_entry, { ",", keyed_entry }, [ "," ] ), "}" ;
+keyed_entry = ( expression | member_name ), ":", expression ;
 sequence_literal = "[", [ sequence_entries | loop_entries ], "]" ;
 loop_entries = "for", IDENTIFIER, "in", iterable, ":", expression ;
 pack_loop = "{", "for", IDENTIFIER, "in", iterable, ":", expression, "}" ;
@@ -169,8 +169,10 @@ GEN-14 resolves generic construction versus comparison using declaration lookup.
   or all colon-separated pairs; mixing these forms is a source error. `[a]`
   has one value entry; `[a: b]` has one pair entry, not a standalone pair value.
   Ordinary set and dictionary literals may specify their kind with braces.
-  `{a, b}` and `{a,}` are sets; `{a: b}` is a dictionary whose key and
-  value are expressions. Element and entry admission follows the same type
+  `{a, b}` and `{a,}` are sets. Where the expected type determines a
+  concrete struct schema, `{field: value}` constructs that struct (TYPE-5).
+  In a dictionary literal, both sides of each colon are expressions.
+  Element and entry admission for sets and dictionaries follows the same type
   and duplicate rules as for a sequence in the corresponding set or
   dictionary context. `{,}` is an empty set and `{:}` is an empty
   dictionary. Their element or key and value types come from context, as in
@@ -207,7 +209,8 @@ GEN-14 resolves generic construction versus comparison using declaration lookup.
   argument does (GEN-8): the candidate's generic value parameter of that
   name, or else its parameter of that name. Configuration changes neither
   precedence nor associativity and creates no ambient policy. A named-entry
-  brace in this position is configuration, not the right operand's block.
+  brace in this position is configuration. Parentheses put a keyed literal
+  in the right operand, as in `p == ({x: 3})` when the operand type is known.
   `{}` there is
   configuration only when an operand follows it on its line; otherwise it is
   the operand's empty block. Reject empty configuration, duplicate

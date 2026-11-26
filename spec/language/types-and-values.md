@@ -121,6 +121,16 @@ rejection (TYPE-12, TYPE-14). TYPE-16 says what a `delta_type` is.
   once in source order; failure prevents later arguments. Defaults are
   evaluated only when omitted. Retained results own their data; later
   mutation of a source cannot change an earlier retained value.
+  When the expected type identifies a concrete struct, a nonempty literal
+  with named fields constructs it by the same rules. Given
+  `struct Point { x: i64 }` and `fn x_of(p: Point) -> i64 => p.x`,
+  `let p: Point = {x: 3}`, `var q: Point = {x: 3}` and `x_of({x: 3})`
+  all construct `Point(x: 3)`. Each field name is an unquoted member name
+  resolved against the struct, even when a local variable has that name.
+  A field's expected type supplies the same context to a nested literal.
+  Field names alone never select a struct type. The named constructor
+  remains available wherever an expression is allowed, including a call
+  with zero arguments when all fields may be omitted.
 - **TYPE-6.** A struct holds the structs its fields' types name at any depth,
   the fields it has from its parents included, and whatever each of those
   structs holds in turn, a generic one with its arguments in place. A field
