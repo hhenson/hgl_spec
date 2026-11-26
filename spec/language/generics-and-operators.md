@@ -164,6 +164,25 @@ expression; group a constant expression that uses them as operand data.
   `result<T, error>` and the candidate guarantees its T (GEN-6), the
   candidate meets a request for the complete result: the call gives a
   success containing the candidate's value.
+  When candidates supply both list and set contexts for an inline sequence
+  literal (EXPR-9), compare the otherwise admitted combinations of readings
+  across all such literals together. One combination outranks another if
+  it takes a list where the other takes a set at one or more literals and
+  takes no set where the other takes a list. Discard outranked combinations.
+  If different combinations remain, the call is ambiguous. Within the sole
+  remaining combination, apply the usual specificity and ambiguity rules.
+  If exactly one candidate wins, warn at each literal it takes as a list
+  for which another admitted combination took a set
+  (`operator.sequence_reading`). Each warning identifies the list reading
+  and shows an explicitly typed binding for the alternative set.
+  A set supplied by its expected type or by a typed binding needs no choice.
+
+  For example, given candidates taking `list<i64, 2>` and `set<i64>`,
+  `choose([8, 13])` selects the list and `choose([8, 13, 21])` selects
+  the set. Given candidates taking `(list<i64>, set<i64>)` and
+  `(set<i64>, list<i64>)`, `choose([1], [2])` is ambiguous in either
+  declaration order. An admitted candidate taking `(list<i64>, list<i64>)`
+  outranks both and the call warns at both literals.
   Select exactly one most-specific admitted candidate.
   Concrete types outrank variables; structurally constrained variables outrank
   unconstrained ones. Given a list of a fixed size, a sized list pattern,
