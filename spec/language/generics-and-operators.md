@@ -164,6 +164,13 @@ expression; group a constant expression that uses them as operand data.
   `result<T, error>` and the candidate guarantees its T (GEN-6), the
   candidate meets a request for the complete result: the call gives a
   success containing the candidate's value.
+  When candidates supply both list and set contexts for the same inline
+  sequence literal (EXPR-9), first consider candidates that admit the list
+  reading. If any are admitted, apply the usual specificity and ambiguity
+  rules among them. Otherwise consider the set reading. For example, given
+  candidates taking `list<i64, 2>` and `set<i64>`, `choose([8, 13])`
+  selects the list and `choose([8, 13, 21])` selects the set. Passing a
+  binding declared `set<i64>` supplies a set directly.
   Select exactly one most-specific admitted candidate.
   Concrete types outrank variables; structurally constrained variables outrank
   unconstrained ones. Given a list of a fixed size, a sized list pattern,
