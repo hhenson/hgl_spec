@@ -20,8 +20,8 @@ scalar_type = "bool" | "i64" | "f64" | "str" | "bytes" | "any"
             | "date" | "time" | "datetime" | "duration" | "civil_datetime"
             | "timezone" | "zoned_datetime" | "zoned_time" | "tenor" ;
 named_type = ( IDENTIFIER | qualified_name ), [ generic_arguments ] ;
-tuple_type = "tuple", "<", type, { ",", type }, ">" ;
-value_tuple_type = "tuple", "<", value_type, { ",", value_type }, ">" ;
+tuple_type = "tuple", "<", [ type, { ",", type } ], ">" ;
+value_tuple_type = "tuple", "<", [ value_type, { ",", value_type } ], ">" ;
 list_type = "list", "<", type, [ ",", size_expression ], ">" ;
 value_list_type = "list", "<", value_type, [ ",", size_expression ], ">" ;
 size_expression = additive_expr | "unbounded" ;

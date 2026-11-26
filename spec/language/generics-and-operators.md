@@ -443,10 +443,10 @@ expression; group a constant expression that uses them as operand data.
   holds; where that is a range, the application rejects only when no length
   in it fits. A type pack is given to `tuple` too: `tuple<Ts>` is the
   tuple of the pack's types, in their order, and a parameter of that
-  type binds `Ts` from the tuple it is given. A tuple has one type or
-  more, as its grammar has it (`tuple_type`), so `tuple` is never named
-  bare, and a pack that holds none makes no tuple: such a parameter is
-  given none.
+  type binds `Ts` from the tuple it is given. When `Ts` is empty,
+  `tuple<Ts>` is `tuple<>`. Passing `()` to a parameter of that type
+  binds `Ts` to the empty pack. The angle brackets are required even for
+  the empty tuple type.
   `schemas(pack)` is a runtime-only
   borrowed schema view, not a storable value/result or general reflection
   facility.

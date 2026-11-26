@@ -31,13 +31,17 @@ index_suffix = "[", expression, "]" ;
 member_suffix = ".", member_name ;
 primary_expr = literal | IDENTIFIER | qualified_name | implied_member
              | "(", expression, ")" | tuple_literal | sequence_literal
+             | set_literal | dict_literal
              | typed_constructor | delta_constructor | type_call | type_of
              | pack_loop
              | function_reference | function_expr | if_expression
              | eval_expression | run_expression | block ;
 arguments = argument, { ",", argument }, [ "," ] ;
 argument = [ member_name, ":" ], expression | "...", expression ;
-tuple_literal = "(", expression, ",", [ expression, { ",", expression }, [ "," ] ], ")" ;
+tuple_literal = "(", [ expression, ",", [ expression, { ",", expression }, [ "," ] ] ], ")" ;
+set_literal = "{", ( "," | expression, ",", [ expression, { ",", expression }, [ "," ] ] ), "}" ;
+dict_literal = "{", ( ":" | dict_entry, { ",", dict_entry }, [ "," ] ), "}" ;
+dict_entry = expression, ":", expression ;
 sequence_literal = "[", [ sequence_entries | loop_entries ], "]" ;
 loop_entries = "for", IDENTIFIER, "in", iterable, ":", expression ;
 pack_loop = "{", "for", IDENTIFIER, "in", iterable, ":", expression, "}" ;
@@ -153,13 +157,25 @@ GEN-14 resolves generic construction versus comparison using declaration lookup.
   key. An index outside an ordinary list fails the read with code
   `value.index_out_of_range`, as it fails an assignment (EXPR-3). A tuple's
   index is a constant within its length: it selects the element's type.
-- **EXPR-8.** Ordinary tuples may contain runtime payload expressions. Harness
+- **EXPR-8.** Ordinary tuples may contain runtime payload expressions.
+  `()` is the empty tuple of type `tuple<>`, `(a,)` is a singleton tuple,
+  and `(a)` groups an expression. A call `f(())` supplies one empty tuple;
+  `f()` supplies zero arguments. A function returning `()` produces a value.
+  Harness
   `_` and timed cells exist only in test traces; outside them a sequence is
   ordinary data and a placeholder is not a value. Tuple syntax does not
   construct graph connections from separate temporal endpoints.
 - **EXPR-9.** Brackets always delimit a sequence. Entries are either all values
   or all colon-separated pairs; mixing these forms is a source error. `[a]`
   has one value entry; `[a: b]` has one pair entry, not a standalone pair value.
+  Ordinary set and dictionary literals may specify their kind with braces.
+  `{a, b}` and `{a,}` are sets; `{a: b}` is a dictionary whose key and
+  value are expressions. Element and entry admission follows the same type
+  and duplicate rules as for a sequence in the corresponding set or
+  dictionary context. `{,}` is an empty set and `{:}` is an empty
+  dictionary. Their element or key and value types come from context, as in
+  `let members: set<i64> = {,}` and `let prices: dict<str, f64> = {:}`.
+  `{}` and `{a}` are blocks (CTRL-10).
   Empty brackets have no entries. The use site and expected type constrain
   element types, keys, ordering, uniqueness, and placeholder admission; syntax
   alone does not select a dictionary, timed trace, or sparse delta. `_` is not
