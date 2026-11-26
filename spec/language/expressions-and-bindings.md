@@ -160,7 +160,7 @@ GEN-14 resolves generic construction versus comparison using declaration lookup.
 - **EXPR-8.** Ordinary tuples may contain runtime payload expressions.
   `()` is the empty tuple of type `tuple<>`, `(a,)` is a singleton tuple,
   and `(a)` groups an expression. A call `f(())` supplies one empty tuple;
-  `f()` supplies zero arguments. A function returning `()` produces a value.
+  `f()` supplies zero arguments. A value function returning `()` produces one tuple value.
   Harness
   `_` and timed cells exist only in test traces; outside them a sequence is
   ordinary data and a placeholder is not a value. Tuple syntax does not
@@ -188,6 +188,9 @@ GEN-14 resolves generic construction versus comparison using declaration lookup.
   element types, keys, ordering, uniqueness, and placeholder admission; syntax
   alone does not select a dictionary, timed trace, or sparse delta. `_` is not
   an ordinary value and remains restricted by EXPR-8 and the trace profile.
+  Both `let xs: list<i64> = [8, 13]` and `let ys: set<i64> = [8, 13]`
+  use the same sequence syntax. The annotation selects the collection type.
+  GEN-5 specifies the order when operator candidates supply both contexts.
   With no expected type, value entries make a list of the one type they
   have: `[1, 2.5]` is a `list<f64>`, its integer literal an `f64` (EXPR-5),
   and `[1, null]` a `list<i64?>`. Entries of two types reject, and so do
