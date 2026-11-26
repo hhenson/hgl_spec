@@ -78,7 +78,7 @@ GEN-14 resolves generic construction versus comparison using declaration lookup.
 - **EXPR-1.** The grammar gives precedence from low `||` to high postfix forms.
   Repeated binary forms associate left; unary forms associate right. A chained
   comparison is not implicit mathematical conjunction. Parentheses select
-  grouping; a tuple has a comma. Newline constraints follow source-text rules.
+  grouping; every nonempty tuple literal has a comma. Newline constraints follow source-text rules.
 - **EXPR-2.** Evaluate ordinary call/constructor arguments once in written
   order. Positional arguments precede named ones; reject duplicates, unknown
   names, missing required arguments, and wrong types. Named arguments use
@@ -176,7 +176,13 @@ GEN-14 resolves generic construction versus comparison using declaration lookup.
   dictionary. Their element or key and value types come from context, as in
   `let members: set<i64> = {,}` and `let prices: dict<str, f64> = {:}`.
   `{}` and `{a}` are blocks (CTRL-10).
-  Empty brackets have no entries. The use site and expected type constrain
+  In an ordinary expression, brackets default to a list. When they form a
+  list, `[a: b, c: d]` is shorthand for `[(a, b), (c, d)]` and follows
+  the same typing rules. Each entry contributes one tuple in written order,
+  including entries whose first elements compare equal. Empty brackets
+  `[]` supply no element type of their own: `let xs: list<tuple<str, i64>> = []`
+  is an empty list of pairs.
+  The use site and expected type constrain
   element types, keys, ordering, uniqueness, and placeholder admission; syntax
   alone does not select a dictionary, timed trace, or sparse delta. `_` is not
   an ordinary value and remains restricted by EXPR-8 and the trace profile.
@@ -364,8 +370,11 @@ and `d`; use-site admission is checked separately:
 []
 ```
 
-The fourth fragment has one pair entry. It acquires timed-trace meaning only
-at an admitted trace use site. Deliberate syntax rejection under EXPR-9:
+The fourth fragment is ordinarily a list containing the tuple `(1s, 7)`.
+At a timed-trace use site it supplies the tick at offset `1s` (TST-7).
+An ordinary binding `let entries = ["bid": 4, "ask": 7, "bid": 9]`
+has three tuples. At positions 0 and 2 the first element is `"bid"`
+and the second elements are 4 and 9 respectively. Deliberate syntax rejection under EXPR-9:
 `[a, b: c]`. Executable conformance is planned.
 
 Accepted expression fragments, with numeric operands `a`/`b` in scope; core's
