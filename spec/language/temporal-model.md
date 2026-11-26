@@ -285,8 +285,8 @@ chapter.
   Core's capability contract has the rest of what a wake is.
 - **TIME-9.** `endpoint<T>` is the type of the endpoint of a temporal value
   of T, for a function that takes the endpoint and not its payload
-  (TYPE-12). The operations on an endpoint are core's native value functions
-  with such a parameter: `valid`, `all_valid`, `modified`, `delta_value`,
+  (TYPE-12). Core supplies the native endpoint operations
+  `valid`, `all_valid`, `modified`, `delta_value`,
   `removed_value`, `last_modified`, `invalidate`, `is_active`, `activate`,
   and `passivate`. `removed_value` takes a window (TYPE-11), and nothing
   else.
@@ -309,13 +309,18 @@ chapter.
   the whole value. A window is valid and all valid as TYPE-11
   has it.
   `all_valid` takes only a collection or a window; another endpoint is
-  rejected (`endpoint.argument`). A call gives
-  an `endpoint<T>` parameter a temporal input of the enclosing node by its
-  name, a child of one, `parts[1]`, `quote.bid` or `parts[i]`, or `out`,
-  and nothing else; the endpoint is not retained, as a
-  capability is not (TIME-8). Every other function takes the payload: a
-  `const fn` is given the value, and a temporal `fn` is not called in a
-  hook. `is_active(input)`, `activate(input)` and `passivate(input)` operate
+  rejected (`endpoint.argument`). A hook gives a fixed endpoint parameter
+  or an entry of a native endpoint pack (FN-8) a temporal input of its
+  node, a child of one (`parts[1]`, `quote.bid` or `parts[i]`), or `out`.
+  An entry of the node's own temporal input pack designates that input
+  when forwarded (FN-19). Binding an endpoint requires no validity guard.
+  The native may use it during this synchronous call and must not retain it.
+  A literal, an ordinary local or a computed payload given to a borrowed
+  position rejects (`endpoint.argument`). A scalar given in composition
+  to a temporal input is a connection that publishes once (FN-3). The
+  hook may borrow that input with its own validity and tick history.
+  An ordinary parameter of a value function takes the payload in a
+  hook. A temporal `fn` is not called there. `is_active(input)`, `activate(input)` and `passivate(input)` operate
   on direct temporal inputs. `is_active` is a boolean predicate in a handler
   condition. It reads the binding's current activity without setting a
   subscription or validity requirement. Core's endpoint contract says what each returns. `scheduled()` is

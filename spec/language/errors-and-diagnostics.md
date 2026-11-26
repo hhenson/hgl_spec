@@ -332,7 +332,7 @@ infrastructure and cannot satisfy a source-rejection expectation.
 | phase | `input.lifecycle` | A temporal input read, or given to an endpoint operation, in `start`, or given to `activate` or `passivate` in `stop` (TIME-5); the use |
 | phase | `payload.unguarded` | Payload read under manual admission, in a `when` or in `stop`, that no guard dominates (TIME-4, TIME-5); or a read of a child at a constant index or a field that nothing admits, or of a struct, a tuple or a fixed list whole that its `all_valid` does not admit (TIME-1); or a read of the delta of a window of a duration whose place is neither a `result` nor a `delta<T>?`, or of `removed_value` of any window whose place is not a `result` (TYPE-11); read |
 | phase | `ref.read` | The value or the `delta_value` of a `ref` parameter, of a child of one, or of `out` of a `ref` result, read (FN-16), or the `removed_value` of a window that is a child of one; the read |
-| phase | `endpoint.argument` | Endpoint operation given what is no temporal input of its function, no child of one, and not `out`, or `all_valid` given neither a collection (a list, tuple, struct or dictionary) nor a window (TIME-9); argument |
+| phase | `endpoint.argument` | Fixed endpoint parameter or borrowed pack entry given what is no temporal input of its function, no child of one, and not `out`, or `all_valid` given neither a collection (a list, tuple, struct or dictionary) nor a window (TIME-9); argument |
 | type | `schedule.duration_bounds` | A wake asked for with a `duration` that is not more than zero, other than a zero in `start`, whose value the compiler sees (TIME-8); the duration |
 | phase | `scheduled.lifecycle` | `scheduled()` in `start` or `stop` (TIME-9); the selector |
 | phase | `connection.as_constant` | Temporal connection where composition requires a constant (FN-3), given to a function that declares a `var` parameter, which is not lifted (FN-15), given to a value function's configuration parameter (EXPR-14), or given to a call on the store a graph injects (FN-9); expression |
@@ -349,7 +349,7 @@ infrastructure and cannot satisfy a source-rejection expectation.
 | type | `type.not_a_type` | Name in a type position is no type: a function, operator, local, generic value parameter, or a type pack where one type is needed (UNIT-10, GEN-2, GEN-13); name |
 | type | `type.not_ordinary` | `rolling_window`, `atomic` or `signal` where an ordinary value type is required, or under a `?` that is not on the whole type of an input or a field (TYPE-12, TYPE-14, FN-1); offending type |
 | type | `signal.position` | `signal` other than as the whole type of a function's temporal parameter (TYPE-12); `signal` |
-| type | `endpoint.position` | `endpoint<T>` other than as the whole type of a native value function's parameter (TYPE-12); `endpoint` |
+| type | `endpoint.position` | Endpoint type outside a native value function's fixed endpoint parameter or endpoint pack (TYPE-12, FN-8); `endpoint` |
 | type | `nullable.key` | Set element or dictionary key has a `?` (TYPE-14); the nullable type |
 | type | `key.unstable` | Set element or dictionary key is an `f64`, or a type that holds one (TYPE-1); the type |
 | type | `generic.argument_count` | Generic type given the wrong number of arguments, or arguments given to a type or generic parameter that takes none (GEN-2, GEN-10, GEN-13); name |

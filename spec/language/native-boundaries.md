@@ -62,8 +62,9 @@ ordinary HGL statements. Target-specific bodies are separate provider artifacts.
   contract. Construction/destruction do not replace semantic start/stop.
 - **NATIVE-5.** A native value function injects nothing and has no
   out/scheduler/state lifetime (FN-9). Borrowed access must be explicit in the
-  checked contract; ordinary scalar parameters do not acquire endpoint
-  privileges because the implementation is native.
+  checked contract. A fixed endpoint parameter or an endpoint pack
+  declares a borrow of temporal inputs (FN-8, TIME-9). Ordinary scalar
+  parameters do not acquire endpoint privileges because the implementation is native.
 - **NATIVE-6.** A native type has a canonical nominal identity and explicit
   capabilities. It may be an atomic payload/key only where those capabilities
   and ownership rules admit it. Matching external identity is not established
