@@ -266,9 +266,14 @@ expression; group a constant expression that uses them as operand data.
   type parameter that admits none (GEN-1), a candidate may write none
   there: with `operator visit<R>(f: fn(i64) -> R, a: i64) -> R`,
   `impl fn visit(f: fn(i64), a: i64)` is a candidate, and the call that
-  selects it gives no result. Proposed: a
-  result that meets that type as GEN-5 has a requested output met, a
-  `result<T, error>` or a `T?` for a T, is not another type here. An
+  selects it gives no result. When the operator and the candidate's
+  inputs determine a result T, a candidate giving `T?` or
+  `result<T, error>` in its place rejects with `impl.result`.
+  A candidate giving T may implement a declared `T?` or
+  `result<T, error>`: a caller taking the complete result receives a
+  success containing that value. A result type parameter independent
+  of the inputs can instead bind to the candidate's whole result.
+  GEN-5, ERR-12 and ERR-15 govern the result at the call. An
   option that selects among candidates is a generic value
   parameter, `<const zero: Zero = .ieee>` (GEN-13): its value is known when
   the call is checked, which is what lets it select. An option that does
