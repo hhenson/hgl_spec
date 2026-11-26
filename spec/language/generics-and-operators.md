@@ -160,7 +160,10 @@ expression; group a constant expression that uses them as operand data.
   requested T or `T?` as one that gives T does, and its call takes the form
   the place expects (ERR-15): the place does not choose between them.
   A candidate that gives `T?` meets a requested T the same way, and its
-  result is read there (ERR-12).
+  result is read there (ERR-12). Where the operator declares
+  `result<T, error>` and the candidate guarantees its T (GEN-6), the
+  candidate meets a request for the complete result: the call gives a
+  success containing the candidate's value.
   Select exactly one most-specific admitted candidate.
   Concrete types outrank variables; structurally constrained variables outrank
   unconstrained ones. Given a list of a fixed size, a sized list pattern,
@@ -270,8 +273,7 @@ expression; group a constant expression that uses them as operand data.
   inputs determine a result T, a candidate giving `T?` or
   `result<T, error>` in its place rejects with `impl.result`.
   A candidate giving T may implement a declared `T?` or
-  `result<T, error>`: a caller taking the complete result receives a
-  success containing that value. A result type parameter independent
+  `result<T, error>`. A result type parameter independent
   of the inputs can instead bind to the candidate's whole result.
   GEN-5, ERR-12 and ERR-15 govern the result at the call. An
   option that selects among candidates is a generic value
