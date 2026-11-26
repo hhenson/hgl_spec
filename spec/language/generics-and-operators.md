@@ -167,8 +167,12 @@ expression; group a constant expression that uses them as operand data.
   When candidates supply both list and set contexts for the same inline
   sequence literal (EXPR-9), first consider candidates that admit the list
   reading. If any are admitted, apply the usual specificity and ambiguity
-  rules among them. Otherwise consider the set reading. For example, given
-  candidates taking `list<i64, 2>` and `set<i64>`, `choose([8, 13])`
+  rules among them. Otherwise consider the set reading. If both readings
+  admit a candidate and the list reading selects exactly one, warn at the
+  literal (`operator.sequence_reading`). The warning identifies the list
+  reading and shows an explicitly typed binding for the set reading.
+  A set supplied by its expected type or by a typed binding needs no such
+  choice. For example, given candidates taking `list<i64, 2>` and `set<i64>`, `choose([8, 13])`
   selects the list and `choose([8, 13, 21])` selects the set. Passing a
   binding declared `set<i64>` supplies a set directly.
   Select exactly one most-specific admitted candidate.
