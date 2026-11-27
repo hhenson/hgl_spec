@@ -6,7 +6,7 @@ of FN-9 that begins "Proposed:" is proposed. FN-17, a
 parameter that takes a function, and the pack of FN-8 declared `for` one
 are agreed, but for each sentence of FN-17 that begins "Proposed:".
 FN-18, configuration parameters, is agreed, and so is FN-19, a pack as a
-value.
+value. The native endpoint packs of FN-8 are agreed.
 
 ## Grammar
 
@@ -55,7 +55,8 @@ Local source/native declaration matching is defined in the native chapter.
 - **FN-1.** A `const fn` is a value function. It computes ordinary values for
   one invocation: its parameter and result types are ordinary value types.
   Three kinds of parameter are the exception: one of a capability's type
-  (TIME-8); in a native value function, one of `endpoint<T>` (TIME-9); and
+  (TIME-8); in a native value function, a fixed endpoint parameter or an
+  endpoint pack (FN-8, TIME-9); and
   one that takes a function (FN-17), which holds no value.
   It is not inherently pure or compile-time-only. Parameter-level `const`
   instead fixes configuration: a `const` parameter takes what is fixed when
@@ -156,14 +157,26 @@ Local source/native declaration matching is defined in the native chapter.
   inference does not create a general callable value type.
 - **FN-8.** Packs capture, in order, the arguments the fixed parameters leave.
   `...T` captures the positional ones: all of type T, or each of its own type
-  when T is a declared type pack. `...{Fields}` captures the named ones, each
-  under its source name, where `Fields` is a type pack among the generic
+  when T is a declared type pack. An ordinary named pack `...{Fields}`
+  captures each entry under its source name, where `Fields` is a type pack among the generic
   parameters of the same declaration, named bare. Packs have no defaults,
   cannot be const, and follow all fixed parameters. A declaration has at
   most one positional pack and at most one named pack: a second of either
   kind rejects (`pack.duplicate`), since nothing would say which of the
   two an argument is for. Cardinality and
   reflection follow the generic chapter.
+  A native value function may borrow endpoints in either pack. For an
+  ordinary payload type T, `args: ...endpoint<T>` takes positional
+  endpoints of T. For a type pack As of the declaration,
+  `args: ...endpoint<As>` takes one endpoint per position and binds As
+  to their payload types in order. For a type pack Ks of the declaration,
+  `kwargs: ...{endpoint<Ks>}` binds Ks to each named endpoint's payload
+  type under its original name, in argument order. `As[k]` or `Ks[k]`
+  thus names the payload type at key `k` (GEN-17). Each borrow has the
+  lifetime of this call (TIME-9). The same matching and cardinality
+  rules apply, including when the other pack takes ordinary values or
+  there are fixed parameters. An empty capture binds an empty type pack
+  wherever its cardinality admits zero.
   A named pack may be declared for a parameter that takes a
   function (FN-17), `args: ...{As for f}`. It takes the arguments a call
   of `f` takes, positional or named, matched to `f`'s parameters as that
@@ -447,14 +460,60 @@ Local source/native declaration matching is defined in the native chapter.
   call writes. Its entries are bound after those arguments: each under a
   name to the parameter of that name, and those under positions, in
   order, to the parameters nothing has yet given, from the first, the
-  callee's positional pack taking what remains. So an entry keeps the
-  parameter the matching of FN-8 gave it. The call is then checked as any other (EXPR-2): an entry that
+  callee's positional pack taking what remains. In a node hook, spreading a
+  temporal input pack into an endpoint pack gives each matched entry's
+  endpoint (TIME-9), including an input that is invalid. This binding
+  requires no payload read. An entry matched to an ordinary value
+  parameter follows the hook's payload-read rules (FN-3, TIME-1).
+  So an entry keeps the parameter the matching of FN-8 gave it. The call
+  is then checked as any other (EXPR-2): an entry that
   names no parameter, a parameter given twice, and one left with nothing
   reject as they do there. A struct's construction is such a call:
   `point(...fields)` gives each entry under a name to the field of that
   name, and an entry under a position rejects as a positional argument
   does there (TYPE-5). A pack is bound with `let` and given to a
   call; nothing else holds one, and none is a connection's value.
+
+Accepted illustration, complete module (FN-3, FN-8, FN-19, TIME-9).
+Here the example native returns the number of its borrowed inputs that are
+valid when called.
+
+```hgl
+module examples.borrowed_packs
+
+native const fn count_ready<...As, ...Ks>(
+    const label: str, args: ...endpoint<As>, kwargs: ...{endpoint<Ks>},
+) -> i64
+
+fn count_inputs<...As, ...Ks>(args: ...As, kwargs: ...{Ks}) -> i64 {
+    when valid([]) {
+        return count_ready("quote", ...args, ...kwargs)
+    }
+}
+
+fn quote(price: f64, open_size: i64) -> i64 =>
+    count_inputs(price, size: open_size, side: "bid")
+```
+
+The native receives one positional endpoint of `f64` and the named
+endpoints `size` of `i64` and `side` of `str`, in that order. Once
+`price` and the constant input `side` have published, a call returns 2
+if `size` has never published, then 3 after it does. The literal
+`"quote"` in the hook supplies the fixed constant parameter.
+
+Accepted signature fragment (FN-8), a native with ordinary positional
+values and borrowed named inputs:
+
+```hgl
+native const fn inspect<...Vs, ...Ks>(values: ...Vs, inputs: ...{endpoint<Ks>})
+```
+
+In a node hook with temporal input `x: i64`, `inspect(7, reading: x)`
+may borrow `x` before it is valid. Deliberate rejections during checking:
+`inspect(7, reading: 3)` gives the borrowed position a literal
+(`endpoint.argument`, TIME-9). A result `-> endpoint<i64>` or an
+ordinary HGL parameter `x: endpoint<i64>` puts the borrow outside its
+admitted position (`endpoint.position`, TYPE-12). Conformance planned.
 
 Accepted illustration, complete module, configuration parameters (FN-18):
 

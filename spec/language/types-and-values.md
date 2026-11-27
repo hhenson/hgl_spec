@@ -319,8 +319,11 @@ rejection (TYPE-12, TYPE-14). TYPE-16 says what a `delta_type` is.
   input takes no default but `null`, and is not marked `ref` (FN-16): it has
   no payload to designate.
   `endpoint<T>` is the endpoint of a temporal value of T, for a function
-  that takes the endpoint and not its payload (TIME-9). It is the whole type
-  of a parameter of a native value function, and of nothing else.
+  that takes the endpoint and not its payload (TIME-9). Its source positions
+  are the whole type of a fixed parameter of a native value function and
+  the endpoint packs of such a function (FN-8). Each pack entry borrows a
+  single endpoint. An endpoint type in a local, a result, a collection
+  element or a function type rejects (`endpoint.position`).
 - **TYPE-13.** Result and error envelopes are ordinary atomic values; their
   [tag/refinement rules](errors-and-diagnostics.md) govern payload access.
   Silence, invalidity, null absence, and an error outcome are distinct.
