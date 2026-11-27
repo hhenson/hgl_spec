@@ -31,13 +31,17 @@ index_suffix = "[", expression, "]" ;
 member_suffix = ".", member_name ;
 primary_expr = literal | IDENTIFIER | qualified_name | implied_member
              | "(", expression, ")" | tuple_literal | sequence_literal
+             | set_literal | keyed_literal
              | typed_constructor | delta_constructor | type_call | type_of
              | pack_loop
              | function_reference | function_expr | if_expression
              | eval_expression | run_expression | block ;
 arguments = argument, { ",", argument }, [ "," ] ;
 argument = [ member_name, ":" ], expression | "...", expression ;
-tuple_literal = "(", expression, ",", [ expression, { ",", expression }, [ "," ] ], ")" ;
+tuple_literal = "(", [ expression, ",", [ expression, { ",", expression }, [ "," ] ] ], ")" ;
+set_literal = "{", ( "," | expression, ",", [ expression, { ",", expression }, [ "," ] ] ), "}" ;
+keyed_literal = "{", ( ":" | keyed_entry, { ",", keyed_entry }, [ "," ] ), "}" ;
+keyed_entry = ( expression | member_name ), ":", expression ;
 sequence_literal = "[", [ sequence_entries | loop_entries ], "]" ;
 loop_entries = "for", IDENTIFIER, "in", iterable, ":", expression ;
 pack_loop = "{", "for", IDENTIFIER, "in", iterable, ":", expression, "}" ;
@@ -74,7 +78,7 @@ GEN-14 resolves generic construction versus comparison using declaration lookup.
 - **EXPR-1.** The grammar gives precedence from low `||` to high postfix forms.
   Repeated binary forms associate left; unary forms associate right. A chained
   comparison is not implicit mathematical conjunction. Parentheses select
-  grouping; a tuple has a comma. Newline constraints follow source-text rules.
+  grouping; every nonempty tuple literal has a comma. Newline constraints follow source-text rules.
 - **EXPR-2.** Evaluate ordinary call/constructor arguments once in written
   order. Positional arguments precede named ones; reject duplicates, unknown
   names, missing required arguments, and wrong types. Named arguments use
@@ -153,17 +157,40 @@ GEN-14 resolves generic construction versus comparison using declaration lookup.
   key. An index outside an ordinary list fails the read with code
   `value.index_out_of_range`, as it fails an assignment (EXPR-3). A tuple's
   index is a constant within its length: it selects the element's type.
-- **EXPR-8.** Ordinary tuples may contain runtime payload expressions. Harness
+- **EXPR-8.** Ordinary tuples may contain runtime payload expressions.
+  `()` is the empty tuple of type `tuple<>`, `(a,)` is a singleton tuple,
+  and `(a)` groups an expression. A call `f(())` supplies one empty tuple;
+  `f()` supplies zero arguments. A value function returning `()` produces one tuple value.
+  Harness
   `_` and timed cells exist only in test traces; outside them a sequence is
   ordinary data and a placeholder is not a value. Tuple syntax does not
   construct graph connections from separate temporal endpoints.
 - **EXPR-9.** Brackets always delimit a sequence. Entries are either all values
   or all colon-separated pairs; mixing these forms is a source error. `[a]`
   has one value entry; `[a: b]` has one pair entry, not a standalone pair value.
-  Empty brackets have no entries. The use site and expected type constrain
+  Ordinary set and dictionary literals may specify their kind with braces.
+  `{a, b}` and `{a,}` are sets. Where the expected type determines a
+  concrete struct schema, `{field: value}` constructs that struct (TYPE-5).
+  In a dictionary literal, both sides of each colon are expressions.
+  Element and entry admission for sets and dictionaries follows the same type
+  and duplicate rules as for a sequence in the corresponding set or
+  dictionary context. `{,}` is an empty set and `{:}` is an empty
+  dictionary. Their element or key and value types come from context, as in
+  `let members: set<i64> = {,}` and `let prices: dict<str, f64> = {:}`.
+  `{}` and `{a}` are blocks (CTRL-10).
+  In an ordinary expression, brackets default to a list. When they form a
+  list, `[a: b, c: d]` is shorthand for `[(a, b), (c, d)]` and follows
+  the same typing rules. Each entry contributes one tuple in written order,
+  including entries whose first elements compare equal. Empty brackets
+  `[]` supply no element type of their own: `let xs: list<tuple<str, i64>> = []`
+  is an empty list of pairs.
+  The use site and expected type constrain
   element types, keys, ordering, uniqueness, and placeholder admission; syntax
   alone does not select a dictionary, timed trace, or sparse delta. `_` is not
   an ordinary value and remains restricted by EXPR-8 and the trace profile.
+  Both `let xs: list<i64> = [8, 13]` and `let ys: set<i64> = [8, 13]`
+  use the same sequence syntax. The annotation selects the collection type.
+  GEN-5 specifies the order when operator candidates supply both contexts.
   With no expected type, value entries make a list of the one type they
   have: `[1, 2.5]` is a `list<f64>`, its integer literal an `f64` (EXPR-5),
   and `[1, null]` a `list<i64?>`. Entries of two types reject, and so do
@@ -185,7 +212,8 @@ GEN-14 resolves generic construction versus comparison using declaration lookup.
   argument does (GEN-8): the candidate's generic value parameter of that
   name, or else its parameter of that name. Configuration changes neither
   precedence nor associativity and creates no ambient policy. A named-entry
-  brace in this position is configuration, not the right operand's block.
+  brace in this position is configuration. Parentheses put a keyed literal
+  in the right operand, as in `p == ({x: 3})` when the operand type is known.
   `{}` there is
   configuration only when an operand follows it on its line; otherwise it is
   the operand's empty block. Reject empty configuration, duplicate
@@ -348,8 +376,11 @@ and `d`; use-site admission is checked separately:
 []
 ```
 
-The fourth fragment has one pair entry. It acquires timed-trace meaning only
-at an admitted trace use site. Deliberate syntax rejection under EXPR-9:
+The fourth fragment is ordinarily a list containing the tuple `(1s, 7)`.
+At a timed-trace use site it supplies the tick at offset `1s` (TST-7).
+An ordinary binding `let entries = ["bid": 4, "ask": 7, "bid": 9]`
+has three tuples. At positions 0 and 2 the first element is `"bid"`
+and the second elements are 4 and 9 respectively. Deliberate syntax rejection under EXPR-9:
 `[a, b: c]`. Executable conformance is planned.
 
 Accepted expression fragments, with numeric operands `a`/`b` in scope; core's

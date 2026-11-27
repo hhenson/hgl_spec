@@ -127,9 +127,10 @@ is written, the run's (RUN-6).
   expectation. An expectation's cell written as a `delta<T>` is compared
   with the delta its cycle published, and one written as a T with the
   value the result holds once its cycle has published.
-- **TST-7.** Timed traces use the sequence-of-pairs syntax in EXPR-9; a
-  one-entry trace is still a sequence. Timed entries use duration offsets from
-  run start or absolute datetime keys. Keys strictly increase; no `_` occurs
+- **TST-7.** A timed trace is an ordered list of (time, value) pairs, written
+  `[0s: 7, 2s: 9]` using EXPR-9. A one-entry trace still has one pair. A
+  dense trace uses one cell per cycle, as in `[7, _, 9]`. Timed entries use
+  duration offsets from run start or absolute datetime keys. Keys strictly increase; no `_` occurs
   in timed traces. Within one eval all inputs and expectation use the same
   dense/timed style. Sparse expectations enumerate exactly the actual output
   ticks and times that the recording holds (TST-16): a tick of a window of
