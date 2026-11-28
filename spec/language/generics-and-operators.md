@@ -716,12 +716,15 @@ expression; group a constant expression that uses them as operand data.
   Deliberate source rejections: `track[0] = 0.0` for a parameter `track`
   that is not `var` (`binding.immutable`); `next["a"] = 0.0`, a key no
   candidate takes (`operator.no_candidate`).
-- **GEN-21.** In composition the same four identities bind: a projection
-  of a connection, and an assignment into one, call the identity's
-  temporal candidate (GEN-19, GEN-20).
+- **GEN-21.** In composition the same four identities bind: a structural
+  projection of a connection, and an assignment into one, call the
+  identity's temporal candidate (GEN-19, GEN-20). An atomic projection is
+  as GEN-19 has it, the lifted call of the value candidate, which computes
+  from the whole payload and selects no child (EXPR-7).
   A read. `quote.bid` and `xs[2]` of a connection are
-  `getattr_(quote, "bid")` and `getitem_(xs, 2)`; core's candidate selects
-  the child connection and creates no node (EXPR-7). A key or
+  `getattr_(quote, "bid")` and `getitem_(xs, 2)`; core's candidate for a
+  structural type selects the child connection and creates no node
+  (EXPR-7). A key or
   an index may itself be a connection, `prices[symbol]` or `xs[i]`. The
   candidate takes it as an input and gives the child the current key
   selects: it follows that child, moves to another when the key ticks,
@@ -746,8 +749,7 @@ expression; group a constant expression that uses them as operand data.
   temporal candidate of its own, or, for a read, by its value candidate
   lifted (FN-6).
 
-  Accepted illustration, a fragment. Core declares none of the four yet;
-  conformance planned:
+  Accepted illustration, a fragment. Conformance planned:
 
   ```hgl
   struct Quote { bid: f64, ask: f64 }
