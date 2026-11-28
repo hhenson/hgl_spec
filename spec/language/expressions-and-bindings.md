@@ -105,8 +105,8 @@ GEN-14 resolves generic construction versus comparison using declaration lookup.
   from its declaration (CTRL-11). An inner
   declaration remains local. A compound assignment reads its existing target.
   An assignment may name a place inside a value, at any depth: a field,
-  `point.x = 1`, or an element, `row[0] = 1`, `book["a"] = 1`. Proposed:
-  such an assignment binds `setattr_` or `setitem_` (GEN-20). The place's
+  `point.x = 1`, or an element, `row[0] = 1`, `book["a"] = 1`. Such
+  an assignment binds `setattr_` or `setitem_` (GEN-20). The place's
   root is a `var`, a `var` parameter, a `state`, a `cache`, or, in a
   `when`, `out` (TIME-7). A `let`, any other parameter, and an iteration
   binding are read-only all the way down. The value is of the field's type;
