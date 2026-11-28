@@ -286,8 +286,9 @@ Local source/native declaration matching is defined in the native chapter.
   a parameter that is not `var`, a constant, or an iteration binding
   (`binding.immutable`); so does what is no place, a literal or what a call
   gives (`argument.place`). The call assigns the place. In the function the
-  parameter is a `var`, whose first value is the place's when the call's
-  arguments are evaluated (EXPR-2); what it holds when the function returns is
+  parameter is a `var`, whose first value is the place's once every
+  argument of the call is evaluated (EXPR-2), an argument that changes the
+  place included; what it holds when the function returns is
   what the place is given, and a call with several gives each place its value
   in the order of the parameters. A function that fails leaves the place
   holding what its parameter held when it failed: no change it had made is

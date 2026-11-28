@@ -115,8 +115,9 @@ GEN-14 resolves generic construction versus comparison using declaration lookup.
   parameter, the entry of such a key fails the call instead (FN-15). An
   index outside a list, below zero or at or past its size, fails where it
   is evaluated, with code `value.index_out_of_range`.
-  A set has no place to assign. A compound assignment reads the place
-  first, `total.count += 1`, and binds as EXPR-18 says. `+=` on a `var` of type `str` appends to it
+  A set has no place to assign. A compound assignment reads the place,
+  `total.count += 1`, after its right operand is evaluated, and binds as
+  EXPR-18 says. `+=` on a `var` of type `str` appends to it
   in place (TYPE-1).
 - **EXPR-4.** Ordinary values and temporal connections remain distinct. A graph
   binding denotes a connection without reading a payload. Reassigning a graph
@@ -334,16 +335,16 @@ GEN-14 resolves generic construction versus comparison using declaration lookup.
   designation and no value (`binding.immutable`, FN-16). Proposed: a
   place that is no endpoint of its own, a field of an `atomic<S>` output,
   and an output that takes arrivals alone, a `rolling_window` (TIME-7),
-  reject. Proposed: the place is read first (EXPR-3) as any read of `out`
+  reject. Proposed: the place is read (EXPR-3) as any read of `out`
   is: one no guard admits rejects (`payload.unguarded`), and one checked
   when it runs fails where the place is not valid (`value.unset_read`).
-  A compound assignment evaluates what its place names and reads the
-  place (EXPR-3), then its configuration entries in written order, then
-  its right operand, each once, and then calls the candidate (EXPR-13):
-  the candidate's `var` starts with what the place held at that first
-  read (FN-15), so a right operand that changes the place does not change
-  what is combined. For `var count = 1` and a `bump` that sets its `var`
-  to 10 and gives 2, `count += bump(count)` leaves `count` 3. A brace after the token is
+  A compound assignment evaluates what its place names, an index among
+  them, then its configuration entries in written order, then its right
+  operand, each once, and then calls the candidate (EXPR-13), which reads
+  the place: the candidate's `var` starts with what the place holds once
+  the right operand is evaluated (FN-15). So `count += helper(count)` is
+  `let a = helper(count)` and then `count += a`. For `var count = 1` and
+  a `helper` that sets its `var` to 10 and gives 2, it leaves `count` 12. A brace after the token is
   read as one after a symbol is (EXPR-10): `point += ({x: 1.0})` puts a
   keyed literal on the right.
 
