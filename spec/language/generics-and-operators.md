@@ -610,7 +610,7 @@ expression; group a constant expression that uses them as operand data.
   | Atomic projection of a connection (EXPR-7) | The lifted call of the value candidate (FN-6) |
   | A temporal dictionary's child by a key that is a connection (TIME-10) | The temporal candidate |
   | Structural projection of a connection, a `ref` parameter's child among them (EXPR-7, FN-16) | No call: it selects a child connection and creates no node |
-  | A tuple's position, a property of a capability (TIME-8), a field of an `error` | The value candidate, its index or name a constant |
+  | An ordinary tuple's position, a property of a capability (TIME-8), a field of an `error` | The value candidate, its index or name a constant |
 
 Syntax binds these core identities independently of local same-named functions.
 A symbol is the call of its identity: its operands are read as that call's
