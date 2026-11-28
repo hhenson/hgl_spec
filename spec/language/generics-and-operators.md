@@ -4,7 +4,7 @@ Status: agreed generic, pack, and nominal-operator baseline. Detailed core
 operation domains belong to core and retain their own decision status.
 GEN-17, a function's parameters read as a named pack, is agreed, and so
 are the `any` of GEN-10 and the law predicates of GEN-18. Each sentence
-of GEN-3, GEN-5 and GEN-6 that begins "Proposed:" is proposed. GEN-19, which
+of GEN-3, GEN-5, GEN-6 and GEN-16 that begins "Proposed:" is proposed. GEN-19, which
 reads are calls of `getitem_` and `getattr_`, is agreed. GEN-20, what an
 assignment into a place binds, is agreed.
 
@@ -566,7 +566,8 @@ expression; group a constant expression that uses them as operand data.
   ```
 
   Deliberate source rejection: `impl const fn bump(value: f64, by: f64)`,
-  which leaves out the `var` its operator states (`impl.parameter`).
+  which leaves out the `var` its operator states (GEN-6; proposed code
+  `impl.parameter`).
 - **GEN-17.** In a function type (FN-17) a named pack stands for
   the parameters the fixed ones leave: `f: fn(...{Ps}) -> R` binds `Ps` to
   the parameters of the function given, each under its own name with its
@@ -618,8 +619,8 @@ expression; group a constant expression that uses them as operand data.
   its own candidate (GEN-3).
 
 - **GEN-19.** Index and member syntax bind `getitem_` and
-  `getattr_` where a read computes a value from an ordinary one, and
-  nowhere else. `x[k]` is `getitem_(x, k)`. `x.name` is
+  `getattr_` in each read the table below gives a candidate, and in no
+  other. `x[k]` is `getitem_(x, k)`. `x.name` is
   `getattr_(x, "name")`, the member's name given as a `str` constant. Core
   declares both identities and owns the candidates of the language's own
   types; EXPR-7 and ERR-6 are those candidates' contract. The table says
