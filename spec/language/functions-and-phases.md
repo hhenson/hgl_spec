@@ -309,7 +309,10 @@ Local source/native declaration matching is defined in the native chapter.
   value function, in a runtime hook, or in composition where the place holds
   an ordinary value. No argument of such a call is a connection
   (`connection.as_constant`), and the function is no target of an `eval`
-  (`eval.target`).
+  (`eval.target`). A temporal candidate of a projection identity is the
+  exception to both (GEN-21): its call stands in composition, the place
+  it is given is a graph's `var`, a connection, and its other arguments
+  may be connections.
 - **FN-16.** A node (FN-2, NATIVE-3) may mark a temporal parameter `ref`,
   `ref low: f64`, and its result, `-> ref f64`. The mark is a mode, as
   `var` is (FN-15), and no part of the type (TYPE-12): a caller and the
