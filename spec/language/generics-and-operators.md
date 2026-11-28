@@ -5,7 +5,8 @@ operation domains belong to core and retain their own decision status.
 GEN-17, a function's parameters read as a named pack, is agreed, and so
 are the `any` of GEN-10 and the law predicates of GEN-18. Each sentence
 of GEN-3, GEN-5, GEN-6 and GEN-16 that begins "Proposed:" is proposed. GEN-19, which
-reads are calls of `getitem_` and `getattr_`, is agreed.
+reads are calls of `getitem_` and `getattr_`, is agreed. GEN-20, what an
+assignment into a place binds, is agreed.
 
 ## Grammar
 
@@ -628,8 +629,9 @@ expression; group a constant expression that uses them as operand data.
   `getattr_(x, name)` written with a name that is a constant
   (CTRL-15) is the read `x.name` and binds as that read does: of a
   connection's field it is the structural projection. An
-  assignment into a place, `row[0] = 1` or `point.x = 1`, calls neither
-  (EXPR-3), and nor does a place given to a `var` parameter (FN-15). An
+  assignment into a place, `row[0] = 1` or `point.x = 1`, calls neither:
+  GEN-20 says what it binds. Nor does a place given to a `var` parameter
+  (FN-15). An
   implied member, `.buy`, and a qualified name are no projection.
 
   | Read | Binding |
@@ -656,10 +658,64 @@ expression; group a constant expression that uses them as operand data.
   fn bid(quote: Quote) -> f64 => quote.bid                # structural: no call, no node
   const fn moved(track: Track) -> Track {
       var next = track
-      next.points[0] = 0.0                                # a place: no call
+      next.points[0] = 0.0                                # a place: GEN-20
       return next
   }
   ```
+- **GEN-20.** An assignment into a place binds `setitem_` and
+  `setattr_`, as a read binds `getitem_` and `getattr_` (GEN-19).
+  `x[k] = v` is `setitem_(x, k, v)`. `x.name = v` is
+  `setattr_(x, "name", v)`, the member's name given as a `str` constant.
+  Each identity's declaration marks its first parameter `var`
+  (FN-15, GEN-6): it is the place that holds what is assigned into, and
+  the call assigns that place and gives no result. Places nest.
+  `book.rows[0].qty = 1` is `setattr_(book.rows[0], "qty", 1)`, whose
+  first argument is itself a place (FN-15). Core declares both
+  identities and owns the candidates of the language's own types, whose
+  contract EXPR-3 is: a list's index within its size, a dictionary's key,
+  added where the dictionary has it not, a tuple's constant position, and
+  a struct's field. A candidate declared for another type gives
+  that type the syntax. `x = v`, the assignment of a whole
+  binding, binds no identity. The table says what each assignment is.
+
+  | Assignment into a place | Binding |
+  | --- | --- |
+  | Of an ordinary value: in a value function, a hook, a test, or composition where the place holds one | The value candidate, the place its `var` |
+  | Of a connection, in composition (EXPR-15) | No call: the rebinding EXPR-15 gives, which creates no storage |
+  | In `out`, in a `when` (TIME-7), of a shape EXPR-18 admits | The candidate whose first parameter is a `var` `endpoint<T>` (FN-15): the publication TIME-7 gives |
+  | A property of a capability, of a native type or of a `delta<T>`; a field of an `error`; `.value` and `.error` of a result or a capture; a part of `out` of a `ref` result | Rejects, as EXPR-3 and FN-16 have it (`binding.immutable`) |
+
+  A compound assignment (EXPR-18) into a place that a candidate
+  a program declares reads, `track[0] += 1.0` or `track.level += 1.0`,
+  reads it by the identity its read binds, `getitem_` or `getattr_`,
+  applies the compound candidate to what it read, and writes the result
+  by the matching `setitem_` or `setattr_`; a type that declares the read
+  and not the write rejects it (`operator.no_candidate`). Into a place of the language's own types
+  the compound candidate is given the place itself.
+
+  Accepted illustration, a fragment. Proposed: the parameter names, which
+  core's declarations settle. Conformance planned:
+
+  ```hgl
+  struct Track { points: list<f64> }
+
+  impl const fn getitem_(container: Track, key: i64) -> f64 => container.points[key]
+  impl const fn setitem_(var container: Track, key: i64, value: f64) {
+      container.points[key] = value
+  }
+
+  const fn flattened(track: Track) -> Track {
+      var next = track
+      next[0] = 0.0                  # setitem_(next, 0, 0.0), the candidate above
+      next[1] += 1.5                 # getitem_, iadd_, then setitem_
+      next.points[2] = 3.0           # core's candidate for a list, its place `next.points`
+      return next
+  }
+  ```
+
+  Deliberate source rejections: `track[0] = 0.0` for a parameter `track`
+  that is not `var` (`binding.immutable`); `next["a"] = 0.0`, a key no
+  candidate takes (`operator.no_candidate`).
 
 Syntax binds these core identities independently of local same-named functions.
 A symbol is the call of its identity: its operands are read as that call's
@@ -675,6 +731,7 @@ arguments are, the type its place expects is requested of the candidates
 | `<=>` | `compare_`, the core full-comparison identity |
 | `+=`, `-=`, `*=`, `/=`, `//=`, `%=` | The compound identities of EXPR-18, each taking a `var` first |
 | `x[k]`, `x.name` | `getitem_`, `getattr_` as GEN-19 says |
+| `x[k] = v`, `x.name = v` | `setitem_`, `setattr_` as GEN-20 says |
 
 Boolean forms `&&`, `||`, and `!` bind `and_`, `or_`, and `not_` respectively.
 A chain of three or more operands joined by `&&` alone, with no parentheses
