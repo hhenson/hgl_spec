@@ -585,6 +585,25 @@ expression; group a constant expression that uses them as operand data.
   `fold{associative: associative}(f, a, b)`: each instance then selects
   its own candidate (GEN-3).
 
+- **GEN-19.** Proposed: index and member syntax bind `getitem_` and
+  `getattr_` wherever a read computes a value, and nowhere else. `x[k]` is
+  `getitem_(x, k)`. `x.name` is `getattr_(x, "name")`, the member's name
+  given as a `str` constant. Core declares both identities and owns the
+  candidates of the language's own types; EXPR-7, ERR-6, and ERR-14 are
+  those candidates' contract. The table says which reads are calls.
+  Proposed: a candidate declared for another type gives that type the
+  syntax, selected as any candidate is (GEN-5). Proposed: an assignment
+  into a place, `row[0] = 1` or `point.x = 1`, calls neither (EXPR-3). An
+  implied member, `.buy`, and a qualified name are no projection.
+
+  | Read | Binding |
+  | --- | --- |
+  | Of an ordinary value, in a value function or a hook | The value candidate |
+  | Atomic projection of a connection (EXPR-7) | The lifted call of the value candidate (FN-6) |
+  | A temporal dictionary's child by a key that is a connection (TIME-10) | The temporal candidate |
+  | Structural projection of a connection, a `ref` parameter's child among them (EXPR-7, FN-16) | No call: it selects a child connection and creates no node |
+  | A tuple's position, a property of a capability (TIME-8), a field of an `error` | The value candidate, its index or name a constant |
+
 Syntax binds these core identities independently of local same-named functions.
 A symbol is the call of its identity: its operands are read as that call's
 arguments are, the type its place expects is requested of the candidates
@@ -597,7 +616,7 @@ arguments are, the type its place expects is requested of the candidates
 | `//`, `%`, unary `-` | `floordiv_`, `mod_`, `neg_` |
 | `==`, `!=`, `<`, `<=`, `>`, `>=` | `eq_`, `ne_`, `lt_`, `le_`, `gt_`, `ge_` |
 | `<=>` | `compare_`, the core full-comparison identity |
-| Index and member projection | `getitem_`, `getattr_` where projection rules require an operation |
+| `x[k]`, `x.name` | `getitem_`, `getattr_` where projection rules require an operation (proposed: GEN-19) |
 
 Boolean forms `&&`, `||`, and `!` bind `and_`, `or_`, and `not_` respectively.
 A chain of three or more operands joined by `&&` alone, with no parentheses
