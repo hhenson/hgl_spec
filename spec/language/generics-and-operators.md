@@ -327,7 +327,7 @@ expression; group a constant expression that uses them as operand data.
   default. A value candidate may mark a parameter `var` (FN-15), and so
   may the operator's declaration: every candidate then marks it. The mark
   takes no part in selecting a candidate for a call; a requirement may
-  ask for it (GEN-16). Proposed: a native candidate may take a parameter
+  ask for it (GEN-16). A native candidate may take a parameter
   its operator declares `var` of a type L as a `var` `endpoint<L>`, under
   the operator's name for it: the output of that type (FN-15). L is then
   the payload's type, and no generic parameter is bound to an endpoint. The candidates of an operator are meant to stay resolvable

@@ -337,10 +337,13 @@ GEN-14 resolves generic construction versus comparison using declaration lookup.
   reject. Proposed: the place is read first (EXPR-3) as any read of `out`
   is: one no guard admits rejects (`payload.unguarded`), and one checked
   when it runs fails where the place is not valid (`value.unset_read`).
-  A compound assignment evaluates what its place names, then its
-  configuration entries in written order, then its right operand, each
-  once, and then calls the candidate (EXPR-13, FN-15): the place is read
-  by the candidate, after the right operand. A brace after the token is
+  A compound assignment evaluates what its place names and reads the
+  place (EXPR-3), then its configuration entries in written order, then
+  its right operand, each once, and then calls the candidate (EXPR-13):
+  the candidate's `var` starts with what the place held at that first
+  read (FN-15), so a right operand that changes the place does not change
+  what is combined. For `var count = 1` and a `bump` that sets its `var`
+  to 10 and gives 2, `count += bump(count)` leaves `count` 3. A brace after the token is
   read as one after a symbol is (EXPR-10): `point += ({x: 1.0})` puts a
   keyed literal on the right.
 
