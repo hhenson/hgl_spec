@@ -692,9 +692,8 @@ expression; group a constant expression that uses them as operand data.
   and not the write rejects it (`operator.no_candidate`). Into a place of the language's own types
   the compound candidate is given the place itself.
 
-  Accepted illustration, a fragment. Core declares neither identity yet,
-  and the parameter names are those its declaration will give;
-  conformance planned:
+  Accepted illustration, a fragment; the parameter names are those core's
+  declarations give. Conformance planned:
 
   ```hgl
   struct Track { points: list<f64> }
