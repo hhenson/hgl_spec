@@ -298,7 +298,8 @@ Local source/native declaration matching is defined in the native chapter.
   candidate declare none (`parameter.var`). An operator may mark a
   parameter `var` where no candidate of it can take that parameter any
   other way: every candidate then marks it (GEN-6), so the operator has
-  value candidates alone. One the operator leaves unmarked a value
+  value candidates alone, but for the temporal candidates GEN-21 gives the
+  projection identities. One the operator leaves unmarked a value
   candidate may mark. The mark takes no part in selecting a candidate
   (GEN-5): a call of an operator is resolved as any other, and the candidate
   it resolves to says which of its arguments are places. A function or a

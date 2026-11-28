@@ -7,7 +7,7 @@ are the `any` of GEN-10 and the law predicates of GEN-18. Each sentence
 of GEN-3, GEN-5 and GEN-6 that begins "Proposed:" is proposed. GEN-19, which
 reads are calls of `getitem_` and `getattr_`, is agreed. GEN-20, what an
 assignment into a place binds, is agreed. GEN-21, the same identities in
-composition, is proposed.
+composition, is agreed.
 
 ## Grammar
 
@@ -619,12 +619,12 @@ expression; group a constant expression that uses them as operand data.
   its own candidate (GEN-3).
 
 - **GEN-19.** Index and member syntax bind `getitem_` and
-  `getattr_` where a read computes a value from an ordinary one, and
-  nowhere else. `x[k]` is `getitem_(x, k)`. `x.name` is
+  `getattr_` wherever a value or a connection is read by an index or a
+  member. `x[k]` is `getitem_(x, k)`. `x.name` is
   `getattr_(x, "name")`, the member's name given as a `str` constant. Core
   declares both identities and owns the candidates of the language's own
   types; EXPR-7 and ERR-6 are those candidates' contract. The table says
-  which reads are calls. A candidate declared for another type
+  which candidate each read calls, and which reads are none. A candidate declared for another type
   gives that type the syntax, selected as any candidate is (GEN-5).
   `getattr_(x, name)` written with a name that is a constant
   (CTRL-15) is the read `x.name` and binds as that read does: of a
@@ -639,8 +639,8 @@ expression; group a constant expression that uses them as operand data.
   | Of an ordinary value, wherever value code runs: a value function, a hook, a test, a constant expression, or a value fixed where a graph is built (FN-3) | The value candidate |
   | An ordinary tuple's position; a field of an `error` | The value candidate, its index or name a constant |
   | Atomic projection of a connection (EXPR-7) | The lifted call of the value candidate (FN-6) |
-  | A temporal dictionary's child by a key that is a connection (TIME-10) | The temporal candidate |
-  | Structural projection of a connection, a `ref` parameter's child among them (EXPR-7, FN-16) | No call: it selects a child connection and creates no node |
+  | A child of a connection by a key or an index that is itself a connection (GEN-21, TIME-10) | The temporal candidate, the key its input |
+  | Structural projection of a connection, a `ref` parameter's child among them (EXPR-7, FN-16) | The temporal candidate; core's selects the child connection and creates no node (GEN-21) |
   | In a hook, a collection's child, `parts[i]` or `quote.bid` (ERR-14, TIME-9) | No call: it is an endpoint, and ERR-14 says how its payload is read |
   | A property of a capability (TIME-8), of a native type (NATIVE-6) or of a `delta<T>` (TYPE-16); `.value` and `.error` of a result (ERR-3) or of a capture (ERR-7) | No call: each is the language's own form, and takes no candidate |
 
@@ -656,7 +656,7 @@ expression; group a constant expression that uses them as operand data.
 
   const fn third(values: list<f64>) -> f64 => values[2]   # core's candidate for a list
   const fn first(track: Track) -> f64 => track[0]         # the candidate above
-  fn bid(quote: Quote) -> f64 => quote.bid                # structural: no call, no node
+  fn bid(quote: Quote) -> f64 => quote.bid                # structural: core's candidate, no node
   const fn moved(track: Track) -> Track {
       var next = track
       next.points[0] = 0.0                                # a place: GEN-20
@@ -682,7 +682,7 @@ expression; group a constant expression that uses them as operand data.
   | Assignment into a place | Binding |
   | --- | --- |
   | Of an ordinary value: in a value function, a hook, a test, or composition where the place holds one | The value candidate, the place its `var` |
-  | Of a connection, in composition (EXPR-15) | No call: the rebinding EXPR-15 gives, which creates no storage |
+  | Of a connection, in composition (EXPR-15) | The temporal candidate, to whose result the `var` is rebound (GEN-21); no storage is created |
   | In `out`, in a `when` (TIME-7) | The candidate whose first parameter is a `var` `endpoint<T>` (FN-15): the publication TIME-7 gives |
   | A property of a capability, of a native type or of a `delta<T>`; `.value` and `.error` of a result or a capture; a part of `out` of a `ref` result | Rejects, as EXPR-3 and FN-16 have it (`binding.immutable`) |
 
@@ -718,14 +718,12 @@ expression; group a constant expression that uses them as operand data.
   Deliberate source rejections: `track[0] = 0.0` for a parameter `track`
   that is not `var` (`binding.immutable`); `next["a"] = 0.0`, a key no
   candidate takes (`operator.no_candidate`).
-- **GEN-21.** Proposed: in composition the same four identities bind.
-  Where GEN-19 and GEN-20 say that a projection of a connection, or an
-  assignment into one, is no call, it is a call of the identity's
-  temporal candidate, and core's candidates for the language's own types
-  do what those rows say.
-  Proposed: a read. `quote.bid` and `xs[2]` of a connection are
+- **GEN-21.** In composition the same four identities bind: a projection
+  of a connection, and an assignment into one, call the identity's
+  temporal candidate (GEN-19, GEN-20).
+  A read. `quote.bid` and `xs[2]` of a connection are
   `getattr_(quote, "bid")` and `getitem_(xs, 2)`; core's candidate selects
-  the child connection and creates no node (EXPR-7). Proposed: a key or
+  the child connection and creates no node (EXPR-7). A key or
   an index may itself be a connection, `prices[symbol]` or `xs[i]`. The
   candidate takes it as an input and gives the child the current key
   selects: it follows that child, moves to another when the key ticks,
@@ -733,7 +731,7 @@ expression; group a constant expression that uses them as operand data.
   (TIME-10). A dictionary and a list admit such a key. A tuple's position
   and a member's name stay constants: each fixes the type of the read
   (EXPR-7).
-  Proposed: a write. `point.x = price`, `row[0] = price` and
+  A write. `point.x = price`, `row[0] = price` and
   `book[symbol] = price` are `setattr_` and `setitem_`. A temporal
   candidate takes the parameter its operator declares `var` as the
   connection the graph's `var` denotes (EXPR-4), and gives a connection
@@ -741,16 +739,17 @@ expression; group a constant expression that uses them as operand data.
   changed in place, and what read the `var` before keeps the connection
   it had. This is the one case in which a candidate gives a result its
   operator's declaration does not, and in which an operator that marks a
-  parameter `var` has a temporal candidate (GEN-6, FN-15). Proposed:
-  with a key that is a connection, the result is the original with the
+  parameter `var` has a temporal candidate (GEN-6, FN-15). 
+  With a key that is a connection, the result is the original with the
   entry of the current key taken from the value. When the key ticks, the
   entry of the key it left is again what the original has there, and is
   removed where the original has none.
-  Proposed: a type a program declares has these forms in a graph by a
+  A type a program declares has these forms in a graph by a
   temporal candidate of its own, or, for a read, by its value candidate
   lifted (FN-6).
 
-  Proposed illustration, a fragment; core declares none of the four yet:
+  Accepted illustration, a fragment. Core declares none of the four yet;
+  conformance planned:
 
   ```hgl
   struct Quote { bid: f64, ask: f64 }
