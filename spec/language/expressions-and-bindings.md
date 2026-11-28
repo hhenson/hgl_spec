@@ -32,7 +32,7 @@ member_suffix = ".", member_name ;
 primary_expr = literal | IDENTIFIER | qualified_name | implied_member
              | "(", expression, ")" | tuple_literal | sequence_literal
              | set_literal | keyed_literal
-             | typed_constructor | delta_constructor | type_call | type_of
+             | typed_constructor | delta_constructor | error_constructor | type_of
              | pack_loop
              | function_reference | function_expr | if_expression
              | eval_expression | run_expression | block ;
@@ -55,7 +55,7 @@ sequence_item = expression | "_" ;
 typed_constructor = ( IDENTIFIER | qualified_name ), generic_arguments,
                     [ operator_configuration ], "(", [ arguments ], ")" ;
 function_reference = ( IDENTIFIER | qualified_name ), generic_arguments ;
-type_call = ( "bytes" | "any" | "error" ), "(", [ arguments ], ")" ;
+error_constructor = "error", "(", [ arguments ], ")" ;
 type_of = "type", "(", expression, ")" ;
 implied_member = ".", member_name ;
 local_decl = ( "let" | "var" ), IDENTIFIER, [ ":", type ], "=", expression
