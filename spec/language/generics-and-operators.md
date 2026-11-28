@@ -4,7 +4,8 @@ Status: agreed generic, pack, and nominal-operator baseline. Detailed core
 operation domains belong to core and retain their own decision status.
 GEN-17, a function's parameters read as a named pack, is agreed, and so
 are the `any` of GEN-10 and the law predicates of GEN-18. Each sentence
-of GEN-3, GEN-5 and GEN-6 that begins "Proposed:" is proposed.
+of GEN-3, GEN-5 and GEN-6 that begins "Proposed:" is proposed. GEN-19, which
+reads are calls of `getitem_` and `getattr_`, is agreed.
 
 ## Grammar
 
@@ -585,6 +586,50 @@ expression; group a constant expression that uses them as operand data.
   `fold{associative: associative}(f, a, b)`: each instance then selects
   its own candidate (GEN-3).
 
+- **GEN-19.** Index and member syntax bind `getitem_` and
+  `getattr_` in each read the table below gives a candidate, and in no
+  other. `x[k]` is `getitem_(x, k)`. `x.name` is
+  `getattr_(x, "name")`, the member's name given as a `str` constant. Core
+  declares both identities and owns the candidates of the language's own
+  types; EXPR-7 and ERR-6 are those candidates' contract. The table says
+  which reads are calls. A candidate declared for another type
+  gives that type the syntax, selected as any candidate is (GEN-5).
+  `getattr_(x, name)` written with a name that is a constant
+  (CTRL-15) is the read `x.name` and binds as that read does: of a
+  connection's field it is the structural projection. An
+  assignment into a place, `row[0] = 1` or `point.x = 1`, calls neither
+  (EXPR-3), and nor does a place given to a `var` parameter (FN-15). An
+  implied member, `.buy`, and a qualified name are no projection.
+
+  | Read | Binding |
+  | --- | --- |
+  | Of an ordinary value, wherever value code runs: a value function, a hook, a test, a constant expression, or a value fixed where a graph is built (FN-3) | The value candidate |
+  | An ordinary tuple's position; a field of an `error` | The value candidate, its index or name a constant |
+  | Atomic projection of a connection (EXPR-7) | The lifted call of the value candidate (FN-6) |
+  | A temporal dictionary's child by a key that is a connection (TIME-10) | The temporal candidate |
+  | Structural projection of a connection, a `ref` parameter's child among them (EXPR-7, FN-16) | No call: it selects a child connection and creates no node |
+  | In a hook, a collection's child, `parts[i]` or `quote.bid` (ERR-14, TIME-9) | No call: it is an endpoint, and ERR-14 says how its payload is read |
+  | A property of a capability (TIME-8), of a native type (NATIVE-6) or of a `delta<T>` (TYPE-16); `.value` and `.error` of a result (ERR-3) or of a capture (ERR-7) | No call: each is the language's own form, and takes no candidate |
+
+  Accepted illustration, a fragment; the parameter names are those core's
+  declarations give. Conformance planned:
+
+  ```hgl
+  struct Track { points: list<f64> }
+  struct Quote { bid: f64, ask: f64 }
+
+  impl const fn getitem_(container: Track, key: i64) -> f64 => container.points[key]
+
+  const fn third(values: list<f64>) -> f64 => values[2]   # core's candidate for a list
+  const fn first(track: Track) -> f64 => track[0]         # the candidate above
+  fn bid(quote: Quote) -> f64 => quote.bid                # structural: no call, no node
+  const fn moved(track: Track) -> Track {
+      var next = track
+      next.points[0] = 0.0                                # a place: no call
+      return next
+  }
+  ```
+
 Syntax binds these core identities independently of local same-named functions.
 A symbol is the call of its identity: its operands are read as that call's
 arguments are, the type its place expects is requested of the candidates
@@ -597,7 +642,7 @@ arguments are, the type its place expects is requested of the candidates
 | `//`, `%`, unary `-` | `floordiv_`, `mod_`, `neg_` |
 | `==`, `!=`, `<`, `<=`, `>`, `>=` | `eq_`, `ne_`, `lt_`, `le_`, `gt_`, `ge_` |
 | `<=>` | `compare_`, the core full-comparison identity |
-| Index and member projection | `getitem_`, `getattr_` where projection rules require an operation |
+| `x[k]`, `x.name` | `getitem_`, `getattr_` as GEN-19 says |
 
 Boolean forms `&&`, `||`, and `!` bind `and_`, `or_`, and `not_` respectively.
 A chain of three or more operands joined by `&&` alone, with no parentheses
