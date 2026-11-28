@@ -299,7 +299,7 @@ infrastructure and cannot satisfy a source-rejection expectation.
 | operator | `impl.unknown_operator` | Operator candidate names no operator (GEN-4); operator name |
 | operator | `impl.pack` | Proposed: a candidate declares a fixed parameter where its operator declares a pack (GEN-6); the parameter's name |
 | operator | `impl.parameter` | Proposed: a candidate writes for a parameter a type that is not the one its operator declares, or leaves out a `const` or a `var` its operator states (GEN-6); the parameter's name |
-| operator | `impl.result` | Candidate's result is not the type its operator's declaration gives for the candidate's parameters (GEN-6); the result type |
+| operator | `impl.result` | Candidate's result is not the type its operator's declaration gives for the candidate's parameters (GEN-6), a temporal candidate of `setitem_` or `setattr_` that gives its `var` parameter's type aside (GEN-21); the result type |
 | operator | `impl.requires` | Candidate for types its operator's `requires` does not admit (GEN-6); the candidate's name |
 | operator | `impl.option_kind` | Candidate declares as a parameter an option that another candidate of its operator declares as a generic value parameter (GEN-6); the parameter's name |
 | operator | `property.duplicate` | A domain that a second property clause of an operator names, or that one clause names twice, or a property that one clause gives twice (GEN-9); the later domain or property |
@@ -393,7 +393,7 @@ infrastructure and cannot satisfy a source-rejection expectation.
 | type | `argument.missing` | Parameter or field that may not be left out is given nothing (EXPR-2, TYPE-5); callee name |
 | type | `argument.constant` | In a hook or a value function, a `const` parameter given what is no constant expression (FN-1); argument |
 | type | `argument.place` | `var` parameter given what is no place: a literal, what a call gives, or any other expression that nothing assigns (FN-15); argument |
-| function-kind | `parameter.var` | `var` parameter of a temporal function or a temporal candidate, or one whose type is a capability's (FN-15); `var` |
+| function-kind | `parameter.var` | `var` parameter of a temporal function, or of a temporal candidate whose operator's declaration does not mark it (GEN-21), or one whose type is a capability's (FN-15); `var` |
 | function-kind | `ref.position` | `ref` on a parameter or the result of what is no node, a value function, a graph or an operator, or on a `signal` parameter (FN-16, TYPE-12), or on a parameter or a result whose type is a `rolling_window` (FN-16); `ref` |
 | function-kind | `call.role` | Temporal function called from a value function or a runtime hook (FN-3); in a test's or an application's value code, a temporal function called, or an operator applied whose selected candidate is temporal (TST-3, UNIT-14); callee name |
 | type | `return.missing` | Value function that declares a result can reach its end with no value (FN-7), or a graph that returns a value in a branch of a temporal `if` or `switch` can (CTRL-14); function name |

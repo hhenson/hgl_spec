@@ -742,6 +742,10 @@ expression; group a constant expression that uses them as operand data.
   it had. This is the one case in which a candidate gives a result its
   operator's declaration does not, and in which an operator that marks a
   parameter `var` has a temporal candidate (GEN-6, FN-15).
+  Such a candidate marks the parameter `var`, as its operator does
+  (GEN-6), and writes the result its operator's declaration omits:
+  `impl fn setitem_(var container: Track, key: i64, value: f64) -> Track`.
+  One that gives another type rejects (`impl.result`).
   With a key that is a connection, the result is the original with the
   entry of the current key taken from the value. When the key ticks, the
   entry of the key it left is again what the original has there, and is

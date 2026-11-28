@@ -295,7 +295,9 @@ Local source/native declaration matching is defined in the native chapter.
   undone. The call changes the place and no value: a value taken from the
   place before the call is as it was (TYPE-5). A `var` parameter may be given on to a `var`
   parameter of a function the body calls. A temporal `fn` and a temporal
-  candidate declare none (`parameter.var`). An operator may mark a
+  candidate declare none (`parameter.var`), but for a temporal candidate of
+  a projection identity, which marks the parameter its operator marks
+  (GEN-21). An operator may mark a
   parameter `var` where no candidate of it can take that parameter any
   other way: every candidate then marks it (GEN-6), so the operator has
   value candidates alone, but for the temporal candidates GEN-21 gives the
