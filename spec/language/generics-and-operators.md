@@ -643,9 +643,8 @@ expression; group a constant expression that uses them as operand data.
   | In a hook, a collection's child, `parts[i]` or `quote.bid` (ERR-14, TIME-9) | No call: it is an endpoint, and ERR-14 says how its payload is read |
   | A property of a capability (TIME-8), of a native type (NATIVE-6) or of a `delta<T>` (TYPE-16); `.value` and `.error` of a result (ERR-3) or of a capture (ERR-7) | No call: each is the language's own form, and takes no candidate |
 
-  Accepted illustration, a fragment. Core declares neither identity yet,
-  and the parameter names are those its declaration will give;
-  conformance planned:
+  Accepted illustration, a fragment; the parameter names are those core's
+  declarations give. Conformance planned:
 
   ```hgl
   struct Track { points: list<f64> }
