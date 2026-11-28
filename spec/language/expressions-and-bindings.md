@@ -360,8 +360,10 @@ GEN-14 resolves generic construction versus comparison using declaration lookup.
 
   fn running(price: f64) -> f64 {
       inject out
-      when valid(out) { out += price }    # the candidate for a `var` endpoint
-      when { out = price }
+      when {
+          if valid(out) { out += price }  # the candidate for a `var` endpoint
+          else { out = price }
+      }
   }
 
   fn doubled(price: f64) -> f64 {
