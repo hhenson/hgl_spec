@@ -327,7 +327,10 @@ expression; group a constant expression that uses them as operand data.
   default. A value candidate may mark a parameter `var` (FN-15), and so
   may the operator's declaration: every candidate then marks it. The mark
   takes no part in selecting a candidate for a call; a requirement may
-  ask for it (GEN-16). The candidates of an operator are meant to stay resolvable
+  ask for it (GEN-16). Proposed: a native candidate may take a parameter
+  its operator declares `var` of a type L as a `var` `endpoint<L>`, under
+  the operator's name for it: the output of that type (FN-15). L is then
+  the payload's type, and no generic parameter is bound to an endpoint. The candidates of an operator are meant to stay resolvable
   together: once defaults fill what a call omits, no call matches two of
   them equally. Two that some call would match equally, with no other
   candidate the more specific for it, are a warning, reported at each of
@@ -543,7 +546,26 @@ expression; group a constant expression that uses them as operand data.
   its first as a place, and `requires !bump(var T)` where no candidate
   for a T does. A body is still checked against the candidate its
   instance selects (GEN-7): where that one marks a parameter `var`, the
-  argument given is a place (FN-15).
+  argument given is a place (FN-15). Proposed: a modifier stands before a
+  type argument of an operator requirement and nowhere else: before an
+  argument of a constraint predicate, `associative(var f)`, or before
+  what is no type, a category or a set, it rejects.
+
+  Accepted declaration fragments:
+
+  ```hgl
+  operator bump<T>(var value: T, by: T)             # every candidate marks `value`
+  impl const fn bump(var value: i64, by: i64) { value = value + by }
+
+  const fn twice<T>(var total: T, by: T)
+      requires bump(var T, T) {
+      bump(total, by)
+      bump(total, by)
+  }
+  ```
+
+  Deliberate source rejection: `impl const fn bump(value: f64, by: f64)`,
+  which leaves out the `var` its operator states (`impl.parameter`).
 - **GEN-17.** In a function type (FN-17) a named pack stands for
   the parameters the fixed ones leave: `f: fn(...{Ps}) -> R` binds `Ps` to
   the parameters of the function given, each under its own name with its

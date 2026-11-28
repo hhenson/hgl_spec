@@ -2,7 +2,8 @@
 
 Status: agreed expression/binding baseline. The sparse-field rules of
 structural delta construction are proposed. EXPR-16, a range, and EXPR-17,
-a list made by a loop, are agreed.
+a list made by a loop, are agreed. EXPR-18, a compound assignment, is
+agreed, but for its sentences that begin "Proposed:".
 
 ## Grammar
 
@@ -257,7 +258,7 @@ GEN-14 resolves generic construction versus comparison using declaration lookup.
   instead follows EXPR-2's written argument order, the entries of its
   configuration before the arguments in its parentheses: shared parameter
   binding does not imply identical effect order for differently written
-  expressions.
+  expressions. EXPR-18 gives the order of a compound assignment.
 - **EXPR-14.** Where a value function, a value candidate of an operator
   among them, declares an option says what a graph may give it. One it
   declares as a configuration parameter, in its braces (FN-18), is
@@ -327,7 +328,53 @@ GEN-14 resolves generic construction versus comparison using declaration lookup.
   given as its endpoint, and selection continues among the candidates
   whose first parameter is a `var` `endpoint<T>` (FN-15, TIME-9). So every
   candidate of a compound identity takes a `var` first, a place or an
-  output, and the identity's declaration marks it (GEN-6).
+  output, and the identity's declaration marks it (GEN-6). Elsewhere than
+  in a `when` it rejects, as a write of `out` does (`out.lifecycle`,
+  TIME-7), and so does one on `out` of a `ref` result, which takes a
+  designation and no value (`binding.immutable`, FN-16). Proposed: a
+  place that is no endpoint of its own, a field of an `atomic<S>` output,
+  and an output that takes arrivals alone, a `rolling_window` (TIME-7),
+  reject. Proposed: the place is read first (EXPR-3) as any read of `out`
+  is: one no guard admits rejects (`payload.unguarded`), and one checked
+  when it runs fails where the place is not valid (`value.unset_read`).
+  A compound assignment evaluates what its place names, then its
+  configuration entries in written order, then its right operand, each
+  once, and then calls the candidate (EXPR-13, FN-15): the place is read
+  by the candidate, after the right operand. A brace after the token is
+  read as one after a symbol is (EXPR-10): `point += ({x: 1.0})` puts a
+  keyed literal on the right.
+
+  Accepted illustration, a fragment; core's contract gives the candidates:
+
+  ```hgl
+  const fn tally(words: list<str>, step: i64) -> str {
+      var count = 0
+      var text = ""
+      for word in words {
+          count += 1                      # iadd_(count, 1)
+          count //={zero: .fail} step     # ifloordiv_{zero: .fail}(count, step)
+          text += word                    # in place (TYPE-1)
+      }
+      return text
+  }
+
+  fn running(price: f64) -> f64 {
+      inject out
+      when valid(out) { out += price }    # the candidate for a `var` endpoint
+      when { out = price }
+  }
+
+  fn doubled(price: f64) -> f64 {
+      var total = price
+      total += price                      # a connection: total = total + price
+      return total
+  }
+  ```
+
+  Deliberate source rejections, each where it is written: `fixed += 1`
+  for `let fixed = 0` (`binding.immutable`); `out += price` in `stop`
+  (`out.lifecycle`); `price += 1.0` in a hook, for a parameter `price`
+  (`binding.immutable`). Conformance planned.
 
 Accepted illustration, complete module:
 

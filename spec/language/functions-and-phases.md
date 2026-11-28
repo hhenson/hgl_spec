@@ -272,7 +272,10 @@ Local source/native declaration matching is defined in the native chapter.
   which a native value function alone declares as it does any endpoint
   parameter (FN-1, TYPE-12), is an output: it takes `out`, or a place in it, in a `when` (TIME-7), and
   the function may write it. An `endpoint<T>` parameter that is not `var`
-  takes an input or `out` and writes neither (TIME-9). A call gives a `var` parameter a
+  takes an input or `out` and writes neither (TIME-9). An input given to
+  a `var` endpoint parameter rejects, as what is read-only does
+  (`binding.immutable`), and a call that gives `out` to one stands in a
+  `when` (`out.lifecycle`, TIME-7). A call gives a `var` parameter a
   place, as the left of an assignment is (EXPR-3): a `var`, a `state`, or a
   `cache`, or a place inside one, that holds an ordinary value of the
   parameter's type. An entry of a dictionary, `counts[key]`, is a place

@@ -328,7 +328,7 @@ infrastructure and cannot satisfy a source-rejection expectation.
 | phase | `source.input` | Temporal parameter of a source (SOURCE-1); the parameter |
 | phase | `source.result` | Proposed: a source with no result arrow (SOURCE-1); the source's name |
 | phase | `state.input_read` | State initializer reads a temporal input (TIME-5); the read |
-| phase | `out.lifecycle` | `out` used in `start` or written in `stop`, or a `return` with a value in either (TIME-7); the use |
+| phase | `out.lifecycle` | `out` used in `start` or written in `stop`, a write by a compound assignment or by a call that takes it as a `var` endpoint included (EXPR-18, FN-15), or a `return` with a value in either (TIME-7); the use |
 | phase | `input.lifecycle` | A temporal input read, or given to an endpoint operation, in `start`, or given to `activate` or `passivate` in `stop` (TIME-5); the use |
 | phase | `payload.unguarded` | Payload read under manual admission, in a `when` or in `stop`, that no guard dominates (TIME-4, TIME-5); or a read of a child at a constant index or a field that nothing admits, or of a struct, a tuple or a fixed list whole that its `all_valid` does not admit (TIME-1); or a read of the delta of a window of a duration whose place is neither a `result` nor a `delta<T>?`, or of `removed_value` of any window whose place is not a `result` (TYPE-11); read |
 | phase | `ref.read` | The value or the `delta_value` of a `ref` parameter, of a child of one, or of `out` of a `ref` result, read (FN-16), or the `removed_value` of a window that is a child of one; the read |
@@ -384,7 +384,7 @@ infrastructure and cannot satisfy a source-rejection expectation.
 | type | `format.specifier` | Proposed: a specifier in a place of a format string of core's that its argument's type does not admit (core's FMT-3, FMT-4), or a mark on a place that takes none (core's FMT-9); the specifier or the mark |
 | type | `enum.context_type` | `.member` where no enum type is expected (TYPE-7); the member |
 | name | `binding.unassigned` | `var` read on a path that gives it no value (EXPR-3); the read |
-| name | `binding.immutable` | Assignment to an immutable binding: a `let`, a parameter, an iteration binding, or a field or element of one (EXPR-3), or to a property of a native type (NATIVE-6) or of a delta (TYPE-16); or one given to a `var` parameter (FN-15). Also an assignment to a part of `out` of a `ref` result, `out.bid = x` (FN-16); target |
+| name | `binding.immutable` | Assignment to an immutable binding: a `let`, a parameter, an iteration binding, or a field or element of one (EXPR-3), or to a property of a native type (NATIVE-6) or of a delta (TYPE-16); or one given to a `var` parameter, a temporal input given to a `var` endpoint parameter among them (FN-15). Also an assignment to a part of `out` of a `ref` result, `out.bid = x` (FN-16); target |
 | type | `binding.category` | Assignment of a connection to a `var` that holds an ordinary value, or the reverse; assignment in a branch of a temporal `if` or `switch` to a `var` declared before it that holds an ordinary value (EXPR-4, CTRL-14); the value |
 | type | `argument.order` | Argument with no name after a named one (EXPR-2); the argument |
 | type | `argument.unexpected` | Positional argument that no parameter is left to take (EXPR-2), one given to a struct's constructor (TYPE-5), or a second given to an enum's (TYPE-7); the argument |
