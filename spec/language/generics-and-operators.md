@@ -686,10 +686,11 @@ expression; group a constant expression that uses them as operand data.
   | A property of a capability, of a native type or of a `delta<T>`; `.value` and `.error` of a result or a capture; a part of `out` of a `ref` result | Rejects, as EXPR-3 and FN-16 have it (`binding.immutable`) |
 
   Proposed: a compound assignment (EXPR-18) into a place that a candidate
-  a program declares reads, `track[0] += 1.0`, reads it by `getitem_`,
+  a program declares reads, `track[0] += 1.0` or `track.level += 1.0`,
+  reads it by the identity its read binds, `getitem_` or `getattr_`,
   applies the compound candidate to what it read, and writes the result
-  by `setitem_`; a type that declares the read and not the write rejects
-  it (`operator.no_candidate`). Into a place of the language's own types
+  by the matching `setitem_` or `setattr_`; a type that declares the read
+  and not the write rejects it (`operator.no_candidate`). Into a place of the language's own types
   the compound candidate is given the place itself.
 
   Proposed illustration, a fragment; core declares neither identity yet,
