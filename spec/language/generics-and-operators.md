@@ -587,8 +587,8 @@ expression; group a constant expression that uses them as operand data.
   its own candidate (GEN-3).
 
 - **GEN-19.** Index and member syntax bind `getitem_` and
-  `getattr_` where a read computes a value from an ordinary one, and
-  nowhere else. `x[k]` is `getitem_(x, k)`. `x.name` is
+  `getattr_` in each read the table below gives a candidate, and in no
+  other. `x[k]` is `getitem_(x, k)`. `x.name` is
   `getattr_(x, "name")`, the member's name given as a `str` constant. Core
   declares both identities and owns the candidates of the language's own
   types; EXPR-7 and ERR-6 are those candidates' contract. The table says
