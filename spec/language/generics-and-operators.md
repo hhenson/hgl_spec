@@ -6,7 +6,8 @@ GEN-17, a function's parameters read as a named pack, is agreed, and so
 are the `any` of GEN-10 and the law predicates of GEN-18. Each sentence
 of GEN-3, GEN-5 and GEN-6 that begins "Proposed:" is proposed. GEN-19, which
 reads are calls of `getitem_` and `getattr_`, is agreed. GEN-20, what an
-assignment into a place binds, is agreed.
+assignment into a place binds, is agreed. GEN-21, the same identities in
+composition, is proposed.
 
 ## Grammar
 
@@ -717,6 +718,58 @@ expression; group a constant expression that uses them as operand data.
   Deliberate source rejections: `track[0] = 0.0` for a parameter `track`
   that is not `var` (`binding.immutable`); `next["a"] = 0.0`, a key no
   candidate takes (`operator.no_candidate`).
+- **GEN-21.** Proposed: in composition the same four identities bind.
+  Where GEN-19 and GEN-20 say that a projection of a connection, or an
+  assignment into one, is no call, it is a call of the identity's
+  temporal candidate, and core's candidates for the language's own types
+  do what those rows say.
+  Proposed: a read. `quote.bid` and `xs[2]` of a connection are
+  `getattr_(quote, "bid")` and `getitem_(xs, 2)`; core's candidate selects
+  the child connection and creates no node (EXPR-7). Proposed: a key or
+  an index may itself be a connection, `prices[symbol]` or `xs[i]`. The
+  candidate takes it as an input and gives the child the current key
+  selects: it follows that child, moves to another when the key ticks,
+  and is not valid where the key is not valid or selects no child
+  (TIME-10). A dictionary and a list admit such a key. A tuple's position
+  and a member's name stay constants: each fixes the type of the read
+  (EXPR-7).
+  Proposed: a write. `point.x = price`, `row[0] = price` and
+  `book[symbol] = price` are `setattr_` and `setitem_`. A temporal
+  candidate takes the parameter its operator declares `var` as the
+  connection the graph's `var` denotes (EXPR-4), and gives a connection
+  of that type, to which the `var` is rebound (EXPR-15): nothing is
+  changed in place, and what read the `var` before keeps the connection
+  it had. This is the one case in which a candidate gives a result its
+  operator's declaration does not, and in which an operator that marks a
+  parameter `var` has a temporal candidate (GEN-6, FN-15). Proposed:
+  with a key that is a connection, the result is the original with the
+  entry of the current key taken from the value. When the key ticks, the
+  entry of the key it left is again what the original has there, and is
+  removed where the original has none.
+  Proposed: a type a program declares has these forms in a graph by a
+  temporal candidate of its own, or, for a read, by its value candidate
+  lifted (FN-6).
+
+  Proposed illustration, a fragment; core declares none of the four yet:
+
+  ```hgl
+  struct Quote { bid: f64, ask: f64 }
+
+  fn mid(quote: Quote) -> f64 => (quote.bid + quote.ask) / 2.0   # getattr_: child connections, no node
+
+  fn price_of(prices: dict<str, f64>, symbol: str) -> f64 =>
+      prices[symbol]                                              # getitem_, `symbol` an input
+
+  fn marked(book: dict<str, f64>, symbol: str, price: f64) -> dict<str, f64> {
+      var next = book
+      next[symbol] = price                                        # setitem_: `next` is rebound
+      return next
+  }
+  ```
+
+  For `book` holding `{"a": 1.0}`, `symbol` ticking `"a"` then `"b"` and
+  `price` holding `9.0`, `marked` gives `{"a": 9.0}` and then
+  `{"a": 1.0, "b": 9.0}`.
 
 Syntax binds these core identities independently of local same-named functions.
 A symbol is the call of its identity: its operands are read as that call's
