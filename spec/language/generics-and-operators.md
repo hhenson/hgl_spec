@@ -682,8 +682,8 @@ expression; group a constant expression that uses them as operand data.
   | --- | --- |
   | Of an ordinary value: in a value function, a hook, a test, or composition where the place holds one | The value candidate, the place its `var` |
   | Of a connection, in composition (EXPR-15) | No call: the rebinding EXPR-15 gives, which creates no storage |
-  | In `out`, in a `when` (TIME-7) | The candidate whose first parameter is a `var` `endpoint<T>` (FN-15): the publication TIME-7 gives |
-  | A property of a capability, of a native type or of a `delta<T>`; `.value` and `.error` of a result or a capture; a part of `out` of a `ref` result | Rejects, as EXPR-3 and FN-16 have it (`binding.immutable`) |
+  | In `out`, in a `when` (TIME-7), of a shape EXPR-18 admits | The candidate whose first parameter is a `var` `endpoint<T>` (FN-15): the publication TIME-7 gives |
+  | A property of a capability, of a native type or of a `delta<T>`; a field of an `error`; `.value` and `.error` of a result or a capture; a part of `out` of a `ref` result | Rejects, as EXPR-3 and FN-16 have it (`binding.immutable`) |
 
   A compound assignment (EXPR-18) into a place that a candidate
   a program declares reads, `track[0] += 1.0` or `track.level += 1.0`,
@@ -693,8 +693,8 @@ expression; group a constant expression that uses them as operand data.
   and not the write rejects it (`operator.no_candidate`). Into a place of the language's own types
   the compound candidate is given the place itself.
 
-  Accepted illustration, a fragment; the parameter names are those core's
-  declarations give. Conformance planned:
+  Accepted illustration, a fragment. Proposed: the parameter names, which
+  core's declarations settle. Conformance planned:
 
   ```hgl
   struct Track { points: list<f64> }
