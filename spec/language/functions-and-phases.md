@@ -268,8 +268,9 @@ Local source/native declaration matching is defined in the native chapter.
   parameter `var`: `const fn bump(var count: i64, by: i64)`. So may a value
   candidate of an operator (GEN-6). Its type is an
   ordinary value type or `endpoint<T>`, and no capability's (TIME-8), which
-  no place holds (`parameter.var`). A `var` parameter of `endpoint<T>` is
-  an output: it takes `out`, or a place in it, in a `when` (TIME-7), and
+  no place holds (`parameter.var`). A `var` parameter of `endpoint<T>`,
+  which a native value function alone declares as it does any endpoint
+  parameter (FN-1, TYPE-12), is an output: it takes `out`, or a place in it, in a `when` (TIME-7), and
   the function may write it. An `endpoint<T>` parameter that is not `var`
   takes an input or `out` and writes neither (TIME-9). A call gives a `var` parameter a
   place, as the left of an assignment is (EXPR-3): a `var`, a `state`, or a

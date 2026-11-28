@@ -317,9 +317,12 @@ GEN-14 resolves generic construction versus comparison using declaration lookup.
   candidates of the language's own types. It gives no result: a compound
   assignment is a statement. It may carry configuration after its token,
   `count //={zero: .fail} step`, bound as a symbol's is (EXPR-10).
-  In composition a compound assignment selects no such candidate, since
-  none is lifted (FN-15): `a += b` there is `a = a + b`, the rebinding
-  EXPR-15 gives, and its configuration is that of `+`.
+  In composition, where the place is a connection (EXPR-4), a compound
+  assignment selects no such candidate, since none is lifted (FN-15):
+  `a += b` there is `a = a + b`, the rebinding EXPR-15 gives, and its
+  configuration is that of `+`. Where the place holds an ordinary value
+  there, the candidate is selected as in value code (FN-15), so text
+  built while the graph is built still grows in place (TYPE-1).
   Where the root of the place is `out`, in a `when` (TIME-7), the place is
   given as its endpoint, and selection continues among the candidates
   whose first parameter is a `var` `endpoint<T>` (FN-15, TIME-9). So every
