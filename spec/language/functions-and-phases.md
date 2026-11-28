@@ -286,10 +286,12 @@ Local source/native declaration matching is defined in the native chapter.
   holding what its parameter held when it failed: no change it had made is
   undone. The call changes the place and no value: a value taken from the
   place before the call is as it was (TYPE-5). A `var` parameter may be given on to a `var`
-  parameter of a function the body calls. A temporal `fn`, a temporal
-  candidate, and an operator declare none (`parameter.var`): an operator
-  gives the parameters every candidate takes, and each candidate says which
-  of its own is `var`. The mark takes no part in selecting a candidate
+  parameter of a function the body calls. A temporal `fn` and a temporal
+  candidate declare none (`parameter.var`). An operator may mark a
+  parameter `var` where no candidate of it can take that parameter any
+  other way: every candidate then marks it (GEN-6), so the operator has
+  value candidates alone. One the operator leaves unmarked a value
+  candidate may mark. The mark takes no part in selecting a candidate
   (GEN-5): a call of an operator is resolved as any other, and the candidate
   it resolves to says which of its arguments are places. A function or a
   candidate that declares one is not lifted (FN-6): a call of it stands in a
@@ -771,8 +773,7 @@ fails with `value.missing_key`, where `counts["b"] = 2` adds the key
 argument is no place (`argument.place`); `push([1], 2)`, the same once the
 candidate is selected; `bump(fixed, 2)` for `let fixed = 0`
 (`binding.immutable`); `fn ticking(var value: i64) -> i64`, a temporal
-function, and `operator push<C, V>(var values: C, item: V)`, an operator
-(`parameter.var`); and, for
+function (`parameter.var`); and, for
 `const fn clear(var value: i64?) { value = null }`, the call `clear()`: a
 `var` parameter is given though its type is nullable (`argument.missing`).
 Executable conformance is planned.

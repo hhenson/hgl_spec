@@ -28,8 +28,9 @@ constraint_operand = type | additive_expr | constraint_set | type_category ;
 type_category = "struct" | "enum" ;
 constraint_set = "{", constraint_operand, { ",", constraint_operand }, [ "," ], "}" ;
 constraint_call = ( IDENTIFIER | qualified_name ), "(",
-                  [ constraint_operand, { ",", constraint_operand } ], ")",
+                  [ constraint_argument, { ",", constraint_argument } ], ")",
                   [ "->", type ] ;
+constraint_argument = [ "var" | "const" ], constraint_operand ;
 operator_decl = [ "export" ], "operator", callable_name, [ generic_parameters ],
                 [ configuration_parameters ], function_signature,
                 [ requires_clause ], { operator_properties } ;
@@ -322,9 +323,10 @@ expression; group a constant expression that uses them as operand data.
   call admits the candidate only where that holds for the parameter's value
   at the call, a default included. Candidates for different values may
   differ in result type (EXPR-12). A candidate may give any of its inputs a
-  default. A value candidate may mark a parameter `var` (FN-15); the
-  operator's declaration marks none, and the mark takes no part in selecting
-  a candidate. The candidates of an operator are meant to stay resolvable
+  default. A value candidate may mark a parameter `var` (FN-15), and so
+  may the operator's declaration: every candidate then marks it. The mark
+  takes no part in selecting a candidate for a call; a requirement may
+  ask for it (GEN-16). The candidates of an operator are meant to stay resolvable
   together: once defaults fill what a call omits, no call matches two of
   them equally. Two that some call would match equally, with no other
   candidate the more specific for it, are a warning, reported at each of
@@ -532,9 +534,15 @@ expression; group a constant expression that uses them as operand data.
   A requirement names a value operation, whatever declares it: it is tested
   against the operator's value candidates, and holds where one most-specific
   value candidate takes the types supplied (GEN-5). So what a graph requires
-  is what a node or a value function it calls may require. A candidate that
-  marks a parameter `var` (FN-15) answers no requirement: a requirement
-  supplies types, and no place.
+  is what a node or a value function it calls may require. An argument of
+  a requirement may state a modifier, `var` or `const`, before its type:
+  the requirement then holds only where the candidate selected marks that
+  parameter so. One that states none holds whatever the candidate marks.
+  `requires iadd_(var T, T)` holds where the candidate for two T takes
+  its first as a place, and `requires !bump(var T)` where no candidate
+  for a T does. A body is still checked against the candidate its
+  instance selects (GEN-7): where that one marks a parameter `var`, the
+  argument given is a place (FN-15).
 - **GEN-17.** In a function type (FN-17) a named pack stands for
   the parameters the fixed ones leave: `f: fn(...{Ps}) -> R` binds `Ps` to
   the parameters of the function given, each under its own name with its
@@ -616,6 +624,7 @@ arguments are, the type its place expects is requested of the candidates
 | `//`, `%`, unary `-` | `floordiv_`, `mod_`, `neg_` |
 | `==`, `!=`, `<`, `<=`, `>`, `>=` | `eq_`, `ne_`, `lt_`, `le_`, `gt_`, `ge_` |
 | `<=>` | `compare_`, the core full-comparison identity |
+| `+=`, `-=`, `*=`, `/=`, `//=`, `%=` | The compound identities of EXPR-18, each taking a `var` first |
 | `x[k]`, `x.name` | `getitem_`, `getattr_` where projection rules require an operation (proposed: GEN-19) |
 
 Boolean forms `&&`, `||`, and `!` bind `and_`, `or_`, and `not_` respectively.

@@ -60,9 +60,10 @@ type_of = "type", "(", expression, ")" ;
 implied_member = ".", member_name ;
 local_decl = ( "let" | "var" ), IDENTIFIER, [ ":", type ], "=", expression
            | "var", IDENTIFIER, ":", type ;
-assignment = place, assignment_operator, expression ;
+assignment = place, ( "=" | compound_operator, [ operator_configuration ] ),
+             expression ;
 place = IDENTIFIER, { index_suffix | member_suffix } ;
-assignment_operator = "=" | "+=" | "-=" | "*=" | "/=" | "//=" | "%=" ;
+compound_operator = "+=" | "-=" | "*=" | "/=" | "//=" | "%=" ;
 const_expression = expression ;
 ```
 
@@ -114,7 +115,7 @@ GEN-14 resolves generic construction versus comparison using declaration lookup.
   index outside a list, below zero or at or past its size, fails where it
   is evaluated, with code `value.index_out_of_range`.
   A set has no place to assign. A compound assignment reads the place
-  first: `total.count += 1`. `+=` on a `var` of type `str` appends to it
+  first, `total.count += 1`, and binds as EXPR-18 says. `+=` on a `var` of type `str` appends to it
   in place (TYPE-1).
 - **EXPR-4.** Ordinary values and temporal connections remain distinct. A graph
   binding denotes a connection without reading a payload. Reassigning a graph
@@ -306,6 +307,25 @@ GEN-14 resolves generic construction versus comparison using declaration lookup.
   `[for i in 2..<4: i]` as `[2, 3]`: nothing in it changes while the
   program runs, and a `const` parameter takes it (FN-1). What it iterates
   is what a `for` statement iterates in that phase (CTRL-12, CTRL-15).
+- **EXPR-18.** A compound assignment binds a core identity of its own, as
+  a symbol binds one (GEN-4): the place on its left is given to that
+  identity's first parameter, a `var` (FN-15), and the expression on its
+  right to the second. Proposed: the identities are `iadd_` for `+=`,
+  `isub_` for `-=`, `imul_` for `*=`, `idiv_` for `/=`, `ifloordiv_` for
+  `//=`, and `imod_` for `%=`, so `count += by` is `iadd_(count, by)`. The
+  candidate selected says what the place holds afterwards; core owns the
+  candidates of the language's own types. It gives no result: a compound
+  assignment is a statement. It may carry configuration after its token,
+  `count //={zero: .fail} step`, bound as a symbol's is (EXPR-10).
+  In composition a compound assignment selects no such candidate, since
+  none is lifted (FN-15): `a += b` there is `a = a + b`, the rebinding
+  EXPR-15 gives, and its configuration is that of `+`.
+  Where the root of the place is `out`, in a `when` (TIME-7), the place is
+  given as its endpoint, an `endpoint<T>` (TIME-9), and selection
+  continues among the candidates that take one. Proposed: such a
+  candidate takes `endpoint<T>` first and marks no `var`; every other
+  candidate of a compound identity marks its first parameter `var`, and
+  one that does neither rejects where it is declared.
 
 Accepted illustration, complete module:
 
