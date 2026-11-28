@@ -739,7 +739,7 @@ expression; group a constant expression that uses them as operand data.
   changed in place, and what read the `var` before keeps the connection
   it had. This is the one case in which a candidate gives a result its
   operator's declaration does not, and in which an operator that marks a
-  parameter `var` has a temporal candidate (GEN-6, FN-15). 
+  parameter `var` has a temporal candidate (GEN-6, FN-15).
   With a key that is a connection, the result is the original with the
   entry of the current key taken from the value. When the key ticks, the
   entry of the key it left is again what the original has there, and is
