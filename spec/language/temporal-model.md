@@ -312,6 +312,8 @@ chapter.
   rejected (`endpoint.argument`). A hook gives a fixed endpoint parameter
   or an entry of a native endpoint pack (FN-8) a temporal input of its
   node, a child of one (`parts[1]`, `quote.bid` or `parts[i]`), or `out`.
+  Proposed: or a child of `out`, `out.bid`, so that `valid(out.bid)`
+  guards a write of that place (EXPR-18).
   A parameter marked `var`, `var target: endpoint<T>`, takes `out` or a
   place in it and no input: the mark says the function writes the output
   (FN-15).
