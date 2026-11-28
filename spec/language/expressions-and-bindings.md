@@ -310,7 +310,7 @@ GEN-14 resolves generic construction versus comparison using declaration lookup.
 - **EXPR-18.** A compound assignment binds a core identity of its own, as
   a symbol binds one (GEN-4): the place on its left is given to that
   identity's first parameter, a `var` (FN-15), and the expression on its
-  right to the second. Proposed: the identities are `iadd_` for `+=`,
+  right to the second. The identities are `iadd_` for `+=`,
   `isub_` for `-=`, `imul_` for `*=`, `idiv_` for `/=`, `ifloordiv_` for
   `//=`, and `imod_` for `%=`, so `count += by` is `iadd_(count, by)`. The
   candidate selected says what the place holds afterwards; core owns the
