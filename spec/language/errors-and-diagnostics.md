@@ -299,7 +299,7 @@ infrastructure and cannot satisfy a source-rejection expectation.
 | operator | `impl.unknown_operator` | Operator candidate names no operator (GEN-4); operator name |
 | operator | `impl.pack` | Proposed: a candidate declares a fixed parameter where its operator declares a pack (GEN-6); the parameter's name |
 | operator | `impl.parameter` | Proposed: a candidate writes for a parameter a type that is not the one its operator declares, or leaves out a `const` or a `var` its operator states (GEN-6); the parameter's name |
-| operator | `impl.result` | Candidate's result is not the type its operator's declaration gives for the candidate's parameters (GEN-6); the result type |
+| operator | `impl.result` | Candidate's result is not the type its operator's declaration gives for the candidate's parameters (GEN-6), but for a temporal candidate of `setitem_` or `setattr_`, which gives its `var` parameter's type and rejects where it gives another or none (GEN-21); the result type |
 | operator | `impl.requires` | Candidate for types its operator's `requires` does not admit (GEN-6); the candidate's name |
 | operator | `impl.option_kind` | Candidate declares as a parameter an option that another candidate of its operator declares as a generic value parameter (GEN-6); the parameter's name |
 | operator | `property.duplicate` | A domain that a second property clause of an operator names, or that one clause names twice, or a property that one clause gives twice (GEN-9); the later domain or property |
@@ -335,7 +335,7 @@ infrastructure and cannot satisfy a source-rejection expectation.
 | phase | `endpoint.argument` | Fixed endpoint parameter or borrowed pack entry given what is no temporal input of its function, no child of one, and neither `out` nor a place in it (TIME-9, FN-15), or `all_valid` given neither a collection (a list, tuple, struct or dictionary) nor a window (TIME-9); argument |
 | type | `schedule.duration_bounds` | A wake asked for with a `duration` that is not more than zero, other than a zero in `start`, whose value the compiler sees (TIME-8); the duration |
 | phase | `scheduled.lifecycle` | `scheduled()` in `start` or `stop` (TIME-9); the selector |
-| phase | `connection.as_constant` | Temporal connection where composition requires a constant (FN-3), given to a function that declares a `var` parameter, which is not lifted (FN-15), given to a value function's configuration parameter (EXPR-14), or given to a call on the store a graph injects (FN-9); expression |
+| phase | `connection.as_constant` | Temporal connection where composition requires a constant (FN-3), given to a function that declares a `var` parameter, which is not lifted (FN-15), a temporal candidate of `setitem_` or `setattr_` aside (GEN-21), given to a value function's configuration parameter (EXPR-14), or given to a call on the store a graph injects (FN-9); expression |
 | type | `generic.invalid_application` | Generic type's name before a `<` that opens no arguments (GEN-14); name |
 | type | `pack.default` | Pack parameter has a default (FN-8); `=` |
 | type | `pack.const` | Pack parameter is const (FN-8); `const` |
@@ -393,7 +393,7 @@ infrastructure and cannot satisfy a source-rejection expectation.
 | type | `argument.missing` | Parameter or field that may not be left out is given nothing (EXPR-2, TYPE-5); callee name |
 | type | `argument.constant` | In a hook or a value function, a `const` parameter given what is no constant expression (FN-1); argument |
 | type | `argument.place` | `var` parameter given what is no place: a literal, what a call gives, or any other expression that nothing assigns (FN-15); argument |
-| function-kind | `parameter.var` | `var` parameter of a temporal function or a temporal candidate, or one whose type is a capability's (FN-15); `var` |
+| function-kind | `parameter.var` | `var` parameter of a temporal function, or of a temporal candidate other than one of `setitem_` or `setattr_` (GEN-21), or one whose type is a capability's (FN-15); `var` |
 | function-kind | `ref.position` | `ref` on a parameter or the result of what is no node, a value function, a graph or an operator, or on a `signal` parameter (FN-16, TYPE-12), or on a parameter or a result whose type is a `rolling_window` (FN-16); `ref` |
 | function-kind | `call.role` | Temporal function called from a value function or a runtime hook (FN-3); in a test's or an application's value code, a temporal function called, or an operator applied whose selected candidate is temporal (TST-3, UNIT-14); callee name |
 | type | `return.missing` | Value function that declares a result can reach its end with no value (FN-7), or a graph that returns a value in a branch of a temporal `if` or `switch` can (CTRL-14); function name |

@@ -6,7 +6,8 @@ GEN-17, a function's parameters read as a named pack, is agreed, and so
 are the `any` of GEN-10 and the law predicates of GEN-18. Each sentence
 of GEN-3, GEN-5, GEN-6 and GEN-16 that begins "Proposed:" is proposed. GEN-19, which
 reads are calls of `getitem_` and `getattr_`, is agreed. GEN-20, what an
-assignment into a place binds, is agreed.
+assignment into a place binds, is agreed. GEN-21, the same identities in
+composition, is agreed.
 
 ## Grammar
 
@@ -619,12 +620,12 @@ expression; group a constant expression that uses them as operand data.
   its own candidate (GEN-3).
 
 - **GEN-19.** Index and member syntax bind `getitem_` and
-  `getattr_` in each read the table below gives a candidate, and in no
-  other. `x[k]` is `getitem_(x, k)`. `x.name` is
+  `getattr_` wherever a value or a connection is read by an index or a
+  member. `x[k]` is `getitem_(x, k)`. `x.name` is
   `getattr_(x, "name")`, the member's name given as a `str` constant. Core
   declares both identities and owns the candidates of the language's own
   types; EXPR-7 and ERR-6 are those candidates' contract. The table says
-  which reads are calls. A candidate declared for another type
+  which candidate each read calls, and which reads are none. A candidate declared for another type
   gives that type the syntax, selected as any candidate is (GEN-5).
   `getattr_(x, name)` written with a name that is a constant
   (CTRL-15) is the read `x.name` and binds as that read does: of a
@@ -639,9 +640,9 @@ expression; group a constant expression that uses them as operand data.
   | Of an ordinary value, wherever value code runs: a value function, a hook, a test, a constant expression, or a value fixed where a graph is built (FN-3) | The value candidate |
   | An ordinary tuple's position; a field of an `error` | The value candidate, its index or name a constant |
   | Atomic projection of a connection (EXPR-7) | The lifted call of the value candidate (FN-6) |
-  | A temporal dictionary's child by a key that is a connection (TIME-10) | The temporal candidate |
-  | Structural projection of a connection, a `ref` parameter's child among them (EXPR-7, FN-16) | No call: it selects a child connection and creates no node |
-  | In a hook, a collection's child, `parts[i]` or `quote.bid` (ERR-14, TIME-9) | No call: it is an endpoint, and ERR-14 says how its payload is read |
+  | A child of a connection by a key or an index that is itself a connection (GEN-21, TIME-10) | The temporal candidate, the key its input |
+  | Structural projection of a connection, in composition (EXPR-7) | The temporal candidate, or the value candidate lifted (FN-6) where the type declares no temporal one; core's selects the child connection and creates no node (GEN-21) |
+  | In a hook, a collection's child, `parts[i]` or `quote.bid`, a `ref` parameter's child among them (ERR-14, TIME-9, FN-16) | No call: it is an endpoint, and ERR-14 says how its payload is read |
   | A property of a capability (TIME-8), of a native type (NATIVE-6) or of a `delta<T>` (TYPE-16); `.value` and `.error` of a result (ERR-3) or of a capture (ERR-7) | No call: each is the language's own form, and takes no candidate |
 
   Accepted illustration, a fragment; the parameter names are those core's
@@ -655,7 +656,7 @@ expression; group a constant expression that uses them as operand data.
 
   const fn third(values: list<f64>) -> f64 => values[2]   # core's candidate for a list
   const fn first(track: Track) -> f64 => track[0]         # the candidate above
-  fn bid(quote: Quote) -> f64 => quote.bid                # structural: no call, no node
+  fn bid(quote: Quote) -> f64 => quote.bid                # structural: core's candidate, no node
   const fn moved(track: Track) -> Track {
       var next = track
       next.points[0] = 0.0                                # a place: GEN-20
@@ -681,7 +682,7 @@ expression; group a constant expression that uses them as operand data.
   | Assignment into a place | Binding |
   | --- | --- |
   | Of an ordinary value: in a value function, a hook, a test, or composition where the place holds one | The value candidate, the place its `var` |
-  | Of a connection, in composition (EXPR-15) | No call: the rebinding EXPR-15 gives, which creates no storage |
+  | Of a connection, in composition (EXPR-15) | The temporal candidate, to whose result the `var` is rebound (GEN-21); no storage is created |
   | In `out`, in a `when` (TIME-7), of a shape EXPR-18 admits | The candidate whose first parameter is a `var` `endpoint<T>` (FN-15): the publication TIME-7 gives |
   | A property of a capability, of a native type or of a `delta<T>`; a field of an `error`; `.value` and `.error` of a result or a capture; a part of `out` of a `ref` result | Rejects, as EXPR-3 and FN-16 have it (`binding.immutable`) |
 
@@ -716,6 +717,64 @@ expression; group a constant expression that uses them as operand data.
   Deliberate source rejections: `track[0] = 0.0` for a parameter `track`
   that is not `var` (`binding.immutable`); `next["a"] = 0.0`, a key no
   candidate takes (`operator.no_candidate`).
+- **GEN-21.** In composition the same four identities bind: a structural
+  projection of a connection, and an assignment into one, call the
+  identity's temporal candidate (GEN-19, GEN-20). An atomic projection is
+  as GEN-19 has it, the lifted call of the value candidate, which computes
+  from the whole payload and selects no child (EXPR-7).
+  A read. `quote.bid` and `xs[2]` of a connection are
+  `getattr_(quote, "bid")` and `getitem_(xs, 2)`; core's candidate for a
+  structural type selects the child connection and creates no node
+  (EXPR-7). A key or
+  an index may itself be a connection, `prices[symbol]` or `xs[i]`. The
+  candidate takes it as an input and gives the child the current key
+  selects: it follows that child, moves to another when the key ticks,
+  and is not valid where the key is not valid or selects no child
+  (TIME-10). A dictionary and a list admit such a key. A tuple's position
+  and a member's name stay constants: each fixes the type of the read
+  (EXPR-7).
+  A write. `point.x = price`, `row[0] = price` and
+  `book[symbol] = price` are `setattr_` and `setitem_`. A temporal
+  candidate takes the parameter its operator declares `var` as the
+  connection the graph's `var` denotes (EXPR-4), and gives a connection
+  of that type, to which the `var` is rebound (EXPR-15): nothing is
+  changed in place, and what read the `var` before keeps the connection
+  it had. This is the one case in which a candidate gives a result its
+  operator's declaration does not, and in which an operator that marks a
+  parameter `var` has a temporal candidate (GEN-6, FN-15).
+  Such a candidate marks the parameter `var`, as its operator does
+  (GEN-6), and writes the result its operator's declaration omits:
+  `impl fn setitem_(var container: Track, key: i64, value: f64) -> Track`.
+  One that gives another type, or none, rejects (`impl.result`); this is
+  the exception to GEN-6's rule of a candidate's result.
+  With a key that is a connection, the result is the original with the
+  entry of the current key taken from the value. When the key ticks, the
+  entry of the key it left is again what the original has there, and is
+  removed where the original has none.
+  A type a program declares has these forms in a graph by a
+  temporal candidate of its own, or, for a read, by its value candidate
+  lifted (FN-6).
+
+  Accepted illustration, a fragment. Conformance planned:
+
+  ```hgl
+  struct Quote { bid: f64, ask: f64 }
+
+  fn mid(quote: Quote) -> f64 => (quote.bid + quote.ask) / 2.0   # getattr_: child connections, no node
+
+  fn price_of(prices: dict<str, f64>, symbol: str) -> f64 =>
+      prices[symbol]                                              # getitem_, `symbol` an input
+
+  fn marked(book: dict<str, f64>, symbol: str, price: f64) -> dict<str, f64> {
+      var next = book
+      next[symbol] = price                                        # setitem_: `next` is rebound
+      return next
+  }
+  ```
+
+  For `book` holding `{"a": 1.0}`, `symbol` ticking `"a"` then `"b"` and
+  `price` holding `9.0`, `marked` gives `{"a": 9.0}` and then
+  `{"a": 1.0, "b": 9.0}`.
 
 Syntax binds these core identities independently of local same-named functions.
 A symbol is the call of its identity: its operands are read as that call's
@@ -745,9 +804,9 @@ Operator configuration uses the same identity; EXPR-10 defines its source form.
 The core [numeric contract](https://github.com/hhenson/hgl_core/blob/main/spec/numeric-operators.md)
 owns default and configured numeric behavior, including full comparison.
 
-Harness comparison, null presence checks, constraint predicates, and structural
-projections have their own language rules; token shape alone does not make
-them extensible candidate calls.
+Harness comparison, null presence checks, and constraint predicates have their
+own language rules; token shape alone does not make them extensible candidate
+calls. GEN-19 to GEN-21 say which projections are candidate calls.
 
 Accepted illustration, complete module:
 

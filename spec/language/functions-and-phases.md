@@ -295,10 +295,13 @@ Local source/native declaration matching is defined in the native chapter.
   undone. The call changes the place and no value: a value taken from the
   place before the call is as it was (TYPE-5). A `var` parameter may be given on to a `var`
   parameter of a function the body calls. A temporal `fn` and a temporal
-  candidate declare none (`parameter.var`). An operator may mark a
+  candidate declare none (`parameter.var`), but for a temporal candidate of
+  `setitem_` or `setattr_`, which marks the parameter its operator marks
+  (GEN-21). An operator may mark a
   parameter `var` where no candidate of it can take that parameter any
   other way: every candidate then marks it (GEN-6), so the operator has
-  value candidates alone. One the operator leaves unmarked a value
+  value candidates alone, but for the temporal candidates GEN-21 gives the
+  projection identities. One the operator leaves unmarked a value
   candidate may mark. The mark takes no part in selecting a candidate
   (GEN-5): a call of an operator is resolved as any other, and the candidate
   it resolves to says which of its arguments are places. A function or a
@@ -306,7 +309,10 @@ Local source/native declaration matching is defined in the native chapter.
   value function, in a runtime hook, or in composition where the place holds
   an ordinary value. No argument of such a call is a connection
   (`connection.as_constant`), and the function is no target of an `eval`
-  (`eval.target`).
+  (`eval.target`). A temporal candidate of `setitem_` or `setattr_` is
+  the exception to where such a call stands and to what it is given
+  (GEN-21): its call stands in composition, the place it is given is a
+  graph's `var`, a connection, and its other arguments may be connections.
 - **FN-16.** A node (FN-2, NATIVE-3) may mark a temporal parameter `ref`,
   `ref low: f64`, and its result, `-> ref f64`. The mark is a mode, as
   `var` is (FN-15), and no part of the type (TYPE-12): a caller and the
