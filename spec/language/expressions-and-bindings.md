@@ -55,7 +55,7 @@ sequence_item = expression | "_" ;
 typed_constructor = ( IDENTIFIER | qualified_name ), generic_arguments,
                     [ operator_configuration ], "(", [ arguments ], ")" ;
 function_reference = ( IDENTIFIER | qualified_name ), generic_arguments ;
-type_call = ( "str" | "bytes" | "any" | "error" ), "(", [ arguments ], ")" ;
+type_call = ( "bytes" | "any" | "error" ), "(", [ arguments ], ")" ;
 type_of = "type", "(", expression, ")" ;
 implied_member = ".", member_name ;
 local_decl = ( "let" | "var" ), IDENTIFIER, [ ":", type ], "=", expression
