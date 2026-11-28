@@ -298,7 +298,7 @@ infrastructure and cannot satisfy a source-rejection expectation.
 | operator | `test.implementation` | Operator candidate in a test context (TST-1); operator name |
 | operator | `impl.unknown_operator` | Operator candidate names no operator (GEN-4); operator name |
 | operator | `impl.pack` | Proposed: a candidate declares a fixed parameter where its operator declares a pack (GEN-6); the parameter's name |
-| operator | `impl.parameter` | Proposed: a candidate writes for a parameter a type that is not the one its operator declares, or leaves out a `const` its operator states (GEN-6); the parameter's name |
+| operator | `impl.parameter` | Proposed: a candidate writes for a parameter a type that is not the one its operator declares, or leaves out a `const` or a `var` its operator states (GEN-6); the parameter's name |
 | operator | `impl.result` | Candidate's result is not the type its operator's declaration gives for the candidate's parameters (GEN-6); the result type |
 | operator | `impl.requires` | Candidate for types its operator's `requires` does not admit (GEN-6); the candidate's name |
 | operator | `impl.option_kind` | Candidate declares as a parameter an option that another candidate of its operator declares as a generic value parameter (GEN-6); the parameter's name |
@@ -328,11 +328,11 @@ infrastructure and cannot satisfy a source-rejection expectation.
 | phase | `source.input` | Temporal parameter of a source (SOURCE-1); the parameter |
 | phase | `source.result` | Proposed: a source with no result arrow (SOURCE-1); the source's name |
 | phase | `state.input_read` | State initializer reads a temporal input (TIME-5); the read |
-| phase | `out.lifecycle` | `out` used in `start` or written in `stop`, or a `return` with a value in either (TIME-7); the use |
+| phase | `out.lifecycle` | `out` used in `start` or written in `stop`, a write by a compound assignment or by a call that takes it as a `var` endpoint included (EXPR-18, FN-15), or a `return` with a value in either (TIME-7); the use |
 | phase | `input.lifecycle` | A temporal input read, or given to an endpoint operation, in `start`, or given to `activate` or `passivate` in `stop` (TIME-5); the use |
 | phase | `payload.unguarded` | Payload read under manual admission, in a `when` or in `stop`, that no guard dominates (TIME-4, TIME-5); or a read of a child at a constant index or a field that nothing admits, or of a struct, a tuple or a fixed list whole that its `all_valid` does not admit (TIME-1); or a read of the delta of a window of a duration whose place is neither a `result` nor a `delta<T>?`, or of `removed_value` of any window whose place is not a `result` (TYPE-11); read |
 | phase | `ref.read` | The value or the `delta_value` of a `ref` parameter, of a child of one, or of `out` of a `ref` result, read (FN-16), or the `removed_value` of a window that is a child of one; the read |
-| phase | `endpoint.argument` | Fixed endpoint parameter or borrowed pack entry given what is no temporal input of its function, no child of one, and not `out`, or `all_valid` given neither a collection (a list, tuple, struct or dictionary) nor a window (TIME-9); argument |
+| phase | `endpoint.argument` | Fixed endpoint parameter or borrowed pack entry given what is no temporal input of its function, no child of one, and neither `out` nor a place in it (TIME-9, FN-15), or `all_valid` given neither a collection (a list, tuple, struct or dictionary) nor a window (TIME-9); argument |
 | type | `schedule.duration_bounds` | A wake asked for with a `duration` that is not more than zero, other than a zero in `start`, whose value the compiler sees (TIME-8); the duration |
 | phase | `scheduled.lifecycle` | `scheduled()` in `start` or `stop` (TIME-9); the selector |
 | phase | `connection.as_constant` | Temporal connection where composition requires a constant (FN-3), given to a function that declares a `var` parameter, which is not lifted (FN-15), given to a value function's configuration parameter (EXPR-14), or given to a call on the store a graph injects (FN-9); expression |
@@ -384,7 +384,7 @@ infrastructure and cannot satisfy a source-rejection expectation.
 | type | `format.specifier` | Proposed: a specifier in a place of a format string of core's that its argument's type does not admit (core's FMT-3, FMT-4), or a mark on a place that takes none (core's FMT-9); the specifier or the mark |
 | type | `enum.context_type` | `.member` where no enum type is expected (TYPE-7); the member |
 | name | `binding.unassigned` | `var` read on a path that gives it no value (EXPR-3); the read |
-| name | `binding.immutable` | Assignment to an immutable binding: a `let`, a parameter, an iteration binding, or a field or element of one (EXPR-3), or to a property of a native type (NATIVE-6) or of a delta (TYPE-16); or one given to a `var` parameter (FN-15). Also an assignment to a part of `out` of a `ref` result, `out.bid = x` (FN-16); target |
+| name | `binding.immutable` | Assignment to an immutable binding: a `let`, a parameter, an iteration binding, or a field or element of one (EXPR-3), or to a property of a native type (NATIVE-6) or of a delta (TYPE-16); or one given to a `var` parameter, a temporal input given to a `var` endpoint parameter among them (FN-15). Also an assignment to a part of `out` of a `ref` result, `out.bid = x` (FN-16); target |
 | type | `binding.category` | Assignment of a connection to a `var` that holds an ordinary value, or the reverse; assignment in a branch of a temporal `if` or `switch` to a `var` declared before it that holds an ordinary value (EXPR-4, CTRL-14); the value |
 | type | `argument.order` | Argument with no name after a named one (EXPR-2); the argument |
 | type | `argument.unexpected` | Positional argument that no parameter is left to take (EXPR-2), one given to a struct's constructor (TYPE-5), or a second given to an enum's (TYPE-7); the argument |
@@ -393,7 +393,7 @@ infrastructure and cannot satisfy a source-rejection expectation.
 | type | `argument.missing` | Parameter or field that may not be left out is given nothing (EXPR-2, TYPE-5); callee name |
 | type | `argument.constant` | In a hook or a value function, a `const` parameter given what is no constant expression (FN-1); argument |
 | type | `argument.place` | `var` parameter given what is no place: a literal, what a call gives, or any other expression that nothing assigns (FN-15); argument |
-| function-kind | `parameter.var` | `var` parameter of a temporal function, a temporal candidate, or an operator, or one whose type is a capability's or `endpoint<T>` (FN-15); `var` |
+| function-kind | `parameter.var` | `var` parameter of a temporal function or a temporal candidate, or one whose type is a capability's (FN-15); `var` |
 | function-kind | `ref.position` | `ref` on a parameter or the result of what is no node, a value function, a graph or an operator, or on a `signal` parameter (FN-16, TYPE-12), or on a parameter or a result whose type is a `rolling_window` (FN-16); `ref` |
 | function-kind | `call.role` | Temporal function called from a value function or a runtime hook (FN-3); in a test's or an application's value code, a temporal function called, or an operator applied whose selected candidate is temporal (TST-3, UNIT-14); callee name |
 | type | `return.missing` | Value function that declares a result can reach its end with no value (FN-7), or a graph that returns a value in a branch of a temporal `if` or `switch` can (CTRL-14); function name |

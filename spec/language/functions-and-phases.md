@@ -24,7 +24,7 @@ function_signature = "(", [ parameters ], ")", [ "->", [ "ref" ], type ] ;
 parameters = parameter, { ",", parameter }, [ "," ] ;
 parameter = [ "ref" ], IDENTIFIER, ":", type, [ "=", const_expression ]
           | "const", IDENTIFIER, ":", value_type, [ "=", const_expression ]
-          | "var", IDENTIFIER, ":", value_type
+          | "var", IDENTIFIER, ":", ( value_type | endpoint_type )
           | [ "const" ], IDENTIFIER, ":", pack, [ "=", const_expression ]
           | IDENTIFIER, ":", function_type ;
 pack = "...", type, [ cardinality ]
@@ -267,8 +267,15 @@ Local source/native declaration matching is defined in the native chapter.
 - **FN-15.** A value function, a `const fn` or a native one, may mark a
   parameter `var`: `const fn bump(var count: i64, by: i64)`. So may a value
   candidate of an operator (GEN-6). Its type is an
-  ordinary value type, and no capability's (TIME-8) or `endpoint<T>` (TIME-9),
-  which no place holds (`parameter.var`). A call gives a `var` parameter a
+  ordinary value type or `endpoint<T>`, and no capability's (TIME-8), which
+  no place holds (`parameter.var`). A `var` parameter of `endpoint<T>`,
+  which a native value function alone declares as it does any endpoint
+  parameter (FN-1, TYPE-12), is an output: it takes `out`, or a place in it, in a `when` (TIME-7), and
+  the function may write it. An `endpoint<T>` parameter that is not `var`
+  takes an input or `out` and writes neither (TIME-9). An input given to
+  a `var` endpoint parameter rejects, as what is read-only does
+  (`binding.immutable`), and a call that gives `out` to one stands in a
+  `when` (`out.lifecycle`, TIME-7). A call gives a `var` parameter a
   place, as the left of an assignment is (EXPR-3): a `var`, a `state`, or a
   `cache`, or a place inside one, that holds an ordinary value of the
   parameter's type. An entry of a dictionary, `counts[key]`, is a place
@@ -279,17 +286,20 @@ Local source/native declaration matching is defined in the native chapter.
   a parameter that is not `var`, a constant, or an iteration binding
   (`binding.immutable`); so does what is no place, a literal or what a call
   gives (`argument.place`). The call assigns the place. In the function the
-  parameter is a `var`, whose first value is the place's when the call's
-  arguments are evaluated (EXPR-2); what it holds when the function returns is
+  parameter is a `var`, whose first value is the place's once every
+  argument of the call is evaluated (EXPR-2), an argument that changes the
+  place included; what it holds when the function returns is
   what the place is given, and a call with several gives each place its value
   in the order of the parameters. A function that fails leaves the place
   holding what its parameter held when it failed: no change it had made is
   undone. The call changes the place and no value: a value taken from the
   place before the call is as it was (TYPE-5). A `var` parameter may be given on to a `var`
-  parameter of a function the body calls. A temporal `fn`, a temporal
-  candidate, and an operator declare none (`parameter.var`): an operator
-  gives the parameters every candidate takes, and each candidate says which
-  of its own is `var`. The mark takes no part in selecting a candidate
+  parameter of a function the body calls. A temporal `fn` and a temporal
+  candidate declare none (`parameter.var`). An operator may mark a
+  parameter `var` where no candidate of it can take that parameter any
+  other way: every candidate then marks it (GEN-6), so the operator has
+  value candidates alone. One the operator leaves unmarked a value
+  candidate may mark. The mark takes no part in selecting a candidate
   (GEN-5): a call of an operator is resolved as any other, and the candidate
   it resolves to says which of its arguments are places. A function or a
   candidate that declares one is not lifted (FN-6): a call of it stands in a
@@ -771,8 +781,7 @@ fails with `value.missing_key`, where `counts["b"] = 2` adds the key
 argument is no place (`argument.place`); `push([1], 2)`, the same once the
 candidate is selected; `bump(fixed, 2)` for `let fixed = 0`
 (`binding.immutable`); `fn ticking(var value: i64) -> i64`, a temporal
-function, and `operator push<C, V>(var values: C, item: V)`, an operator
-(`parameter.var`); and, for
+function (`parameter.var`); and, for
 `const fn clear(var value: i64?) { value = null }`, the call `clear()`: a
 `var` parameter is given though its type is nullable (`argument.missing`).
 Executable conformance is planned.

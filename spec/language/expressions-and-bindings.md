@@ -2,7 +2,8 @@
 
 Status: agreed expression/binding baseline. The sparse-field rules of
 structural delta construction are proposed. EXPR-16, a range, and EXPR-17,
-a list made by a loop, are agreed.
+a list made by a loop, are agreed. EXPR-18, a compound assignment, is
+agreed, but for its sentences that begin "Proposed:".
 
 ## Grammar
 
@@ -59,9 +60,10 @@ type_of = "type", "(", expression, ")" ;
 implied_member = ".", member_name ;
 local_decl = ( "let" | "var" ), IDENTIFIER, [ ":", type ], "=", expression
            | "var", IDENTIFIER, ":", type ;
-assignment = place, assignment_operator, expression ;
+assignment = place, ( "=" | compound_operator, [ operator_configuration ] ),
+             expression ;
 place = IDENTIFIER, { index_suffix | member_suffix } ;
-assignment_operator = "=" | "+=" | "-=" | "*=" | "/=" | "//=" | "%=" ;
+compound_operator = "+=" | "-=" | "*=" | "/=" | "//=" | "%=" ;
 const_expression = expression ;
 ```
 
@@ -113,8 +115,9 @@ GEN-14 resolves generic construction versus comparison using declaration lookup.
   parameter, the entry of such a key fails the call instead (FN-15). An
   index outside a list, below zero or at or past its size, fails where it
   is evaluated, with code `value.index_out_of_range`.
-  A set has no place to assign. A compound assignment reads the place
-  first: `total.count += 1`. `+=` on a `var` of type `str` appends to it
+  A set has no place to assign. A compound assignment reads the place,
+  `total.count += 1`, after its right operand is evaluated, and binds as
+  EXPR-18 says. `+=` on a `var` of type `str` appends to it
   in place (TYPE-1).
 - **EXPR-4.** Ordinary values and temporal connections remain distinct. A graph
   binding denotes a connection without reading a payload. Reassigning a graph
@@ -256,7 +259,7 @@ GEN-14 resolves generic construction versus comparison using declaration lookup.
   instead follows EXPR-2's written argument order, the entries of its
   configuration before the arguments in its parentheses: shared parameter
   binding does not imply identical effect order for differently written
-  expressions.
+  expressions. EXPR-18 gives the order of a compound assignment.
 - **EXPR-14.** Where a value function, a value candidate of an operator
   among them, declares an option says what a graph may give it. One it
   declares as a configuration parameter, in its braces (FN-18), is
@@ -306,6 +309,78 @@ GEN-14 resolves generic construction versus comparison using declaration lookup.
   `[for i in 2..<4: i]` as `[2, 3]`: nothing in it changes while the
   program runs, and a `const` parameter takes it (FN-1). What it iterates
   is what a `for` statement iterates in that phase (CTRL-12, CTRL-15).
+- **EXPR-18.** A compound assignment binds a core identity of its own, as
+  a symbol binds one (GEN-4): the place on its left is given to that
+  identity's first parameter, a `var` (FN-15), and the expression on its
+  right to the second. The identities are `iadd_` for `+=`,
+  `isub_` for `-=`, `imul_` for `*=`, `idiv_` for `/=`, `ifloordiv_` for
+  `//=`, and `imod_` for `%=`, so `count += by` is `iadd_(count, by)`. The
+  candidate selected says what the place holds afterwards; core owns the
+  candidates of the language's own types. It gives no result: a compound
+  assignment is a statement. It may carry configuration after its token,
+  `count //={zero: .fail} step`, bound as a symbol's is (EXPR-10).
+  In composition, where the place is a connection (EXPR-4), a compound
+  assignment selects no such candidate, since none is lifted (FN-15):
+  `a += b` there is `a = a + b`, the rebinding EXPR-15 gives, and its
+  configuration is that of `+`. Where the place holds an ordinary value
+  there, the candidate is selected as in value code (FN-15), so text
+  built while the graph is built still grows in place (TYPE-1).
+  Where the root of the place is `out`, in a `when` (TIME-7), the place is
+  given as its endpoint, and selection continues among the candidates
+  whose first parameter is a `var` `endpoint<T>` (FN-15, TIME-9). So every
+  candidate of a compound identity takes a `var` first, a place or an
+  output, and the identity's declaration marks it (GEN-6). Elsewhere than
+  in a `when` it rejects, as a write of `out` does (`out.lifecycle`,
+  TIME-7), and so does one on `out` of a `ref` result, which takes a
+  designation and no value (`binding.immutable`, FN-16). Proposed: a
+  place that is no endpoint of its own, a field of an `atomic<S>` output,
+  and an output that takes arrivals alone, a `rolling_window` (TIME-7),
+  reject. Proposed: the place is read (EXPR-3) as any read of `out`
+  is: one no guard admits rejects (`payload.unguarded`), and one checked
+  when it runs fails where the place is not valid (`value.unset_read`).
+  A compound assignment evaluates what its place names, an index among
+  them, then its configuration entries in written order, then its right
+  operand, each once, and then calls the candidate (EXPR-13), which reads
+  the place: the candidate's `var` starts with what the place holds once
+  the right operand is evaluated (FN-15). So `count += helper(count)` is
+  `let a = helper(count)` and then `count += a`. For `var count = 1` and
+  a `helper` that sets its `var` to 10 and gives 2, it leaves `count` 12. A brace after the token is
+  read as one after a symbol is (EXPR-10): `point += ({x: 1.0})` puts a
+  keyed literal on the right.
+
+  Accepted illustration, a fragment; core's contract gives the candidates:
+
+  ```hgl
+  const fn tally(words: list<str>, step: i64) -> str {
+      var count = 0
+      var text = ""
+      for word in words {
+          count += 1                      # iadd_(count, 1)
+          count //={zero: .fail} step     # ifloordiv_{zero: .fail}(count, step)
+          text += word                    # in place (TYPE-1)
+      }
+      return text
+  }
+
+  fn running(price: f64) -> f64 {
+      inject out
+      when {
+          if valid(out) { out += price }  # the candidate for a `var` endpoint
+          else { out = price }
+      }
+  }
+
+  fn doubled(price: f64) -> f64 {
+      var total = price
+      total += price                      # a connection: total = total + price
+      return total
+  }
+  ```
+
+  Deliberate source rejections, each where it is written: `fixed += 1`
+  for `let fixed = 0` (`binding.immutable`); `out += price` in `stop`
+  (`out.lifecycle`); `price += 1.0` in a hook, for a parameter `price`
+  (`binding.immutable`). Conformance planned.
 
 Accepted illustration, complete module:
 
