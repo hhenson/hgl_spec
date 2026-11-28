@@ -120,8 +120,11 @@ endpoint delta error
   `is_err`, and `capture` (ERR-13). Each acquires its special meaning only in
   its defined positions. A contextual spelling is not globally reserved.
   `error(message: text)` is a constructor despite `error` being reserved in
-  ordinary name positions. `str` names no call: a conversion to text is
-  written `convert<str>(value)`.
+  ordinary name positions. No other reserved type name is called
+  directly: `str(value)`, `bytes(value)`, and `any(value)` are no
+  expressions, and a conversion is written `convert<str>(value)` or
+  `convert<bytes>(value)`. `delta<T>(...)` is the constructor TYPE-16
+  gives.
 
 ## Temporal literals
 
