@@ -55,7 +55,6 @@ sequence_item = expression | "_" ;
 typed_constructor = ( IDENTIFIER | qualified_name ), generic_arguments,
                     [ operator_configuration ], "(", [ arguments ], ")" ;
 function_reference = ( IDENTIFIER | qualified_name ), generic_arguments ;
-error_constructor = "error", "(", [ arguments ], ")" ;
 type_of = "type", "(", expression, ")" ;
 implied_member = ".", member_name ;
 local_decl = ( "let" | "var" ), IDENTIFIER, [ ":", type ], "=", expression
@@ -67,6 +66,7 @@ const_expression = expression ;
 ```
 
 Block/control/function/eval forms are defined in their owning chapters.
+`error_constructor` is the [errors chapter's](errors-and-diagnostics.md).
 The sequence grammar admits contextual forms; semantic rules restrict their use.
 `const(name)` uses ordinary call syntax and lookup, as specified by FN-5.
 GEN-14 resolves generic construction versus comparison using declaration lookup.
