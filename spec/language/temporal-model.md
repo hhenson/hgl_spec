@@ -312,6 +312,9 @@ chapter.
   rejected (`endpoint.argument`). A hook gives a fixed endpoint parameter
   or an entry of a native endpoint pack (FN-8) a temporal input of its
   node, a child of one (`parts[1]`, `quote.bid` or `parts[i]`), or `out`.
+  A parameter marked `var`, `var target: endpoint<T>`, takes `out` or a
+  place in it and no input: the mark says the function writes the output
+  (FN-15).
   An entry of the node's own temporal input pack designates that input
   when forwarded (FN-19). Binding an endpoint requires no validity guard.
   The native may use it during this synchronous call and must not retain it.

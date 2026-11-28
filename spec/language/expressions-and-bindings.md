@@ -321,11 +321,10 @@ GEN-14 resolves generic construction versus comparison using declaration lookup.
   none is lifted (FN-15): `a += b` there is `a = a + b`, the rebinding
   EXPR-15 gives, and its configuration is that of `+`.
   Where the root of the place is `out`, in a `when` (TIME-7), the place is
-  given as its endpoint, an `endpoint<T>` (TIME-9), and selection
-  continues among the candidates that take one. Such a
-  candidate takes `endpoint<T>` first and marks no `var`; every other
-  candidate of a compound identity marks its first parameter `var`, and
-  one that does neither rejects where it is declared.
+  given as its endpoint, and selection continues among the candidates
+  whose first parameter is a `var` `endpoint<T>` (FN-15, TIME-9). So every
+  candidate of a compound identity takes a `var` first, a place or an
+  output, and the identity's declaration marks it (GEN-6).
 
 Accepted illustration, complete module:
 

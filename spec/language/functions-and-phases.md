@@ -24,7 +24,7 @@ function_signature = "(", [ parameters ], ")", [ "->", [ "ref" ], type ] ;
 parameters = parameter, { ",", parameter }, [ "," ] ;
 parameter = [ "ref" ], IDENTIFIER, ":", type, [ "=", const_expression ]
           | "const", IDENTIFIER, ":", value_type, [ "=", const_expression ]
-          | "var", IDENTIFIER, ":", value_type
+          | "var", IDENTIFIER, ":", ( value_type | endpoint_type )
           | [ "const" ], IDENTIFIER, ":", pack, [ "=", const_expression ]
           | IDENTIFIER, ":", function_type ;
 pack = "...", type, [ cardinality ]
@@ -267,8 +267,11 @@ Local source/native declaration matching is defined in the native chapter.
 - **FN-15.** A value function, a `const fn` or a native one, may mark a
   parameter `var`: `const fn bump(var count: i64, by: i64)`. So may a value
   candidate of an operator (GEN-6). Its type is an
-  ordinary value type, and no capability's (TIME-8) or `endpoint<T>` (TIME-9),
-  which no place holds (`parameter.var`). A call gives a `var` parameter a
+  ordinary value type or `endpoint<T>`, and no capability's (TIME-8), which
+  no place holds (`parameter.var`). A `var` parameter of `endpoint<T>` is
+  an output: it takes `out`, or a place in it, in a `when` (TIME-7), and
+  the function may write it. An `endpoint<T>` parameter that is not `var`
+  takes an input or `out` and writes neither (TIME-9). A call gives a `var` parameter a
   place, as the left of an assignment is (EXPR-3): a `var`, a `state`, or a
   `cache`, or a place inside one, that holds an ordinary value of the
   parameter's type. An entry of a dictionary, `counts[key]`, is a place
