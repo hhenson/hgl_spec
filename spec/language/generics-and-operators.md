@@ -641,8 +641,8 @@ expression; group a constant expression that uses them as operand data.
   | An ordinary tuple's position; a field of an `error` | The value candidate, its index or name a constant |
   | Atomic projection of a connection (EXPR-7) | The lifted call of the value candidate (FN-6) |
   | A child of a connection by a key or an index that is itself a connection (GEN-21, TIME-10) | The temporal candidate, the key its input |
-  | Structural projection of a connection, a `ref` parameter's child among them (EXPR-7, FN-16) | The temporal candidate; core's selects the child connection and creates no node (GEN-21) |
-  | In a hook, a collection's child, `parts[i]` or `quote.bid` (ERR-14, TIME-9) | No call: it is an endpoint, and ERR-14 says how its payload is read |
+  | Structural projection of a connection, in composition (EXPR-7) | The temporal candidate, or the value candidate lifted (FN-6) where the type declares no temporal one; core's selects the child connection and creates no node (GEN-21) |
+  | In a hook, a collection's child, `parts[i]` or `quote.bid`, a `ref` parameter's child among them (ERR-14, TIME-9, FN-16) | No call: it is an endpoint, and ERR-14 says how its payload is read |
   | A property of a capability (TIME-8), of a native type (NATIVE-6) or of a `delta<T>` (TYPE-16); `.value` and `.error` of a result (ERR-3) or of a capture (ERR-7) | No call: each is the language's own form, and takes no candidate |
 
   Accepted illustration, a fragment; the parameter names are those core's
@@ -682,9 +682,15 @@ expression; group a constant expression that uses them as operand data.
   | Assignment into a place | Binding |
   | --- | --- |
   | Of an ordinary value: in a value function, a hook, a test, or composition where the place holds one | The value candidate, the place its `var` |
+<<<<<<< HEAD
   | Of a connection, in composition (EXPR-15) | The temporal candidate, to whose result the `var` is rebound (GEN-21); no storage is created |
   | In `out`, in a `when` (TIME-7) | The candidate whose first parameter is a `var` `endpoint<T>` (FN-15): the publication TIME-7 gives |
   | A property of a capability, of a native type or of a `delta<T>`; `.value` and `.error` of a result or a capture; a part of `out` of a `ref` result | Rejects, as EXPR-3 and FN-16 have it (`binding.immutable`) |
+=======
+  | Of a connection, in composition (EXPR-15) | No call: the rebinding EXPR-15 gives, which creates no storage |
+  | In `out`, in a `when` (TIME-7), of a shape EXPR-18 admits | The candidate whose first parameter is a `var` `endpoint<T>` (FN-15): the publication TIME-7 gives |
+  | A property of a capability, of a native type or of a `delta<T>`; a field of an `error`; `.value` and `.error` of a result or a capture; a part of `out` of a `ref` result | Rejects, as EXPR-3 and FN-16 have it (`binding.immutable`) |
+>>>>>>> claude/spec-place-assignment
 
   A compound assignment (EXPR-18) into a place that a candidate
   a program declares reads, `track[0] += 1.0` or `track.level += 1.0`,
@@ -694,8 +700,8 @@ expression; group a constant expression that uses them as operand data.
   and not the write rejects it (`operator.no_candidate`). Into a place of the language's own types
   the compound candidate is given the place itself.
 
-  Accepted illustration, a fragment; the parameter names are those core's
-  declarations give. Conformance planned:
+  Accepted illustration, a fragment. Proposed: the parameter names, which
+  core's declarations settle. Conformance planned:
 
   ```hgl
   struct Track { points: list<f64> }
@@ -745,7 +751,8 @@ expression; group a constant expression that uses them as operand data.
   Such a candidate marks the parameter `var`, as its operator does
   (GEN-6), and writes the result its operator's declaration omits:
   `impl fn setitem_(var container: Track, key: i64, value: f64) -> Track`.
-  One that gives another type rejects (`impl.result`).
+  One that gives another type, or none, rejects (`impl.result`); this is
+  the exception to GEN-6's rule of a candidate's result.
   With a key that is a connection, the result is the original with the
   entry of the current key taken from the value. When the key ticks, the
   entry of the key it left is again what the original has there, and is
@@ -803,9 +810,9 @@ Operator configuration uses the same identity; EXPR-10 defines its source form.
 The core [numeric contract](https://github.com/hhenson/hgl_core/blob/main/spec/numeric-operators.md)
 owns default and configured numeric behavior, including full comparison.
 
-Harness comparison, null presence checks, constraint predicates, and structural
-projections have their own language rules; token shape alone does not make
-them extensible candidate calls.
+Harness comparison, null presence checks, and constraint predicates have their
+own language rules; token shape alone does not make them extensible candidate
+calls. GEN-19 to GEN-21 say which projections are candidate calls.
 
 Accepted illustration, complete module:
 
