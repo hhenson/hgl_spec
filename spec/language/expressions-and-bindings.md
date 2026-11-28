@@ -322,7 +322,7 @@ GEN-14 resolves generic construction versus comparison using declaration lookup.
   EXPR-15 gives, and its configuration is that of `+`.
   Where the root of the place is `out`, in a `when` (TIME-7), the place is
   given as its endpoint, an `endpoint<T>` (TIME-9), and selection
-  continues among the candidates that take one. Proposed: such a
+  continues among the candidates that take one. Such a
   candidate takes `endpoint<T>` first and marks no `var`; every other
   candidate of a compound identity marks its first parameter `var`, and
   one that does neither rejects where it is declared.
