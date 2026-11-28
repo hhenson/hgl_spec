@@ -119,9 +119,9 @@ endpoint delta error
   the capability names (TIME-8); and the result forms `ok`, `err`, `is_ok`,
   `is_err`, and `capture` (ERR-13). Each acquires its special meaning only in
   its defined positions. A contextual spelling is not globally reserved.
-  `str(value)` is a conversion expression despite `str` being reserved in
-  ordinary name positions, and `error(message: text)` a constructor despite
-  `error` being so.
+  `error(message: text)` is a constructor despite `error` being reserved in
+  ordinary name positions. `str` names no call: a conversion to text is
+  written `convert<str>(value)`.
 
 ## Temporal literals
 
@@ -278,7 +278,7 @@ PUNCTUATION = "..." | "..<" | "<=>" | "//="
   `f<T> (x)`, `rows [i]`, or `...T {2}`. A `(` or `[` on the next line is no
   call's or index's: LEX-5 says whether it begins a statement or completes
   the one before. A call here is a call suffix, the arguments of a typed or
-  delta constructor, a conversion such as `str(value)`, `raises(...)`, a
+  delta constructor, an `error(...)` constructor, `raises(...)`, a
   constraint call, and a warning or a timeout annotation. In an
   expression, a `<` that stands apart from the name before it is a
   comparison.
